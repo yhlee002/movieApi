@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/config.html :: configFragment"></head>
+<body>
+<header th:replace="fragments/header.html :: headerFragment"></header>
+<div id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box">
+            <div class="image fit">
+                <img src="/images/pic03.jpg" alt=""/>
+            </div>
+            <div class="content">
+                <h2 class="align-center title">Login</h2>
+                <div class="container align-center">
+                    <form id="sign-up-form" action="/sign-in/sign-in-processor" method="post">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <!-- email -->
+                        <div class="field half">
+                            <label for="email" class="align-left">Email</label>
+                            <input id="email" type="text" name="email">
+                        </div>
+                        <br>
+                        <!-- password-->
+                        <div class="field half">
+                            <label for="password" class="align-left">Password</label>
+                            <input id="password" type="password" name="password">
+                        </div>
+                        <br>
+                        <!-- remember me checkbox -->
+                        <div class="field half align-left">
+                            <input id="rememberme" type="checkbox" name="auto-login"> <!-- Security Config의 Param명과 일치 -->
+                            <label for="rememberme">Remember Me</label>
+                            <br>
+                            <a href="#" class="text-decoration-none">forget email address or password?</a>
+                        </div>
+
+                        <!-- 네이버, 카카오, 구글 로그인 api 버튼 필요 -->
+
+                        <!-- submit button -->
+                        <ul class="actions align-center">
+                            <input class="button" type="submit" name="submit" value="Submit">
+                            <button class="button special" type="button" onclick="location.href='/sign-up'">Sign-up</button>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- copyright -->
+        <div class="copyright align-center">
+            &copy; Untitled Design: <a href="https://templated.co/">TEMPLATED</a>. Images <a
+                href="https://unsplash.com/">Unsplash</a> Video <a href="http://coverr.co/">Coverr</a>.
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

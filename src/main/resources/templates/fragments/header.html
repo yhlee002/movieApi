@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="headerFragment">
+    <!-- Header -->
+    <header id="header">
+        <div class="logo"><a th:href="@{/}">Site Name <span>by younghyun lee</span></a></div>
+        <a th:href="@{#menu}" class="toggle"><span>Menu</span></a>
+    </header>
+
+    <!-- Nav -->
+    <nav id="menu">
+        <div style="margin-bottom: 30px"> <!-- 로그인 되어 있지 않은 상황을 전제로 예시 생성 -->
+            <p style="font-size: 8em; text-align: center; color: #bbbbbb; margin-bottom: 0px">
+                <i class="fas fa-member-circle"></i>
+            </p>
+            <sec:authorize access="isAnonymous()">
+                <a th:href="@{/sign-in}" style="color: #bfbfbf; text-decoration: none">Please Login</a>
+            </sec:authorize>
+        </div>
+        <ul class="links">
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{#}">menu 1</a></li>
+            <li><a th:href="@{#}">menu 2</a></li>
+            <li><a th:href="@{#}">menu 3</a></li>
+            <sec:authorize access="isAuthenticated()">
+                <li><a th:href="@{/logout}">Logout</a></li> <!-- 로그인되어있는 경우 뜨고 로그인되어있지 않은 상태라면 뜨지 않게 -->
+            </sec:authorize>
+            <li><a th:href="@{/generic}">Generic</a></li>
+            <li><a th:href="@{/elements}">Elements</a></li>
+        </ul>
+    </nav>
+</div>
+</html>

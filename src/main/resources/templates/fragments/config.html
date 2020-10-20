@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.springframework.org/schema/security">
+<head th:fragment="configFragment">
+    <title>YOUNGHYUN PORTFOLIO</title>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <sec:csrfMetaTags />
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+
+    <!-- 공통으로 쓰이는 css 파일 로드 -->
+    <link type="text/css" rel="stylesheet" href="/webjars/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="/webjars/font-awesome/5.15.0/css/all.css"/>
+    <link type="text/css" rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="/assets/css/main.css">
+
+
+    <!-- 공통으로  쓰이는 js 파일 로드 -->
+    <script type="text/javascript" th:src="@{/webjars/jquery/3.5.1/jquery.js}"></script>
+    <script type="text/javascript" th:src="@{/webjars/bootstrap/4.5.2/js/bootstrap.js}"></script>
+
+    <script type="text/javascript" th:src="@{/assets/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/jquery.scrolly.min.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/jquery.scrollex.min.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/skel.min.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/util.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/main.js}"></script>
+
+
+    <!-- 사용자 js 영역 -->
+    <th:block layout:fragment="script"></th:block>
+</head>
+</html>

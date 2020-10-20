@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script"></th:block>
+<section id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box">
+            <div class="image fit">
+                <img src="/images/pic02.jpg" alt=""/>
+            </div>
+            <div class="content align-center">
+                <h2 class="title">Check Email</h2>
+                <br>
+                <p class="align-center">We send a email contains authentication key to your email that you filled in Email Input field.<br>
+                please check the email</p>
+                <a href="/">go to Main page</a>
+            </div>
+        </div>
+        <div class="copyright align-center">
+            &copy; Untitled Design: <a href="https://templated.co/">TEMPLATED</a>. Images <a
+                href="https://unsplash.com/">Unsplash</a> Video <a href="http://coverr.co/">Coverr</a>.
+        </div>
+    </div>
+</section>
+</body>
+</html>

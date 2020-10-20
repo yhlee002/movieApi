@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/config.html :: configFragment"></head>
+
+<th:block layout:fragment="script">
+    <script src="assets/js/sign-up/sign-up-main.js"></script>
+</th:block>
+<body>
+<header th:replace="/fragments/header.html :: headerFragment"></header>
+<section id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box">
+            <div class="image fit">
+                <img src="/images/pic02.jpg" alt=""/>
+            </div>
+            <div class="content align-center">
+                <h2 class="title">Sign-up</h2>
+                <form action="/sign-up/sign-up-processor" method="post">
+                    <div class="field half">
+                        <label for="email">Email : </label>
+                        <input id="email" type="text" name="email">
+                        <p id="emailMessage" class="invisible"></p>
+                    </div>
+                    <br>
+
+                    <div class="field half">
+                        <p><label for="name">Name or Nickname : </label></p>
+                        <input id="name" type="text" name="userName">
+                        <p id="nameMessage" class="invisible"></p>
+                    </div>
+                    <br>
+
+                    <div class="field half">
+                        <label for="password">Password : </label>
+                        <input id="password" type="password" name="password">
+                        <p id="pwdMessage" class="invisible"></p>
+                    </div>
+                    <br>
+
+                    <div class="field half">
+                        <label for="passwordConf">Password Confirm : </label>
+                        <input id="passwordConf" type="password" name="passwordConf">
+                        <p id="pwdConfMessage" class="invisible"></p>
+                    </div>
+                    <br>
+                    <div class="field half">
+                        <label for="phone">Phone : </label>
+                        <input id="phone" type="text" name="phone">
+                        <input id="phoneBnt" type="button" value="Authentication"></input>
+                        <input id="phoneReAuthBnt" type="button" class="invisible" value="Change number"></input>
+                        <br>
+                        <p id="phoneMessage" class="hide"></p>
+                        <span>우리는 이메일 또는 패스워드 찾기, 고객지원 등을 위해 연락처를 수집하고 있습니다.</span>
+                    </div>
+                    <br>
+                    <ul class="actions align-center">
+                        <input class="button" type="reset" name="reset" value="Reset">
+                        <input class="button special" type="button" name="submit" value="Submit">
+                    </ul>
+                </form>
+            </div>
+        </div>
+        <div class="copyright align-center">
+            &copy; Untitled Design: <a href="https://templated.co/">TEMPLATED</a>. Images <a
+                href="https://unsplash.com/">Unsplash</a> Video <a href="http://coverr.co/">Coverr</a>.
+        </div>
+    </div>
+</section>
+</body>
+</html>
