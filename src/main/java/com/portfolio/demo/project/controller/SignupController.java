@@ -3,9 +3,12 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.service.PhoneMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,6 +26,12 @@ public class SignupController {
 
     @Autowired
     MemberService memberService;
+
+    @Autowired
+    PhoneMessageService phoneMessageService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @ResponseBody
     @RequestMapping(value = "/emailCk", method = RequestMethod.POST)
@@ -42,15 +51,15 @@ public class SignupController {
 
     @ResponseBody
     @RequestMapping(value = "/nameCk", method = RequestMethod.POST)
-    public String nameCkProc(@RequestParam String name) {
+    public Member nameCkProc(@RequestParam String name) {
         Member member = memberRepository.findByName(name);
 
         if (member != null) {
             log.info("[nameCkProc] member 정보 : " + member.toString());
-            return member.getName();
+            return member;
         } else {
             log.info("[nameCkProc] member 정보 : null");
-            return "none";
+            return null;
         }
     }
 
@@ -67,10 +76,19 @@ public class SignupController {
         }
     }
 
-    @RequestMapping(value = "/phoneCkPage", method = RequestMethod.POST)
-    public
+    @RequestMapping(value = "/phoneCkForm", method = RequestMethod.GET)
+    public String phoneCkForm(){
+        return "sign-up/phoneCkForm";
+    }
 
-    @RequestMapping(value = "/welcome", method = RequestMethod.GET)
+    @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET)
+    public String phoneCkPage(Model m, @RequestParam String phone){
+        String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
+        m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
+        return "sign-up/phoneCkAuth"; // 인증키 일치 여부 확인 페이지
+    }
+
+    @RequestMapping(value = "/welcome", method = RequestMethod.GET) // 메일 링크를 통해 인증할 경우의 인증 성공 페이지
     public String welcomePage() {
         return "sign-up/welcome";
     }

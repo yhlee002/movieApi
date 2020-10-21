@@ -43,7 +43,7 @@ $(function () {
                     },
                     success: function (data) {
                         console.log(data);
-                        if (data == "none") {
+                        if (data == "") {
                             eMessage.html("사용 가능한 이메일입니다.");
                             eMessage.addClass("visible");
                             eMessage.removeClass("invisible");
@@ -107,7 +107,7 @@ $(function () {
                         },
                         success: function (data) {
                             console.log(data);
-                            if (data == "none") {
+                            if (data == "") {
                                 nMessage.html("사용가능한 회원명입니다.");
                                 nMessage.addClass("visible");
                                 nMessage.removeClass("invisible");
@@ -207,14 +207,23 @@ $(function () {
     // 연락처 인증(핸드폰 번호만 가능(010 형식만 가능) : read-only로 두고 번호 변경하기 버튼을 눌러서 인증창 접근 가능.
     // 인증 완료시 사용가능한 핸드폰번호라면 read-only인 채로 $('#phone')에 값만 넣어주기 + 다시 인증하기 버튼 show)
     // 다시 인증하기 버튼 클릭시 $('phone')값은 그대로. 다시 인증하기 버튼 클릭시 인증창으로 보내주고, 인증 완료시 사용 가능한 핸드폰번호라면 $('#phone')에 값 변경 + 다시 인증하기 버튼 show
-    $("#phoneBnt").on("click", function () {
-        let phone = $('input[name=phone]').val().replace(/-/gi, '');
+
+    $('#phoneBnt').on("click", function(){
+        let phone = $('#phone').val();
+        if(phone != "" || phone.length > 0){
+            $('#phone').val("");
+        }
+        window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=800, height=500")
+    })
+
+    $('button[name=phoneSbm]').on("click", function () {
+        let phone = $('input[name=phoneNum]').val().replace(/-/gi, '');
         let phoneReg = RegExp(/^(01[016789]{1})(\d{3,4})(\d{4})$/);
 
-        // $("#phoneReAuthBnt").show(); // 인증 완료시 다시 인증하기 버튼 보여주기
-
+        console.log(phone);
         if (phone == "") {
             alert("핸드폰 번호를 입력해주세요.");
+            console.log("핸드폰 번호를 입력해주세요.")
         } else if (phoneReg.test(phone) == false) {
             alert('핸드폰 번호 양식을 확인해주세요');
         } else if (phone.length < 10 || phone.length > 11) {
@@ -234,7 +243,7 @@ $(function () {
                     if (data == null) {
                         let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
                         if (conf) {
-                            location.href = "/sign-up/phoneCkPage";
+                            location.href = "/sign-up/phoneCkProc";
                         }
                     } else {
                         alert("이미 가입된 번호입니다.");
@@ -244,6 +253,18 @@ $(function () {
             });
         }
     });
+
+    $('#phoneSbm').on("click", function(){
+        let phoneAuthKey = $('input[name=phoneAuthKey]').val();
+        let phoneNum = $('input[name=authKey]').val();
+        if(phoneAuthKey == phoneNum){
+            alert("인증되었습니다.");
+            $(opener.document).find('#phone').val(phoneNum);
+            $(opener.document).find('#phoneBnt').val("Re-Authentication");
+            // $(opener.document).find('#phoneReAuthBnt').show(); // 인증 완료시 다시 인증하기 버튼 보여주기
+            window.close();
+        }
+    })
 
 
     // 전체 인증(이메일, 이름, 비밀번호)
