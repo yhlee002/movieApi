@@ -81,11 +81,26 @@ public class SignupController {
         return "sign-up/phoneCkForm";
     }
 
-    @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET)
+    @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
     public String phoneCkPage(Model m, @RequestParam String phone){
         String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
+        log.info("phoneAuthKey 인코딩 전 값 : "+phoneAuthKey);
         m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
-        return "sign-up/phoneCkAuth"; // 인증키 일치 여부 확인 페이지
+        return "sign-up/phoneCkAuth"; 
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/phoneCkProc2", method = RequestMethod.POST) // 인증키 일치 여부 확인 페이지
+    public String phoneCkProc(@RequestParam String authKey, @RequestParam String phoneAuthKey){
+        log.info("authKey : "+authKey+", encoded authKey : "+passwordEncoder.encode(authKey));
+        log.info("phoneAuthKey : "+phoneAuthKey);
+
+//        if(passwordEncoder.encode(authKey).equals(phoneAuthKey)){
+        if(passwordEncoder.matches(phoneAuthKey, passwordEncoder.encode(authKey))){
+            return "인증되었습니다.";
+        }else{
+            return "인증에 실패했습니다.";
+        }
     }
 
     @RequestMapping(value = "/welcome", method = RequestMethod.GET) // 메일 링크를 통해 인증할 경우의 인증 성공 페이지

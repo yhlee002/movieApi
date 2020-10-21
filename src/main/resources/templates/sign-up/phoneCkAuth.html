@@ -4,6 +4,11 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/config.html :: configFragment"></head>
+
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/assets/js/sign-up/sign-up-main.js}"></script>
+</th:block>
+
 <body>
 <header id="header">
     <div class="logo">Site Name <span>by younghyun lee</span></div>
@@ -14,11 +19,12 @@
             <div class="container align-center">
                 <span>받은 메세지의 인증번호를 입력하세요.</span>
                 <input type="text" name="authKey"></div>
-                <input type="hidden" name="phoneAuthKey" th:value="${phoneAuthKey}">
-                <button type="button" name="phoneSbm">확인</button>
-                <button type="button" name="exit" onclick="close()">취소</button>
-            </div>
+            <input type="hidden" name="phoneAuthKey" th:value="${phoneAuthKey}">
+            <span id="phoneAuthKey" th:text="${phoneAuthKey}"></span>
+            <button type="button" id="phoneSbm2">확인</button>
+            <button type="button" id="exit2" onclick="close()">취소</button>
         </div>
+    </div>
     </div>
 </section>
 </body>

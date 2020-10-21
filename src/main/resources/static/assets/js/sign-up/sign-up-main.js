@@ -208,19 +208,20 @@ $(function () {
     // 인증 완료시 사용가능한 핸드폰번호라면 read-only인 채로 $('#phone')에 값만 넣어주기 + 다시 인증하기 버튼 show)
     // 다시 인증하기 버튼 클릭시 $('phone')값은 그대로. 다시 인증하기 버튼 클릭시 인증창으로 보내주고, 인증 완료시 사용 가능한 핸드폰번호라면 $('#phone')에 값 변경 + 다시 인증하기 버튼 show
 
-    $('#phoneBnt').on("click", function(){
+    $('#phoneBnt').on("click", function () {
         let phone = $('#phone').val();
-        if(phone != "" || phone.length > 0){
+        phoneCk = false;
+        if (phone != "" || phone.length > 0) {
             $('#phone').val("");
         }
         window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=800, height=500")
-    })
+    });
 
-    $('button[name=phoneSbm]').on("click", function () {
+    $('#phoneSbm').on("click", function () {
         let phone = $('input[name=phoneNum]').val().replace(/-/gi, '');
         let phoneReg = RegExp(/^(01[016789]{1})(\d{3,4})(\d{4})$/);
+        console.log("phone : " + phone);
 
-        console.log(phone);
         if (phone == "") {
             alert("핸드폰 번호를 입력해주세요.");
             console.log("핸드폰 번호를 입력해주세요.")
@@ -239,11 +240,10 @@ $(function () {
                     xhr.setRequestHeader(header, token);
                 },
                 success: function (data) {
-
-                    if (data == null) {
+                    if (data == "") {
                         let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
                         if (conf) {
-                            location.href = "/sign-up/phoneCkProc";
+                            location.href = "/sign-up/phoneCkProc?phone=" + phone;
                         }
                     } else {
                         alert("이미 가입된 번호입니다.");
@@ -254,16 +254,51 @@ $(function () {
         }
     });
 
-    $('#phoneSbm').on("click", function(){
-        let phoneAuthKey = $('input[name=phoneAuthKey]').val();
-        let phoneNum = $('input[name=authKey]').val();
-        if(phoneAuthKey == phoneNum){
-            alert("인증되었습니다.");
-            $(opener.document).find('#phone').val(phoneNum);
-            $(opener.document).find('#phoneBnt').val("Re-Authentication");
-            // $(opener.document).find('#phoneReAuthBnt').show(); // 인증 완료시 다시 인증하기 버튼 보여주기
-            window.close();
-        }
+    $('#phoneSbm2').on("click", function () {
+        // let phoneAuthKey = $('input[name=phoneAuthKey]').val();
+        let authKey = $('input[name=authKey]').val();
+        let phoneAuthKey = $('#phoneAuthKey').html();
+
+        // ajax로 컨트롤러에 전송, authKey의 해시값이 phoneAuthKey와 일치할 경우 인증 성공 메세지 전달
+        $.ajax({
+            url: "/sign-up/phoneCkProc2",
+            type: 'post',
+            dataType: 'text',
+            data: {
+                'phoneAuthKey': phoneAuthKey,
+                'authKey': authKey
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success: function (data) {
+                if (data == "인증되었습니다.") {
+                    alert(data);
+                    $(opener.document).find('#phone').val(phoneNum);
+                    $(opener.document).find('#phoneBnt').val("Re-Authentication");
+                    window.close();
+
+                } else {
+                    alert(data); // 인증에 실패했습니다.
+                    window.close();
+                    phoneCk = true;
+                }
+            },
+            error: function (request, status) {
+                alert("내부 서버의 문제로 인해 인증에 실패했습니다.")
+                console.log("code : " + status + "\nmessage : " + request.responseText);
+                return false;
+            }
+        })
+
+
+        // if(phoneAuthKey == phoneNum){
+        //     alert("인증되었습니다.");
+        //     $(opener.document).find('#phone').val(phoneNum);
+        //     $(opener.document).find('#phoneBnt').val("Re-Authentication");
+        //     // $(opener.document).find('#phoneReAuthBnt').show(); // 인증 완료시 다시 인증하기 버튼 보여주기
+        //     window.close();
+        // }
     })
 
 
