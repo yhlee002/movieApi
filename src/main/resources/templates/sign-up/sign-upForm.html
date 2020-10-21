@@ -6,8 +6,9 @@
 <head th:replace="/fragments/config.html :: configFragment"></head>
 
 <th:block layout:fragment="script">
-    <script src="assets/js/sign-up/sign-up-main.js"></script>
+    <script type="text/javascript" th:src="@{/assets/js/sign-up/sign-up-main.js}"></script>
 </th:block>
+
 <body>
 <header th:replace="/fragments/header.html :: headerFragment"></header>
 <section id="one" class="wrapper style2">
@@ -49,8 +50,8 @@
                     <div class="field half">
                         <label for="phone">Phone : </label>
                         <input id="phone" type="text" name="phone">
-                        <input id="phoneBnt" type="button" value="Authentication"></input>
-                        <input id="phoneReAuthBnt" type="button" class="invisible" value="Change number"></input>
+                        <input id="phoneBnt" type="button" value="Authentication">
+<!--                        <input id="phoneReAuthBnt" type="button" class="invisible" value="Change number">-->
                         <br>
                         <span>우리는 이메일 또는 패스워드 찾기, 고객지원 등을 위해 연락처를 수집하고 있습니다.</span>
                     </div>

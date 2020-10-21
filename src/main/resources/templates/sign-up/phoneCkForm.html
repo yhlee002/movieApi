@@ -4,9 +4,14 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/config.html :: configFragment"></head>
+
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/assets/js/sign-up/sign-up-main.js}"></script>
+</th:block>
+
 <body>
 <header id="header">
-    <div class="logo">Site Name <span>by younghyun lee</a></div>
+    <div class="logo">Site Name <span>by younghyun lee</span></div>
 </header>
 <section id="one" class="wrapper style2">
     <div class="inner">
@@ -14,8 +19,8 @@
             <div class="container align-center">
                 <span>인증할 번호를 입력하세요.</span>
                 <input type="text" name="phoneNum"></div>
-                <button type="button" name="phoneSbm">확인</button>
-                <button type="button" name="exit" onclick="close()">취소</button>
+                <button id="phoneSbm" type="button">확인</button>
+                <button id="exit" type="button" onclick="close()">취소</button>
             </div>
         </div>
     </div>
