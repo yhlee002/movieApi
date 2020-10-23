@@ -19,43 +19,46 @@
             </div>
             <div class="content align-center">
                 <h2 class="title">Sign-up</h2>
-                <form action="/sign-up/sign-up-processor" method="post">
+                <form id="form_signup" action="/sign-up/sign-up-processor" method="post">
                     <div class="field half">
-                        <label for="email">Email : </label>
+                        <label class="align-left" for="email">Email : </label>
                         <input id="email" type="text" name="email">
-                        <p id="emailMessage" class="invisible"></p>
+                        <p id="emailMessage" class="invisible">emailMessage</p>
                     </div>
                     <br>
 
                     <div class="field half">
-                        <p><label for="name">Name or Nickname : </label></p>
-                        <input id="name" type="text" name="userName">
-                        <p id="nameMessage" class="invisible"></p>
+                        <label class="align-left" for="name">Name or Nickname : </label>
+                        <input id="name" type="text" name="name">
+                        <p id="nameMessage" class="invisible">nameMassage</p>
                     </div>
                     <br>
 
                     <div class="field half">
-                        <label for="password">Password : </label>
+                        <label class="align-left" for="password">Password : </label>
                         <input id="password" type="password" name="password">
-                        <p id="pwdMessage" class="invisible"></p>
+                        <p id="pwdMessage" class="invisible">pwdMessage</p>
                     </div>
                     <br>
 
                     <div class="field half">
-                        <label for="passwordConf">Password Confirm : </label>
+                        <label class="align-left" for="passwordConf">Password Confirm : </label>
                         <input id="passwordConf" type="password" name="passwordConf">
-                        <p id="pwdConfMessage" class="invisible"></p>
+                        <p id="pwdConfMessage" class="invisible">pwdConfMessage</p>
                     </div>
                     <br>
+
                     <div class="field half">
-                        <label for="phone">Phone : </label>
-                        <input id="phone" type="text" name="phone">
-                        <input id="phoneBnt" type="button" value="Authentication">
-<!--                        <input id="phoneReAuthBnt" type="button" class="invisible" value="Change number">-->
+                        <label class="align-left" for="phone">Phone : </label>
+                        <input id="phone" type="text" name="phone" readonly>
                         <br>
-                        <span>우리는 이메일 또는 패스워드 찾기, 고객지원 등을 위해 연락처를 수집하고 있습니다.</span>
+                        <input id="phoneBnt" type="button" value="Authentication">
                     </div>
                     <br>
+
+                    <small id="phoneHelp" class="form-text text-muted">당사는 귀하의 이메일을 외부와 공유하지 않으며, 이메일 또는 패스워드 찾기, 고객지원
+                        등의 목적만을 위해 연락처를 수집합니다.</small>
+                    <hr>
                     <ul class="actions align-center">
                         <input class="button" type="reset" name="reset" value="Reset">
                         <input class="button special" type="button" name="submit" value="Submit">

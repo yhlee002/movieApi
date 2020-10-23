@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.entity.member;
 
+import com.portfolio.demo.project.util.CERT;
 import lombok.*;
 
 import javax.persistence.*;
@@ -28,14 +29,33 @@ public class Member {
     private LocalDateTime regDt;
     @Column(name = "ROLE") // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_
     private String role;
+    @Column(name = "CERT_KEY")
+    private String certKey;
+    @Column(name = "CERTIFICATION")
+    private String certification;
 
-    @Builder
-    public Member(Long memNo, String email, String name, String password, String phone, LocalDateTime regDt) {
+//    @Builder
+//    public Member(Long memNo, String certKey){
+//        this.memNo = memNo;
+//        this.certKey = certKey;
+//    }
+//
+//    @Builder
+//    public Member(Long memNo, Enum<CERT> certification){
+//        this.memNo = memNo;
+//        this.certification = certification;
+//    }
+
+    @Builder // Enum<CERT> certification
+    public Member(Long memNo, String email, String name, String password, String phone, LocalDateTime regDt, String role, String certKey, String certification) {
         this.memNo = memNo;
         this.email = email;
         this.name = name;
         this.password = password;
         this.phone = phone;
         this.regDt = regDt;
+        this.role = role;
+        this.certKey = certKey;
+        this.certification = certification;
     }
 }

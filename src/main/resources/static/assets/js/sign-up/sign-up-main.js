@@ -6,13 +6,12 @@ $(function () {
     let emailCk = false;
     let nameCk = false;
     let pwdCk = false;
-    let phoneCk = false; // 번호를 입력했는데($('phone').val().length != 0) 인증 버튼을 눌러서 인증을 하지 않은 경우(phoneCk != true) submit 불가
+    let phoneCk = false;
 
     let eMessage = $('#emailMessage');
     let nMessage = $('#nameMessage');
     let pMessage = $('#pwdMessage');
     let pConfMessage = $('#pwdConfMessage');
-    let phMessage = $('#phoneMessage');
 
 
     // 회원가입 페이지의 이메일 체크
@@ -202,6 +201,10 @@ $(function () {
             + "\npwdCk_pwdConfBlank = " + pwdCk_pwdConfBlank
             + "\npwdCk_pwdReg = " + pwdCk_pwdReg
             + "\npwdCk_auth = " + pwdCk_auth);
+
+        if (pwdCk_pwdBlank && pwdCk_pwdConfBlank && pwdCk_pwdReg && pwdCk_auth) {
+            pwdCk = true;
+        }
     });
 
     // 연락처 인증(핸드폰 번호만 가능(010 형식만 가능) : read-only로 두고 번호 변경하기 버튼을 눌러서 인증창 접근 가능.
@@ -209,12 +212,11 @@ $(function () {
     // 다시 인증하기 버튼 클릭시 $('phone')값은 그대로. 다시 인증하기 버튼 클릭시 인증창으로 보내주고, 인증 완료시 사용 가능한 핸드폰번호라면 $('#phone')에 값 변경 + 다시 인증하기 버튼 show
 
     $('#phoneBnt').on("click", function () {
-        let phone = $('#phone').val();
         phoneCk = false;
         if (phone != "" || phone.length > 0) {
             $('#phone').val("");
         }
-        window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=800, height=500")
+        window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=500, height=300")
     });
 
     $('#phoneSbm').on("click", function () {
@@ -255,9 +257,9 @@ $(function () {
     });
 
     $('#phoneSbm2').on("click", function () {
-        // let phoneAuthKey = $('input[name=phoneAuthKey]').val();
-        let authKey = $('input[name=authKey]').val();
-        let phoneAuthKey = $('#phoneAuthKey').html();
+        let authKey = $('#authKey').val();
+        let phoneAuthKey = $('#phoneAuthKey').val();
+        let phoneNum = $('#phoneNum').val();
 
         // ajax로 컨트롤러에 전송, authKey의 해시값이 phoneAuthKey와 일치할 경우 인증 성공 메세지 전달
         $.ajax({
@@ -277,11 +279,10 @@ $(function () {
                     $(opener.document).find('#phone').val(phoneNum);
                     $(opener.document).find('#phoneBnt').val("Re-Authentication");
                     window.close();
-
+                    phoneCk = true;
                 } else {
                     alert(data); // 인증에 실패했습니다.
                     window.close();
-                    phoneCk = true;
                 }
             },
             error: function (request, status) {
@@ -304,29 +305,54 @@ $(function () {
 
     // 전체 인증(이메일, 이름, 비밀번호)
     $('input[name=submit]').on("click", function () {
+        let phone = $('#phone').val();
+        if (phone != "" || phone.length > 0) {
+            phoneCk = true;
+        }
+
         console.log("emailCk : " + emailCk
             + "\nnameCk : " + nameCk
             + "\npwdCk : " + pwdCk
             + "\nphoneCk : " + phoneCk);
-        if (emailCk && nameCk && pwdCk && phoneCk) { // 전화번호는 인증되면 true로 바꾸되, 인증하지 않아도 가입 가능.
-            $("form").submit();
 
-            // $.ajax({
-            //     url: "/sign-in/sign-in-processor",
+        if (emailCk && nameCk && pwdCk && phoneCk) {
+            console.log("form submit!");
+
+            let formData = $('#form_signup').serialize();
+            console.log(formData);
+
+            //     url: "/sign-up/emailCk",
             //     type: "post",
-            //     data: {'name': name},
+            //     headers: header,
+            //     data: {'email': email},
             //     dataType: "text",
             //     beforeSend: function (xhr) {
-            //         xhr.setRequestHeader(header, token);
-            //     },
-            //     success: function () {
-            //         location.href = "/sign-up/welcome";
-            //     },
-            //     error: function (request, status) {
-            //         console.log("code : " + status + "\nmessage : " + request.responseText);
-            //         alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
-            //     }
-            // });
+            //     xhr.setRequestHeader(header, token);
+            // },
+
+            $.ajax({
+                url: "/sign-up/sign-up-processor",
+                type: "post",
+                data: formData,
+                dataType: "text",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (data) {
+                    console.log(data);
+                    if(data != ""){
+                        location.href = "/sign-up/success?memNo="+data;
+                    }else{
+                        alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
+                        // return false;
+                    }
+
+                },
+                error: function (request, status) {
+                    console.log("code : " + status + "\nmessage : " + request.responseText);
+                    alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
+                }
+            });
         } else {
             alert("정보를 다시 확인해주세요.");
         }
@@ -348,5 +374,10 @@ $(function () {
         pConfMessage.removeClass("visible");
     });
 
+    function close() {
+        window.open('', '_self', '');
+        window.close();
+        return false;
+    }
 })
 ;
