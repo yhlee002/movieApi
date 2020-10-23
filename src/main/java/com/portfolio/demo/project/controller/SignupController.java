@@ -2,6 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,21 +32,24 @@ public class SignupController {
     PhoneMessageService phoneMessageService;
 
     @Autowired
+    MailService mailService;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @ResponseBody
     @RequestMapping(value = "/emailCk", method = RequestMethod.POST)
-    public String emailCkProc(@RequestParam String email) {
+    public Member emailCkProc(@RequestParam String email) {
         log.info("들어온 이메일 : " + email);
 
         Member member = memberRepository.findByEmail(email);
 
         if (member != null) {
             log.info("[emailCkProc] member 정보 : " + member.toString());
-            return member.getEmail();
+            return member;
         } else {
             log.info("[emailCkProc] member 정보 : " + null);
-            return "none";
+            return null;
         }
     }
 
@@ -86,17 +90,18 @@ public class SignupController {
         String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
         log.info("phoneAuthKey 인코딩 전 값 : "+phoneAuthKey);
         m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
+        m.addAttribute("phoneNum", phone);
         return "sign-up/phoneCkAuth"; 
     }
 
     @ResponseBody
     @RequestMapping(value = "/phoneCkProc2", method = RequestMethod.POST) // 인증키 일치 여부 확인 페이지
     public String phoneCkProc(@RequestParam String authKey, @RequestParam String phoneAuthKey){
-        log.info("authKey : "+authKey+", encoded authKey : "+passwordEncoder.encode(authKey));
+        log.info("authKey : "+authKey);
         log.info("phoneAuthKey : "+phoneAuthKey);
 
-//        if(passwordEncoder.encode(authKey).equals(phoneAuthKey)){
-        if(passwordEncoder.matches(phoneAuthKey, passwordEncoder.encode(authKey))){
+
+        if(passwordEncoder.matches(authKey, phoneAuthKey)){
             return "인증되었습니다.";
         }else{
             return "인증에 실패했습니다.";
@@ -108,8 +113,9 @@ public class SignupController {
         return "sign-up/welcome";
     }
 
+    @ResponseBody
     @RequestMapping(value = "/sign-up-processor", method = RequestMethod.POST)
-    public String signUpProc(String email, String name, String password, String phone) {
+    public Long signUpProc(@RequestParam String email, @RequestParam String name, @RequestParam String password, @RequestParam String phone) {
         Member member = Member.builder()
                 .memNo(null)
                 .email(email)
@@ -118,9 +124,19 @@ public class SignupController {
                 .phone(phone)
                 .regDt(LocalDateTime.now())
                 .build();
-
+        log.info("생성될 member 정보 : "+member.toString());
         memberService.saveMember(member);
+        mailService.sendMail(member.getEmail());
 
-        return "sign-up/sign-up-success";
+        Member member1 = memberRepository.findByEmail(email);
+        return member1.getMemNo();
+    }
+
+    @RequestMapping(value = "/success", method = RequestMethod.GET)
+    public String signUpSuccessPage(Model m, Long memNo){
+        //이메일 전송
+        Member member = memberRepository.findByMemNo(memNo);
+        m.addAttribute("member", member);
+        return "sign-up/successPage";
     }
 }

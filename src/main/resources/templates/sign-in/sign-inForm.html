@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko"
       xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.springframework.org/schema/security">
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <body>
@@ -16,7 +17,8 @@
                 <h2 class="align-center title">Login</h2>
                 <div class="container align-center">
                     <form id="sign-up-form" action="/sign-in/sign-in-processor" method="post">
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+                        <sec:csrfInput/>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
                         <!-- email -->
                         <div class="field half">
                             <label for="email" class="align-left">Email</label>
@@ -31,7 +33,8 @@
                         <br>
                         <!-- remember me checkbox -->
                         <div class="field half align-left">
-                            <input id="rememberme" type="checkbox" name="auto-login"> <!-- Security Config의 Param명과 일치 -->
+                            <input id="rememberme" type="checkbox" name="auto-login">
+                            <!-- Security Config의 Param명과 일치 -->
                             <label for="rememberme">Remember Me</label>
                             <br>
                             <a href="#" class="text-decoration-none">forget email address or password?</a>
@@ -42,7 +45,8 @@
                         <!-- submit button -->
                         <ul class="actions align-center">
                             <input class="button" type="submit" name="submit" value="Submit">
-                            <button class="button special" type="button" onclick="location.href='/sign-up'">Sign-up</button>
+                            <button class="button special" type="button" onclick="location.href='/sign-up'">Sign-up
+                            </button>
                         </ul>
                     </form>
                 </div>

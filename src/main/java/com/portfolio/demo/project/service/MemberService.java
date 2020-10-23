@@ -15,7 +15,7 @@ public class MemberService {
 
     @Autowired
     MemberRepository memberRepository;
-
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public Member findByEmail(String email) {
@@ -26,19 +26,28 @@ public class MemberService {
         return memberRepository.findByName(name);
     }
 
-    public Member findByPhone(String phone){
+    public Member findByPhone(String phone) {
         return memberRepository.findByPhone(phone);
     }
 
-    public void saveMember(Member member) {
-        Member.builder().memNo(null)
-                .email(member.getEmail())
-                .name(member.getName())
-                .password(passwordEncoder.encode(member.getPassword()))
-                .phone(member.getPhone())
-                .regDt(member.getRegDt());
+    public Member findByMemNo(Long memNo) {
+        return memberRepository.findByMemNo(memNo);
+    }
 
-        memberRepository.save(member);
+    public void saveMember(Member member) {
+
+        memberRepository.save(
+                Member.builder().memNo(null)
+                        .email(member.getEmail())
+                        .name(member.getName())
+                        .password(passwordEncoder.encode(member.getPassword()))
+                        .phone(member.getPhone())
+                        .role("ROLE_USER")
+                        .regDt(member.getRegDt())
+                        .certKey(null)
+                        .certification("N")
+                        .build()
+        );
     }
 
     @PostConstruct

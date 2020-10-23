@@ -19,7 +19,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     // queryDSL
-//    implementation 'com.twilio.sdk:twilio:7.53.0'
+    implementation'javax.mail:mail:1.4.7'
+    implementation 'org.springframework:spring-context-support:3.2.8.RELEASE'
+
     implementation 'net.nurigo:javaSDK:2.2'
     compileOnly 'org.projectlombok:lombok'
     implementation 'org.webjars:bootstrap:4.5.2'

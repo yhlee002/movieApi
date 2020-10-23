@@ -17,12 +17,19 @@
     <div class="inner">
         <div class="box">
             <div class="container align-center">
-                <span>받은 메세지의 인증번호를 입력하세요.</span>
-                <input type="text" name="authKey"></div>
-            <input type="hidden" name="phoneAuthKey" th:value="${phoneAuthKey}">
-            <span id="phoneAuthKey" th:text="${phoneAuthKey}"></span>
-            <button type="button" id="phoneSbm2">확인</button>
-            <button type="button" id="exit2" onclick="close()">취소</button>
+                <div class="field half">
+                    <span>받은 메세지의 인증번호를 입력하세요.</span>
+                    <br>
+                    <input id="authKey" type="text" name="authKey">
+                </div>
+            </div>
+            <input id="phoneAuthKey" type="hidden" name="phoneAuthKey" th:value="${phoneAuthKey}">
+            <input id="phoneNum" type="hidden" name="phoneNum" th:value="${phoneNum}">
+            <br>
+            <div class="actions align-center">
+                <button type="button" id="phoneSbm2">확인</button>
+                <button type="button" id="exit2" onclick="close()">취소</button>
+            </div>
         </div>
     </div>
     </div>
