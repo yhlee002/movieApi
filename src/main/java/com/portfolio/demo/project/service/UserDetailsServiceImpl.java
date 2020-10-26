@@ -27,18 +27,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @PostConstruct
-    private void created() {
-        log.info("UserDetails Service 인스턴스 생성");
-    }
-
-    public Member createMember(String email, String password) {
-        Member member = Member.builder().email(email)
-                .password(passwordEncoder.encode(password))
-                .build();
-
-        return memberRepository.save(member);
-    }
+//    @PostConstruct
+//    private void created() {
+//        log.info("UserDetails Service 인스턴스 생성");
+//    }
 
     @Override
     @Transactional
@@ -52,6 +44,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         log.info("loadUserByUsername(" + email + ") : ", member.toString());
         log.info("부여될 권한 : " + member.getRole());
+
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole()));
 

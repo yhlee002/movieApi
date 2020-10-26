@@ -68,10 +68,9 @@
 ////                .userDetailsService(userService());
 //
 //        http.logout()
-//                .invalidateHttpSession(true)
-//                .clearAuthentication(true)
 //                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 //                .logoutSuccessUrl("/login/loginForm")
+//                .clearAuthentication(true)
 //                .invalidateHttpSession(true) // 로그아웃시 세션 삭제
 //                .deleteCookies("JSESSIONID") // 로그아웃시 쿠키 삭제
 //                .permitAll();

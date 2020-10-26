@@ -2,6 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.service.CertKeyService;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
@@ -33,6 +34,9 @@ public class SignupController {
 
     @Autowired
     MailService mailService;
+
+    @Autowired
+    CertKeyService certKeyService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -81,29 +85,25 @@ public class SignupController {
     }
 
     @RequestMapping(value = "/phoneCkForm", method = RequestMethod.GET)
-    public String phoneCkForm(){
+    public String phoneCkForm() {
         return "sign-up/phoneCkForm";
     }
 
     @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
-    public String phoneCkPage(Model m, @RequestParam String phone){
+    public String phoneCkPage(Model m, @RequestParam String phone) {
         String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
-        log.info("phoneAuthKey 인코딩 전 값 : "+phoneAuthKey);
+        log.info("phoneAuthKey 인코딩 전 값 : " + phoneAuthKey);
         m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
         m.addAttribute("phoneNum", phone);
-        return "sign-up/phoneCkAuth"; 
+        return "sign-up/phoneCkAuth";
     }
 
     @ResponseBody
     @RequestMapping(value = "/phoneCkProc2", method = RequestMethod.POST) // 인증키 일치 여부 확인 페이지
-    public String phoneCkProc(@RequestParam String authKey, @RequestParam String phoneAuthKey){
-        log.info("authKey : "+authKey);
-        log.info("phoneAuthKey : "+phoneAuthKey);
-
-
-        if(passwordEncoder.matches(authKey, phoneAuthKey)){
+    public String phoneCkProc(@RequestParam String authKey, @RequestParam String phoneAuthKey) {
+        if (passwordEncoder.matches(authKey, phoneAuthKey)) {
             return "인증되었습니다.";
-        }else{
+        } else {
             return "인증에 실패했습니다.";
         }
     }
@@ -124,19 +124,33 @@ public class SignupController {
                 .phone(phone)
                 .regDt(LocalDateTime.now())
                 .build();
-        log.info("생성될 member 정보 : "+member.toString());
         memberService.saveMember(member);
         mailService.sendMail(member.getEmail());
 
-        Member member1 = memberRepository.findByEmail(email);
-        return member1.getMemNo();
+        Member memberFindedByEmail = memberRepository.findByEmail(email);
+        return memberFindedByEmail.getMemNo();
     }
 
     @RequestMapping(value = "/success", method = RequestMethod.GET)
-    public String signUpSuccessPage(Model m, Long memNo){
+    public String signUpSuccessPage(Model m, Long memNo) {
         //이메일 전송
         Member member = memberRepository.findByMemNo(memNo);
         m.addAttribute("member", member);
         return "sign-up/successPage";
+    }
+
+    // 가입 이메일 인증
+    @RequestMapping(value = "/certificationEmail", method = RequestMethod.GET)
+    public String emailAuthKeyCk(@RequestParam Long memNo, @RequestParam String certKey) {
+        // authKey는 해싱된 상태로 링크에 파라미터로 추가되어 이메일 전송됨
+        // 해당 회원의 certKey와 일치하는지 확인하고 정보 수정
+
+        Boolean checkVal = certKeyService.CheckCertInfo(memNo, certKey);
+        // 인증된 경우 인증 완료 페이지 이동
+        if (checkVal) {
+            return "sign-up/certEmailSuccess";
+        } else {
+            return "sign-up/certEmailFail";
+        }
     }
 }

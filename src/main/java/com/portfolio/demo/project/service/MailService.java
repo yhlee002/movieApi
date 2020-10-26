@@ -30,7 +30,7 @@ public class MailService {
 
     public String sendMail(String email) {
 
-        String authKey = tempKey.getKey(10, false);
+        String certKey = tempKey.getKey(10, false);
         Member member = memberRepository.findByEmail(email);
 
         String setFrom = "testaccyh002@gmail.com";
@@ -38,7 +38,7 @@ public class MailService {
         String title = "SiteName 회원가입 인증 메일";
         String content = "<h2>안녕하세요." + member.getName() + "님</h2>"
                 + "<p>본인이 가입하신것이 맞다면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://localhost:8080/sign-up/certificationEmail?uId=" + member.getMemNo() + "&authkey=" + authKey + "'>인증하기</a>";
+                + "인증하기 링크 : <a href='http://localhost:8080/sign-up/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>";
         MimeMessage message = mailSender.createMimeMessage();
 
         try {
@@ -59,7 +59,7 @@ public class MailService {
                     .phone(member.getPhone())
                     .role(member.getRole())
                     .regDt(member.getRegDt())
-                    .certKey(authKey)
+                    .certKey(passwordEncoder.encode(certKey))
                     .certification(member.getCertification())
                     .build()
             );
