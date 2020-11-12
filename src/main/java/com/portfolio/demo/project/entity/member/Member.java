@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 //@Data // @Data만 쓰면 NoArgConstructor만 생성
 @Table(name = "member")
 @Getter
-@ToString
+@ToString(exclude = "certKey")
 //@AllArgsConstructor // @AllArgsConsturctor을 쓰면 기본 생성자가 없어짐
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
 @Entity
@@ -57,5 +57,7 @@ public class Member {
         this.role = role;
         this.certKey = certKey;
         this.certification = certification;
+
+        System.out.println("Member toString : "+this.toString());
     }
 }

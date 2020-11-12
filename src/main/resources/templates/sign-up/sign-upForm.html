@@ -19,7 +19,7 @@
             </div>
             <div class="content align-center">
                 <h2 class="title">Sign-up</h2>
-                <form id="form_signup" action="/sign-up/sign-up-processor" method="post">
+                <form id="form_signup" th:action="@{/sign-up/sign-up-processor}" method="post">
                     <div class="field half">
                         <label class="align-left" for="email">Email : </label>
                         <input id="email" type="text" name="email">

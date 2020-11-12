@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.entity.token;
+package com.portfolio.demo.project.security.token;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
