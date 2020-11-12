@@ -3,6 +3,7 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
+
 <div th:fragment="headerFragment">
     <!-- Header -->
     <header id="header">
@@ -12,22 +13,32 @@
 
     <!-- Nav -->
     <nav id="menu">
-        <div style="margin-bottom: 30px"> <!-- 로그인 되어 있지 않은 상황을 전제로 예시 생성 -->
-            <p style="font-size: 8em; text-align: center; color: #bbbbbb; margin-bottom: 0px">
-                <i class="fas fa-member-circle"></i>
-            </p>
-            <sec:authorize access="isAnonymous()">
-                <a th:href="@{/sign-in}" style="color: #bfbfbf; text-decoration: none">Please Login</a>
-            </sec:authorize>
+        <div style="margin-bottom: 30px">
+            <th:block sec:authorize="isAnonymous()">
+                <div style="text-align: center">
+                    <img src="/images/test-account-96.png"><br><br>
+                    <span><a th:href="@{/sign-in}" style="color: #bfbfbf; text-decoration: none">Please Login</a></li></span>
+                </div>
+            </th:block>
+            <th:block sec:authorize="isAuthenticated()">
+                <div style="text-align: center">
+                    <!-- thymeleaf의 if문을 사용해 사용자의 프로필 이미지를 조회하고, 등록된 프로필 이미지가 없을 경우 기본 test-account 이미지 제공 -->
+                    <img src="/images/test-account-96.png"><br><br>
+                    <span style="color: white"><span th:text="${member.getName()}"></span>님 반갑습니다. </span><br>
+                    <span style="color: white"><a th:href="@{/mypage/${member.getMemNo()}}" style="color: #bfbfbf; text-decoration: none">My Page</a></span>
+                    &nbsp;
+                    <span><a th:href="@{/logout}" style="color: #bfbfbf; text-decoration: none">Logout</a></span>
+                </div>
+            </th:block>
+            <!--            <sec:authorize access="isAuthenticated()">-->
+            <!--                <span th:href="@{/mypage}" th:text="${user}"></span>-->
+            <!--            </sec:authorize>-->
         </div>
         <ul class="links">
             <li><a th:href="@{/}">Home</a></li>
             <li><a th:href="@{#}">menu 1</a></li>
             <li><a th:href="@{#}">menu 2</a></li>
             <li><a th:href="@{#}">menu 3</a></li>
-            <sec:authorize access="isAuthenticated()">
-                <li><a th:href="@{/logout}">Logout</a></li> <!-- 로그인되어있는 경우 뜨고 로그인되어있지 않은 상태라면 뜨지 않게 -->
-            </sec:authorize>
             <li><a th:href="@{/generic}">Generic</a></li>
             <li><a th:href="@{/elements}">Elements</a></li>
         </ul>

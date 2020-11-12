@@ -16,9 +16,10 @@
             <div class="content">
                 <h2 class="align-center title">Login</h2>
                 <div class="container align-center">
-                    <form id="sign-up-form" action="/sign-in/sign-in-processor" method="post">
-<!--                        <sec:csrfInput/>-->
-                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    <form id="sign-up-form" th:action="@{/sign-in/sign-in-processor}" method="post">
+                        <!-- th:action을 사용할 경우, CSRF 토큰이 필요할 경우 자동으로 포함해 전송 -->
+<!--                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
+
                         <!-- email -->
                         <div class="field half">
                             <label for="email" class="align-left">Email</label>

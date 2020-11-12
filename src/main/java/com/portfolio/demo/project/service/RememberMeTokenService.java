@@ -1,6 +1,6 @@
 //package com.portfolio.demo.project.service;
 //
-//import com.portfolio.demo.project.entity.token.RememberMeToken;
+//import com.portfolio.demo.project.security.token.RememberMeToken;
 //import com.portfolio.demo.project.repository.RememberMeTokenRepository;
 //import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
