@@ -8,6 +8,9 @@
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/assets/js/sign-up/sign-up-main.js}"></script>
 </th:block>
+<th:block layout:fragment="css">
+    <link type="text/css" rel="stylesheet" href="/assets/css/sign-up/sign-up-main.css">
+</th:block>
 
 <body>
 <header th:replace="/fragments/header.html :: headerFragment"></header>
@@ -15,47 +18,37 @@
     <div class="inner">
         <div class="box">
             <div class="image fit">
-                <img src="/images/pic02.jpg" alt=""/>
+                <img src="/images/banner-sign-up.jpg" alt=""/>
             </div>
-            <div class="content align-center">
-                <h2 class="title">Sign-up</h2>
-                <form id="form_signup" th:action="@{/sign-up/sign-up-processor}" method="post">
-                    <div class="field half">
-                        <label class="align-left" for="email">Email : </label>
-                        <input id="email" type="text" name="email">
+            <div class="content text-center">
+                <h2 class="title">Sign up</h2>
+                <form id="form_signup" th:action="@{/sign-up/sign-up-processor}" method="post" class="form">
+                    <input name="provider" id="provider" th:value="none" value="none" hidden="hidden">
+                    <div class="form-group">
+                        <label class="align-left" for="email">Email</label><br>
+                        <input id="email" class="form-control" type="text" name="email"><br>
                         <p id="emailMessage" class="invisible">emailMessage</p>
                     </div>
-                    <br>
-
-                    <div class="field half">
-                        <label class="align-left" for="name">Name or Nickname : </label>
-                        <input id="name" type="text" name="name">
+                    <div class="form-group">
+                        <label class="align-left" for="name">Name</label><br>
+                        <input id="name" class="form-control" type="text" name="name"><br>
                         <p id="nameMessage" class="invisible">nameMassage</p>
                     </div>
-                    <br>
-
-                    <div class="field half">
-                        <label class="align-left" for="password">Password : </label>
-                        <input id="password" type="password" name="password">
+                    <div class="form-group">
+                        <label class="align-left" for="password">Password</label><br>
+                        <input id="password" class="form-control" type="password" name="password"><br>
                         <p id="pwdMessage" class="invisible">pwdMessage</p>
                     </div>
-                    <br>
-
-                    <div class="field half">
-                        <label class="align-left" for="passwordConf">Password Confirm : </label>
-                        <input id="passwordConf" type="password" name="passwordConf">
+                    <div class="form-group">
+                        <label class="align-left" for="passwordConf">Password Confirm</label><br>
+                        <input id="passwordConf" class="form-control" type="password" name="passwordConf"><br>
                         <p id="pwdConfMessage" class="invisible">pwdConfMessage</p>
                     </div>
-                    <br>
-
-                    <div class="field half">
-                        <label class="align-left" for="phone">Phone : </label>
-                        <input id="phone" type="text" name="phone" readonly>
-                        <br>
-                        <input id="phoneBnt" type="button" value="Authentication">
+                    <div class="form-group">
+                        <label class="align-left" for="phone">Phone</label><br>
+                        <input id="phone" class="form-control" type="text" name="phone" readonly>
+                        <input id="phoneBnt" type="button" value="인증">
                     </div>
-                    <br>
-
                     <small id="phoneHelp" class="form-text text-muted">당사는 귀하의 이메일을 외부와 공유하지 않으며, 이메일 또는 패스워드 찾기, 고객지원
                         등의 목적만을 위해 연락처를 수집합니다.</small>
                     <hr>
@@ -66,10 +59,7 @@
                 </form>
             </div>
         </div>
-        <div class="copyright align-center">
-            &copy; Untitled Design: <a href="https://templated.co/">TEMPLATED</a>. Images <a
-                href="https://unsplash.com/">Unsplash</a> Video <a href="http://coverr.co/">Coverr</a>.
-        </div>
+        <footer th:replace="/fragments/footer.html :: footerFragment"></footer>
     </div>
 </section>
 </body>

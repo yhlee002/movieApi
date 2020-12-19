@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.security;
 
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
-import com.portfolio.demo.project.service.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

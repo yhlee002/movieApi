@@ -2,8 +2,7 @@ package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.security.CustomAuthenticationProvider;
 //import com.portfolio.demo.project.security.CustomCsrfFilter;
-import com.portfolio.demo.project.security.SignInSuccessHandler;
-import com.portfolio.demo.project.service.UserDetailsServiceImpl;
+import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,9 +12,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+
+import java.security.SecureRandom;
 
 @Configuration
 @EnableWebSecurity
@@ -39,20 +37,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/admin/**").hasRole("ADMIN");
 
         http.httpBasic();
-//        http.csrf()
-//                .ignoringAntMatchers("/sign-in/**", "sign-up/**")
-//                .csrfTokenRepository(csrfTokenRepository())
-//                .and()
-//                .addFilterAfter(new CustomCsrfFilter(), CsrfFilter.class);
-////                .disable();
 
         http.formLogin()
                 .loginPage("/sign-in")
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in/sign-in-processor")
-                .permitAll() // anonymous만 접근 가능한 경로로 변경 필요
-                .successHandler(signInSuccessHandler());
+                .permitAll(); // anonymous만 접근 가능한 경로로 변경 필요
+//                .successHandler(signInSuccessHandler());
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
         http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true);
@@ -89,15 +81,14 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new CustomAuthenticationProvider();
     }
 
-//    @Bean
-//    protected CustomCsrfFilter customCsrfFilter() {
-//        return new CustomCsrfFilter();
-//    }
-
     @Bean
-    protected SignInSuccessHandler signInSuccessHandler(){
-        return new SignInSuccessHandler();
-    }
+    protected SecureRandom secureRandom() {
+        return new SecureRandom();}
+
+//    @Bean
+//    protected SignInSuccessHandler signInSuccessHandler(){
+//        return new SignInSuccessHandler();
+//    }
 
 
 //    @Bean

@@ -1,22 +1,21 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.OauthMember;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.service.CertKeyService;
-import com.portfolio.demo.project.service.MailService;
-import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.PhoneMessageService;
+import com.portfolio.demo.project.repository.OauthMemberRepository;
+import com.portfolio.demo.project.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Slf4j
 @Controller
@@ -28,6 +27,12 @@ public class SignupController {
 
     @Autowired
     MemberService memberService;
+
+    @Autowired
+    OauthMemberRepository oauthMemberRepository;
+
+    @Autowired
+    OauthMemberService oauthMemberService;
 
     @Autowired
     PhoneMessageService phoneMessageService;
@@ -46,7 +51,7 @@ public class SignupController {
     public Member emailCkProc(@RequestParam String email) {
         log.info("들어온 이메일 : " + email);
 
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberService.findByEmail(email);
 
         if (member != null) {
             log.info("[emailCkProc] member 정보 : " + member.toString());
@@ -60,7 +65,7 @@ public class SignupController {
     @ResponseBody
     @RequestMapping(value = "/nameCk", method = RequestMethod.POST)
     public Member nameCkProc(@RequestParam String name) {
-        Member member = memberRepository.findByName(name);
+        Member member = memberService.findByName(name);
 
         if (member != null) {
             log.info("[nameCkProc] member 정보 : " + member.toString());
@@ -72,16 +77,20 @@ public class SignupController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/phoneCk", method = RequestMethod.POST)
-    public Member authPhone(@RequestParam String phone) {
-        Member member = memberService.findByPhone(phone);
-        if (member != null) {
-            log.info("[phoneCkProc] member 정보 : " + member.toString());
-            return member;
-        } else {
-            log.info("[phoneCkProc] member 정보 : null");
-            return null;
+    @RequestMapping(value = "/phoneCk/{memType}", method = RequestMethod.POST)
+    public String authPhone(@RequestParam String phone, @PathVariable  String memType) {
+        log.info("들어온 phone : "+phone+", memType : "+memType);
+        if (memType.equals("naver")) { // 네아로 api 가입 회원의 경우
+//            if (memType.equals("naver")) {
+            return memberService.IsOauthMemberByPhone(phone);
+//            }
+//              else if(memType.equals("kakao")){ // 카카오 로그인 api 가입 회원의 경우
+//                return "";
+//            }
+        } else { // 네아로 api 가입 회원이 아닌 경우(memType == "none")
+            return memberService.IsBasicMemberByPhone(phone);
         }
+
     }
 
     @RequestMapping(value = "/phoneCkForm", method = RequestMethod.GET)
@@ -90,7 +99,8 @@ public class SignupController {
     }
 
     @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
-    public String phoneCkPage(Model m, @RequestParam String phone) {
+    public String phoneCkPage(Model m, @RequestParam String phone, @RequestParam(required = false) String provider) {
+
         String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
         log.info("phoneAuthKey 인코딩 전 값 : " + phoneAuthKey);
         m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
@@ -127,12 +137,38 @@ public class SignupController {
         return memberFindedByEmail.getMemNo();
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/sign-up-processor_n", method = RequestMethod.POST)
+    public Long signUpProc_o(@RequestParam String id, @RequestParam String name, @RequestParam String phone) {
+        OauthMember oMember = OauthMember.builder()
+                .oauthmemNo(null)
+                .uniqueId(id)
+                .nickname(name)
+                .phone(phone)
+                .provider("naver")
+                .regDt(LocalDateTime.now())
+                .role("ROLE_USER")
+                .build();
+        oauthMemberService.saveOauthMember(oMember);
+        log.info(oMember.toString());
+
+        OauthMember memberFindedByUniqueId = oauthMemberRepository.findOauthMemberByUniqueId(id);
+        log.info("생성된 유저 : "+memberFindedByUniqueId.toString());
+
+        return memberFindedByUniqueId.getOauthmemNo();
+    }
+
     // 회원 가입 성공 및 이메일 전송
     @RequestMapping(value = "/success", method = RequestMethod.GET)
-    public String signUpSuccessPage(Model m, Long memNo) {
-        Member member = memberRepository.findByMemNo(memNo);
-        m.addAttribute("member", member);
-        return "sign-up/successPage";
+    public String signUpSuccessPage(Model m, @RequestParam(required = false) Long memNo, @RequestParam(required = false) Long oauthMemNo) {
+        if (memNo != null && oauthMemNo == null) {
+            Member member = memberRepository.findByMemNo(memNo);
+            m.addAttribute("member", member);
+            return "sign-up/successPage";
+        } else { // (memNo == null && oauthMemNo != null)
+//            OauthMember oMember = oauthMemberService.findOauthMemberByOauthMemNo(oauthMemNo);
+            return "redirect:/";
+        }
     }
 
     // 가입 이메일 인증
@@ -148,5 +184,23 @@ public class SignupController {
         } else {
             return "sign-up/certEmailFail";
         }
+    }
+
+    /* 네아로 api, 카카오로그인 api로 접근한 회원가입 */
+    @RequestMapping(value = "/oauthMem", method = RequestMethod.GET)
+    public String oauthMem(HttpSession session, Model model) {
+        session.removeAttribute("oauth_message");
+
+        Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
+        System.out.println("profile : " + profile);
+        String id = (String) profile.get("id");
+        String nickname = (String) profile.get("nickname");
+//        String profile_image = (String) profile.get("profile_image");
+
+        model.addAttribute("id", id);
+        model.addAttribute("nickname", nickname);
+//        model.addAttribute("profile_image");
+
+        return "sign-up/oauthMemSign-upForm"; // email이 없기 때문에 submit되고 나서 넘어온 값에 email이 null이면 oauthMem으로 가입되게 해야함
     }
 }

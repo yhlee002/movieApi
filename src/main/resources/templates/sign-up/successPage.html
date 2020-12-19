@@ -4,6 +4,13 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="css">
+    <style>
+        #memberName {
+            color: #444444;
+        }
+    </style>
+</th:block>
 <body>
 <header th:replace="/fragments/header.html :: headerFragment"></header>
 <section id="one" class="wrapper style2">
@@ -15,7 +22,7 @@
             <div class="content align-center">
                 <h2 class="title">Check Email</h2>
                 <br>
-                <p class="align-center">Hello, <span th:text="${member.getName()}"></span>. We send a email contains
+                <p class="align-center">Hello, <span id="memberName" th:text="${member.getName()}"></span>. We send a email contains
                     authentication link to your email that you filled in Email Input field.<br>
                     please check the email</p>
                 <a href="/">go to Main page</a>
