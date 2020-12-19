@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.member;
 
-import com.portfolio.demo.project.util.CERT;
 import lombok.*;
 
 import javax.persistence.*;
@@ -17,22 +16,33 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 DB에 위임(id값을 null로 전달할 경우 DB가 알아서 AUTO_INCREMENT)
     private Long memNo; // Mem_No
+
     @Column(name = "MEM_EMAIL", nullable = false)
     private String email;
+
     @Column(name = "MEM_NAME", nullable = false)
     private String name;
+
     @Column(name = "MEM_PWD", nullable = false)
     private String password;
-    @Column(name = "MEM_PHONE")
+
+    @Column(name = "MEM_PHONE", nullable = false)
     private String phone;
+
     @Column(name = "REG_DT", nullable = false)
     private LocalDateTime regDt;
+
     @Column(name = "ROLE") // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_
     private String role;
+
     @Column(name = "CERT_KEY")
     private String certKey;
+
     @Column(name = "CERTIFICATION")
     private String certification;
+
+    @Column(name = "PROFILE_IMAGE")
+    private String profileImage;
 
 //    @Builder
 //    public Member(Long memNo, String certKey){
@@ -46,8 +56,8 @@ public class Member {
 //        this.certification = certification;
 //    }
 
-    @Builder // Enum<CERT> certification
-    public Member(Long memNo, String email, String name, String password, String phone, LocalDateTime regDt, String role, String certKey, String certification) {
+    @Builder
+    public Member(Long memNo, String email, String name, String password, String phone, LocalDateTime regDt, String role, String certKey, String certification, String profileImage) {
         this.memNo = memNo;
         this.email = email;
         this.name = name;
@@ -57,7 +67,6 @@ public class Member {
         this.role = role;
         this.certKey = certKey;
         this.certification = certification;
-
-        System.out.println("Member toString : "+this.toString());
+        this.profileImage = profileImage;
     }
 }

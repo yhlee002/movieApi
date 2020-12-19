@@ -21,7 +21,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
     // queryDSL
-    implementation'javax.mail:mail:1.4.7'
+    implementation 'javax.mail:mail:1.4.7'
     implementation 'org.springframework:spring-context-support:3.2.8.RELEASE'
 
     implementation 'net.nurigo:javaSDK:2.2'
@@ -36,6 +36,10 @@ dependencies {
     }
     testImplementation 'org.springframework.security:spring-security-test'
     annotationProcessor 'org.projectlombok:lombok'
+
+    /* libs 디렉토리의 모든 라이브러리 의존성 추가 */
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
 }
 
 test {

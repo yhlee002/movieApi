@@ -1634,7 +1634,7 @@
 	}
 
 	body, input, select, textarea {
-		font-family: "Taviraj", serif;
+		font-family: "Nanum Gothic", serif;
 		font-weight: 300;
 		font-size: 1rem;
 		line-height: 1.65;
@@ -1661,6 +1661,7 @@
 	}
 
 	h1, h2, h3, h4, h5, h6 {
+		font-family: 'Do Hyeon', sans-serif;
 		font-weight: 400;
 		line-height: 1.5;
 		margin: 0 0 1.5rem 0;
@@ -1715,7 +1716,7 @@
 
 	blockquote {
 		border-left: solid 4px;
-		font-style: italic;
+		font-family: 'Nanum Gothic', italic;
 		margin: 0 0 2rem 0;
 		padding: 0.5rem 0 0.5rem 2rem;
 	}
@@ -1992,7 +1993,7 @@
 		input[type="button"].special,
 		button.special,
 		.button.special {
-			background-color: #5AA6ED;
+			background-color: #C87EFD; // #5AA6ED
 			color: #ffffff !important;
 		}
 
@@ -2001,7 +2002,7 @@
 			input[type="button"].special:hover,
 			button.special:hover,
 			.button.special:hover {
-				background-color: #71b2f0;
+				background-color: #D4A2F9;
 			}
 
 			input[type="submit"].special:active,
@@ -2009,7 +2010,7 @@
 			input[type="button"].special:active,
 			button.special:active,
 			.button.special:active {
-				background-color: #439aea;
+				background-color: #BA68F4;
 			}
 
 /* Form */
@@ -2761,7 +2762,7 @@
 				.wrapper.style1 button.special,
 				.wrapper.style1 .button.special {
 					background-color: #ffffff;
-					color: #5AA6ED !important;
+					color: #C87EFD !important;
 				}
 
 			.wrapper.style1 label {
@@ -2952,7 +2953,7 @@
 				.wrapper.style2 input[type="button"].special,
 				.wrapper.style2 button.special,
 				.wrapper.style2 .button.special {
-					background-color: #5AA6ED;
+					background-color: #C87EFD;
 					color: #ffffff !important;
 				}
 
@@ -2961,7 +2962,7 @@
 					.wrapper.style2 input[type="button"].special:hover,
 					.wrapper.style2 button.special:hover,
 					.wrapper.style2 .button.special:hover {
-						background-color: #71b2f0;
+						background-color: #D4A2F9;
 					}
 
 					.wrapper.style2 input[type="submit"].special:active,
@@ -2969,7 +2970,7 @@
 					.wrapper.style2 input[type="button"].special:active,
 					.wrapper.style2 button.special:active,
 					.wrapper.style2 .button.special:active {
-						background-color: #439aea;
+						background-color: #BA68F4;
 					}
 
 			.wrapper.style2 label {
@@ -3181,7 +3182,7 @@
 				.wrapper.style3 input[type="button"].special,
 				.wrapper.style3 button.special,
 				.wrapper.style3 .button.special {
-					background-color: #5AA6ED;
+					background-color: #C87EFD;
 					color: #ffffff !important;
 				}
 
@@ -3190,7 +3191,7 @@
 					.wrapper.style3 input[type="button"].special:hover,
 					.wrapper.style3 button.special:hover,
 					.wrapper.style3 .button.special:hover {
-						background-color: #71b2f0;
+						background-color: #D4A2F9;
 					}
 
 					.wrapper.style3 input[type="submit"].special:active,
@@ -3198,7 +3199,7 @@
 					.wrapper.style3 input[type="button"].special:active,
 					.wrapper.style3 button.special:active,
 					.wrapper.style3 .button.special:active {
-						background-color: #439aea;
+						background-color: #BA68F4;
 					}
 
 			.wrapper.style3 label {
@@ -3415,7 +3416,7 @@
 		background: rgba(0, 0, 0, 0.75);
 		color: #a6a6a6;
 		cursor: default;
-		height: 3.25em;
+		height: 4em;
 		left: 0;
 		line-height: 3.25em;
 		position: fixed;
@@ -3441,15 +3442,16 @@
 		}
 
 			#header > .logo a {
-				font-size: 1.25rem;
-				color: #FFF;
+				/*font-size: 1.25rem;*/
+				color: #bfbfbf;
 				text-decoration: none;
+				display: inline-block;
 			}
 
-			#header > .logo span {
+			#header > .logo #siteName {
+				font-family: 'Nanum Gothic', Bold;
 				font-weight: 300;
-				font-size: .75rem;
-				color: rgba(255, 255, 255, 0.5);
+				font-size: 2em;
 			}
 
 		#header > a {
@@ -3544,8 +3546,8 @@
 		}
 
 		#header {
-			height: 44px;
-			line-height: 44px;
+			height: 3em;
+			line-height: 3em;
 		}
 
 			#header > h1 {
@@ -3712,7 +3714,7 @@
 		-webkit-justify-content: center;
 		-ms-justify-content: center;
 		justify-content: center;
-		background-image: url("../../images/banner.jpg");
+		background-image: url("../../images/banner_lalaland.jpg");
 		background-position: center;
 		background-size: cover;
 		background-repeat: no-repeat;
@@ -3879,6 +3881,7 @@
 			margin: 0 0 2rem 0;
 			padding: 0;
 			text-align: center;
+			font-family: 'Nanum Gothic', sans-serif;
 		}
 
 		@media screen and (max-width: 736px) {
@@ -4227,3 +4230,9 @@
 			}
 
 		}
+
+	.profile_image {
+		width: 96px;
+		height: 96px;
+		border-radius: 100%;
+	}

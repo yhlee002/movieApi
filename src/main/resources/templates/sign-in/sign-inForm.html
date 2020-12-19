@@ -1,24 +1,83 @@
 <!DOCTYPE html>
 <html lang="ko"
       xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.springframework.org/schema/security">
+      xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="fragments/config.html :: configFragment"></head>
+
+<th:block layout:fragment="script">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let oauth_message = null;
+
+            oauth_message = "[[${session.oauth_message}]]";
+            console.log(oauth_message);
+
+            // if (oauth_message === "not naver user") {
+            //     window.alert("비밀번호를 통한 로그인이 필요한 회원입니다.");
+            // } else if (oauth_message === "not user") {
+            //     let conf = window.confirm("가입되지 않은 사용자입니다. 회원가입 페이지로 이동하시겠습니까?");
+            //     if (conf) {
+            //         location.href = "/sign-up/oauthMem";
+            //     }
+            // }
+            if (oauth_message === "not user") {
+                let conf = window.confirm("가입되지 않은 사용자입니다. 회원가입 페이지로 이동하시겠습니까?");
+                if (conf) {
+                    location.href = "/sign-up/oauthMem";
+                }
+            }
+        }, false);
+
+        /* 네아로 API 호출 */
+        function naverLogin() {
+            let naver_login_url = "[[${naverLoginUrl}]]";
+            location.href = naver_login_url;
+        }
+
+        function kakaoLogin() {
+            location.href = '#';
+        }
+
+    </script>
+</th:block>
+<th:block layout:fragment="css">
+    <style>
+        .oauthBtn {
+            border-radius: 12px;
+            border: none;
+            height: 45.59px;
+        }
+
+        #naverSignInBtn {
+            background: url("http://localhost:8080/images/naver-oauth-xs.PNG") no-repeat;
+            background-size: 100% 100%;
+            /*width: 211px;*/
+            margin-bottom: 1em;
+        }
+
+        #kakaoSignInBtn {
+            background: url("http://localhost:8080/images/kakao-oauth-xs.png") no-repeat;
+            background-size: 100% 100%;
+            /*width: 185px;*/
+            margin-bottom: 1em;
+        }
+    </style>
+</th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
 <div id="one" class="wrapper style2">
     <div class="inner">
         <div class="box">
             <div class="image fit">
-                <img src="/images/pic03.jpg" alt=""/>
+                <img src="/images/banner-sign-in2.jpg" alt=""/>
             </div>
             <div class="content">
-                <h2 class="align-center title">Login</h2>
+                <h2 class="align-center title">Sign In</h2>
                 <div class="container align-center">
                     <form id="sign-up-form" th:action="@{/sign-in/sign-in-processor}" method="post">
                         <!-- th:action을 사용할 경우, CSRF 토큰이 필요할 경우 자동으로 포함해 전송 -->
-<!--                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
+                        <!--                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>-->
 
                         <!-- email -->
                         <div class="field half">
@@ -40,8 +99,14 @@
                             <br>
                             <a href="#" class="text-decoration-none">forget email address or password?</a>
                         </div>
+                        <br>
 
                         <!-- 네이버, 카카오, 구글 로그인 api 버튼 필요 -->
+                        <button id="naverSignInBtn" class="oauthBtn" type="button"
+                                onclick="javascript:naverLogin()"></button>
+                        <button id="kakaoSignInBtn" class="oauthBtn" type="button"
+                                onclick="javascript:kakaoLogin()"></button>
+                        <br>
 
                         <!-- submit button -->
                         <ul class="actions align-center">
@@ -53,11 +118,7 @@
                 </div>
             </div>
         </div>
-        <!-- copyright -->
-        <div class="copyright align-center">
-            &copy; Untitled Design: <a href="https://templated.co/">TEMPLATED</a>. Images <a
-                href="https://unsplash.com/">Unsplash</a> Video <a href="http://coverr.co/">Coverr</a>.
-        </div>
+        <footer th:replace="/fragments/footer.html :: footerFragment"></footer>
     </div>
 </div>
 

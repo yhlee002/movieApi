@@ -2,12 +2,10 @@
 <html lang="ko"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
-
 <div th:fragment="headerFragment">
     <!-- Header -->
     <header id="header">
-        <div class="logo"><a th:href="@{/}">Site Name <span>by younghyun lee</span></a></div>
+        <div class="logo"><a th:href="@{/}"><span id="siteName">Site Name</span></a></div>
         <a th:href="@{#menu}" class="toggle"><span>Menu</span></a>
     </header>
 
@@ -23,9 +21,10 @@
             <th:block sec:authorize="isAuthenticated()">
                 <div style="text-align: center">
                     <!-- thymeleaf의 if문을 사용해 사용자의 프로필 이미지를 조회하고, 등록된 프로필 이미지가 없을 경우 기본 test-account 이미지 제공 -->
-                    <img src="/images/test-account-96.png"><br><br>
-                    <span style="color: white"><span th:text="${member.getName()}"></span>님 반갑습니다. </span><br>
-                    <span style="color: white"><a th:href="@{/mypage/${member.getMemNo()}}" style="color: #bfbfbf; text-decoration: none">My Page</a></span>
+                    <img class="profile_image" th:if="${session.member.getProfileImage() != null}" th:src="${session.member.getProfileImage()}">
+                    <img class="profile_image" th:unless="${session.member.getProfileImage() != null}" src="/images/test-account-96.png"><br><br>
+                    <span style="color: white"><span th:if="${session.member != null}" th:text="${session.member.getNickname()}"></span>님 반갑습니다. </span><br>
+                    <span style="color: white"><a th:if="${session.member != null}" th:href="@{/mypage}" style="color: #bfbfbf; text-decoration: none">My Page</a></span>
                     &nbsp;
                     <span><a th:href="@{/logout}" style="color: #bfbfbf; text-decoration: none">Logout</a></span>
                 </div>

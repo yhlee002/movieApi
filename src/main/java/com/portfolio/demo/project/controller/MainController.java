@@ -1,20 +1,18 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.security.UserDetail.UserDetail;
+import com.portfolio.demo.project.entity.member.OauthMember;
+import com.portfolio.demo.project.pojo.MemberPojo;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.UserDetailsServiceImpl;
+import com.portfolio.demo.project.service.OauthMemberService;
+import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpSession;
 import java.security.Principal;
 
 @Slf4j
@@ -25,10 +23,13 @@ public class MainController {
     MemberService memberService;
 
     @Autowired
+    OauthMemberService oauthMemberService;
+
+    @Autowired
     UserDetailsServiceImpl userDetailsService;
 
     @RequestMapping("/")
-    public String mainPage(@AuthenticationPrincipal Principal principal, Model model) { // Principal principal
+    public String mainPage(@AuthenticationPrincipal Principal principal, HttpSession session) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
          * Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -40,20 +41,37 @@ public class MainController {
         log.info("access main page");
 
         Member member = null;
+        OauthMember oMember = null;
+        MemberPojo mem = null;
+
         if (principal != null) {
+            log.info(principal.toString());
             member = memberService.findByEmail(principal.getName());
-            log.info("current member : "+member.toString());
+
+            if (member == null) {
+                oMember = oauthMemberService.findOauthMemberByUniqueId(principal.getName());
+                if (oMember != null) {
+                    log.info("It's oMember ! : " + oMember.toString());
+                    mem = new MemberPojo(oMember);
+                }
+            } else { // member != null
+                log.info("It's member ! : " + member.toString());
+                mem = new MemberPojo(member);
+            }
+
+            log.info("current member : " + mem.toString());
+
+            if (mem.getProfileImage() != null) {
+                String profileImage = mem.getProfileImage().replace("\\/", "/");
+                System.out.println(profileImage);
+                mem.setProfileImage(profileImage);
+            }
         }
-        model.addAttribute("principal", principal);
-        model.addAttribute("member", member); // 없는 경우 null
+
+        session.setAttribute("principal", principal);
+        session.setAttribute("member", mem); // 없는 경우 null
 
         return "index";
-    }
-
-    @RequestMapping("/sign-in")
-    public String signInPage() {
-        log.info("access login page");
-        return "sign-in/sign-inForm";
     }
 
     @RequestMapping("/sign-up")
