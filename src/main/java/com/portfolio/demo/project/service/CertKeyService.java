@@ -44,7 +44,7 @@ public class CertKeyService {
         String certKey = tempKey.getKey(10, false);
         memberRepository.save(Member.builder()
                 .memNo(member.getMemNo())
-                .email(member.getEmail())
+                .identifier(member.getIdentifier())
                 .name(member.getName())
                 .password(member.getPassword())
                 .phone(member.getPhone())

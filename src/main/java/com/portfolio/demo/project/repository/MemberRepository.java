@@ -15,7 +15,10 @@ import java.util.List;
 public interface MemberRepository extends JpaRepository<Member, Long>{
    List<Member> findAll();
    Member findByMemNo(Long memNo);
-   Member findByEmail(String email);
+   Member findByIdentifier(String identifier);
    Member findByName(String name);
    Member findByPhone(String phone);
+
+   @Query("SELECT m FROM Member m WHERE m.identifier=?1 and m.provider=?2")
+   Member findByIdentifierAndProvider(String identifier, String provider);
 }

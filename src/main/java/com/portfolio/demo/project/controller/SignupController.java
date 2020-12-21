@@ -1,18 +1,21 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.entity.member.OauthMember;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.repository.OauthMemberRepository;
-import com.portfolio.demo.project.service.*;
+import com.portfolio.demo.project.service.CertKeyService;
+import com.portfolio.demo.project.service.MailService;
+import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.service.PhoneMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -27,12 +30,6 @@ public class SignupController {
 
     @Autowired
     MemberService memberService;
-
-    @Autowired
-    OauthMemberRepository oauthMemberRepository;
-
-    @Autowired
-    OauthMemberService oauthMemberService;
 
     @Autowired
     PhoneMessageService phoneMessageService;
@@ -51,7 +48,7 @@ public class SignupController {
     public Member emailCkProc(@RequestParam String email) {
         log.info("들어온 이메일 : " + email);
 
-        Member member = memberService.findByEmail(email);
+        Member member = memberService.findByIdentifier(email);
 
         if (member != null) {
             log.info("[emailCkProc] member 정보 : " + member.toString());
@@ -77,19 +74,12 @@ public class SignupController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/phoneCk/{memType}", method = RequestMethod.POST)
-    public String authPhone(@RequestParam String phone, @PathVariable  String memType) {
-        log.info("들어온 phone : "+phone+", memType : "+memType);
-        if (memType.equals("naver")) { // 네아로 api 가입 회원의 경우
-//            if (memType.equals("naver")) {
-            return memberService.IsOauthMemberByPhone(phone);
-//            }
-//              else if(memType.equals("kakao")){ // 카카오 로그인 api 가입 회원의 경우
-//                return "";
-//            }
-        } else { // 네아로 api 가입 회원이 아닌 경우(memType == "none")
-            return memberService.IsBasicMemberByPhone(phone);
-        }
+    @RequestMapping(value = "/phoneCk", method = RequestMethod.POST) // /{memType}
+    public Member authPhone(@RequestParam String phone) { // , @PathVariable String memType
+        log.info("들어온 phone number : " + phone);
+
+        return memberService.findByPhone(phone);
+
 
     }
 
@@ -121,41 +111,35 @@ public class SignupController {
 
     @ResponseBody
     @RequestMapping(value = "/sign-up-processor", method = RequestMethod.POST)
-    public Long signUpProc(@RequestParam String email, @RequestParam String name, @RequestParam String password, @RequestParam String phone) {
+    public Long signUpProc(@RequestParam String email, @RequestParam String name, @RequestParam String password, @RequestParam String phone, @RequestParam String provider) {
         Member member = Member.builder()
                 .memNo(null)
-                .email(email)
+                .identifier(email)
                 .name(name)
                 .password(password)
                 .phone(phone)
+                .provider(provider)
                 .regDt(LocalDateTime.now())
                 .build();
         memberService.saveMember(member);
-        mailService.sendMail(member.getEmail());
+        mailService.sendMail(member.getIdentifier());
 
-        Member memberFindedByEmail = memberRepository.findByEmail(email);
-        return memberFindedByEmail.getMemNo();
+        /* DB에 저장된 데이터 로드 */
+        Member createdMember = memberService.findByIdentifier(email);
+        log.info("생성된 유저 : " + createdMember.toString());
+        return createdMember.getMemNo();
     }
 
     @ResponseBody
-    @RequestMapping(value = "/sign-up-processor_n", method = RequestMethod.POST)
-    public Long signUpProc_o(@RequestParam String id, @RequestParam String name, @RequestParam String phone) {
-        OauthMember oMember = OauthMember.builder()
-                .oauthmemNo(null)
-                .uniqueId(id)
-                .nickname(name)
-                .phone(phone)
-                .provider("naver")
-                .regDt(LocalDateTime.now())
-                .role("ROLE_USER")
-                .build();
-        oauthMemberService.saveOauthMember(oMember);
-        log.info(oMember.toString());
+    @RequestMapping(value = "/sign-up-processor_oauth", method = RequestMethod.POST)
+    public Long signUpProc_o(HttpSession session, @RequestParam String id, @RequestParam String name, @RequestParam String phone, @RequestParam String provider) {
+        memberService.saveOauthMember(session, id, name, phone, provider);
 
-        OauthMember memberFindedByUniqueId = oauthMemberRepository.findOauthMemberByUniqueId(id);
-        log.info("생성된 유저 : "+memberFindedByUniqueId.toString());
+        /* DB에 저장된 데이터 로드 */
+        Member createdMember = memberService.findByIdentifierAndProvider(id, provider);
+        log.info("생성된 유저 : " + createdMember.toString());
 
-        return memberFindedByUniqueId.getOauthmemNo();
+        return createdMember.getMemNo();
     }
 
     // 회원 가입 성공 및 이메일 전송
@@ -164,9 +148,10 @@ public class SignupController {
         if (memNo != null && oauthMemNo == null) {
             Member member = memberRepository.findByMemNo(memNo);
             m.addAttribute("member", member);
+
             return "sign-up/successPage";
         } else { // (memNo == null && oauthMemNo != null)
-//            OauthMember oMember = oauthMemberService.findOauthMemberByOauthMemNo(oauthMemNo);
+
             return "redirect:/";
         }
     }
@@ -195,11 +180,9 @@ public class SignupController {
         System.out.println("profile : " + profile);
         String id = (String) profile.get("id");
         String nickname = (String) profile.get("nickname");
-//        String profile_image = (String) profile.get("profile_image");
 
         model.addAttribute("id", id);
         model.addAttribute("nickname", nickname);
-//        model.addAttribute("profile_image");
 
         return "sign-up/oauthMemSign-upForm"; // email이 없기 때문에 submit되고 나서 넘어온 값에 email이 null이면 oauthMem으로 가입되게 해야함
     }
