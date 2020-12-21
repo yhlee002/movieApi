@@ -1,14 +1,17 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.entity.member.OauthMember;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.repository.OauthMemberRepository;
+import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Slf4j
@@ -19,13 +22,10 @@ public class MemberService {
     MemberRepository memberRepository;
 
     @Autowired
-    OauthMemberRepository oMemberRepository;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
 
-    public Member findByEmail(String email) {
-        return memberRepository.findByEmail(email);
+    public Member findByIdentifier(String identifier) {
+        return memberRepository.findByIdentifier(identifier);
     }
 
     public Member findByName(String name) {
@@ -40,15 +40,20 @@ public class MemberService {
         return memberRepository.findByMemNo(memNo);
     }
 
-    public void saveMember(Member member) {
+    public Member findByIdentifierAndProvider(String identifier, String provider) {
+        return memberRepository.findByIdentifierAndProvider(identifier, provider);
+    }
 
+    public void saveMember(Member member) {
         memberRepository.save(
                 Member.builder().memNo(null)
-                        .email(member.getEmail())
+                        .identifier(member.getIdentifier())
                         .name(member.getName())
-                        .password(passwordEncoder.encode(member.getPassword()))
+                        .password(passwordEncoder.encode(member.getPassword())) // null일 경우 어떻게 처리되는지?
                         .phone(member.getPhone())
                         .role("ROLE_USER")
+                        .profileImage(member.getProfileImage())
+                        .provider(member.getProvider()) // none, naver, kakao
                         .regDt(member.getRegDt())
                         .certKey(null)
                         .certification("N")
@@ -56,72 +61,39 @@ public class MemberService {
         );
     }
 
-    /* OauthMember 타입일 경우 oauth_member 테이블에서 조회 (기존 회원일 경우(Member 타입) member 테이블에서 조회(findByPhone()) */
-    public String IsOauthMemberByPhone(String phone) {
-        OauthMember oMember = oMemberRepository.findByPhone(phone);
+    public void saveOauthMember(HttpSession session, String id, String name, String phone, String provider) { // Member member
+        Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
+        log.info("profile : " + profile);
+        String profileImage = profile.get("profile_image");
+        log.info("profileImage : " + profileImage);
 
-        if (oMember != null) {
-            log.info("[IsOauthMemberByPhone] oMember 정보 : " + oMember.toString());
-            return oMember.toString();
-        } else {
-            log.info("[IsOauthMemberByPhone] oMember 정보 : null");
-            return null;
-        }
+        memberRepository.save(
+                Member.builder()
+                        .memNo(null)
+                        .identifier(id)
+                        .name(name)
+                        .password("")
+                        .phone(phone)
+                        .profileImage(profileImage.replace("\\", ""))
+                        .provider(provider) // none, naver, kakao
+                        .regDt(LocalDateTime.now())
+                        .role("ROLE_USER")
+                        .certKey(null)
+                        .certification("Y")
+                        .build()
+        );
     }
 
-    public String IsBasicMemberByPhone(String phone) {
-        Member member = memberRepository.findByPhone(phone);
+    /* provider 전달 필요(naver, kakao) */
+    public Member findByProfile(String identifier, String provider) {
+        Member member = memberRepository.findByIdentifierAndProvider(identifier, provider);
 
-        if (member != null) {
-            log.info("[IsBasicMemberByPhone] member 정보 : " + member.toString());
-            return member.toString();
-        } else {
-            log.info("[IsBasicMemberByPhone] member 정보 : null");
-            return null;
-        }
+        return member;
     }
 
-    /* 회원가입 여부 확인 - 네아로 회원이라면 ROLE 반환 */
-    public String getNaverOAuthInfo(Map<String, String> profile) {
-
-        /* 사용자 프로필 조회 api를 통해 얻은 사용자 정보를 기존 회원가입 방식으로 가입이력이 있는 회원인지 조회(DB 조회) - 취소 */
-        String id = profile.get("id");
-        OauthMember oauthMember = oMemberRepository.findByUniqueId(id);
-
-        if (oauthMember != null) {
-            OauthMember oMember = oMemberRepository.findByProviderAndUniqueId("naver", profile.get("id"));
-
-            if (oMember != null) { /* 네아로를 통해 가입한 회원 - 그대로 로그인 진행. */
-                String nickname = profile.get("nickname");
-                String profileImage = profile.get("profile_image").replace("https://", "");
-//                profileImage.replace("\\/", "/");
-                log.info("profileImage url : "+profileImage);
-
-//                if (!oMember.getNickname().equals(nickname)) {
-                    oMemberRepository.save(OauthMember.builder()
-                            .oauthmemNo(oMember.getOauthmemNo())
-                            .uniqueId(oMember.getUniqueId())
-                            .nickname(nickname)
-                            .profileImage(profileImage)
-                            .provider(oMember.getProvider())
-                            .phone(oMember.getPhone())
-                            .regDt(oMember.getRegDt())
-                            .role(oMember.getRole())
-                            .build());
-//                }
-
-//                if(oMember.getProfileImage() != null && !oMember.getProfileImage().equals(profileImage)) {
-//
-//                }
-                return oMember.getRole();
-            } else { /* 카카오 로그인 api를 통해 가입한 회원 */
-                OauthMember oMember2 = oMemberRepository.findByProviderAndUniqueId("kakao", profile.get("id"));
-                return oMember2.getRole();
-            }
-        } else {
-            /* 미가입자인 경우 */
-            return "not user";
-        }
+    /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
+    public Authentication getAuthentication(Member member) {
+        UserDetail userDetail = new UserDetail(member);
+        return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
     }
-
 }

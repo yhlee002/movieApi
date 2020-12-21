@@ -21,8 +21,8 @@
             <th:block sec:authorize="isAuthenticated()">
                 <div style="text-align: center">
                     <!-- thymeleaf의 if문을 사용해 사용자의 프로필 이미지를 조회하고, 등록된 프로필 이미지가 없을 경우 기본 test-account 이미지 제공 -->
-                    <img class="profile_image" th:if="${session.member.getProfileImage() != null}" th:src="${session.member.getProfileImage()}">
-                    <img class="profile_image" th:unless="${session.member.getProfileImage() != null}" src="/images/test-account-96.png"><br><br>
+                    <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}" th:src="${session.member.getProfileImage()}">
+                    <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}" src="/images/test-account-96.png"><br><br>
                     <span style="color: white"><span th:if="${session.member != null}" th:text="${session.member.getNickname()}"></span>님 반갑습니다. </span><br>
                     <span style="color: white"><a th:if="${session.member != null}" th:href="@{/mypage}" style="color: #bfbfbf; text-decoration: none">My Page</a></span>
                     &nbsp;

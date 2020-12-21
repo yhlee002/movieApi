@@ -1,11 +1,9 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.entity.member.OauthMember;
 import com.portfolio.demo.project.pojo.MemberPojo;
-import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.OauthMemberService;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
+import com.portfolio.demo.project.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,9 +21,6 @@ public class MainController {
     MemberService memberService;
 
     @Autowired
-    OauthMemberService oauthMemberService;
-
-    @Autowired
     UserDetailsServiceImpl userDetailsService;
 
     @RequestMapping("/")
@@ -41,35 +36,20 @@ public class MainController {
         log.info("access main page");
 
         Member member = null;
-        OauthMember oMember = null;
-        MemberPojo mem = null;
+        MemberPojo memberPojo = null;
 
         if (principal != null) {
-            log.info(principal.toString());
-            member = memberService.findByEmail(principal.getName());
+            log.info("current principal : " + principal.toString());
+            member = memberService.findByIdentifier(principal.getName());
 
-            if (member == null) {
-                oMember = oauthMemberService.findOauthMemberByUniqueId(principal.getName());
-                if (oMember != null) {
-                    log.info("It's oMember ! : " + oMember.toString());
-                    mem = new MemberPojo(oMember);
-                }
-            } else { // member != null
-                log.info("It's member ! : " + member.toString());
-                mem = new MemberPojo(member);
-            }
+            if (member != null) {
+                log.info("current member : " + member.toString());
 
-            log.info("current member : " + mem.toString());
-
-            if (mem.getProfileImage() != null) {
-                String profileImage = mem.getProfileImage().replace("\\/", "/");
-                System.out.println(profileImage);
-                mem.setProfileImage(profileImage);
+                memberPojo = new MemberPojo(member);
             }
         }
-
         session.setAttribute("principal", principal);
-        session.setAttribute("member", mem); // 없는 경우 null
+        session.setAttribute("member", memberPojo); // 없는 경우 null -> SignInController에서 담음
 
         return "index";
     }

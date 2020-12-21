@@ -20,25 +20,25 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        String email = (String) authentication.getPrincipal();
+        String identifier = (String) authentication.getPrincipal();
         String password = (String) authentication.getCredentials();
 
         log.info("커스텀 프로바이더 실행.");
 
-        UserDetail user = (UserDetail) userDetailsService.loadUserByUsername(email);
+        UserDetail user = (UserDetail) userDetailsService.loadUserByUsername(identifier);
 
         log.info("userDetailsService에서 받아온 user 정보 : "+user.toString());
 
         if(!user.isEnabled()){
-            throw new BadCredentialsException(email);
+            throw new BadCredentialsException(identifier);
         }
         if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new BadCredentialsException(email);
+            throw new BadCredentialsException(identifier);
         }
 
-        return new UsernamePasswordAuthenticationToken(email, password, user.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(identifier, password, user.getAuthorities());
     }
-
+    
     @Override
     public boolean supports(Class<?> authentication) {
         return true;

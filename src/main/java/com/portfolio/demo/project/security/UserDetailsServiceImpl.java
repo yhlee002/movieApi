@@ -25,12 +25,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        log.info("loadUserByUserName user id {}", email);
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        log.info("loadUserByUserName user id {}", identifier);
 
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByIdentifier(identifier);
         if (member == null) {
-            throw new UsernameNotFoundException(email);
+            throw new UsernameNotFoundException(identifier);
         }
 
         log.info("부여될 권한 : " + member.getRole());

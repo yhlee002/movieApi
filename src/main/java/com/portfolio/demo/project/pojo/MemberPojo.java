@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.pojo;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.entity.member.OauthMember;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 public class MemberPojo {
 
-    private String email;
+    private String identifier;
     private String nickname;
     private String profileImage; // 프로필조회 api에서 제공하는 profile_image를 담아 객체째로 세션에 담을 것.
     private String phone;
@@ -19,16 +18,16 @@ public class MemberPojo {
     private String role;
 
 
-    public MemberPojo(OauthMember oauthMember) {
-        this.nickname = oauthMember.getNickname();
-        this.profileImage = oauthMember.getProfileImage();
-        this.phone = oauthMember.getPhone();
-        this.regDt = oauthMember.getRegDt();
-        this.role = oauthMember.getRole();
-    }
+//    public MemberPojo(OauthMember oauthMember) {
+//        this.nickname = oauthMember.getNickname();
+//        this.profileImage = oauthMember.getProfileImage();
+//        this.phone = oauthMember.getPhone();
+//        this.regDt = oauthMember.getRegDt();
+//        this.role = oauthMember.getRole();
+//    }
 
     public MemberPojo(Member member) {
-        this.email = member.getEmail();
+        this.identifier = member.getIdentifier();
         this.nickname = member.getName();
         this.profileImage = member.getProfileImage();
         this.phone = member.getPhone();

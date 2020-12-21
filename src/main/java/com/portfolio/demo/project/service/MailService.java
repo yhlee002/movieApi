@@ -30,7 +30,7 @@ public class MailService {
     public String sendMail(String email) {
 
         String certKey = tempKey.getKey(10, false);
-        Member member = memberRepository.findByEmail(email);
+        Member member = memberRepository.findByIdentifier(email);
 
         String setFrom = "testaccyh002@gmail.com";
         String tomail = email; // member.getEmail()
@@ -54,7 +54,7 @@ public class MailService {
 
             memberRepository.save(Member.builder()
                     .memNo(member.getMemNo())
-                    .email(member.getEmail())
+                    .identifier(member.getIdentifier())
                     .name(member.getName())
                     .password(member.getPassword())
                     .phone(member.getPhone())

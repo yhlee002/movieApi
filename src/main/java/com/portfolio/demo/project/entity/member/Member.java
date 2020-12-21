@@ -10,63 +10,56 @@ import java.time.LocalDateTime;
 @Getter
 @ToString(exclude = "certKey")
 //@AllArgsConstructor // @AllArgsConsturctor을 쓰면 기본 생성자가 없어짐
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+// Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
 @Entity
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 DB에 위임(id값을 null로 전달할 경우 DB가 알아서 AUTO_INCREMENT)
-    private Long memNo; // Mem_No
+    private Long memNo;
 
-    @Column(name = "MEM_EMAIL", nullable = false)
-    private String email;
+    @Column(name = "identifier", nullable = false)
+    private String identifier;
 
-    @Column(name = "MEM_NAME", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "MEM_PWD", nullable = false)
+    @Column(name = "pwd") // 외부 api 가입 회원의 경우 패스워드 불필요
     private String password;
 
-    @Column(name = "MEM_PHONE", nullable = false)
+    @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "REG_DT", nullable = false)
+    @Column(name = "reg_date", nullable = false)
     private LocalDateTime regDt;
 
-    @Column(name = "ROLE") // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_
-    private String role;
-
-    @Column(name = "CERT_KEY")
-    private String certKey;
-
-    @Column(name = "CERTIFICATION")
-    private String certification;
-
-    @Column(name = "PROFILE_IMAGE")
+    @Column(name = "profile_image")
     private String profileImage;
 
-//    @Builder
-//    public Member(Long memNo, String certKey){
-//        this.memNo = memNo;
-//        this.certKey = certKey;
-//    }
-//
-//    @Builder
-//    public Member(Long memNo, Enum<CERT> certification){
-//        this.memNo = memNo;
-//        this.certification = certification;
-//    }
+    @Column(name = "provider")
+    private String provider;
+
+    @Column(name = "role") // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_
+    private String role;
+
+    @Column(name = "cert_key")
+    private String certKey;
+
+    @Column(name = "certification")
+    private String certification;
 
     @Builder
-    public Member(Long memNo, String email, String name, String password, String phone, LocalDateTime regDt, String role, String certKey, String certification, String profileImage) {
+    public Member(Long memNo, String identifier, String name, String password, String phone, LocalDateTime regDt, String profileImage, String provider, String role, String certKey, String certification) {
         this.memNo = memNo;
-        this.email = email;
+        this.identifier = identifier;
         this.name = name;
         this.password = password;
         this.phone = phone;
         this.regDt = regDt;
+        this.profileImage = profileImage;
+        this.provider = provider;
         this.role = role;
         this.certKey = certKey;
         this.certification = certification;
-        this.profileImage = profileImage;
     }
 }
