@@ -14,6 +14,9 @@ public class CertKeyService {
     MemberRepository memberRepository;
 
     @Autowired
+    MemberService memberService;
+
+    @Autowired
     PasswordEncoder passwordEncoder;
 
     @Autowired
@@ -23,7 +26,7 @@ public class CertKeyService {
 
         Boolean match = isMatching(memNo, certKey);
         if (match) {
-            changeCertInfo(memberRepository.findByMemNo(memNo));
+            changeCertInfo(memberService.findByMemNo(memNo));
             return true;
         } else {
             return false;
@@ -32,7 +35,7 @@ public class CertKeyService {
     }
 
     public Boolean isMatching(Long memNo, String certKeyRowValue) {
-        Member member = memberRepository.findByMemNo(memNo);
+        Member member = memberService.findByMemNo(memNo);
         String certKeyHashValue = member.getCertKey();
 
         return passwordEncoder.matches(certKeyRowValue, certKeyHashValue);

@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long>{
    List<Member> findAll();
-   Member findByMemNo(Long memNo);
+//   Member findByMemNo(Long memNo);
    Member findByIdentifier(String identifier);
    Member findByName(String name);
    Member findByPhone(String phone);

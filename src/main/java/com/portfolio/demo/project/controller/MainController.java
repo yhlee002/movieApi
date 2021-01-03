@@ -1,15 +1,24 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.pojo.MemberPojo;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
+import com.portfolio.demo.project.service.BoxOfficeService;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.util.BoxOfficeListUtil;
+import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.security.Principal;
 
@@ -23,8 +32,11 @@ public class MainController {
     @Autowired
     UserDetailsServiceImpl userDetailsService;
 
+    @Autowired
+    BoxOfficeService boxOfficeService;
+
     @RequestMapping("/")
-    public String mainPage(@AuthenticationPrincipal Principal principal, HttpSession session) { // Principal principal
+    public String mainPage(@AuthenticationPrincipal Principal principal, HttpSession session, Model model) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
          * Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -35,21 +47,23 @@ public class MainController {
          */
         log.info("access main page");
 
-        Member member = null;
-        MemberPojo memberPojo = null;
+        /* 멤버 정보 로드 */
+        MemberVO memberVO = null;
 
         if (principal != null) {
             log.info("current principal : " + principal.toString());
-            member = memberService.findByIdentifier(principal.getName());
+            Member member = memberService.findByIdentifier(principal.getName());
 
             if (member != null) {
                 log.info("current member : " + member.toString());
 
-                memberPojo = new MemberPojo(member);
+                memberVO = new MemberVO(member);
             }
         }
         session.setAttribute("principal", principal);
-        session.setAttribute("member", memberPojo); // 없는 경우 null -> SignInController에서 담음
+        session.setAttribute("member", memberVO); // 없는 경우 null -> SignInController에서 담음
+
+        model.addAttribute("movieList", boxOfficeService.getDailyBoxOfficeList());
 
         return "index";
     }
@@ -72,8 +86,22 @@ public class MainController {
         return "generic";
     }
 
-    @RequestMapping("/logout")
-    public String logout() {
-        return "index";
+    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    public String loout(HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            new SecurityContextLogoutHandler().logout(request, response, auth);
+        }
+        return "redirect:/";
     }
+
+    @Autowired
+    BoxOfficeListUtil boxOfficeListUtil;
+
+    @RequestMapping("/CrawlingImg")
+    public String CrawlingImg() {
+        boxOfficeListUtil.saveImg();
+        return "crawlingImg";
+    }
+
 }

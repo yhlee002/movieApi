@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.controller;
+package com.portfolio.demo.project.util;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;

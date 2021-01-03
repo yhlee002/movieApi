@@ -1,7 +1,8 @@
 package com.portfolio.demo.project.config;
 
-import com.portfolio.demo.project.controller.NaverLoginApiUtil;
-import com.portfolio.demo.project.controller.NaverProfileApiUtil;
+import com.portfolio.demo.project.util.NaverLoginApiUtil;
+import com.portfolio.demo.project.util.NaverMovieInfoUtil;
+import com.portfolio.demo.project.util.NaverProfileApiUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -15,4 +16,6 @@ public class NaverApiConfig {
     public NaverProfileApiUtil naverProfileApi(){
         return new NaverProfileApiUtil();
     }
+    @Bean
+    public NaverMovieInfoUtil naverMovieInfoUtil() { return new NaverMovieInfoUtil();}
 }

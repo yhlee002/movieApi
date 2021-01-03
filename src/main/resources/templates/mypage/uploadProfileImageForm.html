@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="css">
+    <style>
+        .header ::after {
+            display: block;
+            content: '';
+            clear: both;
+        }
+
+        #uploadProfileImage {
+            margin: auto;
+        }
+
+        #uploadImageBox {
+            padding: 28px;
+        }
+
+    </style>
+</th:block>
+<body>
+<header id="header">
+    <div class="logo"><span id="siteName">Site Name</span></div>
+</header>
+<div id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="content">
+            <div id="uploadImageBox" class="box align-center">
+                <form id="uploadProfileImage" th:action="@{/mypage/uploadProfileImage_proc}" method="post">
+                    <input type="test" name="fileName" readonly>
+                    <input type="button" name="uploadFile" value="upload">
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

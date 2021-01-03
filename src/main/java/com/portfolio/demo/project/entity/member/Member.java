@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 //@Data // @Data만 쓰면 NoArgConstructor만 생성
 @Table(name = "member")
+@Setter
 @Getter
 @ToString(exclude = "certKey")
 //@AllArgsConstructor // @AllArgsConsturctor을 쓰면 기본 생성자가 없어짐
@@ -30,7 +31,7 @@ public class Member {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "reg_date", nullable = false)
+    @Column(name = "reg_date")
     private LocalDateTime regDt;
 
     @Column(name = "profile_image")

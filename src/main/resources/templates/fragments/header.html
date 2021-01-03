@@ -18,20 +18,17 @@
                     <span><a th:href="@{/sign-in}" style="color: #bfbfbf; text-decoration: none">Please Login</a></li></span>
                 </div>
             </th:block>
-            <th:block sec:authorize="isAuthenticated()">
+            <th:block sec:authorize="isAuthenticated()"> <!-- isAuthenticated() 인 상태면 세션에 member가 있을텐데 th:if="${session.member != null}"이 필요한지 고려 -->
                 <div style="text-align: center">
-                    <!-- thymeleaf의 if문을 사용해 사용자의 프로필 이미지를 조회하고, 등록된 프로필 이미지가 없을 경우 기본 test-account 이미지 제공 -->
                     <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}" th:src="${session.member.getProfileImage()}">
                     <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}" src="/images/test-account-96.png"><br><br>
                     <span style="color: white"><span th:if="${session.member != null}" th:text="${session.member.getNickname()}"></span>님 반갑습니다. </span><br>
-                    <span style="color: white"><a th:if="${session.member != null}" th:href="@{/mypage}" style="color: #bfbfbf; text-decoration: none">My Page</a></span>
+                    <span style="color: white"><a th:if="${session.member != null}" th:href="@{/mypage}" style="color: #bfbfbf; text-decoration: none; margin-right: 3px;">My Page</a></span>
+                    <span><a href="#" onclick="document.getElementById('logout').submit();" style="color: #bfbfbf; text-decoration: none">Logout</a></span>
                     &nbsp;
-                    <span><a th:href="@{/logout}" style="color: #bfbfbf; text-decoration: none">Logout</a></span>
+                    <form id="logout" th:action="@{/logout}" method="POST"></form>
                 </div>
             </th:block>
-            <!--            <sec:authorize access="isAuthenticated()">-->
-            <!--                <span th:href="@{/mypage}" th:text="${user}"></span>-->
-            <!--            </sec:authorize>-->
         </div>
         <ul class="links">
             <li><a th:href="@{/}">Home</a></li>

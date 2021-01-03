@@ -40,7 +40,6 @@
         }
 
         .list > .innerbox > .thumbnail > img {
-            /*width: 220px;*/
             width: 100%;
             height: auto;
             margin: auto;
@@ -49,6 +48,22 @@
         .list > p {
             margin: auto;
         }
+
+        .sort_icons {
+            width: 1.5em;
+            height: 1.5em;
+            display: inline;
+            float: right;
+        }
+
+        .sort_rankInten {
+            float: right;
+        }
+
+        .innerbox::after {
+            content: "";
+            clear: both;
+        }
     </style>
 
 </th:block>
@@ -56,6 +71,14 @@
     <script type="text/javascript" th:src="@{/assets/slick/slick.min.js}"></script>
     <script type="text/javascript" th:src="@{/assets/js/slick_slider.js}"></script>
     <!--    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>-->
+    <script>
+
+        $.ready(function(){
+            $thumbnailImgs = $('thumbnail').children('img');
+            $thumbnailImgs.forEach()
+        });
+
+    </script>
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -83,45 +106,31 @@
                     <h2>일일 박스오피스</h2>
                     <hr>
                     <div class="slider autoplay">
-                        <div class="list align-center">
-                            <div class="innerbox">
-                                <div class="thumbnail">
-                                    <img th:src="@{/images/ex.jpg}">
-                                </div>
-                                <hr>
-                                <p>content 1</p>
+                        <div class="list align-center" th:each="movie : ${movieList}"> <!--  th:if="${not #lists.isEmpty(movieImgUrlList)}" th:each="imgUrl:${movieImgUrlList}" -->
+                            <div class="innerbox" th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
+                                    <div class="thumbnail" >
+<!--                                        <img th:src="@{/images/ex.jpg}">-->
+                                        <img th:src="${movie.getImgUrl()}">
+                                    </div>
+                                    <hr>
+                                    <h3 style="display: inline-block; margin-right: 0.3em" th:text="${movie.getRank()}"></h3>
+                                    <b th:text="${movie.getMovieNm()}"></b>
+                                    <span class="sort_rankInten"
+                                          th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
+                                          th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
+                                    <span>
+                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) < 0}"
+                                         th:src="@{/images/sort_down.png}">
+                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) == 0}"
+                                         th:src="@{/images/horizontal_line.png}">
+                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) > 0}"
+                                         th:src="@{/images/sort_up.png}">
+                                </span>
                             </div>
                         </div>
-                        <div class="list align-center">
-                            <div class="innerbox">
-                                <div class="thumbnail">
-                                    <img th:src="@{/images/ex2.jpg}">
-                                </div>
-                                <hr>
-                                <p>content 2</p>
-                            </div>
-                        </div>
-                        <div class="list align-center">
-                            <div class="innerbox">
-                                <div class="thumbnail">
-                                    <img th:src="@{/images/ex3.jpg}">
-                                </div>
-                                <hr>
-                                <p>content 3</p>
-                            </div>
-                        </div>
-                        <div>content 4</div>
-                        <div>content 5</div>
-                        <div>content 6</div>
-                        <div>content 7</div>
-                        <div>content 8</div>
-                        <div>content 9</div>
-                        <div>content 10</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </section>
 
 </section>
