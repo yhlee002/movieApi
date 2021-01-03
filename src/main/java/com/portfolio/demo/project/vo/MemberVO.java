@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.pojo;
+package com.portfolio.demo.project.vo;
 
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Setter
 @Getter
-public class MemberPojo {
+public class MemberVO {
 
     private String identifier;
     private String nickname;
@@ -17,16 +17,7 @@ public class MemberPojo {
     private LocalDateTime regDt;
     private String role;
 
-
-//    public MemberPojo(OauthMember oauthMember) {
-//        this.nickname = oauthMember.getNickname();
-//        this.profileImage = oauthMember.getProfileImage();
-//        this.phone = oauthMember.getPhone();
-//        this.regDt = oauthMember.getRegDt();
-//        this.role = oauthMember.getRole();
-//    }
-
-    public MemberPojo(Member member) {
+    public MemberVO(Member member) {
         this.identifier = member.getIdentifier();
         this.nickname = member.getName();
         this.profileImage = member.getProfileImage();

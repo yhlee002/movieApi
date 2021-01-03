@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,6 +25,16 @@ public class MemberService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    public Member findByMemNo(Long memNo) {
+        Member mem = null;
+        Optional<Member> member = memberRepository.findById(memNo);
+        if (member.isPresent()) {
+            mem = member.get();
+        }
+
+        return mem;
+    }
+
     public Member findByIdentifier(String identifier) {
         return memberRepository.findByIdentifier(identifier);
     }
@@ -34,10 +45,6 @@ public class MemberService {
 
     public Member findByPhone(String phone) {
         return memberRepository.findByPhone(phone);
-    }
-
-    public Member findByMemNo(Long memNo) {
-        return memberRepository.findByMemNo(memNo);
     }
 
     public Member findByIdentifierAndProvider(String identifier, String provider) {
@@ -54,7 +61,7 @@ public class MemberService {
                         .role("ROLE_USER")
                         .profileImage(member.getProfileImage())
                         .provider(member.getProvider()) // none, naver, kakao
-                        .regDt(member.getRegDt())
+//                        .regDt(member.getRegDt())
                         .certKey(null)
                         .certification("N")
                         .build()
@@ -95,5 +102,20 @@ public class MemberService {
     public Authentication getAuthentication(Member member) {
         UserDetail userDetail = new UserDetail(member);
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
+    }
+
+    public void updateUserInfo(Member member) {
+        Member originMember = null;
+        Optional<Member> originMemberOpt = memberRepository.findById(member.getMemNo());
+        if (originMemberOpt.isPresent()) {
+            originMember = originMemberOpt.get();
+            member.setName(member.getName());
+            member.setPassword(passwordEncoder.encode(member.getPassword()));
+            member.setPhone(member.getPhone());
+        }
+    }
+
+    public void deletUserInfo(Member member) {
+        memberRepository.delete(member);
     }
 }

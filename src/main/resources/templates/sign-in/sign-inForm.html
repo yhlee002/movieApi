@@ -8,10 +8,7 @@
 <th:block layout:fragment="script">
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-                let oauth_message = null;
-
-                // oauth_message = "[[${session.oauth_message}]]";
-                oauth_message = "[[${oauth_message}]]";
+                let oauth_message = "[[${oauth_message}]]";
                 console.log(oauth_message);
 
                 if (oauth_message === "kakao user") { // 카카오 로그인 api 구현시 사라질 조건
@@ -111,8 +108,7 @@
                         <!-- submit button -->
                         <ul class="actions align-center">
                             <input class="button" type="submit" name="submit" value="Submit">
-                            <button class="button special" type="button" onclick="location.href='/sign-up'">Sign-up
-                            </button>
+                            <button class="button special" type="button" onclick="location.href='/sign-up'">Sign-up</button>
                         </ul>
                     </form>
                 </div>

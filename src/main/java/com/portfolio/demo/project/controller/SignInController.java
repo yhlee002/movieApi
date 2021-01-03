@@ -1,8 +1,9 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.pojo.MemberPojo;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.util.NaverLoginApiUtil;
+import com.portfolio.demo.project.util.NaverProfileApiUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,6 +105,8 @@ public class SignInController {
             return "redirect:/sign-in";
         }
     }
+
 }
+
 
 /* 네아로 갱신 핸들러 필요(안만들 경우 한시간만 로그인 유지) */
