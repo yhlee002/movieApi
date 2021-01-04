@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.entity.member;
 
 import lombok.*;
+import org.springframework.data.jpa.repository.Temporal;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,7 +33,8 @@ public class Member {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "reg_date")
+    @Column(name = "reg_date", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDt;
 
     @Column(name = "profile_image")

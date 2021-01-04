@@ -5,95 +5,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-    <script>
-        // let provider = document.getElementById("provider");
-        // let profileImage = document.getElementById('#profileImg')
-        // if (provider == "naver" || provider == "kakao") {
-        //     profileImage
-        // }
-    </script>
+    <script type="text/javascript" th:src="@{/assets/js/mypage/mypage-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
-    <style>
-        .inner {
-            overflow: hidden;
-        }
-
-        #myPage_one, #myPage_two {
-            border-radius: 8px;
-            overflow: visible;
-        }
-
-        #myPage_one {
-            width: 27em; /* 350px; */
-            margin-right: 2.5em;
-        }
-
-        #myPage_two {
-            height: 1000px;
-            width: 680px;
-        }
-
-        #myPage_one::after {
-            display: block;
-            content: "";
-            clear: both;
-        }
-
-        #one::after {
-            display: block;
-            content: "";
-            clear: both;
-        }
-
-        .myPage_img {
-            height: 160px;
-            width: 160px;
-            float: left;
-
-            text-align: center;
-            line-height: 20;
-        }
-
-        .myPage_img .profile_image {
-            height: 140px;
-            width: 180px;
-            margin: auto;
-        }
-
-        .myPage_info {
-            float: left;
-            width: auto;
-            margin: 1em;
-        }
-
-        .myPage_info > .info {
-            color: #444444;
-        }
-
-        button[name='modify_info'] {
-            float: right;
-            margin-top: 0.6em;
-            width: fit-content;
-            padding: 0.5em;
-            font-size: smaller;
-            font-size: smaller;
-            line-height: normal;
-        }
-
-        @media screen and (max-width: 980px) {
-            #myPage_one {
-                width: 100%;
-            }
-
-            /*.myPage_info {*/
-            /*    width: ;*/
-            /*}*/
-            .myPage_img {
-                line-height: 18;
-            }
-        }
-    </style>
+    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/mypage/mypage-main.css}">
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -101,28 +16,30 @@
     <div class="inner">
         <div class="box" id="myPage_one">
             <div class="myPage_img">
-                <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=350, height=200')">
+<!--                <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=198px')">-->
                     <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"
                          th:src="${session.member.getProfileImage()}">
                     <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}"
                          src="/images/test-account-96.png">
-                </a>
+<!--                </a>-->
             </div>
             <div class="myPage_info">
                 <span class="info" th:text="${session.member.getNickname()}"></span>님<br>
-                <span>이메일 : </span><span class="info" th:text="${session.member.getIdentifier()}"></span><br>
-                <span>연락처 : </span><span class="info" th:text="${session.member.getPhone()}"></span>
+                <span>아이디 : </span><span class="info" th:text="${session.member.getIdentifier()}"></span><br>
+                <span>연락처 : </span><span class="info" th:text="${session.member.getPhone()}"></span><br>
+                <span>가입일자 : </span><span class="info" th:text="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}"></span>
                 <br>
-<!--                <form type="post" name="modify_user_form" th:action="/mypage/modify_info">-->
-<!--                    <input type="submit" name="modify_info">수정하기</input>-->
-<!--                </form>-->
-<!--                <form type="post" name="delete_user_form" th:action="/mypage/delete_info">-->
-<!--                    <input type="submit" name="delete_info">삭제하기</input>-->
-<!--                </form>-->
+                <form type="post" name="modify_user_form" th:action="@{/mypage/modify_info}">
+                    <input type="submit" name="modify_info" value="정보 수정">
+                </form>
+                <form type="post" name="delete_user_form" th:action="@{/mypage/delete_info}">
+                    <input type="button" name="delete_info" value="회원 탈퇴">
+                </form>
             </div>
         </div>
         <div class="box" id="myPage_two">
             <!-- 내가 쓴 글 혹은 하트 누른 게시글 등 표시 -->
+            <h2></h2>
         </div>
     </div>
 </div>

@@ -4,14 +4,17 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.util.NaverLoginApiUtil;
 import com.portfolio.demo.project.util.NaverProfileApiUtil;
+import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +34,9 @@ public class SignInController {
 
     @Autowired
     SecureRandom random;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     /* Naver, Kakao Login API 관련 */
     @RequestMapping("/sign-in")
@@ -88,6 +94,9 @@ public class SignInController {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
+                MemberVO memberVO = new MemberVO(member);
+                session.setAttribute("member", memberVO);
+
                 log.info("Sign-in User; user identifier : " + member.getIdentifier() + ", name : " + member.getName());
 
                 return "redirect:/";
@@ -103,6 +112,21 @@ public class SignInController {
             rttr.addFlashAttribute("oauth_message", "not user");
 
             return "redirect:/sign-in";
+        }
+    }
+
+    @RequestMapping("/sign-in/checkProc")
+    @ResponseBody
+    public String checkProc(String email, String pwd) {
+        Member member = memberService.findByIdentifier(email);
+        if (member != null) { // 해당 이메일의 회원이 존재할 경우
+            if (passwordEncoder.matches(pwd, member.getPassword())) { // 해당 회원의 비밀번호와 일치할 경우
+                return "matched";
+            } else { // 해당 회원의 비밀번호와 일치하지 않을 경우
+                return "didn't matching";
+            }
+        } else { // 해당 이메일의 회원이 존재하지 않을 경우
+            return "not user";
         }
     }
 

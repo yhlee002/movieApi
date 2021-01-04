@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,7 +62,7 @@ public class MemberService {
                         .role("ROLE_USER")
                         .profileImage(member.getProfileImage())
                         .provider(member.getProvider()) // none, naver, kakao
-//                        .regDt(member.getRegDt())
+                        .regDt(member.getRegDt())
                         .certKey(null)
                         .certification("N")
                         .build()
@@ -104,18 +105,30 @@ public class MemberService {
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
     }
 
-    public void updateUserInfo(Member member) {
+    public Member updateUserInfo(Member member) {
         Member originMember = null;
         Optional<Member> originMemberOpt = memberRepository.findById(member.getMemNo());
         if (originMemberOpt.isPresent()) {
             originMember = originMemberOpt.get();
-            member.setName(member.getName());
-            member.setPassword(passwordEncoder.encode(member.getPassword()));
-            member.setPhone(member.getPhone());
+
+            log.info("서비스단에서 찾은 해당 회원의 기존 정보 : "+originMember.toString());
+
+            /* 비밀번호 null 체크 */
+            if (member.getPassword() != null && member.getPassword().length() != 0) {
+                originMember.setPassword(passwordEncoder.encode(member.getPassword()));
+            }
+            originMember.setName(member.getName());
+            originMember.setPhone(member.getPhone());
+            memberRepository.save(originMember);
+
+            log.info("변경된 회원 정보 : "+originMember.toString());
         }
+        return originMember;
     }
 
-    public void deletUserInfo(Member member) {
+    public void deletUserInfo(Long memNo) {
+        log.info("삭제될 User id : "+memNo);
+        Member member = memberRepository.findById(memNo).get();
         memberRepository.delete(member);
     }
 }

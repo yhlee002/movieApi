@@ -1,0 +1,52 @@
+.inner {
+    overflow: hidden;
+}
+
+#myPage_one, #myPage_two {
+    border-radius: 8px;
+}
+
+#myPage_two {
+    height: 1000px;
+}
+
+.myPage_img {
+    height: 160px;
+    width: 160px;
+    margin: 1.5em auto;
+    padding: 1em;
+}
+
+.myPage_img .profile_image {
+    height: 140px;
+    width: 140px;
+    margin: auto;
+}
+
+.myPage_info {
+    margin: 1em;
+    text-align: center;
+}
+
+.myPage_info > .info {
+    color: #444444;
+}
+
+button[name='modify_info'] {
+    margin-top: 0.6em;
+    width: fit-content;
+    padding: 0.5em;
+    font-size: smaller;
+    font-size: smaller;
+}
+
+@media screen and (max-width: 980px) {
+    #myPage_one {
+        width: 100%;
+    }
+}
+
+form[name='modify_user_form'], form[name='delete_user_form'] {
+    display: inline-block;
+    margin-top: 1em;
+}

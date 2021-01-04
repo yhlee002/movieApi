@@ -2,6 +2,8 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.vo.MemberVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,11 +11,13 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+@Slf4j
 @Controller
 public class MyPageController {
 
@@ -32,36 +36,35 @@ public class MyPageController {
     }
 
     @RequestMapping("/mypage/modify_info_proc")
-    public String modifyUserInfoProc(Long memNo, String name, String password, String phone) {
-
-        memberService.updateUserInfo(
+    public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name, @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone) {
+        log.info("memNo : "+memNo+", name : "+name+", pwd : "+pwd+", phone : "+phone);
+        Member member = memberService.updateUserInfo(
                 Member.builder()
                         .memNo(memNo)
                         .name(name)
-                        .password(password)
-                        .phone(phone)
+                        .password(pwd) // Service 단에서 'pwd' null check
+                        .phone(phone) // 수정가능하도록 하기
                         .build()
         );
 
-        return "mypage/memberInfo";
+//        session.removeAttribute("member");
+        session.setAttribute("member", new MemberVO(member));
+
+        return "redirect:/mypage/modify_info";
     }
 
     @RequestMapping("/mypage/delete_info")
     public String deleteUserInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+        System.out.println(memberVO.toString());
+        memberService.deletUserInfo(memberVO.getMemNo());
+
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
-        Member member = (Member) session.getAttribute("member");
-        memberService.deletUserInfo(member);
-
         return "redirect:/";
-    }
-
-    @RequestMapping("/mypage/authentication")
-    public String authenticationUser(String pwd) {
-        SecurityContextHolder.getContext().getAuthentication().getCredentials();
     }
 
     @RequestMapping("/mypage/uploadProfileImage")
