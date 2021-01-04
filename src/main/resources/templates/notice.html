@@ -1,0 +1,39 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script">
+<!--    <script type="text/javascript" th:src="@{/assets/js/mypage/mypage-main.js}"></script>-->
+</th:block>
+<th:block layout:fragment="css">
+<!--    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/mypage/mypage-modify-form.css}">-->
+</th:block>
+<body>
+<header th:replace="fragments/header.html :: headerFragment"></header>
+<div id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box align-center">
+            <div class="image fit">
+                <img th:src="@{/images/pic02.jpg}">
+            </div>
+            <div class="content">
+                <h2>Notice</h2>
+                <hr>
+                <table>
+                    <tr th:each="board : ${boardList}" th:onclick="'window.location.href='+@{/notice/{bNo}{bNo=${board.getBoardId()}}}">
+                        <td th:text="${board.getBoardId()}"></td>
+                        <td th:text="${board.getTitle()}"></td>
+<!--                        <td th:text="${board.getWriter}"></td>   **********boardVO를 만들어서 writer를 담는건? -->
+                        <td th:text="${board.getRegDate()}"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="footerFragment"></th:block>
+</body>
+</html>

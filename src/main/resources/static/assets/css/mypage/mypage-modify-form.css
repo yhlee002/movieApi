@@ -1,0 +1,22 @@
+form[name='modify_info_form'] {
+    width: 600px;
+    margin: 1.5em auto;
+}
+input[name='modifyinfo_submitBtn'] {
+    margin : 1em auto 2.5em auto;
+}
+
+@media screen and (max-width: 736px) {
+    form[name='modify_info_form'] {
+        width: 400px;
+    }
+}
+input[type=text], input[type=password] {
+    text-align: center;
+}
+.profile_image {
+    margin: 1.5em auto 0 auto;
+}
+label {
+    display: inline-block;
+}

@@ -1,10 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
+<head th:replace="fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script">
+    <script type="text/javascript" th:src="@{/assets/js/mypage/mypage-main.js}"></script>
+</th:block>
+<th:block layout:fragment="css">
+    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/mypage/mypage-modify-form.css}">
+</th:block>
+<body>
+<header th:replace="fragments/header.html :: headerFragment"></header>
+<div id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box align-center" id="myPageModi_one">
+            <div sec:authorize="isAuthenticated()">
+                <form th:action="@{/mypage/modify_info_proc}" type="post" name="modify_info_form" class="form">
+                    <!-- profile image -->
+                    <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=198px')">
+                        <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"
+                             th:src="${session.member.getProfileImage()}">
+                        <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}"
+                             src="/images/test-account-96.png">
+                    </a>
+                    <br>
+                    <br>
+                    <input type="text" name="memNo" th:value="${session.member.getMemNo()}" th:valuetype="Long" hidden>
+
+                    <div class="form-group">
+                        <label class="align-left" for="identifier">ID : </label>
+                        <input class="form-control half" type="text" id="identifier" name="identifier"
+                               th:value="${session.member.getIdentifier()}" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="align-left" for="nickname">Name : </label>
+                        <input class="form-control half" type="text" id="nickname" name="nickname"
+                               th:value="${session.member.getNickname()}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="align-left" for="pwd">pwd : </label>
+                        <input class="form-control half" type="password" id="pwd" name="pwd" placeholder="비밀번호 변경시 입력하세요.">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="align-left" for="pwd_checked">pwd_checked : </label>
+                        <input class="form-control half" type="password" id="pwd_checked" name="pwd_checked">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="align-left" for="phone">Phone : </label>
+                        <input class="form-control half" type="text" id="phone" name="phone" th:value="${session.member.getPhone()}">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="align-left" for="regDt">Registration Date : </label>
+                        <input class="form-control half" type="text" id="regDt" name="regDt" th:value="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}" readonly>
+                    </div>
+
+                    <input class="form-control" type="text" name="provider" th:value="${session.member.getProvider()}"
+                           hidden="hidden">
+                    <input type="button" name="modifyinfo_submitBtn" th:value="확인">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="footerFragment"></th:block>
 </body>
 </html>

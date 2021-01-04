@@ -2,6 +2,7 @@ package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.security.CustomAuthenticationProvider;
 //import com.portfolio.demo.project.security.CustomCsrfFilter;
+import com.portfolio.demo.project.security.SignInSuccessHandler;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +34,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/", "/sign-up/**", "/boardName").permitAll()
-                .antMatchers("/user/**", "/logout", "/boardName/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
+                .antMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
                 .antMatchers("/admin/**").hasRole("ADMIN");
 
         http.httpBasic();
@@ -43,8 +44,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in/sign-in-processor")
-                .permitAll(); // anonymous만 접근 가능한 경로로 변경 필요
-//                .successHandler(signInSuccessHandler());
+//                .permitAll(); // anonymous만 접근 가능한 경로로 변경 필요
+                .successHandler(signInSuccessHandler())
+                .permitAll();
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
         http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true);
@@ -83,12 +85,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     protected SecureRandom secureRandom() {
-        return new SecureRandom();}
+        return new SecureRandom();
+    }
 
-//    @Bean
-//    protected SignInSuccessHandler signInSuccessHandler(){
-//        return new SignInSuccessHandler();
-//    }
+    @Bean
+    protected SignInSuccessHandler signInSuccessHandler() {
+        return new SignInSuccessHandler();
+    }
 
 
 //    @Bean
