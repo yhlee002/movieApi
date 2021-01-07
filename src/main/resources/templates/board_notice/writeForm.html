@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/config.html :: configFragment"></head>
+
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/assets/summernote-0.8.18/summernote-lite.min.css}">
+    <style>
+        button {
+            background-color: white;
+        }
+    </style>
+</th:block>
+<th:block layout:fragment="script">
+    <script th:src="@{/assets/summernote-0.8.18/summernote-lite.min.js}"></script>
+    <script th:src="@{/assets/summernote-0.8.18/lang/summernote-ko-KR.js}"></script>
+    <script>
+        $(document).ready(function () {
+            $('#summernote').summernote(
+                {
+                    height: 300,                 // 에디터 높이
+                    // minHeight: null,             // 최소 높이
+                    // maxHeight: null,             // 최대 높이
+                    focus: true,                  // 에디터 로딩후 포커스를 맞출지 여부
+                    lang: "ko-KR",					// 한글 설정
+                    placeholder: '최대 2048자까지 쓸 수 있습니다',	//placeholder 설정
+                    tabsize: 1,
+                    toolbar: [
+                        ['style', ['style']],
+                        ['fontname', ['fontNames']],
+                        // ['font', ['bold', 'underline', 'clear']],
+                        ['fontsize', ['fontsize']],
+                        ['color', ['forecolor', 'color']],
+                        ['para', ['ul', 'ol', 'paragraph']],
+                        ['table', ['table']],
+                        ['insert', ['link', 'picture', 'video']],
+                        ['view', ['codeview', 'help']] // 'fullscreen'
+                    ],
+                    style: ['bold', 'italic', 'underline', 'strikethrough', 'clear'],
+                    fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', '맑은 고딕', '궁서', '굴림체', '굴림', '돋음체', '바탕체'],
+                    fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '22', '24', '28', '30', '36', '50', '72'],
+                    lang: 'ko-KR'
+                }
+            );
+        });
+
+        $('#noticeSubmitBtn').on("click", function () {
+            let markupStr = $('#summernote').summernote('code');
+            console.log("입력한 컨텐츠 : " + markupStr);
+        });
+    </script>
+</th:block>
+<body>
+<header th:replace="fragments/header.html :: headerFragment"></header>
+<div id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box align-center">
+            <div class="content">
+                <div class="image fit">
+                    <img th:src="@{/images/banner-notice.jpg}" alt="">
+                </div>
+                <h2>Write Notice</h2>
+                <form method="post">
+                    <textarea id="summernote" name="editordata"></textarea>
+                </form>
+                <button id="noticeSubmitBtn" type="button" class="button">완료</button>
+            </div>
+        </div>
+    </div>
+</div>
+<footer th:replace="fragments/footer.html :: footerFragment"></footer>
+</body>
+</html>

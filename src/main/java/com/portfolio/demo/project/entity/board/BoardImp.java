@@ -6,25 +6,34 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Table(name = "board")
+@Table(name = "board_impression")
+@Entity
 @Setter
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class Board {
+public class BoardImp {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId; // 글 번호
+    private Long boardId;
+
     @Column(name = "title", nullable = false)
-    private String title; // 제목
-    @Column(name = "content", nullable = false)
-    private String content; // 내용
-    @Column(name = "writer_no", nullable = false)
+    private String title;
+
+    @Column(name = "content") // , nullable = false
+    private String content;
+
+    @Column(name = "writer_no") // , nullable = false
     private Long writerNo; // Member 테이블의 memNo(FK)
+
+    @Column(name = "name")
+    private String writer;
+
     @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate; // 작성시간
-    @Column(name = "mod_dt", columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-    private LocalDateTime modDate; // 최종 수정 시간
+    private LocalDateTime regDate;
+
+    @Column(name = "views")
+    private int views; // 조회수
 }
