@@ -29,9 +29,6 @@
         .list {
             width: 100px;
             height: auto;
-        }
-
-        .list {
             margin: 2px;
         }
 
@@ -106,10 +103,9 @@
                     <h2>일일 박스오피스</h2>
                     <hr>
                     <div class="slider autoplay">
-                        <div class="list align-center" th:each="movie : ${movieList}"> <!--  th:if="${not #lists.isEmpty(movieImgUrlList)}" th:each="imgUrl:${movieImgUrlList}" -->
+                        <div class="list align-center" th:each="movie : ${movieList}">
                             <div class="innerbox" th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
                                     <div class="thumbnail" >
-<!--                                        <img th:src="@{/images/ex.jpg}">-->
                                         <img th:src="${movie.getImgUrl()}">
                                     </div>
                                     <hr>
