@@ -7,12 +7,12 @@
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
     <script>
-        function checkRole(role) {
+        function checkRoleAdmin(role) {
             console.log("role : "+role);
 
-            if (role == "ROLE_ADMIN") {
+            if (role.equals("ROLE_ADMIN")) {
                 location.href="/notice/write";
-            } else if(role == "ROLE_USER"){ //
+            } else if(role.equals("ROLE_USER")){ //
                 alert("관리자만 접근가능한 페이지입니다.");
             }
         }
@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="align-right">
-                    <button type="button" sec:authorize="isAuthenticated()" th:onclick="checkRole([[${session.member.getRole()}]])">글쓰기</button>
+                    <button type="button" sec:authorize="isAuthenticated()" th:onclick="checkRoleAdmin([[${session.member.getRole()}]])">글쓰기</button>
                 </div>
             </div>
         </div>

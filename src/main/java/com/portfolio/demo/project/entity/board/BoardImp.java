@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Table(name = "board_impression")
+@Table(name = "board_imp")
 @Entity
 @Setter
 @Getter

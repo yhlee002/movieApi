@@ -1,7 +1,10 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
+import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ public class BoardController {
 
     @Autowired
     BoardNoticeService boardNoticeService;
+
+    @Autowired
+    BoardImpService boardImpService;
 
     @RequestMapping("/notice")
     public String noticeBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
@@ -44,9 +50,28 @@ public class BoardController {
         return "board_notice/detail";
     }
 
-    @RequestMapping("/review")
-    public String reviewBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
+    @RequestMapping("/imp")
+    public String impBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
+        ImpressionPagenationVO pagenationVO = boardImpService.getImpListView(pageNum);
+        model.addAttribute("pagenation", pagenationVO);
 
         return "board_impression/list";
     }
+
+    @RequestMapping("/imp/write")
+    public String impBoardWriteForm() {
+
+        return "board_impression/writeForm";
+    }
+
+    @RequestMapping("/imp/{boardNo}")
+    public String impDetail(@PathVariable Long boardNo, Model model) {
+        Map<String, BoardImp> boards = boardImpService.selectBoardByBoardId(boardNo);
+        model.addAttribute("board", boards.get("board"));
+        model.addAttribute("prevBoard", boards.get("prevBoard"));
+        model.addAttribute("nextBoard", boards.get("nextBoard"));
+
+        return "board_impression/detail";
+    }
+
 }

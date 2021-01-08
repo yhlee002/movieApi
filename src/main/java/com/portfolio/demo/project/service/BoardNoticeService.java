@@ -20,13 +20,13 @@ public class BoardNoticeService {
 
     /* 조회 */
     public List<BoardNotice> selectAllBoards() {
-        return boardNoticeRepository.findAll();
+        return boardNoticeRepository.findAllBoardNotice();
     }
 
     public HashMap<String, BoardNotice> selectBoardByBoardId(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findBoardByBoarId(boardId);
-        BoardNotice prevBoard = boardNoticeRepository.findPrevBoardByBoardId(boardId);
-        BoardNotice nextBoard = boardNoticeRepository.findNextBoardByBoardId(boardId);
+        BoardNotice board = boardNoticeRepository.findBoardNoticeByBoarId(boardId);
+        BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeByBoardId(boardId);
+        BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeByBoardId(boardId);
         HashMap<String, BoardNotice> boardNoticeMap = new HashMap<>();
         boardNoticeMap.put("board", board);
         boardNoticeMap.put("prevBoard", prevBoard);
@@ -35,33 +35,23 @@ public class BoardNoticeService {
         return boardNoticeMap;
     }
 
-    public List<BoardNotice> selectBoardsByWriterNo(Long writerNo) {
-        return boardNoticeRepository.findAllByWriterNo(writerNo);
-    }
-
-//    public List<Board> selectBoardsByTitle(String title) {
-//        return boardRepository.findAllByTitle(title);
-//    }
-//
-//    public List<Board> selectBoardsByContent(String content) {
-//        return boardRepository.findAllByContent(content);
+//    public List<BoardNotice> selectBoardsByWriterNo(Long writerNo) {
+//        return boardNoticeRepository.findAllBoardNoticeByWriterNo(writerNo);
 //    }
 
     public List<BoardNotice> selectBoardsByTitleAndContent(String titleOrContent) {
-        return boardNoticeRepository.findAllByTitleAndContent(titleOrContent);
+        return boardNoticeRepository.findAllBoardNoticeByTitleAndContent(titleOrContent);
     }
 
-    public List<BoardNotice> selectBoardsByWriterName(String writerName) {
-        return boardNoticeRepository.findAllByWriterName(writerName);
-    }
 
     /* 수정 */
     public Long updateBoard(BoardNotice board) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
 
         Optional<BoardNotice> originBoard = boardNoticeRepository.findById(board.getBoardId());
-        if (originBoard.isPresent()) {
-            boardNoticeRepository.save(originBoard.get());
-        }
+//        if (originBoard.isPresent()) {
+//            boardNoticeRepository.save(originBoard.get());
+//        }
+        originBoard.ifPresent(boardNotice -> boardNoticeRepository.save(boardNotice));
 
         return board.getBoardId();
     }
@@ -76,11 +66,10 @@ public class BoardNoticeService {
     }
 
     /* 페이지 네이션 */
-
     private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
 
     public NoticePagenationVO getNoticeListView(int pageNum) {
-        int totalBoardCnt = boardNoticeRepository.findTotalCount();
+        int totalBoardCnt = boardNoticeRepository.findBoardNoticeTotalCount();
         int startRow = 0;
         List<BoardNotice> boardNoticeList = null;
         NoticePagenationVO noticePagenationVO = null;

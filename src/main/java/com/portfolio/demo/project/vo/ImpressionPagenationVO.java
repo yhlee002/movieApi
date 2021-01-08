@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.vo;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.board.BoardNotice;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
