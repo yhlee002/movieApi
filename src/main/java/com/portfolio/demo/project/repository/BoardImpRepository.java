@@ -22,14 +22,14 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     BoardImp findBoardImpByBoarId(Long boardId);
 
     // 이전글
-    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name as writer, b.reg_dt, b.mod_dt, b.views " +
+    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name as writer, b.reg_dt, b.views " +
             "from board_notice b join Member m on b.writer_no = m.mem_no where b.board_id = " +
             "(select b.board_id from board_imp b where b.board_id < ?1 order by board_id desc limit 1)"
             , nativeQuery = true)
     BoardImp findPrevBoardImpByBoardId(Long boardId);
 
     // 다음글
-    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name as writer, b.reg_dt, b.mod_dt, b.views " +
+    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name as writer, b.reg_dt, b.views " +
             "from board_imp b join Member m on b.writer_no = m.mem_no where b.board_id = " +
             "(select b.board_id from board_imp b where b.board_id > ?1 order by board_id asc limit 1)"
             , nativeQuery = true)
@@ -43,7 +43,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     List<BoardImp> findAllBoardImpByTitleAndContent(String titleOrContent);
 
     // '작성자명'으로 검색
-    @Query("select b from BoardImp b join Member m on b.writerNo = m.memNo where m.name = ?1")
+    @Query("select b from BoardImp b join Member m on b.writerNo = m.memNo where m.name like %?1%")
     List<BoardImp> findAllBoardImpByWriterName(String name);
 
 

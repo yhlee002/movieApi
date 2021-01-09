@@ -120,7 +120,6 @@ public class SignupController {
                 .password(password)
                 .phone(phone)
                 .provider(provider)
-//                .regDt(LocalDateTime.now())
                 .build();
         memberService.saveMember(member);
         mailService.sendMail(member.getIdentifier());
@@ -147,15 +146,13 @@ public class SignupController {
     @RequestMapping(value = "/success", method = RequestMethod.GET)
     public String signUpSuccessPage(Model m, @RequestParam(required = false) Long memNo, @RequestParam(required = false) Long oauthMemNo) {
         if (memNo != null && oauthMemNo == null) {
-//            Member member = memberRepository.findByMemNo(memNo);
             Optional<Member> member = memberRepository.findById(memNo);
             if (member.isPresent()) {
                 m.addAttribute("member", member.get());
             }
-//            m.addAttribute("member", member);
 
             return "sign-up/successPage";
-        } else { // (memNo == null && oauthMemNo != null)
+        } else {
 
             return "redirect:/";
         }

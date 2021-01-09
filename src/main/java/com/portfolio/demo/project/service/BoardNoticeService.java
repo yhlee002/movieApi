@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,11 @@ public class BoardNoticeService {
         return boardNoticeRepository.findAllBoardNoticeByTitleAndContent(titleOrContent);
     }
 
+    /* 추가(작성) */
+    public BoardNotice saveBoard(String title, Long memNo, String content) {
+        BoardNotice notice = new BoardNotice(null, title, memNo, content, LocalDateTime.now());
+        return boardNoticeRepository.save(notice);
+    }
 
     /* 수정 */
     public Long updateBoard(BoardNotice board) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?

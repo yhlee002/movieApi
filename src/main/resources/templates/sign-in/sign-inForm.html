@@ -41,6 +41,7 @@
             </div>
             <div class="content">
                 <h2 class="align-center title">Sign In</h2>
+                <input id="oauthMsg" hidden="hidden" th:if="${not #strings.isEmpty(oauth_message)}" th:value="${oauth_message}">
                 <div class="container align-center">
                     <form id="sign-up-form" th:action="@{/sign-in/sign-in-processor}" method="post">
                         <!-- th:action을 사용할 경우, CSRF 토큰이 필요할 경우 자동으로 포함해 전송 -->
@@ -68,9 +69,9 @@
 
                         <!-- 네이버, 카카오, 구글 로그인 api 버튼 필요 -->
                         <button id="naverSignInBtn" class="oauthBtn" type="button"
-                                onclick="javascript:naverLogin()"></button>
+                                th:onclick="goLoginProc([[${naverLoginUrl}]])"></button><!-- javascript:naverLogin() -->
                         <button id="kakaoSignInBtn" class="oauthBtn" type="button"
-                                onclick="javascript:kakaoLogin()"></button>
+                                onclick="goLoginProc('#')"></button><!-- javascript:kakaoLogin() -->
                         <br>
 
                         <!-- submit button -->

@@ -7,7 +7,13 @@
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
     <script>
-
+        $(document).ready(function () {
+            // let str = [[${board.getContent()}]];
+            // console.log("str : "+str)
+            // $('#boardContent').html(str);
+            // // $('#boardContent').text(Str);
+            // // $('#boardContent').innerText([[${board.getContent()}]]);
+        });
     </script>
 </th:block>
 <th:block layout:fragment="css">
@@ -26,9 +32,11 @@
             font-size: 1.2em;
         }
 
-        .boardContent {
+        #boardContentBox {
             margin: 3em 1em;
             text-align: left;
+            padding: 2em;
+            height: 400px
         }
 
         .updateBtns {
@@ -74,9 +82,11 @@
                         <span>조회수 : <span class="noticeInfo" th:text="${board.getViews()}"></span></span>
                     </div>
 
-                    <div class="boardContent">
-                        <td colspan="4" style="padding: 2em; height: 400px"><span
-                                th:text="${board.getContent()}"></span></td>
+                    <div id="boardContentBox">
+                        <div id="boardContent">
+                            <div th:utext="${board.getContent()}"></div>
+                        </div>
+
                     </div>
                 </div>
                 <div class="updateBtns" sec:authorize="isAuthenticated()">
@@ -88,8 +98,12 @@
                 </div>
 
                 <div class="prevNextBoards" th:if="${prevBoard != null || nextBoard != null}">
-                    <a th:if="${prevBoard != null}" th:href="@{/templates/board_notice/{boardId}(boardId=${prevBoard.getBoardId()})}">이전글 <span th:text="${prevBoard.getTitle()}"></span></a>
-                    <a th:if="${nextBoard != null}" th:href="@{/templates/board_notice/{boardId}(boardId=${nextBoard.getBoardId()})}">다음글 <span th:text="${nextBoard.getTitle()}"></span></a>
+                    <a th:if="${prevBoard != null}"
+                       th:href="@{/templates/board_notice/{boardId}(boardId=${prevBoard.getBoardId()})}">이전글 <span
+                            th:text="${prevBoard.getTitle()}"></span></a>
+                    <a th:if="${nextBoard != null}"
+                       th:href="@{/templates/board_notice/{boardId}(boardId=${nextBoard.getBoardId()})}">다음글 <span
+                            th:text="${nextBoard.getTitle()}"></span></a>
                 </div>
             </div>
         </div>

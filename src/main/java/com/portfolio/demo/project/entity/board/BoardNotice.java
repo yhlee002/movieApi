@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.board;
 
-import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -14,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class BoardNotice {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long boardId; // 글 번호
@@ -21,14 +21,14 @@ public class BoardNotice {
     @Column(name = "title", nullable = false)
     private String title; // 제목
 
-    @Column(name = "content") // , nullable = false
-    private String content; // 내용
-
-    @Column(name = "writer_no") // , nullable = false
+    @Column(name = "writer_no", nullable = false) // , nullable = false
     private Long writerNo; // Member 테이블의 memNo(FK)
 
     @Column(name = "name")
     private String writer;
+
+    @Column(name = "content", nullable = false) // , nullable = false
+    private String content; // 내용
 
     @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,4 +40,12 @@ public class BoardNotice {
     @Column(name = "views")
     private int views; // 조회수
 
+    @Builder
+    public BoardNotice(Long boardId, String title, Long writerNo, String content, LocalDateTime regDate) {
+        this.boardId = boardId;
+        this.title = title;
+        this.writerNo = writerNo;
+        this.content = content;
+        this.regDate = regDate;
+    }
 }
