@@ -49,11 +49,11 @@ $(function () {
         }
 
     });
-1
+    1
 });
 
 $(document).ready(function () {
-    let oauth_message = "[[${oauth_message}]]";
+    let oauth_message = $('#oauthMsg').val(); // "[[${oauth_message}]]"
     console.log(oauth_message);
 
     if (oauth_message === "kakao user") { // 카카오 로그인 api 구현시 사라질 조건
@@ -68,30 +68,16 @@ $(document).ready(function () {
     }
 }, false);
 
-// document.addEventListener('DOMContentLoaded', function () {
-//         let oauth_message = "[[${oauth_message}]]";
-//         console.log(oauth_message);
+// /* 네아로 API 호출 */
+// function naverLogin() {
+//     let naver_login_url = "[[${naverLoginUrl}]]";
+//     location.href = naver_login_url;
+// }
 //
-//         if (oauth_message === "kakao user") { // 카카오 로그인 api 구현시 사라질 조건
-//             window.alert("카카오 아이디를 통해 로그인이 필요한 회원입니다.");
-//         } else if (oauth_message === "conventional user") {
-//             window.alert("비밀번호를 통한 로그인이 필요한 회원입니다.");
-//         } else if (oauth_message === "not user") {
-//             let conf = window.confirm("가입되지 않은 사용자입니다. 회원가입 페이지로 이동하시겠습니까?");
-//             if (conf) {
-//                 location.href = "/sign-up/oauthMem";
-//             }
-//         }
-//     },
-//     false
-// );
+// function kakaoLogin() {
+//     location.href = '#';
+// }
 
-/* 네아로 API 호출 */
-function naverLogin() {
-    let naver_login_url = "[[${naverLoginUrl}]]";
-    location.href = naver_login_url;
-}
-
-function kakaoLogin() {
-    location.href = '#';
+function goLoginProc(url) {
+    location.href = url;
 }

@@ -33,9 +33,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/sign-up/**", "/boardName").permitAll()
-                .antMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
-                .antMatchers("/admin/**").hasRole("ADMIN");
+                .antMatchers("/", "/sign-up/**", "/notice", "/imp").permitAll()
+                .antMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
+                .antMatchers("/admin/**", "/notice/write").hasRole("ADMIN");
 
         http.httpBasic();
 

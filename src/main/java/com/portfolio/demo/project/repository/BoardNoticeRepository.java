@@ -48,7 +48,7 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     @Query("select count(b) from BoardNotice b")
     int findBoardNoticeTotalCount();
 
-    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name as writer, b.reg_dt, b.mod_dt, b.views " +
+    @Query(value = "select b.board_id, b.title, b.content, b.writer_no, m.name, b.reg_dt, b.mod_dt, b.views " +
             "from board_notice b join Member m on b.writer_no = m.mem_no order by b.board_id desc limit ?1, ?2"
             , nativeQuery = true)
     List<BoardNotice> findBoardNoticeListView(int startRow, int boardCntPerPage);
