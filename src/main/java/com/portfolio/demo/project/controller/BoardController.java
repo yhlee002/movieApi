@@ -32,6 +32,8 @@ public class BoardController {
     @Autowired
     BoardImpService boardImpService;
 
+    /* 공지사항 게시판 */
+    // 전체 조회
     @RequestMapping("/notice")
     public String noticeBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
         NoticePagenationVO pagenationVO = boardNoticeService.getNoticeListView(pageNum);
@@ -40,15 +42,10 @@ public class BoardController {
         return "board_notice/list";
     }
 
-    @RequestMapping("/notice/write")
-    public String noticeBoardWriteForm() {
-
-        return "board_notice/writeForm";
-    }
-
+    // 게시글 자세히 보기
     @RequestMapping("/notice/{boardNo}")
     public String noticeDetail(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardNotice> boards = boardNoticeService.selectBoardByBoardId(boardNo);
+        Map<String, BoardNotice> boards = boardNoticeService.selectBoardsByBoardId(boardNo);
         model.addAttribute("board", boards.get("board"));
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
@@ -56,6 +53,45 @@ public class BoardController {
         return "board_notice/detail";
     }
 
+    // 게시글 작성
+    @RequestMapping("/notice/write")
+    public String noticeBoardWriteForm() {
+
+        return "board_notice/writeForm";
+    }
+
+    // 게시글 작성 2
+    @ResponseBody
+    @RequestMapping(value = "/notice/writeProc", method = RequestMethod.POST)
+    public Long noticeWriteProc(String title, Long writerNo, String content) {
+        return boardNoticeService.saveBoard(title, writerNo, content).getBoardId();
+    }
+
+    // 게시글 수정
+    @RequestMapping("/notice/update/{boardId}")
+    public String noticeBoardUpdateForm(@PathVariable Long boardId, Model model) {
+        model.addAttribute("board", boardNoticeService.selectBoardByBoardId(boardId));
+
+        return "board_notice/updateForm";
+    }
+
+    // 게시글 수정 2
+    @RequestMapping("/notice/updateProc")
+    public String noticeUpdateProc(Long boardId, String title, Long wirterNo, String content) {
+        boardNoticeService.updateBoard(boardId, title, wirterNo, content);
+
+        return "redirect:/notice/" + boardId;
+    }
+
+    // 게시글 삭제
+    @RequestMapping("/notice/delete/{boardId}")
+    public String noticeDeleteProc(@PathVariable Long boardId) {
+        boardNoticeService.deleteBoard(boardId);
+
+        return "redirect:/notice";
+    }
+
+    /* 후기 게시판 */
     @RequestMapping("/imp")
     public String impBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
         ImpressionPagenationVO pagenationVO = boardImpService.getImpListView(pageNum);
@@ -117,14 +153,6 @@ public class BoardController {
         }
 
         return jsonObject;
-    }
-
-    /* 글 작성 */
-    @ResponseBody
-    @RequestMapping(value = "/notice/writeProc", method = RequestMethod.POST)
-    public Long noticeWriteProc(String title, Long writerNo, String content) {
-        log.info("title : "+title+", writerNo : "+writerNo+", content : "+content);
-        return boardNoticeService.saveBoard(title, writerNo, content).getBoardId();
     }
 
 }

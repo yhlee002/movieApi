@@ -43,7 +43,6 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     @Query("select b from BoardNotice b where b.title like %?1% or b.content like %?1%")
     List<BoardNotice> findAllBoardNoticeByTitleAndContent(String titleOrContent);
 
-
     /* 페이지네이션 */
     @Query("select count(b) from BoardNotice b")
     int findBoardNoticeTotalCount();
