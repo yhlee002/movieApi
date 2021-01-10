@@ -6,15 +6,7 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-    <script>
-        $(document).ready(function () {
-            // let str = [[${board.getContent()}]];
-            // console.log("str : "+str)
-            // $('#boardContent').html(str);
-            // // $('#boardContent').text(Str);
-            // // $('#boardContent').innerText([[${board.getContent()}]]);
-        });
-    </script>
+    <script th:src="@{/assets/js/notice/notice-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
     <style>
@@ -91,8 +83,8 @@
                 </div>
                 <div class="updateBtns" sec:authorize="isAuthenticated()">
                     <ul class="align-right" th:if="${session.member.getMemNo() == board.getWriterNo()}">
-                        <button type="button" id="modifyBtn">수정하기</button>
-                        <button type="button" id="deleteBtn">삭제하기</button>
+                        <button type="button" id="updateBtn" th:onclick="updateNt([[${board.getBoardId()}]])">수정하기</button>
+                        <button type="button" id="deleteBtn" th:onclick="deleteNt([[${board.getBoardId()}]])">삭제하기</button>
                         </li>
                     </ul>
                 </div>

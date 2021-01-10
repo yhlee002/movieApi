@@ -24,7 +24,9 @@ public class BoardNoticeService {
         return boardNoticeRepository.findAllBoardNotice();
     }
 
-    public HashMap<String, BoardNotice> selectBoardByBoardId(Long boardId) {
+    public BoardNotice selectBoardByBoardId(Long boardId) {return boardNoticeRepository.findBoardNoticeByBoarId(boardId);}
+
+    public HashMap<String, BoardNotice> selectBoardsByBoardId(Long boardId) {
         BoardNotice board = boardNoticeRepository.findBoardNoticeByBoarId(boardId);
         BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeByBoardId(boardId);
         BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeByBoardId(boardId);
@@ -51,15 +53,15 @@ public class BoardNoticeService {
     }
 
     /* 수정 */
-    public Long updateBoard(BoardNotice board) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+    public Long updateBoard(Long boardId, String title, Long memNo, String content) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+        BoardNotice newBoard = null;
+        Optional<BoardNotice> originBoard = boardNoticeRepository.findById(boardId);
+        if (originBoard.isPresent()) {
+            newBoard = new BoardNotice(boardId, title, memNo, content, originBoard.get().getRegDate());
+            boardNoticeRepository.save(newBoard);
+        }
 
-        Optional<BoardNotice> originBoard = boardNoticeRepository.findById(board.getBoardId());
-//        if (originBoard.isPresent()) {
-//            boardNoticeRepository.save(originBoard.get());
-//        }
-        originBoard.ifPresent(boardNotice -> boardNoticeRepository.save(boardNotice));
-
-        return board.getBoardId();
+        return newBoard.getBoardId();
     }
 
     /* 삭제 */
