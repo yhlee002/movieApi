@@ -6,16 +6,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/assets/js/notice/notice-main.js}"></script>
-    <script>
-
-    </script>
+<script type="text/javascript" th:src="@{/assets/js/imp/imp-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
-    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/notice/notice-main.css}"/>
-    <style>
-
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/imp/imp-main.css}">
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -23,10 +17,10 @@
     <div class="inner">
         <div class="box align-center">
             <div class="image fit">
-                <img th:src="@{/images/pic02.jpg}">
+                <img th:src="@{/images/pic03.jpg}" alt="">
             </div>
             <div class="content">
-                <h2>Notice</h2>
+                <h2>감상 후기</h2>
                 <div th:if="${pagenation.getTotalBoardCnt() == 0}">
                     <p>작성된 글이 존재하지 않습니다.</p>
                 </div>
@@ -42,8 +36,8 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="board : ${pagenation.getBoardNoticeList()}" style="cursor:pointer"
-                            th:onclick="'location.href=\''+@{/notice/{bNo}(bNo=${board.getBoardId()})}+'\';'">
+                        <tr th:each="board : ${pagenation.getBoardImpList()}" style="cursor:pointer"
+                            th:onclick="'location.href=\''+@{/imp/{bNo}(bNo=${board.getBoardId()})}+'\';'">
                             <td th:text="${board.getBoardId()}"></td>
                             <td th:text="${board.getTitle()}"></td>
                             <td th:text="${board.getWriter()}"></td>
@@ -55,28 +49,36 @@
 
                     <!-- 페이지네이션 -->
                     <div id="pagenation">
-                        <a th:each="index : ${#numbers.sequence(1, {pagenation.getTotalPageCnt()})}" th:text="${index}"
-                           th:href="@{/notice?p={i}(i=${index})}"></a> <!-- th:href="@{/templates/board_notice?p={i}(i=${index})}" -->
+                        <a th:each="index : ${#numbers.sequence(1, {pagenation.getTotalPageCnt()})}"
+                           th:text="${index}"
+                           th:href="@{/imp?p={i}(i=${index})}"></a>
                     </div>
+
                 </div>
 
                 <!-- 검색 기능 -->
                 <div id="search">
-                    <form th:action="@{/notice}" type="get">
-                        <input type="text" name="query" id="searchQuery" placeholder="제목 및 내용을 입력해주세요.">
-                        <button type="button" id="NtcSearchBtn">검색</button>
+                    <form th:action="@{/imp}" type="get">
+                        <select name="con" id="searchSelect">
+                            <option name="con" value="writerName" selected>작성자명</option>
+                            <option name="con" value="TitleOrContent">제목 또는 내용</option>
+                        </select>
+                        <input type="text" name="query" id="searchQuery">
+                        <button type="button" id="ImpsearchBtn">검색</button>
                     </form>
                 </div>
 
                 <div class="align-right">
                     <button type="button" sec:authorize="isAuthenticated()"
-                            th:onclick="checkRoleAdmin([[${session.member.getRole()}]])">글쓰기
+                            onclick="location.href='/imp/write'">글쓰기
+                    </button>
+                    <button type="button" sec:authorize="isAnonymous()"
+                            onclick="checkAnonymous()">글쓰기
                     </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<footer th:replace="fragments/footer.html :: footerFragment"></footer>
+    <footer th:replace="fragments/footer.html :: footerFragment"></footer>
 </body>
 </html>

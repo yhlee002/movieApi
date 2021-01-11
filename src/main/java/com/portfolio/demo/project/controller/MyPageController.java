@@ -47,10 +47,9 @@ public class MyPageController {
                         .build()
         );
 
-//        session.removeAttribute("member");
         session.setAttribute("member", new MemberVO(member));
 
-        return "redirect:/mypage/modify_info";
+        return "redirect:/mypage";
     }
 
     @RequestMapping("/mypage/delete_info")

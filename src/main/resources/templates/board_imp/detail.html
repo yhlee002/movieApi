@@ -6,10 +6,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/assets/js/notice/notice-main.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/imp/imp-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
-    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/notice/notice-main.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/imp/imp-main.css}"/>
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -18,23 +18,18 @@
         <div class="box align-center">
             <div class="content">
                 <div class="align-right">
-                    <span onclick="location.href='/notice'" style="cursor: pointer">돌아가기</span>
+                    <span onclick="location.href='/imp'" style="cursor: pointer">돌아가기</span>
                 </div>
                 <hr>
                 <div>
-                    <p class="noticeTitle" th:text="${board.getTitle()}"></p>
+                    <p class="impTitle" th:text="${board.getTitle()}"></p>
 
                     <div class="align-left">
-                        <span class="writer noticeInfo" th:text="${board.getWriter()}"></span>&nbsp;
-                        <span>작성일 : <span class="noticeInfo"
+                        <span class="writer impInfo" th:text="${board.getWriter()}"></span>&nbsp;
+                        <span>작성일 : <span class="impInfo"
                                           th:text="${#temporals.format(board.getRegDate(), 'yyyy-MM-dd HH:mm')}"></span>
                         </span>&nbsp;
-                        <span>최종 수정일 :
-                            <span class="noticeInfo" th:if="${board.getModDate() != null}"
-                                  th:text="${#temporals.format(board.getModDate(), 'yyyy-MM-dd HH:mm')}"></span>
-                            <span class="noticeInfo" th:unless="${board.getModDate() != null}" th:text="${'없음'}"></span>
-                        </span>&nbsp;
-                        <span>조회수 : <span class="noticeInfo" th:text="${board.getViews()}"></span></span>
+                        <span>조회수 : <span class="impInfo" th:text="${board.getViews()}"></span></span>
                     </div>
 
                     <div id="boardContentBox">
@@ -46,12 +41,12 @@
                 </div>
                 <div class="updateBtns" sec:authorize="isAuthenticated()">
                     <ul class="align-right" th:if="${session.member.getMemNo() == board.getWriterNo()}">
-                        <form th:action="@{/notice/update}" th:type="post" id="noticeUpdateForm">
+                        <form th:action="@{/imp/update}" th:type="post" id="impUpdateForm">
                             <input type="text" id="updateForm_boardId" name="boardId" th:value="${board.getBoardId()}" hidden="hidden">
                             <input type="submit" id="updateBtn" value="수정">
                         </form>
 
-                        <form th:action="@{/notice/delete}" th:type="post" id="noticeDeleteForm">
+                        <form th:action="@{/imp/delete}" th:type="post" id="impDeleteForm">
                             <input type="text" id="deleteForm_boardId" name="boardId" th:value="${board.getBoardId()}" hidden="hidden">
                             <input type="button" id="deleteBtn" th:value="삭제">
                         </form>
@@ -60,10 +55,10 @@
 
                 <div class="prevNextBoards" th:if="${prevBoard != null || nextBoard != null}">
                     <a th:if="${prevBoard != null}"
-                       th:href="@{/templates/board_notice/{boardId}(boardId=${prevBoard.getBoardId()})}">이전글 <span
+                       th:href="@{/imp/{boardId}(boardId=${prevBoard.getBoardId()})}">이전글 <span
                             th:text="${prevBoard.getTitle()}"></span></a>
                     <a th:if="${nextBoard != null}"
-                       th:href="@{/templates/board_notice/{boardId}(boardId=${nextBoard.getBoardId()})}">다음글 <span
+                       th:href="@{imp/{boardId}(boardId=${nextBoard.getBoardId()})}">다음글 <span
                             th:text="${nextBoard.getTitle()}"></span></a>
                 </div>
             </div>

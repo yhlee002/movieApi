@@ -5,10 +5,66 @@
       xmlns:th="http://www.thymeleaf.org">
 
 <head th:replace="/fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script">
+    <script>
+        $(document).ready(function () {
+            let token = $("meta[name='_csrf']").attr("content");
+            let header = $("meta[name='_csrf_header']").attr("content");
+
+            let commentMovBox = $('#commentMovBox');
+            $('#commentSubmitBtn').on("click", function () {
+                let commentVal = $('#commentContent').val();
+                let memNo = $('#memNo').val();
+                let movieNo = $('#movieNo').val();
+
+                if (commentVal != null && commentVal.trim().length != 0) {
+
+                    $.ajax({
+                        url: "/writeComment",
+                        data: {
+                            'commentContent': commentVal,
+                            'memNo': memNo,
+                            'movieNo': movieNo
+                        },
+                        type: 'post',
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader(header, token);
+                        },
+                        success(data) {
+                            $('#commentContent').reset();
+                            // 페이지 새로고침없이 바로 불러오는것이 자동으로 될까?
+
+                        }, error: function (request, status) {
+                            alert("댓글 작성 중 문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다.");
+                            console.log("code : " + status + "\nmessage : " + request.responseText);
+                        }
+
+                    });
+
+                } else {
+                    alert("댓글 내용을 작성해주세요.");
+                }
+
+            });
+
+        });
+
+
+    </script>
+</th:block>
 <th:block layout:fragmnet="css">
     <style>
+        #writeCommentForm {
+            text-align: center;
+        }
 
+        #commentContent, #commentSubmitBtn {
+            display: inline-block;
+        }
 
+        #commentContent {
+            width: 70%;
+        }
     </style>
 </th:block>
 <body class="subpage">
@@ -18,9 +74,11 @@
     <div class="inner">
         <div class="box movieDetailBox">
             <div class="content movieImgContainer">
-                <img class="movieDetailImg" th:if="${not #strings.isEmpty(movieThumnailUrl)}" th:src="${movieThumnailUrl}">
-                <img class="movieDetailImg" th:unless="${not #strings.isEmpty(movieThumnailUrl)}" src="/images/ex.jpg" alt=""/> <!-- 추후에 해당 영화 포스터로 변환 -->
-                <!--            </div>-->
+                <img class="movieDetailImg" th:if="${not #strings.isEmpty(movieThumnailUrl)}"
+                     th:src="${movieThumnailUrl}">
+                <img class="movieDetailImg" th:unless="${not #strings.isEmpty(movieThumnailUrl)}" src="/images/ex.jpg"
+                     alt=""/> <!-- 추후에 해당 영화 포스터로 변환 -->
+
                 <div class="movieDetailInfo"> <!-- content -->
                     <header class="align-center">
                         <h2 th:text="${movie.getMovieNm()}"></h2>
@@ -35,7 +93,8 @@
                         <li>감독 :
                             <span th:each="director:${movie.getDirectors()}">
                                 <span th:if="${directorStat.last}" th:text="${director.getPeopleNm()}"></span>
-                                <span th:unless="${directorStat.last}" th:text="${director.getPeopleNm() + ', '}"></span>
+                                <span th:unless="${directorStat.last}"
+                                      th:text="${director.getPeopleNm() + ', '}"></span>
                             </span>
                         </li>
                         <li>장르 :
@@ -47,31 +106,45 @@
                         <li>영화유형 : <span th:text="${movie.getTypeNm()}"></span></li>
                         <li>국가 :
                             <span th:each="nation:${movie.getNations()}">
-                                <span th:if="${nationStat.last}" th:text="${nation.getNationNm()}"></span> <!-- &nbsp; -->
+                                <span th:if="${nationStat.last}" th:text="${nation.getNationNm()}"></span>
+                                <!-- &nbsp; -->
                                 <span th:unless="${nationStat.last}" th:text="${nation.getNationNm()} + ', '"></span>
                             </span>
                         </li>
                         <li>개봉여부 : <span th:text="${movie.getPrdtStatNm()}"></span>
-                            <span th:if="${movie.getPrdtStatNm() == '개봉'}" th:text="'(' + ${movie.getOpenDt().substring(0, 3)} + ')'"></span></li>
+                            <span th:if="${movie.getPrdtStatNm() == '개봉'}"
+                                  th:text="'(' + ${movie.getOpenDt().substring(0, 3)} + ')'"></span></li>
                         <li>상영시간 : <span th:text="${movie.getShowTm() + '분'}"></span></li>
-
                     </ul>
                 </div>
+
             </div>
         </div>
     </div>
-</section>
 
-<!-- Four -->
-<section id="four" class="wrapper style3">
     <div class="inner">
-
         <header class="align-center">
-            <h2>Morbi interdum mollis sapien</h2>
-            <p>Cras aliquet urna ut sapien tincidunt, quis malesuada elit facilisis. Vestibulum sit amet tortor
-                velit. Nam elementum nibh a libero pharetra elementum. Maecenas feugiat ex purus, quis volutpat
-                lacus placerat malesuada. Praesent in sem ex. Morbi mattis sapien pretium tellus venenatis, at
-                egestas urna ornare.</p>
+            <h2>리뷰</h2>
+            <!-- 리뷰 작성 폼 -->
+            <div id="commentInput">
+                <!-- ajax를 통해 댓글 업로드 -->
+                <form id="writeCommentForm" th:action="/writeComment" type="post">
+                    <input type="text" name="commentContent" id="commentContent">
+                    <input type="text" name="memNo" id="memNo" th:value="${session.member.getMemNo()}" hidden="hidden">
+                    <input type="text" name="movieNo" id="movieNo" th:value="${movie.getMovieCd()}" hidden="hidden">
+                    <input type="button" name="commentSubmitBtn" value="작성" id="commentSubmitBtn">
+                </form>
+            </div>
+
+            <!-- 리뷰 리스트 -->
+            <div id="commentMovBox">
+                <div class="commentMovList">
+
+                </div>
+                <div class="align-center">
+
+                </div>
+            </div>
         </header>
 
     </div>

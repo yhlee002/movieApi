@@ -11,8 +11,8 @@
 <th:block layout:fragment="script">
     <script th:src="@{/assets/summernote-0.8.18/summernote-lite.min.js}"></script>
     <script th:src="@{/assets/summernote-0.8.18/lang/summernote-ko-KR.js}"></script>
-    <script th:src="@{/assets/js/notice/notice-update.js}"></script>
-    <script th:src="@{/assets/js/notice/notice-main.js}"></script>
+    <script th:src="@{/assets/js/imp/imp-update.js}"></script>
+    <script th:src="@{/assets/js/imp/imp-main.js}"></script>
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -21,19 +21,21 @@
         <div class="box align-center">
             <div class="content">
                 <div class="image fit">
-                    <img th:src="@{/images/banner-notice.jpg}" alt="">
+                    <img th:src="@{/images/banner-imp.jpg}" alt="">
                 </div>
-                <h2>Write Notice</h2>
+                <h2>후기 작성</h2>
                 <input type="text" name="boardId" id="boardId" hidden="hidden" th:value="${board.getBoardId()}">
-                <input type="text" name="title" id="notice_title" style="margin:1em auto; text-align: left" th:value="${board.getTitle()}">
-                <input type="text" name="writerNo" id="writerNo" hidden="hidden" th:value="${session.member.getMemNo()}">
+                <input type="text" name="title" id="imp_title" style="margin:1em auto; text-align: left"
+                       th:value="${board.getTitle()}">
+                <input type="text" name="writerNo" id="writerNo" hidden="hidden"
+                       th:value="${session.member.getMemNo()}">
                 <form method="post">
                     <textarea id="summernote" name="editordata" th:utext="${board.getContent()}"></textarea>
                 </form>
                 <div class="align-right">
                     <p id="inputLengthBox"><span id="currentInputLength"></span>/2048</p>
                 </div>
-                <button id="noticeUpdateSubmitBtn" type="button" class="button">완료</button>
+                <button id="impUpdateSubmitBtn" type="button" class="button">완료</button>
             </div>
         </div>
     </div>
