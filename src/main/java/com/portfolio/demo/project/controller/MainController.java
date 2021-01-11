@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
+import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.service.BoxOfficeService;
 import com.portfolio.demo.project.service.MemberService;
@@ -34,6 +35,12 @@ public class MainController {
     @Autowired
     BoxOfficeService boxOfficeService;
 
+    @Autowired
+    BoardNoticeService boardNoticeService;
+
+    @Autowired
+    BoardImpService boardImpService;
+
     @RequestMapping("/")
     public String mainPage(@AuthenticationPrincipal Principal principal, HttpSession session, Model model) { // Principal principal
         /**
@@ -44,44 +51,26 @@ public class MainController {
          * 스프링 MVC 핸들러의 맥개변수로 @AuthenticationPrincipal을 사용하게 되면, getPrincipal()을 통해 얻을 수 있는 객체를 바로 주입받을 수 있다.
          * 현재 로그인(인증)된 사용자가 없는 경우에는 null, 있는 경우에는 username과 authorities 참조 가능
          */
-        log.info("access main page");
-
-//        /* 멤버 정보 로드 */
-//        MemberVO memberVO = null;
-//
-//        if (principal != null) {
-//            log.info("current principal : " + principal.toString());
-//            Member member = memberService.findByIdentifier(principal.getName());
-//
-//            if (member != null) {
-//                log.info("current member : " + member.toString());
-//
-//                memberVO = new MemberVO(member);
-//            }
-//        }
-//        session.setAttribute("principal", principal);
-//        session.setAttribute("member", memberVO); // 없는 경우 null -> SignInController에서 담음
 
         model.addAttribute("movieList", boxOfficeService.getDailyBoxOfficeList());
+        model.addAttribute("recent_notice", boardNoticeService.getRecNoticeBoard());
+        model.addAttribute("favorite_imp", boardImpService.getFavImpBoard());
 
         return "index";
     }
 
     @RequestMapping("/sign-up")
     public String signUpPage() {
-        log.info("access sign-up page");
         return "sign-up/sign-upForm";
     }
 
     @RequestMapping("/elements")
     public String elements() {
-        log.info("access elements page");
         return "elements";
     }
 
     @RequestMapping("/generic")
     public String generic() {
-        log.info("access generic page");
         return "generic";
     }
 

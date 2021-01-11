@@ -4638,9 +4638,7 @@ body.is-loading #banner:before {
 }
 
 .movieDetailInfoList {
-    /*list-style: none;*/
     list-style-image: url("/images/check-mark2.png");
-    /*font-size: ;*/
 }
 
 .box::after {
@@ -4651,15 +4649,11 @@ body.is-loading #banner:before {
 @media screen and (min-width: 981px) {
 
     .movieDetailImg {
-        width: 25em;
+        width: 8em;
     }
 
     .movieDetailInfo {
-        width: 30em;
-    }
-
-    .movieDetailImg {
-        width: 25em;
+        width: 50em;
     }
 
 }
@@ -4667,11 +4661,11 @@ body.is-loading #banner:before {
 @media screen and (max-width: 980px) {
 
     .movieDetailImg {
-        width: 300px;
+        width: 8em;
     }
 
     .movieDetailInfo {
-        width: 260px;
+        width: 80%;
     }
 }
 
@@ -4690,7 +4684,7 @@ body.is-loading #banner:before {
     }
 
     .movieDetailInfo {
-        width: 400px;
+        width: 80%;
         float: none;
         margin: auto;
     }

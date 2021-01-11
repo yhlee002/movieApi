@@ -24,10 +24,10 @@ public class BoardNotice {
     @Column(name = "writer_no", nullable = false) // , nullable = false
     private Long writerNo; // Member 테이블의 memNo(FK)
 
-    @Column(name = "name")
+    @Column(name = "name", insertable = false, updatable = false)
     private String writer;
 
-    @Column(name = "content", nullable = false) // , nullable = false
+    @Column(name = "content") // , nullable = false
     private String content; // 내용
 
     @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")

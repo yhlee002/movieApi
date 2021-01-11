@@ -32,17 +32,27 @@ public class BoardController {
     @Autowired
     BoardImpService boardImpService;
 
-    /* 공지사항 게시판 */
-    // 전체 조회
+    /**
+     * 공지사항 게시판
+     */
+    // 전체 조회 및 검색
     @RequestMapping("/notice")
-    public String noticeBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
-        NoticePagenationVO pagenationVO = boardNoticeService.getNoticeListView(pageNum);
-        model.addAttribute("pagenation", pagenationVO);
+    public String noticeBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
+                              @RequestParam(name = "query", required = false) String query) {
+
+        NoticePagenationVO pagenationVO = null;
+        if (query != null) {
+            pagenationVO = boardNoticeService.getNoticeListViewByTitleOrContent(pageNum, query);
+            model.addAttribute("pagenation", pagenationVO);
+        } else {
+            pagenationVO = boardNoticeService.getNoticeListView(pageNum);
+            model.addAttribute("pagenation", pagenationVO);
+        }
 
         return "board_notice/list";
     }
 
-    // 게시글 자세히 보기
+    // 게시글 단건 조회(자세히 보기)
     @RequestMapping("/notice/{boardNo}")
     public String noticeDetail(@PathVariable Long boardNo, Model model) {
         Map<String, BoardNotice> boards = boardNoticeService.selectBoardsByBoardId(boardNo);
@@ -68,56 +78,113 @@ public class BoardController {
     }
 
     // 게시글 수정
-    @RequestMapping("/notice/update/{boardId}")
-    public String noticeBoardUpdateForm(@PathVariable Long boardId, Model model) {
+    @RequestMapping("/notice/update")
+    public String noticeBoardUpdateForm(Long boardId, Model model) {
         model.addAttribute("board", boardNoticeService.selectBoardByBoardId(boardId));
 
         return "board_notice/updateForm";
     }
 
     // 게시글 수정 2
+    @ResponseBody
     @RequestMapping("/notice/updateProc")
-    public String noticeUpdateProc(Long boardId, String title, Long wirterNo, String content) {
-        boardNoticeService.updateBoard(boardId, title, wirterNo, content);
+    public Long noticeUpdateProc(Long boardId, String title, Long writerNo, String content) {
+        boardNoticeService.updateBoard(boardId, title, writerNo, content);
 
-        return "redirect:/notice/" + boardId;
+        return boardId;
     }
 
     // 게시글 삭제
-    @RequestMapping("/notice/delete/{boardId}")
-    public String noticeDeleteProc(@PathVariable Long boardId) {
-        boardNoticeService.deleteBoard(boardId);
+    @RequestMapping("/notice/delete")
+    public String noticeDeleteProc(Long boardId) {
+        boardNoticeService.deleteBoardByBoardId(boardId);
 
         return "redirect:/notice";
     }
 
-    /* 후기 게시판 */
+    /**
+     * 후기 게시판
+     */
+    // 전체 조회 및 검색
     @RequestMapping("/imp")
-    public String impBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum) {
-        ImpressionPagenationVO pagenationVO = boardImpService.getImpListView(pageNum);
+    public String impBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
+                           @RequestParam(name = "con", required = false) String con,
+                           @RequestParam(name = "query", required = false) String query) {
+
+        ImpressionPagenationVO pagenationVO = null;
+        if (query != null) {
+            switch (con) {
+                case "writerName":
+                    pagenationVO = boardImpService.getImpListViewByWriterName(pageNum, query);
+                    break;
+
+                case "TitleOrContent":
+                    pagenationVO = boardImpService.getImpListViewByTitleAndContent(pageNum, query);
+                    break;
+            }
+
+        } else {
+            pagenationVO = boardImpService.getImpListView(pageNum);
+        }
         model.addAttribute("pagenation", pagenationVO);
 
-        return "board_impression/list";
+        return "board_imp/list";
     }
 
-    @RequestMapping("/imp/write")
-    public String impBoardWriteForm() {
-
-        return "board_impression/writeForm";
-    }
-
+    // 게시글 단건 조회(자세히 보기)
     @RequestMapping("/imp/{boardNo}")
     public String impDetail(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardImp> boards = boardImpService.selectBoardByBoardId(boardNo);
+        Map<String, BoardImp> boards = boardImpService.selectBoardsByBoardId(boardNo);
         model.addAttribute("board", boards.get("board"));
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
 
-        return "board_impression/detail";
+        return "board_imp/detail";
+    }
+
+    // 게시글 작성
+    @RequestMapping("/imp/write")
+    public String impBoardWriteForm() {
+
+        return "board_imp/writeForm";
+    }
+
+    // 게시글 작성 2
+    @ResponseBody
+    @RequestMapping(value = "/imp/writeProc", method = RequestMethod.POST)
+    public Long impWriteProc(String title, Long writerNo, String content) {
+        return boardImpService.saveBoard(title, writerNo, content).getBoardId();
+    }
+
+    // 게시글 수정
+    @RequestMapping("/imp/update")
+    public String impBoardUpdateForm(Long boardId, Model model) {
+        model.addAttribute("board", boardImpService.selectBoardByBoardId(boardId));
+
+        return "board_imp/updateForm";
+    }
+
+    // 게시글 수정 2
+    @ResponseBody
+    @RequestMapping("/imp/updateProc")
+    public Long impUpdateProc(Long boardId, String title, Long writerNo, String content) {
+        Long bId = boardImpService.updateBoard(boardId, title, writerNo, content);
+
+        return bId;
+    }
+
+    // 게시글 삭제
+    @RequestMapping("/imp/delete")
+    public String impDeleteProc(Long boardId) {
+        boardImpService.deleteBoardByBoardId(boardId);
+
+        return "redirect:/imp";
     }
 
 
-    /* 이미지 업로드 */
+    /**
+     * 이미지 업로드
+     */
     @RequestMapping(value = "/uploadSummernoteImageFile", produces = "application/json")
     @ResponseBody
     public JsonObject uploadSummernoteImage(@RequestParam("file") MultipartFile multipartFile) {
@@ -128,8 +195,6 @@ public class BoardController {
 
         ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
         String fileRoot = bundle.getString("summernoteImageFilesRoot");
-
-        log.info("저장될 파일 경로 : " + fileRoot);
 
         String originalFileName = multipartFile.getOriginalFilename();
         String extension = originalFileName.substring(originalFileName.lastIndexOf(".")); // 마지막 '.'이하의 부분이 확장자
@@ -143,8 +208,6 @@ public class BoardController {
 
             jsonObject.addProperty("url", "/summernoteImage/" + savedFileName);
             jsonObject.addProperty("responseCode", "success");
-
-            log.info("jsonObject : " + jsonObject.toString());
 
         } catch (IOException e) {
             FileUtils.deleteQuietly(targetFile); // 저장된 파일 삭제

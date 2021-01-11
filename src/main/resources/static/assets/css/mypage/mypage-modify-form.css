@@ -1,9 +1,13 @@
 form[name='modify_info_form'] {
     width: 600px;
     margin: 1.5em auto;
+    padding: 1.5em;
+}
+.form-group {
+    text-align: left;
 }
 input[name='modifyinfo_submitBtn'] {
-    margin : 1em auto 2.5em auto;
+    margin : 1em;
 }
 
 @media screen and (max-width: 736px) {

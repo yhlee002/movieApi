@@ -1,10 +1,12 @@
 package com.portfolio.demo.project.entity.board;
 
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table(name = "board_imp")
 @Entity
@@ -27,7 +29,7 @@ public class BoardImp {
     @Column(name = "writer_no") // , nullable = false
     private Long writerNo; // Member 테이블의 memNo(FK)
 
-    @Column(name = "name")
+    @Column(name = "name", insertable = false, updatable = false)
     private String writer;
 
     @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
@@ -36,4 +38,17 @@ public class BoardImp {
 
     @Column(name = "views")
     private int views; // 조회수
+
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "board_no")
+    private List<CommentImp> comments;
+
+    @Builder
+    public BoardImp(Long boardId, String title, String content, Long writerNo, LocalDateTime regDate) {
+        this.boardId = boardId;
+        this.title = title;
+        this.content = content;
+        this.writerNo = writerNo;
+        this.regDate = regDate;
+    }
 }

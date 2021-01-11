@@ -30,34 +30,34 @@
                     <input type="text" name="memNo" th:value="${session.member.getMemNo()}" th:valuetype="Long" hidden>
 
                     <div class="form-group">
-                        <label class="align-left" for="identifier">ID : </label>
+                        <label for="identifier">ID : </label>
                         <input class="form-control half" type="text" id="identifier" name="identifier"
                                th:value="${session.member.getIdentifier()}" readonly>
                     </div>
 
                     <div class="form-group">
-                        <label class="align-left" for="nickname">Name : </label>
+                        <label for="nickname">Name : </label>
                         <input class="form-control half" type="text" id="nickname" name="nickname"
                                th:value="${session.member.getNickname()}">
                     </div>
 
                     <div class="form-group">
-                        <label class="align-left" for="pwd">pwd : </label>
-                        <input class="form-control half" type="password" id="pwd" name="pwd" placeholder="비밀번호 변경시 입력하세요.">
+                        <label for="pwd">pwd : </label>
+                        <input class="form-control half" type="password" id="pwd" name="pwd" placeholder="비밀번호 변경시 입력(네아로 회원은 변경 불가)">
                     </div>
 
                     <div class="form-group">
-                        <label class="align-left" for="pwd_checked">pwd_checked : </label>
+                        <label for="pwd_checked">pwd_checked : </label>
                         <input class="form-control half" type="password" id="pwd_checked" name="pwd_checked">
                     </div>
 
                     <div class="form-group">
-                        <label class="align-left" for="phone">Phone : </label>
+                        <label for="phone">Phone : </label>
                         <input class="form-control half" type="text" id="phone" name="phone" th:value="${session.member.getPhone()}">
                     </div>
 
                     <div class="form-group">
-                        <label class="align-left" for="regDt">Registration Date : </label>
+                        <label for="regDt">Registration Date : </label>
                         <input class="form-control half" type="text" id="regDt" name="regDt" th:value="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}" readonly>
                     </div>
 

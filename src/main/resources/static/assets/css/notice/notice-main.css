@@ -1,0 +1,56 @@
+.noticeInfo, .noticeTitle {
+    color: #444444;
+}
+
+.noticeTitle {
+    font-size: 2em;
+    text-align: left !important;
+}
+
+.writer {
+    font-size: 1.2em;
+}
+
+#boardContentBox {
+    margin: 3em 1em;
+    text-align: left;
+    color: black;
+}
+
+.updateBtns {
+    margin: 1em auto;
+}
+
+.prevNextBoards {
+    list-style: none;
+    text-align: left;
+}
+
+.prevNextBoards a {
+    text-decoration: none;
+    margin: 0;
+    color: #555555;
+}
+
+#noticeUpdateForm, #noticeDeleteForm {
+    display: inline-block;
+}
+
+#pagenation > a {
+    margin: 0.2em;
+    text-decoration: none;
+    color: #444444;
+}
+
+#search {
+    text-align: right;
+    margin: 1em 0 0 0;
+}
+
+#searchQuery, #NtcSearchBtn {
+    display: inline-block;
+}
+
+#searchQuery {
+    width: 15em;
+}
