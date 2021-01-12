@@ -1,0 +1,19 @@
+#ratingSelector {
+    color: goldenrod;
+    width: fit-content;
+}
+
+#ratingSelector, #commentContent, #commentSubmitBtn {
+    display: inline;
+}
+
+#commentContent {
+    width: 70%;
+}
+
+#commentMovList {
+    padding: 3.5em;
+    border-radius: 1em;
+    background-color: beige;
+    margin: 2em 2em;
+}

@@ -91,7 +91,7 @@ $(document).ready(function () {
                     location.href = "/notice/" + data;
                 },
                 error: function (request, status) {
-                    alert("문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다." + "title : " + title);
+                    alert("문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다.");
                     console.log("code : " + status + "\nmessage : " + request.responseText);
                 }
             });
