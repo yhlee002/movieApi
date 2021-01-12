@@ -6,66 +6,13 @@
 
 <head th:replace="/fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
+    <script th:src="@{/assets/js/comment/comment-mov.js}"></script>
     <script>
-        $(document).ready(function () {
-            let token = $("meta[name='_csrf']").attr("content");
-            let header = $("meta[name='_csrf_header']").attr("content");
-
-            let commentMovBox = $('#commentMovBox');
-            $('#commentSubmitBtn').on("click", function () {
-                let commentVal = $('#commentContent').val();
-                let memNo = $('#memNo').val();
-                let movieNo = $('#movieNo').val();
-
-                if (commentVal != null && commentVal.trim().length != 0) {
-
-                    $.ajax({
-                        url: "/writeComment",
-                        data: {
-                            'commentContent': commentVal,
-                            'memNo': memNo,
-                            'movieNo': movieNo
-                        },
-                        type: 'post',
-                        beforeSend: function (xhr) {
-                            xhr.setRequestHeader(header, token);
-                        },
-                        success(data) {
-                            $('#commentContent').reset();
-                            // 페이지 새로고침없이 바로 불러오는것이 자동으로 될까?
-
-                        }, error: function (request, status) {
-                            alert("댓글 작성 중 문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다.");
-                            console.log("code : " + status + "\nmessage : " + request.responseText);
-                        }
-
-                    });
-
-                } else {
-                    alert("댓글 내용을 작성해주세요.");
-                }
-
-            });
-
-        });
-
 
     </script>
 </th:block>
 <th:block layout:fragmnet="css">
-    <style>
-        #writeCommentForm {
-            text-align: center;
-        }
-
-        #commentContent, #commentSubmitBtn {
-            display: inline-block;
-        }
-
-        #commentContent {
-            width: 70%;
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/assets/css/comment/comment-mov.css}">
 </th:block>
 <body class="subpage">
 <header th:replace="/fragments/header.html :: headerFragment"></header>
@@ -83,6 +30,7 @@
                     <header class="align-center">
                         <h2 th:text="${movie.getMovieNm()}"></h2>
                         <p th:text="${movie.getMovieNmEn()}"></p>
+                        <input type="text" id="movieCd" th:value="${movie.getMovieCd()}" hidden="hidden">
                     </header>
                     <hr/>
                     <p> Cras aliquet urna ut sapien tincidunt, quis malesuada elit facilisis. Vestibulum sit amet tortor
@@ -120,33 +68,9 @@
 
             </div>
         </div>
-    </div>
-
-    <div class="inner">
-        <header class="align-center">
-            <h2>리뷰</h2>
-            <!-- 리뷰 작성 폼 -->
-            <div id="commentInput">
-                <!-- ajax를 통해 댓글 업로드 -->
-                <form id="writeCommentForm" th:action="/writeComment" type="post">
-                    <input type="text" name="commentContent" id="commentContent">
-                    <input type="text" name="memNo" id="memNo" th:value="${session.member.getMemNo()}" hidden="hidden">
-                    <input type="text" name="movieNo" id="movieNo" th:value="${movie.getMovieCd()}" hidden="hidden">
-                    <input type="button" name="commentSubmitBtn" value="작성" id="commentSubmitBtn">
-                </form>
-            </div>
-
-            <!-- 리뷰 리스트 -->
-            <div id="commentMovBox">
-                <div class="commentMovList">
-
-                </div>
-                <div class="align-center">
-
-                </div>
-            </div>
-        </header>
-
+        <div th:replace="/fragments/comment.html :: commentMovFragment"></div>
+        <input type="text" name="memNo" id="memNo" th:if="${session.member != null}" th:value="${session.member.getMemNo()}"
+               hidden="hidden">
     </div>
 </section>
 <!--</div>-->

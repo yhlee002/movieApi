@@ -26,8 +26,6 @@ public class MovieInfoController {
         String movieImgUrl = boxOfficeService.getMovieImg(movieInfo.getMovieNm());
         model.addAttribute("movieThumnailUrl", movieImgUrl);
 
-//        String commentStr = commentMovService.getCommentListOrderByRecommended();
-
         return "movieInfo/movieInfo";
     }
 }

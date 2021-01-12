@@ -16,10 +16,12 @@ public interface CommentMovRepository extends JpaRepository<CommentMov, Long> {
     @Query(value = "select count(c) from CommentMov c")
     int findAllCommentMovsCnt();
     // 추천수로 정렬(20개씩 조회)
-    @Query(value = "select c, m.name from movie_comment c join member m order by c.recommended desc limit ?1, ?2", nativeQuery = true)
-    List<CommentMov> findCommentMovsByOrderByRecommended(int startRow, int CommentCntPerPage);
+    @Query(value = "select c, m.name from movie_comment c join member m order by c.recommended desc limit ?2, ?3 where c.movie_no=?1",
+            nativeQuery = true)
+    List<CommentMov> findCommentMovsByOrderByRecommended(Long movieCd, int startRow, int CommentCntPerPage);
 
     // 최신순으로 정렬(20개씩 조회)
-    @Query(value = "select c, m.name from movie_comment c join member m order by c.regDate desc limit ?1, ?2", nativeQuery = true)
-    List<CommentMov> findCommentMovsByOrderByRegDate(int startRow, int CommentCntPerPage);
+    @Query(value = "select c, m.name from movie_comment c join member m order by c.regDate desc limit ?2, ?3 where c.movie_no=?1",
+            nativeQuery = true)
+    List<CommentMov> findCommentMovsByOrderByRegDate(Long movieCd, int startRow, int CommentCntPerPage);
 }

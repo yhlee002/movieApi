@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div id="commentMov" th:fragment="commentMovFragment">
+
+    <section id="one" class="wrapper style2">
+        <div class="inner">
+            <header class="align-center">
+                <h2>리뷰</h2>
+                <!-- 리뷰 작성 폼 -->
+                <div id="commentInput">
+                    <!-- ajax를 통해 댓글 업로드 -->
+                    <!--                    <form id="writeCommentForm" th:action="/writeComment" type="post">-->
+                    <select name="rating" id="ratingSelector">
+                        <option value="1">★</option>
+                        <option value="2">★★</option>
+                        <option value="3">★★★</option>
+                        <option value="4">★★★★</option>
+                        <option value="5">★★★★★</option>
+                    </select>
+                    <input type="text" name="commentContent" id="commentContent">
+                    <!--                        <input type="text" name="movieNo" id="movieNo" hidden="hidden">-->
+                    <input type="button" name="commentSubmitBtn" value="작성" id="commentSubmitBtn">
+                    <!--                    </form>-->
+                </div>
+
+                <!-- 리뷰 리스트 -->
+                <div id="commentMovBox">
+                    <div id="commentMovList">
+                    </div>
+
+                    <!-- 리뷰 페이지네이션 -->
+                    <div id="pagenation_commMov">
+                        <!--                        <a th:each="index : ${#numbers.sequence(1, {pagenation.getTotalPageCnt()})}" th:text="${index}"-->
+                        <!--                           th:href="getCommentList([[${index}]])"></a>-->
+                        <!--                        &lt;!&ndash; th:href="@{/templates/board_notice?p={i}(i=${index})}" &ndash;&gt;-->
+                    </div>
+                </div>
+            </header>
+        </div>
+    </section>
+</div>
+</html>
