@@ -16,7 +16,7 @@
 * 사용된 외부 라이브러리 : Lombok, Gson, FontAwsome, WebJar 
 * 사용된 Open API
    - 영화진흥위원회 박스오피스 API
-   - 영화진흥위원회 영화 상세 정보 API(kmDB영화 정보 API로 대체 예정)
+   - 네이버 영화 검색 API(kmDB영화 정보 API로 대체 예정)
    - 네아로(네이버 아이디로 로그인) API
    - Java Mail API
    - Cool sms Message API
