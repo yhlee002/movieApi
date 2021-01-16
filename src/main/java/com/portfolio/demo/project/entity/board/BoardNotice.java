@@ -1,10 +1,13 @@
 package com.portfolio.demo.project.entity.board;
 
+import com.portfolio.demo.project.entity.comment.CommentMov;
+import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Table(name = "board_notice")
 @Setter
@@ -16,36 +19,35 @@ public class BoardNotice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId; // 글 번호
+    private Long id; // 글 번호
 
     @Column(name = "title", nullable = false)
     private String title; // 제목
 
-    @Column(name = "writer_no", nullable = false) // , nullable = false
-    private Long writerNo; // Member 테이블의 memNo(FK)
-
-    @Column(name = "name", insertable = false, updatable = false)
-    private String writer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_no")
+    private Member writer;
 
     @Column(name = "content") // , nullable = false
     private String content; // 내용
 
-    @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "reg_dt", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate; // 작성시간
 
-    @Column(name = "mod_dt", columnDefinition = "TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "mod_dt", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime modDate; // 최종 수정 시간
 
     @Column(name = "views")
     private int views; // 조회수
 
     @Builder
-    public BoardNotice(Long boardId, String title, Long writerNo, String content, LocalDateTime regDate) {
-        this.boardId = boardId;
+    public BoardNotice(Long id, String title, Member writer, String content, LocalDateTime regDate, LocalDateTime modDate) {
+        this.id = id;
         this.title = title;
-        this.writerNo = writerNo;
+        this.writer = writer;
         this.content = content;
         this.regDate = regDate;
+        this.modDate = modDate;
     }
 }

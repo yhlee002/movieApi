@@ -1,15 +1,18 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
+import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -18,6 +21,9 @@ public class BoardNoticeService {
     @Autowired
     BoardNoticeRepository boardNoticeRepository;
 
+    @Autowired
+    MemberRepository memberRepository;
+
     /* 조회 */
     public List<BoardNotice> selectAllBoards() {
         return boardNoticeRepository.findAllBoardNotice();
@@ -25,12 +31,23 @@ public class BoardNoticeService {
 
     // 게시글 단건 조회
     public BoardNotice selectBoardByBoardId(Long boardId) {
-        return boardNoticeRepository.findBoardNoticeByBoarId(boardId);
+        BoardNotice board = null;
+        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
+        if (boardOpt.isPresent()) {
+            board = boardOpt.get();
+        }
+        return board;
     }
 
     // 게시글 단건 조회 + 이전글, 다음글
+    @Transactional
     public HashMap<String, BoardNotice> selectBoardsByBoardId(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findBoardNoticeByBoarId(boardId);
+        BoardNotice board = null;
+        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
+        if (boardOpt.isPresent()) {
+            board = boardOpt.get();
+        }
+
         BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeByBoardId(boardId);
         BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeByBoardId(boardId);
         HashMap<String, BoardNotice> boardNoticeMap = new HashMap<>();
@@ -47,26 +64,56 @@ public class BoardNoticeService {
     }
 
     /* 추가(작성) */
+    @Transactional
     public BoardNotice saveBoard(String title, Long memNo, String content) {
-        BoardNotice notice = new BoardNotice(null, title, memNo, content, LocalDateTime.now());
-        return boardNoticeRepository.save(notice);
+        Member member = null;
+        Optional<Member> memOpt = memberRepository.findById(memNo);
+        if (memOpt.isPresent()) {
+            member = memOpt.get();
+        }
+
+        return boardNoticeRepository.save(
+                BoardNotice.builder()
+                        .id(null)
+                        .title(title)
+                        .writer(member)
+                        .content(content)
+                        .build()
+        );
     }
 
     /* 수정 */
+    @Transactional
     public Long updateBoard(Long boardId, String title, Long memNo, String content) {
         BoardNotice newBoard = null;
-        BoardNotice originBoard = boardNoticeRepository.findBoardNoticeByBoarId(boardId);
+        BoardNotice originBoard = null;
 
-        newBoard = new BoardNotice(boardId, title, memNo, content, originBoard.getRegDate());
-        boardNoticeRepository.save(newBoard);
+        Optional<BoardNotice> originBoardOpt = boardNoticeRepository.findById(boardId);
+        if (originBoardOpt.isPresent()) {
+            originBoard = originBoardOpt.get();
+        }
 
-        return newBoard.getBoardId();
+        Member member = null;
+        Optional<Member> memOpt = memberRepository.findById(memNo);
+        if (memOpt.isPresent()) {
+            member = memOpt.get();
+        }
+
+        return boardNoticeRepository.save(BoardNotice.builder()
+                .id(boardId)
+                .title(title)
+                .writer(member)
+                .content(content)
+                .build()).getId();
     }
 
     /* 삭제 */
+    @Transactional
     public void deleteBoardByBoardId(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findBoardNoticeByBoarId(boardId);
-        boardNoticeRepository.delete(board);
+        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
+        if (boardOpt.isPresent()) {
+            boardNoticeRepository.delete(boardOpt.get());
+        }
     }
 
     public void deleteBoards(List<BoardNotice> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
@@ -74,12 +121,21 @@ public class BoardNoticeService {
         boardNoticeRepository.deleteAll(boards);
     }
 
+    // 게시글 조회수 증가
+    @Transactional
+    public void upViewCnt(Long boardId) {
+        BoardNotice notice = boardNoticeRepository.findById(boardId).get();
+        notice.setViews(notice.getViews()+1);
+        boardNoticeRepository.save(notice);
+    }
+
     /* 페이지 네이션 */
     private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
 
     // 기본 화면에서의 페이지네이션 리스트 뷰
+    @Transactional
     public NoticePagenationVO getNoticeListView(int pageNum) {
-        int totalBoardCnt = boardNoticeRepository.findBoardNoticeTotalCount();
+        int totalBoardCnt = boardNoticeRepository.findCount();
         int startRow = 0;
         List<BoardNotice> boardNoticeList = null;
         NoticePagenationVO noticePagenationVO = null;
@@ -99,6 +155,7 @@ public class BoardNoticeService {
     }
 
     // 검색어가 존재할 때 페이지네이션 리스트 뷰
+    @Transactional
     public NoticePagenationVO getNoticeListViewByTitleOrContent(int pageNum, String titleOrContent) {
         int totalBoardCnt = boardNoticeRepository.findBoardNoticeSearchResultTotalCountTC(titleOrContent);
         int startRow = 0;

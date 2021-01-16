@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.entity.board;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.comment.CommentImp;
+import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -18,7 +20,7 @@ public class BoardImp {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long boardId;
+    private Long id;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -26,11 +28,9 @@ public class BoardImp {
     @Column(name = "content") // , nullable = false
     private String content;
 
-    @Column(name = "writer_no") // , nullable = false
-    private Long writerNo; // Member 테이블의 memNo(FK)
-
-    @Column(name = "name", insertable = false, updatable = false)
-    private String writer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_no")
+    private Member writer;
 
     @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -39,16 +39,17 @@ public class BoardImp {
     @Column(name = "views")
     private int views; // 조회수
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "board_no")
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "board_id")
     private List<CommentImp> comments;
 
     @Builder
-    public BoardImp(Long boardId, String title, String content, Long writerNo, LocalDateTime regDate) {
-        this.boardId = boardId;
+    public BoardImp(Long id, String title, String content, Member writer, LocalDateTime regDate) {
+        this.id = id;
         this.title = title;
         this.content = content;
-        this.writerNo = writerNo;
+        this.writer = writer;
         this.regDate = regDate;
     }
 }

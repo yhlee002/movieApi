@@ -27,9 +27,6 @@ import java.util.Optional;
 public class SignupController {
 
     @Autowired
-    MemberRepository memberRepository;
-
-    @Autowired
     MemberService memberService;
 
     @Autowired
@@ -146,9 +143,9 @@ public class SignupController {
     @RequestMapping(value = "/success", method = RequestMethod.GET)
     public String signUpSuccessPage(Model m, @RequestParam(required = false) Long memNo, @RequestParam(required = false) Long oauthMemNo) {
         if (memNo != null && oauthMemNo == null) {
-            Optional<Member> member = memberRepository.findById(memNo);
-            if (member.isPresent()) {
-                m.addAttribute("member", member.get());
+            Member member = memberService.findByMemNo(memNo);
+            if (member != null) {
+                m.addAttribute("member", member);
             }
 
             return "sign-up/successPage";
