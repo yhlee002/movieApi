@@ -70,11 +70,6 @@
     <!--    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>-->
     <script>
 
-        $.ready(function(){
-            $thumbnailImgs = $('thumbnail').children('img');
-            $thumbnailImgs.forEach()
-        });
-
     </script>
 </th:block>
 <body>
@@ -104,17 +99,19 @@
                     <hr>
                     <div class="slider autoplay">
                         <div class="list align-center" th:each="movie : ${movieList}">
-                            <div class="innerbox" th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
-                                    <div class="thumbnail" >
-                                        <img th:src="${movie.getImgUrl()}">
-                                    </div>
-                                    <hr>
-                                    <h3 style="display: inline-block; margin-right: 0.3em" th:text="${movie.getRank()}"></h3>
-                                    <b th:text="${movie.getMovieNm()}"></b>
-                                    <span class="sort_rankInten"
-                                          th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
-                                          th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
-                                    <span>
+                            <div class="innerbox"
+                                 th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
+                                <div class="thumbnail">
+                                    <img th:src="@{/images/ex_poster.PNG}"> <!-- ${movie.getImgUrl()} -->
+                                </div>
+                                <hr>
+                                <h3 style="display: inline-block; margin-right: 0.3em"
+                                    th:text="${movie.getRank()}"></h3>
+                                <b th:text="${movie.getMovieNm()}"></b>
+                                <span class="sort_rankInten"
+                                      th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
+                                      th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
+                                <span>
                                     <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) < 0}"
                                          th:src="@{/images/sort_down.png}">
                                     <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) == 0}"
@@ -130,76 +127,6 @@
 </section>
 
 </section>
-<!-- One -->
-<section id="one" class="wrapper style2">
-    <div class="inner">
-        <div>
-            <div class="box">
-                <div class="image fit">
-                    <img th:src="@{/images/pic01.jpg}" alt=""/>
-                </div>
-                <div class="content">
-                    <header class="align-center">
-                        <h2>Lorem ipsum dolor</h2>
-                        <p>maecenas feugiat ex purus, quis volutpat lacus placerat</p>
-                    </header>
-                    <hr/>
-                    <p> Cras aliquet urna ut sapien tincidunt, quis malesuada elit facilisis. Vestibulum sit amet tortor
-                        velit. Nam elementum nibh a libero pharetra elementum. Maecenas feugiat ex purus, quis volutpat
-                        lacus placerat malesuada. Praesent in sem ex. Morbi mattis sapien pretium tellus venenatis, at
-                        egestas urna ornare.</p>
-                    <p>Vivamus fermentum nibh vel pharetra blandit. Cras a purus urna. Sed et libero ex. Orci varius
-                        natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Suspendisse id
-                        hendrerit felis. Nulla viverra tempor dui at congue. Pellentesque quis nulla ornare, congue nisi
-                        id, finibus nulla. Aliquam sit amet hendrerit purus. Donec libero massa, posuere fermentum eros
-                        sit amet, maximus fringilla augue. Maecenas at rhoncus lorem. Vivamus ultricies consequat est,
-                        efficitur convallis libero. Vivamus rutrum semper mauris, vitae consequat eros tempor ac.
-                        Pellentesque et ornare sapien</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Two -->
-<section id="two" class="wrapper style3">
-    <div class="inner">
-        <div id="flexgrid">
-            <div>
-                <header>
-                    <h3>Tempus Feugiat</h3>
-                </header>
-                <p>Morbi interdum mollis sapien. Sed ac risus. Phasellus lacinia, magna a ullamcorper laoreet, lectus
-                    arcu</p>
-                <ul class="actions">
-                    <li><a href="#" class="button alt">Learn More</a></li>
-                </ul>
-            </div>
-            <div>
-                <header>
-                    <h3>Aliquam Nulla</h3>
-                </header>
-                <p>Ut convallis, sem sit amet interdum consectetuer, odio augue aliquam leo, nec dapibus tortor nibh
-                    sed </p>
-                <ul class="actions">
-                    <li><a href="#" class="button alt">Learn More</a></li>
-                </ul>
-            </div>
-            <div>
-                <header>
-                    <h3>Sed Magna</h3>
-                </header>
-                <p>Suspendisse mauris. Fusce accumsan mollis eros. Pellentesque a diam sit amet mi ullamcorper
-                    vehicula.</p>
-                <ul class="actions">
-                    <li><a href="#" class="button alt">Learn More</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Three -->
 <section id="three" class="wrapper style2">
     <div class="inner">
         <div class="grid-style">
@@ -211,7 +138,7 @@
                             <a th:href="@{/notice}" style="text-decoration: none"><h2>최신 공지사항</h2></a>
                         </header>
                         <hr/>
-                        <a th:each="board: ${recent_notice}" th:href="@{/notice/{boardId}(boardId=${board.getBoardId()})}">
+                        <a th:each="board: ${recent_notice}" th:href="@{/notice/{boardId}(boardId=${board.getId()})}">
                             <p th:text="${board.getTitle()}+' ('+ ${#temporals.format(board.getRegDate(), 'yyyy-MM-dd')}+')'"></p>
                         </a>
                     </div>
@@ -222,31 +149,17 @@
                 <div class="box">
                     <div class="content">
                         <header class="align-center">
-                            <a th:href="@{/imp}" style="text-decoration: none"><h2>인기 감상 후기</h2></a>
+                            <a th:href="@{/imp}" style="text-decoration: none"><h2>조회수 TOP5 감상 후기</h2></a>
                         </header>
                         <hr/>
-                        <a th:each="board: ${favorite_imp}" th:href="@{/imp/{boardId}(boardId=${board.getBoardId()})}">
-                            <p th:text="${board.getTitle()}+' ('+${#temporals.format(board.getRegDate(), 'yyyy-MM-dd')}+')'"></p>
+                        <a th:each="board: ${favorite_imp}" th:href="@{/imp/{boardId}(boardId=${board.getId()})}">
+                            <p th:text="${board.getTitle()}+' [ '+${board.getComments().size()}+' ]'"></p>
                         </a>
                     </div>
                 </div>
             </div>
 
         </div>
-    </div>
-</section>
-
-<!-- Four -->
-<section id="four" class="wrapper style3">
-    <div class="inner">
-
-        <header class="align-center">
-            <h2>Morbi interdum mollis sapien</h2>
-            <p>Cras aliquet urna ut sapien tincidunt, quis malesuada elit facilisis. Vestibulum sit amet tortor velit.
-                Nam elementum nibh a libero pharetra elementum. Maecenas feugiat ex purus, quis volutpat lacus placerat
-                malesuada. Praesent in sem ex. Morbi mattis sapien pretium tellus venenatis, at egestas urna ornare.</p>
-        </header>
-
     </div>
 </section>
 <footer th:replace="fragments/footer.html :: footerFragment"></footer>

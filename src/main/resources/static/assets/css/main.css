@@ -3809,6 +3809,7 @@ body.subpage {
 }
 
 #header > .logo {
+    font-family: 'Roboto Condensed', sans-serif;
     display: inline-block;
     height: inherit;
     left: 1.25rem;
@@ -3820,16 +3821,16 @@ body.subpage {
 }
 
 #header > .logo a {
-    /*font-size: 1.25rem;*/
     color: #bfbfbf;
     text-decoration: none;
     display: inline-block;
 }
 
 #header > .logo #siteName {
-    font-family: 'Nanum Gothic', Bold;
+    font-family: 'Do Hyeon', sans-serif;
     font-weight: 300;
     font-size: 2em;
+    vertical-align: middle;
 }
 
 #header > a {
@@ -4625,7 +4626,7 @@ body.is-loading #banner:before {
 
 .movieImgContainer {
     float: left;
-    overflow : hidden;
+    overflow: hidden;
 }
 
 .movieDetailImg {
@@ -4669,7 +4670,7 @@ body.is-loading #banner:before {
     }
 }
 
-@media screen and (max-width:835px) {
+@media screen and (max-width: 835px) {
 
     .movieImgContainer {
         text-align: center;

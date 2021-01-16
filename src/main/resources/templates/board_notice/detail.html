@@ -6,10 +6,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/assets/js/notice/notice-main.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/board/notice/notice-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
-    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/notice/notice-main.css}"/>
+    <link type="text/css" rel="stylesheet" th:href="@{/assets/css/board/notice/notice-main.css}"/>
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -17,15 +17,18 @@
     <div class="inner">
         <div class="box align-center">
             <div class="content">
+                <div class="align-left">
+                    <h2>공지사항</h2>
+                </div>
                 <div class="align-right">
-                    <span onclick="location.href='/notice'" style="cursor: pointer">돌아가기</span>
+                    <span onclick="location.href='/notice'" style="cursor: pointer">목록</span>
                 </div>
                 <hr>
                 <div>
                     <p class="noticeTitle" th:text="${board.getTitle()}"></p>
 
                     <div class="align-left">
-                        <span class="writer noticeInfo" th:text="${board.getWriter()}"></span>&nbsp;
+                        <span class="writer noticeInfo" th:text="${board.getWriter().getName()}"></span>&nbsp;
                         <span>작성일 : <span class="noticeInfo"
                                           th:text="${#temporals.format(board.getRegDate(), 'yyyy-MM-dd HH:mm')}"></span>
                         </span>&nbsp;
@@ -45,14 +48,16 @@
                     </div>
                 </div>
                 <div class="updateBtns" sec:authorize="isAuthenticated()">
-                    <ul class="align-right" th:if="${session.member.getMemNo() == board.getWriterNo()}">
+                    <ul class="align-right" th:if="${session.member.getMemNo() == board.getWriter().getMemNo()}">
                         <form th:action="@{/notice/update}" th:type="post" id="noticeUpdateForm">
-                            <input type="text" id="updateForm_boardId" name="boardId" th:value="${board.getBoardId()}" hidden="hidden">
+                            <input type="text" id="updateForm_boardId" name="boardId" th:value="${board.getId()}"
+                                   hidden="hidden">
                             <input type="submit" id="updateBtn" value="수정">
                         </form>
 
                         <form th:action="@{/notice/delete}" th:type="post" id="noticeDeleteForm">
-                            <input type="text" id="deleteForm_boardId" name="boardId" th:value="${board.getBoardId()}" hidden="hidden">
+                            <input type="text" id="deleteForm_boardId" name="boardId" th:value="${board.getId()}"
+                                   hidden="hidden">
                             <input type="button" id="deleteBtn" th:value="삭제">
                         </form>
                     </ul>
@@ -60,11 +65,11 @@
 
                 <div class="prevNextBoards" th:if="${prevBoard != null || nextBoard != null}">
                     <a th:if="${prevBoard != null}"
-                       th:href="@{/templates/board_notice/{boardId}(boardId=${prevBoard.getBoardId()})}">이전글 <span
-                            th:text="${prevBoard.getTitle()}"></span></a>
+                       th:href="@{/notice/{boardId}(boardId=${prevBoard.getId()})}"><span
+                            th:text="${'[이전글] ' + prevBoard.getTitle()}"></span></a><br>
                     <a th:if="${nextBoard != null}"
-                       th:href="@{/templates/board_notice/{boardId}(boardId=${nextBoard.getBoardId()})}">다음글 <span
-                            th:text="${nextBoard.getTitle()}"></span></a>
+                       th:href="@{/notice/{boardId}(boardId=${nextBoard.getId()})}"><span
+                            th:text="${'[다음글] '+ nextBoard.getTitle()}"></span></a>
                 </div>
             </div>
         </div>

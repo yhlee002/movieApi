@@ -4,8 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.entity.movie.ThumbImg;
-import com.portfolio.demo.project.repository.MovieImgRepository;
 import com.portfolio.demo.project.vo.movie.MovieElementVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 @Slf4j
 public class BoxOfficeListUtil {
@@ -31,36 +28,6 @@ public class BoxOfficeListUtil {
     private static int curPage = 1;
     private static int totCont;
 
-    @Autowired
-    MovieImgRepository movieImgRepository;
-
-    @Autowired
-    SeleniumUtil seleniumUtil;
-
-    public void saveImg() {
-
-        ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-        KEY = bundle.getString("boxOfficeKey");
-
-        seleniumUtil.initializeDriver();
-
-        do {
-            List<MovieElementVO> movieElementList = getMovieList(KEY);
-            for (MovieElementVO movie : movieElementList) {
-                String imgUrl = seleniumUtil.getImgUrl(movie.getMovieCd());
-
-                movieImgRepository.save(
-                        ThumbImg.builder()
-                                .no(null)
-                                .movieCd(movie.getMovieCd())
-                                .imageUrl(imgUrl)
-                                .build());
-
-            }
-
-        } while (curPage <= (totCont / 100) + 1);
-        seleniumUtil.quit();
-    }
 
     public List<MovieElementVO> getMovieList(String KEY) {
         List<MovieElementVO> movieElementList = null;

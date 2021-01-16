@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script">
+    <script></script>
+</th:block>
+<th:block layout:fragmnet="css">
+    <style></style>
+</th:block>
+<body class="subpage">
+<header th:replace="/fragments/header.html :: headerFragment"></header>
+<section id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box">
+            <!-- 추가 예정 -->
+            <th:block th:replace="/fragments/sendCsMail.html :: sendCsEmailFragment"></th:block>
+        </div>
+    </div>
+</section>
+</body>
+</html>

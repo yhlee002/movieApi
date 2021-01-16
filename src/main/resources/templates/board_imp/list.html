@@ -6,10 +6,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
-<script type="text/javascript" th:src="@{/assets/js/imp/imp-main.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/js/board/imp/imp-main.js}"></script>
 </th:block>
 <th:block layout:fragment="css">
-    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/imp/imp-main.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/board/imp/imp-main.css}">
 </th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
@@ -37,10 +37,10 @@
                         </thead>
                         <tbody>
                         <tr th:each="board : ${pagenation.getBoardImpList()}" style="cursor:pointer"
-                            th:onclick="'location.href=\''+@{/imp/{bNo}(bNo=${board.getBoardId()})}+'\';'">
-                            <td th:text="${board.getBoardId()}"></td>
-                            <td th:text="${board.getTitle()}"></td>
-                            <td th:text="${board.getWriter()}"></td>
+                            th:onclick="'location.href=\''+@{/imp/{bNo}(bNo=${board.getId()})}+'\';'">
+                            <td th:text="${board.getId()}"></td>
+                            <td th:text="${board.getTitle() + ' [' + board.getComments().size() + ']'}"></td>
+                            <td th:text="${board.getWriter().getName()}"></td>
                             <td th:text="${#temporals.format(board.getRegDate(), 'yyyy-MM-dd HH:mm')}"></td>
                             <td th:text="${board.getViews()}"></td>
                         </tr>
@@ -60,6 +60,7 @@
                 <div id="search">
                     <form th:action="@{/imp}" type="get">
                         <select name="con" id="searchSelect">
+                            <optgroup label="검색조건"></optgroup>
                             <option name="con" value="writerName" selected>작성자명</option>
                             <option name="con" value="TitleOrContent">제목 또는 내용</option>
                         </select>

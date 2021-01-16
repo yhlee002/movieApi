@@ -60,6 +60,7 @@ public class BoardController {
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
 
+        boardNoticeService.upViewCnt(boardNo);
         return "board_notice/detail";
     }
 
@@ -74,7 +75,7 @@ public class BoardController {
     @ResponseBody
     @RequestMapping(value = "/notice/writeProc", method = RequestMethod.POST)
     public Long noticeWriteProc(String title, Long writerNo, String content) {
-        return boardNoticeService.saveBoard(title, writerNo, content).getBoardId();
+        return boardNoticeService.saveBoard(title, writerNo, content).getId();
     }
 
     // 게시글 수정
@@ -101,6 +102,7 @@ public class BoardController {
 
         return "redirect:/notice";
     }
+
 
     /**
      * 후기 게시판
@@ -139,6 +141,7 @@ public class BoardController {
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
 
+        boardImpService.upViewCnt(boardNo);
         return "board_imp/detail";
     }
 
@@ -153,7 +156,7 @@ public class BoardController {
     @ResponseBody
     @RequestMapping(value = "/imp/writeProc", method = RequestMethod.POST)
     public Long impWriteProc(String title, Long writerNo, String content) {
-        return boardImpService.saveBoard(title, writerNo, content).getBoardId();
+        return boardImpService.saveBoard(title, writerNo, content).getId();
     }
 
     // 게시글 수정
@@ -180,7 +183,6 @@ public class BoardController {
 
         return "redirect:/imp";
     }
-
 
     /**
      * 이미지 업로드
@@ -217,5 +219,6 @@ public class BoardController {
 
         return jsonObject;
     }
+
 
 }

@@ -64,15 +64,15 @@ public class MainController {
         return "sign-up/sign-upForm";
     }
 
-    @RequestMapping("/elements")
-    public String elements() {
-        return "elements";
-    }
-
-    @RequestMapping("/generic")
-    public String generic() {
-        return "generic";
-    }
+//    @RequestMapping("/elements")
+//    public String elements() {
+//        return "elements";
+//    }
+//
+//    @RequestMapping("/generic")
+//    public String generic() {
+//        return "generic";
+//    }
 
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public String loout(HttpServletRequest request, HttpServletResponse response) {
@@ -83,13 +83,8 @@ public class MainController {
         return "redirect:/";
     }
 
-    @Autowired
-    BoxOfficeListUtil boxOfficeListUtil;
-
-    @RequestMapping("/CrawlingImg")
-    public String CrawlingImg() {
-        boxOfficeListUtil.saveImg();
-        return "crawlingImg";
+    @RequestMapping("/cs")
+    public String csMain(){
+        return "/cs/main";
     }
-
 }

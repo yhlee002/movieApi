@@ -1,12 +1,9 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.entity.movie.ThumbImg;
-import com.portfolio.demo.project.repository.MovieImgRepository;
 import com.portfolio.demo.project.util.DailyBoxOfficeListUtil;
 import com.portfolio.demo.project.util.MovieInfoUtil;
 import com.portfolio.demo.project.util.NaverMovieInfoUtil;
 import com.portfolio.demo.project.vo.movie.MovieDetailVO;
-import com.portfolio.demo.project.vo.movie.MovieElementVO;
 import com.portfolio.demo.project.vo.movie.MovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +31,6 @@ public class BoxOfficeService {
 
     @Autowired
     NaverMovieInfoUtil naverMovieInfoUtil;
-
-    @Autowired
-    MovieImgRepository movieImgRepository;
 
     @PostConstruct
     public void initialize() {

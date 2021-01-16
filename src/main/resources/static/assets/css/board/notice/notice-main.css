@@ -54,3 +54,44 @@
 #searchQuery {
     width: 15em;
 }
+
+#commentMovBox {
+    background-color: white;
+    padding: 2em;
+}
+
+#ratingSelector {
+    color: goldenrod;
+    width: fit-content;
+}
+
+#ratingSelector, #commentContent, #commentSubmitBtn {
+    display: inline;
+}
+
+#commentContent {
+    width: 70%;
+}
+
+#commentListTitle {
+    margin-top: 2em;
+    margin-bottom: 0;
+}
+
+#commentMovList {
+    padding: 1em;
+    border-radius: 1em;
+    margin: 0 2em;
+    background-color: ghostwhite;
+}
+
+#pagenation_commMov {
+    height: 3em;
+}
+
+button.upBtn, button.modifyBtn, button.deleteBtn {
+    margin: 0 0.3em;
+    padding: 0.35em;
+    line-height: 0.3em;
+    height: 2em;
+}

@@ -36,8 +36,6 @@ public class MovieInfoUtil {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 res = getResult(con.getInputStream());
 
-//                log.info("res : " + res);
-
                 Gson gson = new Gson();
 
                 JsonObject result = gson.fromJson(res, JsonObject.class);

@@ -2,7 +2,9 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
+import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,9 @@ public class BoardImpService {
     @Autowired
     BoardImpRepository boardImpRepository;
 
+    @Autowired
+    MemberRepository memberRepository;
+
     /* 조회 */
     public List<BoardImp> selectAllBoards() {
         return boardImpRepository.findAllBoardImp();
@@ -28,12 +33,12 @@ public class BoardImpService {
 
     // 게시글 단건 조회
     public BoardImp selectBoardByBoardId(Long boardId) {
-        return boardImpRepository.findBoardImpByBoarId(boardId);
+        return boardImpRepository.findBoardImpById(boardId);
     }
 
     // 게시글 단건 조회 + 이전글, 다음글
     public HashMap<String, BoardImp> selectBoardsByBoardId(Long boardId) {
-        BoardImp board = boardImpRepository.findBoardImpByBoarId(boardId);
+        BoardImp board = boardImpRepository.findBoardImpById(boardId);
         BoardImp prevBoard = boardImpRepository.findPrevBoardImpByBoardId(boardId);
         BoardImp nextBoard = boardImpRepository.findNextBoardImpByBoardId(boardId);
         HashMap<String, BoardImp> boardNoticeMap = new HashMap<>();
@@ -51,18 +56,30 @@ public class BoardImpService {
 
     /* 추가(작성) */
     public BoardImp saveBoard(String title, Long memNo, String content) {
-        BoardImp imp = new BoardImp(null, title, content, memNo, LocalDateTime.now());
+        Member member = null;
+        Optional<Member> memberOpt = memberRepository.findById(memNo);
+        if (memberOpt.isPresent()) {
+            member = memberOpt.get();
+        }
+
+        BoardImp imp = new BoardImp(null, title, content, member, LocalDateTime.now());
         return boardImpRepository.save(imp);
     }
 
     /* 수정 */
     @Transactional
     public Long updateBoard(Long boardId, String title, Long memNo, String content) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+        Member member = null;
+        Optional<Member> memberOpt = memberRepository.findById(memNo);
+        if (memberOpt.isPresent()) {
+            member = memberOpt.get();
+        }
 
         BoardImp newBoard = null;
-        BoardImp originBoard = boardImpRepository.findBoardImpByBoarId(boardId);
+        BoardImp originBoard = boardImpRepository.findBoardImpById(boardId);
         if (originBoard != null) {
-            newBoard = new BoardImp(boardId, title, content, memNo, originBoard.getRegDate());
+            newBoard = new BoardImp(boardId, title, content, member, originBoard.getRegDate());
+
             boardImpRepository.save(newBoard);
         }
 
@@ -72,8 +89,15 @@ public class BoardImpService {
     /* 삭제 */
     @Transactional
     public void deleteBoardByBoardId(Long boardId) {
-        BoardImp board = boardImpRepository.findBoardImpByBoarId(boardId);
+        BoardImp board = boardImpRepository.findBoardImpById(boardId);
         boardImpRepository.delete(board);
+    }
+    
+    // 게시글 조회수 증가
+    public void upViewCnt(Long boardId) {
+        BoardImp imp = boardImpRepository.findById(boardId).get();
+        imp.setViews(imp.getViews()+1);
+        boardImpRepository.save(imp);
     }
 
     public void deleteBoards(List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
@@ -85,7 +109,7 @@ public class BoardImpService {
 
     @Transactional
     public ImpressionPagenationVO getImpListView(int pageNum) {
-        int totalBoardCnt = boardImpRepository.findBoardImpTotalCount();
+        int totalBoardCnt = boardImpRepository.findCount().intValue();
         int startRow = 0;
         List<BoardImp> boardImpList = null;
         ImpressionPagenationVO impPagenationVO = null;
