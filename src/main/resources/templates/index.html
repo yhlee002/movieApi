@@ -5,69 +5,10 @@
 
 <head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="css">
-    <link type="text/css" rel="stylesheet" th:href="@{/assets/slick/slick.css}"/>
-    <link type="text/css" rel="stylesheet" th:href="@{/assets/slick/slick-theme.css}"/>
-    <!--    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>-->
-    <style>
-        #famous_line {
-            font-family: 'Caveat', cursive;
-            font-size: larger;
-        }
-
-        .scrolly {
-            font-family: 'Roboto Condensed', sans-serif
-        }
-
-        #index_boxoffice, #one, #two, #three {
-            font-family: 'Roboto Condensed', sans-serif;
-        }
-
-        #index_boxoffice button {
-            background-color: rgba(255, 0, 0, 0) !important;
-        }
-
-        .list {
-            width: 100px;
-            height: auto;
-            margin: 2px;
-        }
-
-        .list > .innerbox > hr {
-            margin: 0.5rem 0;
-        }
-
-        .list > .innerbox > .thumbnail > img {
-            width: 100%;
-            height: auto;
-            margin: auto;
-        }
-
-        .list > p {
-            margin: auto;
-        }
-
-        .sort_icons {
-            width: 1.5em;
-            height: 1.5em;
-            display: inline;
-            float: right;
-        }
-
-        .sort_rankInten {
-            float: right;
-        }
-
-        .innerbox::after {
-            content: "";
-            clear: both;
-        }
-    </style>
-
+    <link rel="stylesheet" th:href="@{/assets/css/searchMovieInfo-main.css}">
 </th:block>
 <th:block layout:fragment="script">
-    <script type="text/javascript" th:src="@{/assets/slick/slick.min.js}"></script>
-    <script type="text/javascript" th:src="@{/assets/js/slick_slider.js}"></script>
-    <!--    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>-->
+    <script th:src="@{/assets/js/index/index-main.js}"></script>
     <script>
 
     </script>
@@ -90,42 +31,47 @@
         <a href="#index_boxoffice" class="scrolly">시작하기</a>
     </div>
 </section>
-<section id="index_boxoffice" class="wrapper style2">
+<section id="index_boxoffice" class="wrapper style2" style="padding: 6rem 0 1rem 0 !important;">
     <div class="inner">
-        <div>
-            <div class="box">
-                <div class="content align-center">
-                    <h2>일일 박스오피스</h2>
-                    <hr>
-                    <div class="slider autoplay">
-                        <div class="list align-center" th:each="movie : ${movieList}">
-                            <div class="innerbox"
-                                 th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
-                                <div class="thumbnail">
-                                    <img th:src="@{/images/ex_poster.PNG}"> <!-- ${movie.getImgUrl()} -->
-                                </div>
-                                <hr>
-                                <h3 style="display: inline-block; margin-right: 0.3em"
-                                    th:text="${movie.getRank()}"></h3>
-                                <b th:text="${movie.getMovieNm()}"></b>
-                                <span class="sort_rankInten"
-                                      th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
-                                      th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
-                                <span>
+        <div class="box">
+            <div class="content align-center">
+                <h2>일일 박스오피스</h2>
+                <hr>
+                <div class="align-center" style="border-bottom: rgba(0, 0, 0, 0.15) 0.1em solid;"
+                     th:each="movie : ${movieList}">
+                    <div th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
+                        <h3 style="display: inline-block; margin-right: 0.3em"
+                            th:text="${movie.getRank()}"></h3>
+                        <b style="display: inline-block; margin-right: 0.7em" th:text="${movie.getMovieNm()}"></b>
+                        <!-- 순위 변동 -->
+                        <span style="display: inline-block;" class="sort_rankInten"
+                              th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
+                              th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
+                        <span style="display: inline-block;">
                                     <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) < 0}"
                                          th:src="@{/images/sort_down.png}">
                                     <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) == 0}"
                                          th:src="@{/images/horizontal_line.png}">
                                     <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) > 0}"
-                                         th:src="@{/images/sort_up.png}">
-                                </span>
-                            </div>
-                        </div>
+                                         th:src="@{/images/sort_up.png}"></span>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 </section>
-
+<!-- 영화 검색 -->
+<section id="search_movie" class="wrapper style2" style="padding: 0.5rem 0 0.5rem 0 !important;">
+    <div class="inner">
+        <div class="box" style="text-align: center">
+            <div class="content">
+                <input class="searchInput" type="text" name="keyword" placeholder="영화 제목을 검색하세요.">
+                <button class="searchMovieBtn" type="button" style="display:inline;">검색</button>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- 최신 공지사항과 인기 감상 후기 -->
 </section>
 <section id="three" class="wrapper style2">
     <div class="inner">

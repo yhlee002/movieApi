@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.service.BoardImpService;
+import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,8 +27,14 @@ public class MyPageController {
     @Autowired
     MemberService memberService;
 
+    @Autowired
+    BoardImpService boardImpService;
+
     @RequestMapping("/mypage")
-    public String mypage() {
+    public String mypage(Model model, HttpSession session) {
+        Member member = memberService.findByIdentifier((String) session.getAttribute("member"));
+        model.addAttribute("boardImp", boardImpService.selectBoardByMemNo(member.getMemNo()));
+
         return "mypage/memberInfo";
     }
 
@@ -37,12 +46,12 @@ public class MyPageController {
 
     @RequestMapping("/mypage/modify_info_proc")
     public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name, @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone) {
-        log.info("memNo : "+memNo+", name : "+name+", pwd : "+pwd+", phone : "+phone);
+        log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone);
         Member member = memberService.updateUserInfo(
                 Member.builder()
                         .memNo(memNo)
                         .name(name)
-                        .password(pwd) // Service 단에서 'pwd' null check
+                        .password(pwd)
                         .phone(phone) // 수정가능하도록 하기
                         .build()
         );
@@ -77,14 +86,5 @@ public class MyPageController {
         /* 실제로 넘어온 이미지를 서버에 업로드하고 DB의 프로필 이미지 경로를 수정 */
         return "";
     }
-
-//    @RequestMapping("/mypage/{memNo}")
-//    public String myPage(Model model, @PathVariable Long memNo){
-//        // 해당 memNo를 가진 회원의 게시글 및 정보 조회
-//        Member member = memberService.findByMemNo(memNo);
-//        model.addAttribute("member", member);
-//        // ... (게시글 가져오기)
-//        return "mypage/memberInfo";
-//    }
 
 }

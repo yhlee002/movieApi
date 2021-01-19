@@ -1,15 +1,11 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
-import com.portfolio.demo.project.service.BoardImpService;
-import com.portfolio.demo.project.service.BoardNoticeService;
-import com.portfolio.demo.project.service.BoxOfficeService;
-import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.util.BoxOfficeListUtil;
+import com.portfolio.demo.project.service.*;
+import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
@@ -19,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.security.Principal;
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -33,7 +28,10 @@ public class MainController {
     UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    BoxOfficeService boxOfficeService;
+    MovieService movieService;
+
+//    @Autowired
+//    MovieInfoService movieInfoService;
 
     @Autowired
     BoardNoticeService boardNoticeService;
@@ -42,7 +40,7 @@ public class MainController {
     BoardImpService boardImpService;
 
     @RequestMapping("/")
-    public String mainPage(@AuthenticationPrincipal Principal principal, HttpSession session, Model model) { // Principal principal
+    public String mainPage(Model model) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
          * Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -52,7 +50,9 @@ public class MainController {
          * 현재 로그인(인증)된 사용자가 없는 경우에는 null, 있는 경우에는 username과 authorities 참조 가능
          */
 
-        model.addAttribute("movieList", boxOfficeService.getDailyBoxOfficeList());
+        List<MovieVO> movieVOList = movieService.getDailyBoxOfficeList();
+
+        model.addAttribute("movieList", movieVOList);
         model.addAttribute("recent_notice", boardNoticeService.getRecNoticeBoard());
         model.addAttribute("favorite_imp", boardImpService.getFavImpBoard());
 
@@ -64,16 +64,6 @@ public class MainController {
         return "sign-up/sign-upForm";
     }
 
-//    @RequestMapping("/elements")
-//    public String elements() {
-//        return "elements";
-//    }
-//
-//    @RequestMapping("/generic")
-//    public String generic() {
-//        return "generic";
-//    }
-
     @RequestMapping(value = "/logout", method = RequestMethod.POST)
     public String loout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -84,7 +74,7 @@ public class MainController {
     }
 
     @RequestMapping("/cs")
-    public String csMain(){
+    public String csMain() {
         return "/cs/main";
     }
 }

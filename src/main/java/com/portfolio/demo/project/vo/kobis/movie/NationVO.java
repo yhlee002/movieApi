@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movie;
+package com.portfolio.demo.project.vo.kobis.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,6 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class GenreVO {
-    private String genreNm;
+public class NationVO {
+    private String nationNm;
 }

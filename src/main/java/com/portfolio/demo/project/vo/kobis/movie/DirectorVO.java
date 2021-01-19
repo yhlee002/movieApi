@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movieInfo;
+package com.portfolio.demo.project.vo.kobis.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class DirectorVO {
-    private String directorNm;
-    private String directorEnNm;
-    private String directorId;
+    private String peopleNm;
+    private String peopleNmEn;
 }
