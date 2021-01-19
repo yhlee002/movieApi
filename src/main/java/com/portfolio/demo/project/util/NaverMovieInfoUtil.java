@@ -8,6 +8,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -76,8 +77,7 @@ public class NaverMovieInfoUtil {
             log.info(movieNm + " 이름에 대한 api 주소 : " + apiURL);
 
             JSONParser parser = new JSONParser();
-            JSONObject obj = null;
-            obj = (JSONObject) parser.parse(json);
+            JSONObject obj = (JSONObject) parser.parse(json);
 
             JSONArray items = (JSONArray) obj.get("items");
             JSONObject item = (JSONObject) items.get(0);
