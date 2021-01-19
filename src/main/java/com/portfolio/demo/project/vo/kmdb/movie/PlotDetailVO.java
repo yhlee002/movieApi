@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movie;
+package com.portfolio.demo.project.vo.kmdb.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class NationVO {
-    private String nationNm;
+public class PlotDetailVO {
+    private String plotKang;
+    private String plotText;
 }

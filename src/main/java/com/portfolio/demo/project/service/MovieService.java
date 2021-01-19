@@ -3,8 +3,9 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.util.DailyBoxOfficeListUtil;
 import com.portfolio.demo.project.util.MovieInfoUtil;
 import com.portfolio.demo.project.util.NaverMovieInfoUtil;
-import com.portfolio.demo.project.vo.movie.MovieDetailVO;
-import com.portfolio.demo.project.vo.movie.MovieVO;
+import com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO;
+import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
+import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,9 @@ import java.util.ResourceBundle;
 
 @Slf4j
 @Service
-public class BoxOfficeService {
+public class MovieService {
 
-    private static ResourceBundle bundle = null;
-
-    private final static String MOVIELIST_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json";
+    private static ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
     private static String KEY = null;
 
@@ -34,21 +33,21 @@ public class BoxOfficeService {
 
     @PostConstruct
     public void initialize() {
-        bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
         KEY = bundle.getString("boxOfficeKey");
     }
 
     public List<MovieVO> getDailyBoxOfficeList() {
         List<MovieVO> movieList = dailyBoxOfficeListUtil.getMovieList(KEY);
-//        for (MovieVO movie : movieList) {
-//            ThumbImg img = movieImgRepository.findByMovieCd(movie.getMovieCd());
-//            movie.setImgUrl(img.getImageUrl());
-//        }
         return movieList;
     }
 
+
     public MovieDetailVO getMovieInfo(String movieCd) {
         return movieInfoUtil.getMovieInfo(KEY, movieCd);
+    }
+
+    public List<NaverMovieDetailVO> getMovieListByTitle(String title) {
+        return naverMovieInfoUtil.getMovieListByTitle(title);
     }
 
     /* 제거 예정 */

@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movieInfo;
+package com.portfolio.demo.project.vo.kmdb.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,8 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public class RatingVO { // 전부 '||'를 기준으로 잘라야함
-    private String ratingMain; 
+public class RatingDetailVO {
+    private String ratingMain;
     private String ratingDate;
     private String ratingNo;
     private String ratingGrade;

@@ -1,15 +1,16 @@
-package com.portfolio.demo.project.vo.movieInfo;
+package com.portfolio.demo.project.vo.kmdb.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @ToString
 public class PlotVO {
-    private String plotKang;
-    private String plotText;
+    List<PlotDetailVO> plot;
 }

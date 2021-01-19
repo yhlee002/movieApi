@@ -3,10 +3,10 @@ package com.portfolio.demo.project.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.vo.movie.DirectorVO;
-import com.portfolio.demo.project.vo.movie.GenreVO;
-import com.portfolio.demo.project.vo.movie.MovieDetailVO;
-import com.portfolio.demo.project.vo.movie.NationVO;
+import com.portfolio.demo.project.vo.kobis.movie.DirectorVO;
+import com.portfolio.demo.project.vo.kobis.movie.GenreVO;
+import com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO;
+import com.portfolio.demo.project.vo.kobis.movie.NationVO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;

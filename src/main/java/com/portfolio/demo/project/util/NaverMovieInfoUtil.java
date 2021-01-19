@@ -1,6 +1,9 @@
 package com.portfolio.demo.project.util;
 
-import com.google.gson.JsonObject;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,26 +14,66 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
+@Slf4j
 public class NaverMovieInfoUtil {
+
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private final static String CLIENTID = resourceBundle.getString("naverClientKey");
+    private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
+
+    public List<NaverMovieDetailVO> getMovieListByTitle(String title) {
+
+        String titleEncoded = null;
+        List<NaverMovieDetailVO> movieList = null;
+        try {
+            titleEncoded = URLEncoder.encode(title, "UTF-8");
+
+            String apiURL = "https://openapi.naver.com/v1/search/movie?query=" + titleEncoded;
+            Map<String, String> requestHeaders = new HashMap<>();
+            requestHeaders.put("X-Naver-Client-Id", CLIENTID);
+            requestHeaders.put("X-Naver-Client-Secret", CLIENTSECRET);
+
+            log.info(title + " 이름에 대한 api 주소 : " + apiURL);
+            String json = get(apiURL, requestHeaders);
+
+
+            JSONParser parser = new JSONParser();
+            JSONObject obj = (JSONObject) parser.parse(json);
+            JSONArray items = (JSONArray) obj.get("items");
+
+            Gson gson = new Gson();
+            movieList = gson.fromJson(items.toString(), new TypeToken<ArrayList<NaverMovieDetailVO>>() {}.getType());
+            for (NaverMovieDetailVO vo : movieList) {
+                vo.setDirector(vo.getDirector().replace("|", " "));
+
+                if (vo.getActor().length() != 0) {
+                    String actor = vo.getActor().replace("|", ", ");
+                    vo.setActor(actor.substring(0, actor.lastIndexOf(", ")));
+                }
+            }
+
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("검색어 인코딩 실패", e);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return movieList;
+    }
+
     public String getMovieThumnailImg(String movieNm) {
-        String clientID = "RxgOCy0eNX66Nbp0rWRH";
-        String clientSecret = "zirmKwxjqs";
-        String text = null;
         String imgUrl = null;
         try {
-            text = URLEncoder.encode(movieNm, "UTF-8");
+            String text = URLEncoder.encode(movieNm, "UTF-8");
 
             String apiURL = "https://openapi.naver.com/v1/search/movie?query=" + text;
             Map<String, String> requestHeaders = new HashMap<>();
-            requestHeaders.put("X-Naver-Client-Id", clientID);
-            requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+            requestHeaders.put("X-Naver-Client-Id", CLIENTSECRET);
+            requestHeaders.put("X-Naver-Client-Secret", CLIENTSECRET);
 
-            String responseBody = get(apiURL, requestHeaders);
-            String json = responseBody;
-            System.out.println("네이버 영화 정보 가져온 결과 : "+json);
+            String json = get(apiURL, requestHeaders);
+            log.info(movieNm + " 이름에 대한 api 주소 : " + apiURL);
 
             JSONParser parser = new JSONParser();
             JSONObject obj = null;

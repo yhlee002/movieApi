@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movieInfo;
+package com.portfolio.demo.project.vo.kobis.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class ActorVO {
-    private String ctorNm;
-    private String actorEnNm;
-    private String actorId;
+    private String actorNm;
+    private String cast;
 }

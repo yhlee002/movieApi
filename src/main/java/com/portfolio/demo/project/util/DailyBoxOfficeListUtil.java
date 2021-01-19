@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.vo.movie.MovieVO;
+import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 public class DailyBoxOfficeListUtil {
     private final static String DAILYBOXOFFICE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
     private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-//    private int itemPerPage = 10; // default value : 10, max value : 10
 
     public ArrayList<MovieVO> getMovieList(String key) {
         ArrayList<MovieVO> movieList = null;
@@ -37,8 +36,6 @@ public class DailyBoxOfficeListUtil {
             int responseCode = con.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
                 res = getResult(con.getInputStream());
-
-                log.info("res : " + res);
 
                 Gson gson = new Gson();
 
@@ -71,7 +68,6 @@ public class DailyBoxOfficeListUtil {
         while ((line = br.readLine()) != null) {
             sb.append(line);
         }
-        log.info(sb.toString());
         return sb.toString();
     }
 }

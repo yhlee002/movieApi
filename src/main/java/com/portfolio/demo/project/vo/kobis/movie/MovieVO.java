@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movie;
+package com.portfolio.demo.project.vo.kobis.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,5 +28,4 @@ public class MovieVO {
     private String audiAcc; // 누적관객수
     private String scrnCnt; // 해당일자에 상영한 스크린수
     private String showCnt; // 해당일자에 상영된 횟수
-    private String imgUrl;
 }

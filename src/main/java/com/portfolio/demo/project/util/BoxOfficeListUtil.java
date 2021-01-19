@@ -4,9 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.vo.movie.MovieElementVO;
+import com.portfolio.demo.project.vo.kobis.movie.MovieElementVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,8 +41,6 @@ public class BoxOfficeListUtil {
             if (responseCode == HttpURLConnection.HTTP_OK) {
                 res = getResult(con.getInputStream());
 
-                log.info("res : " + res);
-
                 Gson gson = new Gson();
                 JsonObject result = gson.fromJson(res, JsonObject.class);
                 JsonObject movieListResult = result.get("movieListResult").getAsJsonObject();
@@ -78,7 +75,6 @@ public class BoxOfficeListUtil {
         while ((line = br.readLine()) != null) {
             sb.append(line);
         }
-        log.info(sb.toString());
         return sb.toString();
     }
 }

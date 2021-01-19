@@ -1,15 +1,16 @@
-package com.portfolio.demo.project.vo.movie;
+package com.portfolio.demo.project.vo.kmdb.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Setter
 @Getter
 @AllArgsConstructor
 @ToString
-public class DirectorVO {
-    private String peopleNm;
-    private String peopleNmEn;
+public class ActorVO {
+    private List<ActorDetailVO> actor;
 }

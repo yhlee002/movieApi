@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:layout="http://www.ultraq.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="script">
+    <script th:src="@{/assets/js/index/index-main.js}"></script>
+</th:block>
+<th:block layout:fragmnet="css">
+    <link rel="stylesheet" th:href="@{/assets/css/searchMovieInfo-main.css}">
+</th:block>
+<body class="subpage">
+<header th:replace="/fragments/header.html :: headerFragment"></header>
+<!-- 검색 결과 -->
+<section id="one" class="wrapper style2">
+    <div class="inner">
+        <div class="box movieDetailBox">
+            <h2 style="text-align: center;margin: 1em auto 0 auto;">영화 검색 결과</h2>
+            <!-- 영화 검색 -->
+            <div class="content align-center">
+                <input class="searchInput" type="text" name="keyword" th:value="${query}">
+                <button class="searchMovieBtn" type="button" style="display:inline;">검색</button>
+            </div>
+            <div th:if="${movieList.size() != 0}">
+                <ul class="movie-group list-group" style="list-style: none;">
+                    <li class="movie-item list-group-item" th:each="movie : ${movieList}">
+                        <div class="movie-poster image">
+                            <img th:if="${movie.getImage().length() != 0}" th:src="${movie.getImage()}">
+                            <img th:unless="${movie.getImage().length() != 0}" th:src="@{/images/sample-poster.png}">
+                        </div>
+                        <div class="movie-info" th:onclick="'location.href=\''+@{movie.getLink()}+'\''">
+                            <p class="movie-title" th:utext="${movie.getTitle()}"></p>
+                            <p class="movie-pubDate" th:text="${'제작년도 : '+movie.getPubDate()}"></p>
+                            <p class="movie-director" th:text="'감독 : '+${movie.getDirector()}"></p>
+                            <p class="movie-actor" th:if="${movie.getActor().length() == 0}" th:text="'배우 : 정보없음'"></p>
+                            <p class="movie-actor" th:unless="${movie.getActor().length() == 0}"
+                               th:text="'배우 : '+${movie.getActor()}"></p>
+                            <p>
+                                <span class="movie-userRating" th:text="'평점 : '+${movie.getUserRating()}"></span>
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div th:unless="${movieList.size() != 0}">
+                <p>검색어에 맞는 결과가 존재하지 않습니다.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+<footer th:replace="/fragments/footer.html :: footerFragment"></footer>
+</body>
+</html>

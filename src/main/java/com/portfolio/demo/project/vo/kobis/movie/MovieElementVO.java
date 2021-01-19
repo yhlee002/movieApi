@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.vo.movie;
+package com.portfolio.demo.project.vo.kobis.movie;
 
 import lombok.*;
 

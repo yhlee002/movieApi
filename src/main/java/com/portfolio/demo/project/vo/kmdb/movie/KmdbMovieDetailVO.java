@@ -1,17 +1,15 @@
-package com.portfolio.demo.project.vo.movieInfo;
+package com.portfolio.demo.project.vo.kmdb.movie;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-
 @Setter
 @Getter
 @AllArgsConstructor
 @ToString
-public class MovieDetailVO {
+public class KmdbMovieDetailVO {
     private String DOCID;
     private String movieId;
     private String movieSeq;
@@ -19,16 +17,16 @@ public class MovieDetailVO {
     private String titleEng;
     private String titleEtc;
     private String prodYear;
-    private List<DirectorVO> directors;
-    private List<ActorVO> actors;
+    private DirectorVO director;
+    private ActorVO actors;
     private String nation;
     private String company;
-    private List<PlotVO> plots;
+    private PlotVO plots;
     private String runtime;
     private String rating;
     private String genre;
     private String kmdbUrl;
-    private List<RatingVO> ratings;
+    private RatingVO ratings;
     private String posters; // '|'를 기준으로 잘라야함
     private String stlls; // '|'를 기준으로 잘라야함
 }
