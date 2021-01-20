@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.board.BoardNotice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -27,7 +26,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             "(select b.id from board_imp b where b.id > ?1 order by b.id asc limit 1)"
             , nativeQuery = true)
     BoardImp findNextBoardImpByBoardId(Long boardId);
-    
+
     // 인기 게시글 top 5 조회
     @Query(value = "select b.*, m.name from board_imp b join member m on b.writer_no=m.mem_no order by b.views desc limit 5", nativeQuery = true)
     List<BoardImp> findTop5ByOrderByViewsDesc();
@@ -41,14 +40,14 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     List<BoardImp> findBoardImpListViewByWriterName(String writerName, int startRow, int boardCntPerPage);
 
     // 제목 또는 내용으로 검색 결과 조회
-    @Query("select count(b) from BoardNotice b where b.title like %?1% or b.content like %?1%")
+    @Query("select count(b) from BoardImp b where b.title like %?1% or b.content like %?1%")
     int findBoardImpSearchResultTotalCountTC(String titleOrContent);
 
-    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where b.title like %?1% or b.content like %?1% order by b.id desc limit ?2, ?3"
+    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no where b.title like %?1% or b.content like %?1% order by b.id desc limit ?2, ?3"
             , nativeQuery = true)
     List<BoardImp> findBoardImpListViewByTitleOrContent(String titleOrContent, int startRow, int boardCntPerPage);
 
-    // 해당 작성자의 글 조회, 자신이 작성한 글 조회
+    // 자신이 작성한 글 조회(마이페이지)
     @Query(value = "select count(b) from BoardImp b where b.writer.memNo = ?1")
     int findBoardImpTotalCountByMemNo(Long memNo);
 
@@ -56,6 +55,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             , nativeQuery = true)
     List<BoardImp> findBoardImpListViewByWriterNo(Long memNo, int startRow, int boardCntPerPage);
 
+    // 자신이 작성한 글 최신순 5개(마이페이지)
+    List<BoardImp> findTop5ByWriter_MemNoOrderByRegDateDesc(Long memNo);
 
     // '제목 또는 내용'으로 검색
     @Query("select b from BoardImp b where b.title like %?1% or b.content like %?1%")

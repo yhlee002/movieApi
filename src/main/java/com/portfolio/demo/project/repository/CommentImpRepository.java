@@ -14,4 +14,16 @@ public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
     List<CommentImp> findByBoardId(Long boardId);
 
     List<CommentImp> findByWriter_MemNo(Long memNo);
+
+    List<CommentImp> findTop5ByWriter_MemNoOrderByRegDateDesc(Long memNo);
+
+    @Query("select count(c) from CommentImp c where c.writer.memNo=?1")
+    Long findCountByWriter_MemNo(Long memNo);
+
+    @Query(value = "select c.* from comment_imp c where c.writer_no = ?1 order by c.id desc limit ?2, ?3"
+            , nativeQuery = true)
+    List<CommentImp> findCommImpListViewByWriterNo(Long memNo, int startRow, int COMMENT_COUNT_PER_PAGE);
+
+
+
 }
