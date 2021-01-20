@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class BoxOfficeConfig {
-
     @Bean
     public DailyBoxOfficeListUtil dailyBoxOfficeListUtil() {
         return new DailyBoxOfficeListUtil();
@@ -19,4 +18,8 @@ public class BoxOfficeConfig {
         return new MovieInfoUtil();
     }
 
+    @Bean
+    public BoxOfficeListUtil boxOfficeListUtil() {
+        return new BoxOfficeListUtil();
+    }
 }
