@@ -16,18 +16,19 @@
     <div class="inner">
         <div class="box" id="myPage_one">
             <div class="myPage_img">
-<!--                <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=198px')">-->
-                    <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"
-                         th:src="${session.member.getProfileImage()}">
-                    <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}"
-                         src="/images/test-account-96.png">
-<!--                </a>-->
+                <!--                <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=198px')">-->
+                <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"
+                     th:src="${session.member.getProfileImage()}">
+                <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}"
+                     src="/images/test-account-96.png">
+                <!--                </a>-->
             </div>
             <div class="myPage_info">
                 <span class="info" th:text="${session.member.getNickname()}"></span>님<br>
                 <span>아이디 : </span><span class="info" th:text="${session.member.getIdentifier()}"></span><br>
                 <span>연락처 : </span><span class="info" th:text="${session.member.getPhone()}"></span><br>
-                <span>가입일자 : </span><span class="info" th:text="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}"></span>
+                <span>가입일자 : </span><span class="info"
+                                          th:text="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}"></span>
                 <br>
                 <form type="post" name="modify_user_form" th:action="@{/mypage/modify_info}">
                     <input type="submit" name="modify_info" value="정보 수정">
@@ -37,9 +38,58 @@
                 </form>
             </div>
         </div>
+        <!-- 내가 작성한 글 -->
+        <div class="align-left" style="display: inline-block">
+            <h2 style="display: inline-block;">내가 작성한 후기</h2>
+        </div>
+        <div class="align-right" style="display: inline-block">
+            <a class="more" href="/mypage/imp-board"><span>더보기</span></a>
+        </div>
         <div class="box" id="myPage_two">
-            <!-- 내가 쓴 글 혹은 하트 누른 게시글 등 표시 -->
-            <h2></h2>
+            <div id="myBoardImp">
+                <div th:if="${boardList.size() > 0}">
+                    <ul style="list-style: none;">
+                        <li th:each="board : ${boardList}">
+                            <a th:href="@{/imp/{boardId}(boardId=${board.getId()})}">
+                                <div class="boardList-item">
+                                    <p class="board_title"
+                                       th:text="${board.getTitle()} + ' ['+${board.getComments().size()} + '] ('+${#temporals.format(board.getRegDate(), 'yyyy-MM-dd HH:mm')}+')'"></p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div th:if="${boardList.size() == 0}">
+                    <p>작성한 글이 없습니다.</p>
+                </div>
+            </div>
+        </div>
+        <!-- 내가 작성한 댓글 -->
+        <div class="align-left" style="display: inline-block">
+            <h2 style="display: inline-block;">내가 작성한 댓글</h2>
+        </div>
+        <div class="align-right" style="display: inline-block">
+            <a class="more" href="/mypage/imp-comment"><span>더보기</span></a>
+        </div>
+        <div class="box" id="myPage_three">
+            <div id="myCommImp">
+                <div th:if="${commList.size() > 0}">
+                    <ul style="list-style: none;">
+                        <li th:each="comment : ${commList}">
+                            <a th:href="@{/imp/{boardId}(boardId=${comment.getBoardId()})}">
+                                <div class="commentList-item">
+                                    <p class="comment_content" th:if="${comment.getContent().length() > 11}"
+                                       th:text="${#strings.substring(comment.getContent(),0, 11)}+'...(원글 : '+${comment.getBoardTitle()+')'}"></p>
+                                    <p class="comment_content" th:unless="${comment.getContent().length() > 11}"
+                                       th:text="${comment.getContent()}+'(원글 : '+${comment.getBoardTitle()+')'}"></p>
+                                    <p class="comment_regDt"
+                                       th:text="${#temporals.format(comment.getRegDate(), 'yyyy-MM-dd HH:mm')}"></p>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>

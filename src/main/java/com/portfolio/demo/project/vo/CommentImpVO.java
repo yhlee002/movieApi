@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,16 +19,18 @@ public class CommentImpVO {
 
     private Long id;
     private Long boardId;
+    private String boardTitle;
     private Long writerId;
     private String writerName;
     private String content;
-//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    //    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 
     public CommentImpVO(CommentImp entity) {
         this.id = entity.getId();
         this.boardId = entity.getBoard().getId();
+        this.boardTitle = entity.getBoard().getTitle();
         this.writerId = entity.getWriter().getMemNo();
         this.writerName = entity.getWriter().getName();
         this.content = entity.getContent();

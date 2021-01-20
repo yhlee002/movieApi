@@ -28,7 +28,7 @@ public class CommentImp {
     @JoinColumn(name = "board_id")
     private BoardImp board;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_no")
     private Member writer;
 

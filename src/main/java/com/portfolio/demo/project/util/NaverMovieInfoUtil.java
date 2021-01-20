@@ -20,7 +20,7 @@ import java.util.*;
 public class NaverMovieInfoUtil {
 
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-    private final static String CLIENTID = resourceBundle.getString("naverClientKey");
+    private final static String CLIENTID = resourceBundle.getString("naverClientId");
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
 
     public List<NaverMovieDetailVO> getMovieListByTitle(String title) {

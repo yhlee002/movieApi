@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
@@ -49,6 +48,11 @@ public class BoardImpService {
         return boardNoticeMap;
     }
 
+    // 내가 쓴 글 최신순 5개
+    public List<BoardImp> getMyImpTop5(Long memNo) {
+        return boardImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
+    }
+
     // 인기 게시글 top 5
     public List<BoardImp> getFavImpBoard() {
         return boardImpRepository.findTop5ByOrderByViewsDesc();
@@ -92,11 +96,11 @@ public class BoardImpService {
         BoardImp board = boardImpRepository.findBoardImpById(boardId);
         boardImpRepository.delete(board);
     }
-    
+
     // 게시글 조회수 증가
     public void upViewCnt(Long boardId) {
         BoardImp imp = boardImpRepository.findById(boardId).get();
-        imp.setViews(imp.getViews()+1);
+        imp.setViews(imp.getViews() + 1);
         boardImpRepository.save(imp);
     }
 
@@ -167,4 +171,33 @@ public class BoardImpService {
 
         return impressionPagenationVO;
     }
+
+    private Long memNo;
+
+    public void setMemNo(Long memNo) {
+        this.memNo = memNo;
+    }
+
+    // 본인이 작성한 글(마이페이지에서 조회 가능)
+    @Transactional
+    public ImpressionPagenationVO getMyImpListView(int pageNum) {
+        int totalBoardCnt = boardImpRepository.findBoardImpTotalCountByMemNo(memNo);
+        int startRow = 0;
+        List<BoardImp> boardImpList = null;
+        ImpressionPagenationVO impPagenationVO = null;
+        if (totalBoardCnt > 0) {
+            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
+
+            boardImpList = boardImpRepository.findBoardImpListViewByWriterNo(memNo, startRow, BOARD_COUNT_PER_PAGE);
+        } else {
+            pageNum = 0;
+        }
+
+        int endRow = startRow * BOARD_COUNT_PER_PAGE;
+
+        impPagenationVO = new ImpressionPagenationVO(totalBoardCnt, pageNum, boardImpList, BOARD_COUNT_PER_PAGE, startRow, endRow);
+
+        return impPagenationVO;
+    }
+
 }

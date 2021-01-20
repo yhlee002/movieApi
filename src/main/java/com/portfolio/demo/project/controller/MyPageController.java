@@ -3,7 +3,9 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
+import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,12 +32,36 @@ public class MyPageController {
     @Autowired
     BoardImpService boardImpService;
 
+    @Autowired
+    CommentImpService commentImpService;
+
     @RequestMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
-        Member member = memberService.findByIdentifier((String) session.getAttribute("member"));
-        model.addAttribute("boardImp", boardImpService.selectBoardByMemNo(member.getMemNo()));
+        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+        model.addAttribute("boardList", boardImpService.getMyImpTop5(memberVO.getMemNo()));
+        model.addAttribute("commList", commentImpService.getMyCommTop5(memberVO.getMemNo()));
 
         return "mypage/memberInfo";
+    }
+
+    @RequestMapping("/mypage/imp-board")
+    public String myImpBoard(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
+        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+        boardImpService.setMemNo(memberVO.getMemNo());
+        model.addAttribute("pagenation", boardImpService.getMyImpListView(pageNum));
+
+        return "/mypage/impBoards";
+    }
+
+    @RequestMapping("/mypage/imp-comment")
+    public String myImpComment(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
+        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+        commentImpService.setMemNo(memberVO.getMemNo());
+        CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
+//        log.info(pagenation.toString());
+        model.addAttribute("pagenation", pagenation);
+
+        return "/mypage/impComments";
     }
 
     @RequestMapping("/mypage/modify_info")
