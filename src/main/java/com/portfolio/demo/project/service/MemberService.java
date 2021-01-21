@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +72,9 @@ public class MemberService {
         Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
         log.info("profile : " + profile);
         String profileImage = profile.get("profile_image");
+        if (profileImage != null) {
+            profileImage = profileImage.replace("\\", "");
+        }
         log.info("profileImage : " + profileImage);
 
         memberRepository.save(
@@ -82,7 +84,7 @@ public class MemberService {
                         .name(name)
                         .password("")
                         .phone(phone)
-                        .profileImage(profileImage.replace("\\", ""))
+                        .profileImage(profileImage)
                         .provider(provider) // none, naver, kakao
                         .regDt(LocalDateTime.now())
                         .role("ROLE_USER")
@@ -111,7 +113,7 @@ public class MemberService {
         if (originMemberOpt.isPresent()) {
             originMember = originMemberOpt.get();
 
-            log.info("서비스단에서 찾은 해당 회원의 기존 정보 : "+originMember.toString());
+            log.info("서비스단에서 찾은 해당 회원의 기존 정보 : " + originMember.toString());
 
             /* 비밀번호 null 체크 */
             if (member.getPassword() != null && member.getPassword().length() != 0) {
@@ -121,13 +123,13 @@ public class MemberService {
             originMember.setPhone(member.getPhone());
             memberRepository.save(originMember);
 
-            log.info("변경된 회원 정보 : "+originMember.toString());
+            log.info("변경된 회원 정보 : " + originMember.toString());
         }
         return originMember;
     }
 
     public void deletUserInfo(Long memNo) {
-        log.info("삭제될 User id : "+memNo);
+        log.info("삭제될 User id : " + memNo);
         Member member = memberRepository.findById(memNo).get();
         memberRepository.delete(member);
     }

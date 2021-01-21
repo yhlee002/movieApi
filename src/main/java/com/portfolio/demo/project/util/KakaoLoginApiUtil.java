@@ -15,53 +15,57 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 @Slf4j
-public class NaverLoginApiUtil {
+public class KakaoLoginApiUtil {
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-    private final static String CLIENTID = resourceBundle.getString("naverClientId");
-    private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
+    private static String CLIENT_ID = resourceBundle.getString("kakaoClientId");
+    private static String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
 
     Map<String, String> tokens;
 
     public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
-        String naverCode = request.getParameter("code");
-        String naverState = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "UTF-8");
 
-        String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&";
-        apiURL += "client_id=" + CLIENTID;
-        apiURL += "&client_secret=" + CLIENTSECRET;
+        System.out.println(request.getParameterMap().keySet().toString());
+        System.out.println(request.getParameterMap().values());
+
+        String kakaoCode = request.getParameter("code");
+        String kakaoState = request.getParameter("state");
+        String redirectURI = URLEncoder.encode("http://localhost:8080/sign-in/kakao/oauth2", "UTF-8");
+
+        String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
+        apiURL += "&client_id=" + CLIENT_ID;
+        apiURL += "&client_secret=" + CLIENT_SECRET;
         apiURL += "&redirect_uri=" + redirectURI;
-        apiURL += "&code=" + naverCode;
-        apiURL += "&state=" + naverState;
+        apiURL += "&code=" + kakaoCode;
+
         log.info("apiURL=" + apiURL);
 
         HttpURLConnection con = null;
         String res = "";
         tokens = new HashMap<>();
 
-        try {
-            con = connect(apiURL);
+        con = connect(apiURL);
 
+        try {
             int responseCode = con.getResponseCode();
 
-            if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 res = readBody(con.getInputStream());
-            } else { // 에러 발생
+            } else {
                 res = readBody(con.getErrorStream());
             }
 
+            log.info("res : "+res);
+
             if (responseCode == 200) {
                 Map<String, Object> parsedJson = new JSONParser(res).parseObject();
-                log.info(parsedJson.toString());
 
                 String access_token = (String) parsedJson.get("access_token");
                 String refresh_token = (String) parsedJson.get("refresh_token");
-//                log.info("access token : " + access_token);
-//                log.info("refresh token : " + refresh_token);
 
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
             }
+
         } catch (IOException | ParseException e) {
             throw new RuntimeException("API 요청과 응답 실패", e);
         } finally {
@@ -70,31 +74,32 @@ public class NaverLoginApiUtil {
         return tokens;
     }
 
-    private static String readBody(InputStream body) {
-        InputStreamReader streamReader = new InputStreamReader(body);
-
-        try (BufferedReader lineReader = new BufferedReader(streamReader)) {
-            StringBuilder responseBody = new StringBuilder();
-
-            String line;
-            while ((line = lineReader.readLine()) != null) {
-                responseBody.append(line);
+    private static String readBody(InputStream stream) {
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+            if ((line = br.readLine()) != null) {
+                sb.append(line);
             }
-
-            return responseBody.toString();
+            return sb.toString();
         } catch (IOException e) {
             throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
         }
     }
 
-    private static HttpURLConnection connect(String apiUrl) {
+    private static HttpURLConnection connect(String urlStr) {
         try {
-            URL url = new URL(apiUrl);
-            return (HttpURLConnection) url.openConnection();
+            URL url = new URL(urlStr);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
+            return conn;
         } catch (MalformedURLException e) {
-            throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
+            throw new RuntimeException("API URL이 잘못되었습니다. : " + urlStr, e);
         } catch (IOException e) {
-            throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
+            throw new RuntimeException("연결이 실패했습니다. : " + urlStr, e);
         }
     }
 }
+

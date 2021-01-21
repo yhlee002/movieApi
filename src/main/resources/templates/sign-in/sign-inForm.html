@@ -71,7 +71,7 @@
                         <button id="naverSignInBtn" class="oauthBtn" type="button"
                                 th:onclick="goLoginProc([[${naverLoginUrl}]])"></button><!-- javascript:naverLogin() -->
                         <button id="kakaoSignInBtn" class="oauthBtn" type="button"
-                                onclick="goLoginProc('#')"></button><!-- javascript:kakaoLogin() -->
+                                th:onclick="goLoginProc([[${kakaoLoginUrl}]])"></button><!-- javascript:kakaoLogin() -->
                         <br>
 
                         <!-- submit button -->
