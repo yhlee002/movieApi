@@ -366,7 +366,7 @@ $(function () {
                 alert("정보를 다시 확인해주세요.");
             }
             return false;
-        } else if (provider == "naver") {
+        } else if (provider == "naver" || provider == "kakao") {
 
             console.log("phoneCk : " + phoneCk);
 
@@ -401,7 +401,11 @@ $(function () {
             }
             return false;
 
-        }
+        } else {
+                alert("정보를 다시 확인해주세요.");
+            }
+            return false;
 
-    });
+
+        });
 });

@@ -23,7 +23,7 @@
             <div class="content text-center">
                 <h2 class="title">Sign up</h2>
                 <form id="form_signup_o" th:action="@{/sign-up/sign-up-processor}" method="post" class="form">
-                    <input name="provider" id="provider" th:value="naver" value="naver" hidden="hidden">
+                    <input name="provider" id="provider" th:value="${session.provider}" value="naver" hidden="hidden">
                     <div class="form-group">
                         <label class="align-left" for="id">UniqueId</label><br>
                         <input id="id" class="form-control" type="text" name="id" th:value="${id}" readonly><br>

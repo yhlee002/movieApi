@@ -2,6 +2,8 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.util.KakaoLoginApiUtil;
+import com.portfolio.demo.project.util.KakaoProfileApiUtil;
 import com.portfolio.demo.project.util.NaverLoginApiUtil;
 import com.portfolio.demo.project.util.NaverProfileApiUtil;
 import com.portfolio.demo.project.vo.MemberVO;
@@ -24,6 +26,7 @@ import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 @Slf4j
 @Controller
@@ -38,18 +41,30 @@ public class SignInController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+
     /* Naver, Kakao Login API 관련 */
     @RequestMapping("/sign-in")
     public String signInPage(Model model, HttpSession session) throws UnsupportedEncodingException {
+        /* 네이버 */
+        String NAVER_CLIENT_ID = resourceBundle.getString("naverClientId");
+        String naverCallBackURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "utf-8");
+        String naverApiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
+        String naverState = new BigInteger(130, random).toString();
 
-        String CLIENT_ID = "RxgOCy0eNX66Nbp0rWRH";
-        String callbackURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "utf-8");
-        String apiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
-        String state = new BigInteger(130, random).toString();
+        naverApiURL += String.format("&client_id=%s&redirect_uri=%s&state=%s", NAVER_CLIENT_ID, naverCallBackURI, naverState);
+        session.setAttribute("naverState", naverState);
+        model.addAttribute("naverLoginUrl", naverApiURL);
 
-        apiURL += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENT_ID, callbackURI, state);
-        session.setAttribute("state", state);
-        model.addAttribute("naverLoginUrl", apiURL);
+        /* 카카오 */
+        String KAKAO_CLIENT_ID = resourceBundle.getString("kakaoClientId");
+        String kakaoCallBackUrl = URLEncoder.encode("http://localhost:8080/sign-in/kakao/oauth2", "utf-8");
+        String kakaoApiURL = "https://kauth.kakao.com/oauth/authorize?response_type=code";
+        String kakaoState = new BigInteger(130, random).toString();
+
+        kakaoApiURL += String.format("&client_id=%s&redirect_uri=%s&state=%s", KAKAO_CLIENT_ID, kakaoCallBackUrl, kakaoState);
+        session.setAttribute("kakaoState", kakaoState);
+        model.addAttribute("kakaoLoginUrl", kakaoApiURL);
 
         if (model.containsAttribute("oauth_message")) {
             String oauth_message = (String) model.getAttribute("oauth_message");
@@ -73,12 +88,12 @@ public class SignInController {
         String access_token = res.get("access_token");
         String refresh_token = res.get("refresh_token");
 
-        session.setAttribute("currentAT", access_token);
-        session.setAttribute("currentRT", refresh_token);
+        session.setAttribute("naverCurrentAT", access_token);
+        session.setAttribute("naverCurrentRT", refresh_token);
 
         /* access token을 사용해 사용자 프로필 조회 api 호출 */
         Map<String, String> profile = naverProfileApiUtil.getProfile(access_token); // Map으로 사용자 데이터 받기
-        System.out.println("profile : " + profile);
+        log.info("profile : " + profile);
 
         /* 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환 */
         Member member = memberService.findByProfile(profile.get("id"), "naver");
@@ -86,18 +101,12 @@ public class SignInController {
         if (member != null) { // info.getRole().equals("ROLE_USER")
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
-            if (member.getProvider().equals("kakao")) {
-                rttr.addFlashAttribute("oauth_message", "kakao user");
-
-                return "redirect:/sign-in";
-            } else if (member.getProvider().equals("naver")) {
+            if (member.getProvider().equals("naver")) {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
                 MemberVO memberVO = new MemberVO(member);
                 session.setAttribute("member", memberVO);
-
-                log.info("Sign-in User; user identifier : " + member.getIdentifier() + ", name : " + member.getName());
 
                 return "redirect:/";
             } else { // none
@@ -109,11 +118,58 @@ public class SignInController {
         } else {
             log.info("not user");
             session.setAttribute("profile", profile);
+            session.setAttribute("provider", "naver");
             rttr.addFlashAttribute("oauth_message", "not user");
 
             return "redirect:/sign-in";
         }
     }
+
+    @Autowired
+    KakaoLoginApiUtil kakaoLoginApiUtil;
+
+    @Autowired
+    KakaoProfileApiUtil kakaoProfileApiUtil;
+
+    @RequestMapping("/sign-in/kakao/oauth2")
+    public String kakaoOauth(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws ParseException, UnsupportedEncodingException {
+        log.info(request.toString());
+        Map<String, String> res = kakaoLoginApiUtil.getTokens(request);
+        String access_token = res.get("access_token");
+        String refresh_token = res.get("refresh_token");
+
+        session.setAttribute("kakaoCurrentAT", access_token);
+        session.setAttribute("kakaoCurrentRT", refresh_token);
+
+        Map<String, String> profile = kakaoProfileApiUtil.getProfile(access_token);
+        log.info("profile : " + profile);
+
+        Member member = memberService.findByProfile(profile.get("id"), "kakao");
+        if (member != null) {
+            log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
+
+            if (member.getProvider().equals("kakao")) {
+                Authentication auth = memberService.getAuthentication(member);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+
+                MemberVO memberVO = new MemberVO(member);
+                session.setAttribute("member", memberVO);
+
+                return "redirect:/";
+            } else { // none
+                log.info("conventional user");
+                rttr.addFlashAttribute("oauth_message", "conventional user");
+                return "redirect:/sign-in";
+            }
+        } else { // 필요없는 코드
+            log.info("not user");
+            session.setAttribute("profile", profile);
+            session.setAttribute("provider", "kakao");
+            rttr.addFlashAttribute("oauth_message", "not user");
+            return "redirect:/sign-in";
+        }
+    }
+
 
     @RequestMapping("/sign-in/checkProc")
     @ResponseBody

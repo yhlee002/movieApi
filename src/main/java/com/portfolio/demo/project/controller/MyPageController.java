@@ -101,6 +101,9 @@ public class MyPageController {
         return "redirect:/";
     }
 
+//    @RequestMapping("/mypage/delete_info/kakao/oauth2") : 카카오 로그인 연결 끊기 콜백 url
+
+
     @RequestMapping("/mypage/uploadProfileImage")
     public String uploadProfileImageForm() {
         /* 프로필 이미지 변경시 업로드 페이지로 감 */

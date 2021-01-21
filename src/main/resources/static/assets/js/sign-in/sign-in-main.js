@@ -68,16 +68,7 @@ $(document).ready(function () {
     }
 }, false);
 
-// /* 네아로 API 호출 */
-// function naverLogin() {
-//     let naver_login_url = "[[${naverLoginUrl}]]";
-//     location.href = naver_login_url;
-// }
-//
-// function kakaoLogin() {
-//     location.href = '#';
-// }
-
 function goLoginProc(url) {
+    // window.open(url, "width=600px, height=800px;");
     location.href = url;
 }
