@@ -40,19 +40,15 @@ public class CommentMov {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 
-    @Column(name = "recommended", insertable = false, columnDefinition = "LONG DEFAULT 0")
-    private Long recommended;
-
     @Column(name = "rating")
     private int rating;
 
     @Builder
-    public CommentMov(Long id, Member writer, String content, Long movieNo, Long recommended, int rating) {
+    public CommentMov(Long id, Member writer, String content, Long movieNo, int rating) {
         this.id = id;
         this.writer = writer;
         this.content = content;
         this.movieNo = movieNo;
-        this.recommended = recommended;
         this.rating = rating;
     }
 }

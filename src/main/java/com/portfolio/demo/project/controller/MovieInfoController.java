@@ -27,7 +27,7 @@ public class MovieInfoController {
         MovieDetailVO movieInfo = movieService.getMovieInfo(movieCd);
         model.addAttribute("movie", movieInfo);
 
-        String movieImgUrl = movieService.getMovieImg(movieInfo.getMovieNmOg());
+        String movieImgUrl = movieService.getMovieImg(movieInfo.getMovieNm());
         model.addAttribute("movieThumnailUrl", movieImgUrl);
 
         return "movieInfo/movieInfo";

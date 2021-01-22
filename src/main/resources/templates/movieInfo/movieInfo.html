@@ -7,9 +7,6 @@
 <head th:replace="/fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
     <script th:src="@{/assets/js/board/comment/comment-mov.js}"></script>
-    <script>
-
-    </script>
 </th:block>
 <th:block layout:fragmnet="css">
     <link rel="stylesheet" th:href="@{/assets/css/board/notice/notice-main.css}">
@@ -32,7 +29,6 @@
                         <input type="text" id="movieCd" th:value="${movie.getMovieCd()}" hidden="hidden">
                     </header>
                     <hr/>
-                    <p> 간략한 영화 줄거리 </p>
                     <ul class="movieDetailInfoList">
                         <li>감독 :
                             <span th:each="director:${movie.getDirectors()}">

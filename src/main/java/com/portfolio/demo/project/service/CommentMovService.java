@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.repository.CommentMovRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
@@ -8,11 +9,9 @@ import com.portfolio.demo.project.vo.CommentMovVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -130,5 +129,20 @@ public class CommentMovService {
             commentMovVOList.add(new CommentMovVO(comm));
         }
         return commentMovVOList;
+    }
+
+    // 댓글 수정
+    public CommentMov updateMovComment(Long commentId, String content) {
+        CommentMov originImp = commentMovRepository.findById(commentId).get();
+        originImp.setContent(content);
+        return commentMovRepository.save(originImp);
+    }
+
+    // 댓글 삭제
+    public void deleteMovComment(Long commentId) {
+        Optional<CommentMov> comm = commentMovRepository.findById(commentId);
+        if (comm.isPresent()) {
+            commentMovRepository.delete(comm.get());
+        }
     }
 }

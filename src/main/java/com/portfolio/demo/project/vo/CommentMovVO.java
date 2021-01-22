@@ -21,7 +21,6 @@ public class CommentMovVO {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
-    private Long recommendCnt;
     private int rating;
 
     public CommentMovVO(CommentMov entity) {
@@ -31,7 +30,6 @@ public class CommentMovVO {
         this.movieNo = entity.getMovieNo();
         this.content = entity.getContent();
         this.regDate = entity.getRegDate();
-        this.recommendCnt = entity.getRecommended(); // size()와 리턴값 타입만 다르고 역할은 같은지?
         this.rating = entity.getRating();
     }
 }

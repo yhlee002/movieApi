@@ -1,9 +1,7 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.comment.CommentMov;
-import com.portfolio.demo.project.entity.comment.CommentMovRecommend;
 import com.portfolio.demo.project.service.CommentImpService;
-import com.portfolio.demo.project.service.CommentMovRecommendService;
 import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import com.portfolio.demo.project.vo.CommentMovVO;
@@ -25,10 +23,6 @@ public class CommentController {
 
     @Autowired
     CommentImpService commentImpService;
-
-    @Autowired
-    CommentMovRecommendService commentMovRecommendService;
-
 
     @RequestMapping("/movieInfo/comment/write")
     public String writeCommentMovieInfo(String commentContent, Long memNo, Long movieNo, int rating) {
@@ -57,14 +51,22 @@ public class CommentController {
         return commList;
     }
 
-    @RequestMapping("/movieInfo/comment/recommended/1") // getCommentRecommendedInfo
-    public CommentMovRecommend getRecommendedByCommentIdAndMemNo(@RequestParam(name = "commentId") Long commentId, @RequestParam(name = "memNo") Long memNo) {
-        return commentMovRecommendService.recommendModify(commentId, memNo);
+    // 댓글 수정
+    @RequestMapping("/movieInfo/comment/update")
+    public String updateCommentMov(String content, Long commentId) {
+        if (commentMovService.updateMovComment(commentId, content) != null) {
+            return "success";
+        }
+        return "false";
     }
 
-    @RequestMapping("/movieInfo/comment/recommended/2") //getRecommendInfoByMemNo
-    public List<Long> getRecommendedByMemNo(@RequestParam(name = "memNo", required = false) Long memNo) { // @RequestParam(value = "commentList[]") Long[] commentIdArr,
-        return commentMovRecommendService.getRecommendInfoByMemNo(memNo);
+
+    // 댓글 삭제
+    @RequestMapping("/movieInfo/comment/delete")
+    public String deleteCommentMov(Long commentId) {
+        commentMovService.deleteMovComment(commentId);
+
+        return "success";
     }
 
     /**
