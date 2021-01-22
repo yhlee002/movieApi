@@ -25,7 +25,6 @@ public class NaverMovieInfoUtil {
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
 
     public List<NaverMovieDetailVO> getMovieListByTitle(String title) {
-
         String titleEncoded = null;
         List<NaverMovieDetailVO> movieList = null;
         try {
@@ -45,7 +44,8 @@ public class NaverMovieInfoUtil {
             JSONArray items = (JSONArray) obj.get("items");
 
             Gson gson = new Gson();
-            movieList = gson.fromJson(items.toString(), new TypeToken<ArrayList<NaverMovieDetailVO>>() {}.getType());
+            movieList = gson.fromJson(items.toString(), new TypeToken<ArrayList<NaverMovieDetailVO>>() {
+            }.getType());
             for (NaverMovieDetailVO vo : movieList) {
                 vo.setDirector(vo.getDirector().replace("|", " "));
 
@@ -70,11 +70,12 @@ public class NaverMovieInfoUtil {
 
             String apiURL = "https://openapi.naver.com/v1/search/movie?query=" + text;
             Map<String, String> requestHeaders = new HashMap<>();
-            requestHeaders.put("X-Naver-Client-Id", CLIENTSECRET);
+            requestHeaders.put("X-Naver-Client-Id", CLIENTID);
             requestHeaders.put("X-Naver-Client-Secret", CLIENTSECRET);
 
             String json = get(apiURL, requestHeaders);
             log.info(movieNm + " 이름에 대한 api 주소 : " + apiURL);
+            log.info("결과 : " + json);
 
             JSONParser parser = new JSONParser();
             JSONObject obj = (JSONObject) parser.parse(json);

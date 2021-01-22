@@ -89,9 +89,15 @@
     height: 3em;
 }
 
-button.upBtn, button.modifyBtn, button.deleteBtn {
+button.modifyBtn, button.deleteBtn {
     margin: 0 0.3em;
     padding: 0.35em;
     line-height: 0.3em;
     height: 2em;
+}
+
+#newContent {
+    width: 70%;
+    display: inline;
+    margin: 0.2em;
 }

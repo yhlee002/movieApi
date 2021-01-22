@@ -28,26 +28,29 @@ $(document).ready(function () {
 });
 
 function deleteComment(btn) {
-    commId = btn.parentNode.parentNode.childNodes[0].children[0].value;
+    let conf = confirm("정말 삭제하시겠습니까?");
+    if (conf) {
+        commId = btn.parentNode.parentNode.childNodes[0].children[0].value;
 
-    $.ajax({
-        url: "/imp/comment/delete",
-        type: "post",
-        data: {
-            "commentId": commId
-        },
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader(header, token);
-        },
-        success: function (result) {
-            if (result === "success") {
-                getCommentList(boardId);
-            } else {
-                alert("문제가 발생했습니다.");
+        $.ajax({
+            url: "/imp/comment/delete",
+            type: "post",
+            data: {
+                "commentId": commId
+            },
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success: function (result) {
+                if (result === "success") {
+                    getCommentList(boardId);
+                } else {
+                    alert("문제가 발생했습니다.");
 
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 function openUpdateForm(btn) {
