@@ -19,13 +19,14 @@
             <div sec:authorize="isAuthenticated()">
                 <form th:action="@{/mypage/modify_info_proc}" type="post" name="modify_info_form" class="form">
                     <!-- profile image -->
-                    <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=198px')">
+                    <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=265px')">
                         <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"
                              th:src="${session.member.getProfileImage()}">
                         <img class="profile_image" th:unless="${not #strings.isEmpty(session.member.getProfileImage())}"
                              src="/images/test-account-96.png">
                     </a>
                     <br>
+                    <button type="button" id="profileImageDlBtn">프로필 이미지 제거</button>
                     <br>
                     <input type="text" name="memNo" th:value="${session.member.getMemNo()}" th:valuetype="Long" hidden>
 

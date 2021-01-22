@@ -3,11 +3,13 @@ form[name='modify_info_form'] {
     margin: 1.5em auto;
     padding: 1.5em;
 }
+
 .form-group {
     text-align: left;
 }
+
 input[name='modifyinfo_submitBtn'] {
-    margin : 1em;
+    margin: 1em;
 }
 
 @media screen and (max-width: 736px) {
@@ -15,12 +17,21 @@ input[name='modifyinfo_submitBtn'] {
         width: 400px;
     }
 }
+
 input[type=text], input[type=password] {
     text-align: center;
 }
+
 .profile_image {
     margin: 1.5em auto 0 auto;
 }
+
 label {
     display: inline-block;
+}
+
+#profileImageDlBtn {
+    height: 3em;
+    font-size: 0.9em;
+    line-height: 3em;
 }

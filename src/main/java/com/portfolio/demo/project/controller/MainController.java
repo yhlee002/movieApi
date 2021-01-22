@@ -30,14 +30,14 @@ public class MainController {
     @Autowired
     MovieService movieService;
 
-//    @Autowired
-//    MovieInfoService movieInfoService;
-
     @Autowired
     BoardNoticeService boardNoticeService;
 
     @Autowired
     BoardImpService boardImpService;
+
+    @Autowired
+    MailService mailService;
 
     @RequestMapping("/")
     public String mainPage(Model model) { // Principal principal
@@ -73,8 +73,9 @@ public class MainController {
         return "redirect:/";
     }
 
-    @RequestMapping("/cs")
+    @RequestMapping("/contact")
     public String csMain() {
-        return "/cs/main";
+        return "/contact/main";
     }
+
 }

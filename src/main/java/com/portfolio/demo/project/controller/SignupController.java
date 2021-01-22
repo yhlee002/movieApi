@@ -119,7 +119,7 @@ public class SignupController {
                 .provider(provider)
                 .build();
         memberService.saveMember(member);
-        mailService.sendMail(member.getIdentifier());
+        mailService.sendGreetingMail(member.getIdentifier());
 
         /* DB에 저장된 데이터 로드 */
         Member createdMember = memberService.findByIdentifier(email);
