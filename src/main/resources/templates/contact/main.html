@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="ko"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/config.html :: configFragment"></head>
+<th:block layout:fragment="css">
+    <link rel="stylesheet" th:href="@{/assets/css/contact/contact-main.css}">
+</th:block>
+<body>
+<header th:replace="fragments/header.html :: headerFragment"></header>
+<section class="wrapper style2">
+    <div class="inner">
+        <div class="box">
+            <div class="content">
+                <h2 class="align-center">Contact Me!</h2>
+                <hr/>
+                <div id="contact">
+                    <div id="myInfo1">
+                        <img th:src="@{/images/developer.jpg}" alt="">
+                    </div>
+                    <div id="myInfo2">
+                        <span>이영현</span><br>
+                        <span><b>Tel)</b> 010-3395-5304</span><br>
+                        <span><b>Email)</b> dldudgus214@naver.com</span><br>
+                        <span>주로 사용하는 언어 : Java</span><br>
+                        <span>주로 사용하는 프레임워크 : Java Spring, Spring Boot</span><br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<footer th:replace="fragments/footer.html :: footerFragment"></footer>
+</body>
+</html>

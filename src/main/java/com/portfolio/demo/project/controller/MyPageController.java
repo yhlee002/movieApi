@@ -1,13 +1,14 @@
 package com.portfolio.demo.project.controller;
 
+import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.BoardImpService;
-import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,12 +16,18 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ResourceBundle;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -71,18 +78,30 @@ public class MyPageController {
     }
 
     @RequestMapping("/mypage/modify_info_proc")
-    public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name, @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone) {
-        log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone);
-        Member member = memberService.updateUserInfo(
-                Member.builder()
-                        .memNo(memNo)
-                        .name(name)
-                        .password(pwd)
-                        .phone(phone) // 수정가능하도록 하기
-                        .build()
-        );
+    public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name,
+                                     @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
+                                     @RequestParam(name = "profileImage", required = false) String profileImage) {
+        log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone + ", profileImage : " + profileImage);
+        Member originMember = memberService.findByMemNo(memNo);
+        if (originMember != null) {
+            if (name != "") { // 이미 있음
+                originMember.setName(name);
+            }
+            if (pwd != "") {
+                originMember.setPassword(pwd);
+            }
+            if (profileImage != "") {
+                originMember.setProfileImage(profileImage);
+            } else { // 이미지가 없거나 있었다가 제거한 경우
+                originMember.setProfileImage(null);
+            }
+            if (phone != "") { // 이미 있음
+                originMember.setPhone(phone);
+            }
+            Member member = memberService.updateUserInfo(originMember);
 
-        session.setAttribute("member", new MemberVO(member));
+            session.setAttribute("member", new MemberVO(member));
+        }
 
         return "redirect:/mypage";
     }
@@ -110,10 +129,30 @@ public class MyPageController {
         return "mypage/uploadProfileImageForm";
     }
 
-    @RequestMapping(value = "/mypage/uploadProfileImage_proc", method = RequestMethod.POST)
-    public String uploadProfileImageProc() {
+    @ResponseBody
+    @RequestMapping(value = "/mypage/uploadProfileImage_proc")
+    public JsonObject uploadProfileImageProc(@RequestParam("file") MultipartFile file) {
         /* 실제로 넘어온 이미지를 서버에 업로드하고 DB의 프로필 이미지 경로를 수정 */
-        return "";
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+        String fileRoot = resourceBundle.getString("profileImageFileRoot");
+        String originalFileName = file.getOriginalFilename();
+        String extension = originalFileName.substring(originalFileName.lastIndexOf(".")); // 마지막 '.'이하의 부분이 확장자
+        String savedFileName = UUID.randomUUID() + extension;
+
+        File newFile = new File(fileRoot + savedFileName);
+        JsonObject jsonObject = new JsonObject();
+        try {
+            InputStream inputStream = file.getInputStream();
+            FileUtils.copyInputStreamToFile(inputStream, newFile);
+            jsonObject.addProperty("url", "/profileImage/" + savedFileName);
+            jsonObject.addProperty("responseCode", "success");
+        } catch (IOException e) {
+            e.printStackTrace();
+            FileUtils.deleteQuietly(newFile);
+            jsonObject.addProperty("responseCode", "error");
+        }
+
+        return jsonObject;
     }
 
 }

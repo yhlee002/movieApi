@@ -1,0 +1,52 @@
+.wrapper {
+    padding: 12rem 0 8rem 0 !important;
+}
+
+#sendMailForm input {
+    text-align: left;
+}
+
+#contact {
+    overflow: hidden;
+    width: 80%;
+    margin: 0.5em auto;
+    text-align: center;
+    padding: 3em;
+}
+
+#myInfo1, #myInfo2 {
+    float: left;
+}
+
+#myInfo1 {
+    margin: 2em;
+}
+
+#myInfo2 {
+    margin: 6em 2em 0 2em;
+    text-align: left !important;
+}
+
+@media screen and (max-width: 980px) {
+    #myInfo1 {
+        margin: 0.5em auto;
+    }
+
+    #myInfo2 {
+        margin: 1em auto;
+    }
+}
+
+#myInfo1 img {
+    width: 10em;
+}
+
+#myInfo2 span {
+    font-size: 1.1em;
+    color: #444444;
+}
+
+contact::after {
+    content: "";
+    clear: both;
+}

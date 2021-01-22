@@ -18,7 +18,62 @@
             padding: 28px;
         }
 
+        input[name=file] {
+            margin-bottom: 1em;
+        }
+
+        @media screen and (max-width: 736px) {
+            .wrapper {
+                padding: 6rem 0 1rem 0 !important;
+            }
+        }
     </style>
+</th:block>
+<th:block layout:fragment="javascript">
+    <script>
+        $(function () {
+            let token = $("meta[name='_csrf']").attr("content");
+            let header = $("meta[name='_csrf_header']").attr("content");
+
+            $('#profileImageSbBtn').on("click", function () {
+                let file = $('input[name=file]').val();
+                console.log("file : " + file);
+
+                if (file == "") {
+                    alert("파일을 선택해주세요.");
+                } else {
+                    let form = $('#uploadProfileImage')[0];
+                    let formData = new FormData(form);
+                    console.log(formData.get("file"));
+                    $.ajax({
+                        url: "/mypage/uploadProfileImage_proc",
+                        enctype: "multipart/form-data",
+                        type: "post",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader(header, token);
+                        },
+                        success: function (result) { // 변경된 이미지 경로("/profileImages/파일명.확장자명") 가져오기
+                            console.log(result);
+                            if (result.responseCode === "success") {
+                                $(opener.document).find(".profile_image").attr("src", result.url);
+                                window.close();
+                            } else { // result.responseCode === "error"
+                                alert("문제가 발생했습니다. 파일이 정상적으로 업로드 되지 않았습니다.");
+                            }
+                        },
+                        error: function (request, status) {
+                            console.log("code : " + status + "\nmessage : " + request.responseText);
+                        }
+                    })
+                }
+            });
+
+        });
+
+    </script>
 </th:block>
 <body>
 <header id="header">
@@ -28,11 +83,11 @@
     <div class="inner">
         <div class="content">
             <div id="uploadImageBox" class="box align-center">
-                <form id="uploadProfileImage" th:action="@{/mypage/uploadProfileImage_proc}" method="post">
-                    <input type="test" name="fileName" readonly>
-                    <input type="button" name="uploadFile" value="upload">
+                <form id="uploadProfileImage" th:action="@{/mypage/uploadProfileImage_proc}" method="post"
+                      enctype="multipart/form-data">
+                    <input type="file" name="file"><br>
+                    <button type="button" id="profileImageSbBtn">업로드</button>
                 </form>
-
             </div>
         </div>
     </div>

@@ -196,7 +196,7 @@ public class BoardController {
         JsonObject jsonObject = new JsonObject();
 
         ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-        String fileRoot = bundle.getString("summernoteImageFilesRoot");
+        String fileRoot = bundle.getString("profileImageFileRoot");
 
         String originalFileName = multipartFile.getOriginalFilename();
         String extension = originalFileName.substring(originalFileName.lastIndexOf(".")); // 마지막 '.'이하의 부분이 확장자
