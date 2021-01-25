@@ -28,12 +28,10 @@
                 <span>가입일자 : </span><span class="info"
                                           th:text="${#temporals.format(session.member.getRegDt(), 'yyyy-MM-dd')}"></span>
                 <br>
-                <form type="post" name="modify_user_form" th:action="@{/mypage/modify_info}">
-                    <input type="submit" name="modify_info" value="정보 수정">
-                </form>
-                <form type="post" name="delete_user_form" th:action="@{/mypage/delete_info}">
-                    <input type="button" name="delete_info" value="회원 탈퇴">
-                </form>
+                <div class="myPage_actions">
+                    <button type="submit" id="modify_info" th:onclick="'location.href=\''+@{/mypage/modify_info}+'\';'">정보 수정</button>
+                    <button type="button" id="delete_info">회원 탈퇴</button>
+                </div>
             </div>
         </div>
         <!-- 내가 작성한 글 -->
