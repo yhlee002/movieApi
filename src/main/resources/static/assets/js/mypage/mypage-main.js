@@ -36,9 +36,7 @@ $(function () {
         inputProfileImage.name = "profileImage";
         inputProfileImage.value = profileImage;
 
-        /** 패스워드 칸이 빈칸이면 값 전송 X(Document Elements remove) */
         if ((pwd == "") || (pwd.length == 0)) {
-            pwd = null;
             let conf = confirm("정보가 변경됩니다. 계속하시겠습니까?");
             if (conf) {
                 $('form[name=modify_info_form]').append(inputProfileImage);

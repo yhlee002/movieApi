@@ -5,15 +5,30 @@
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/assets/js/sign-in/sign-in-findPwd.js}"></script>
 </th:block>
+<th:block layout:fragment="css">
+    <style>
+        .box {
+            padding: 2em;
+        }
+
+        input[type=password] {
+            width: 40%;
+            margin: auto;
+        }
+    </style>
+</th:block>
 <body>
 <header th:replace="fragments/header.html :: headerFragment"></header>
 <div class="wrapper style2">
     <div class="inner">
         <div class="box align-center">
-            <h2>비밀번호 변경</h2>
+            <div class="image fit">
+                <img th:src="@{/images/banner_updatePwd.jpg}">
+            </div>
+            <h2 style="height: 2em">비밀번호 변경</h2>
             <p>변경하실 비밀번호를 입력해주세요.</p>
-            <input class="field half" type="password" name="pwd"><br>
-            <input class="field half" type="password" name="pwdCk"><br>
+            <input type="password" name="pwd" placeholder="비밀번호 입력"><br>
+            <input type="password" name="pwdCk" placeholder="비밀번호 확인"><br>
             <button id="updatePwdBtn" type="button">확인</button>
         </div>
     </div>

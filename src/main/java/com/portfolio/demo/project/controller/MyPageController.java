@@ -92,18 +92,20 @@ public class MyPageController {
         log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone + ", profileImage : " + profileImage);
         Member originMember = memberService.findByMemNo(memNo);
         if (originMember != null) {
-            if (name != "") { // 이미 있음
+            if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
                 originMember.setName(name);
             }
-            if (pwd != "") {
+            if (pwd.length() != 0) {
                 originMember.setPassword(pwd);
             }
-            if (profileImage != "") {
-                originMember.setProfileImage(profileImage);
+            if (profileImage.length() != 0) { // 프로필 이미지가 존재할 때
+                if (!profileImage.equals(originMember.getProfileImage())) { // 프로필 이미지가 현재 DB의 프로필 이미지와 다르면(새로 등록했다면)
+                    originMember.setProfileImage(profileImage); // 저장하기
+                }
             } else { // 이미지가 없거나 있었다가 제거한 경우
                 originMember.setProfileImage(null);
             }
-            if (phone != "") { // 이미 있음
+            if (!phone.equals(originMember.getPhone())) { // 이미 있음
                 originMember.setPhone(phone);
             }
             Member member = memberService.updateUserInfo(originMember);

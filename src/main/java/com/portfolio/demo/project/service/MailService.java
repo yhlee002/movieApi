@@ -72,7 +72,6 @@ public class MailService {
                 + "인증하기 링크 : <a href='http://localhost:8080/findPwd/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
-
         Map<String, String> result = send(tomail, title, content);
 
         if (result.get("resultCode").equals("success")) {

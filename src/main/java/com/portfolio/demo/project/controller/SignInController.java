@@ -46,6 +46,21 @@ public class SignInController {
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    NaverLoginApiUtil naverLoginApi;
+
+    @Autowired
+    NaverProfileApiUtil naverProfileApiUtil;
+
+    @Autowired
+    KakaoLoginApiUtil kakaoLoginApiUtil;
+
+    @Autowired
+    KakaoProfileApiUtil kakaoProfileApiUtil;
+
+    @Autowired
+    MailService mailService;
+
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
     /* Naver, Kakao Login API 관련 */
@@ -95,12 +110,6 @@ public class SignInController {
         return "sign-in/sign-inForm";
     }
 
-    @Autowired
-    NaverLoginApiUtil naverLoginApi;
-
-    @Autowired
-    NaverProfileApiUtil naverProfileApiUtil;
-
     @RequestMapping("/sign-in/naver/oauth2")
     public String naverOauth(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws UnsupportedEncodingException, ParseException {
 
@@ -144,12 +153,6 @@ public class SignInController {
             return "redirect:/sign-in";
         }
     }
-
-    @Autowired
-    KakaoLoginApiUtil kakaoLoginApiUtil;
-
-    @Autowired
-    KakaoProfileApiUtil kakaoProfileApiUtil;
 
     @RequestMapping("/sign-in/kakao/oauth2")
     public String kakaoOauth(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws ParseException, UnsupportedEncodingException {
@@ -209,9 +212,6 @@ public class SignInController {
             return "not user";
         }
     }
-
-    @Autowired
-    MailService mailService;
 
     // 인증 이메일을 다시 받고자 할 때 작동
     @ResponseBody
