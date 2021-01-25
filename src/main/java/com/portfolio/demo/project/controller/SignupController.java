@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -87,23 +88,29 @@ public class SignupController {
     }
 
     @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
-    public String phoneCkPage(Model m, @RequestParam String phone, @RequestParam(required = false) String provider) {
+    public String phoneCkPage(HttpSession session, @RequestParam String phone, @RequestParam(required = false) String provider) {
 
-        String phoneAuthKey = phoneMessageService.sendMessageForSignUp(phone);
+        String phoneAuthKey = phoneMessageService.sendCertificationMessage(phone);
         log.info("phoneAuthKey 인코딩 전 값 : " + phoneAuthKey);
-        m.addAttribute("phoneAuthKey", passwordEncoder.encode(phoneAuthKey));
-        m.addAttribute("phoneNum", phone);
+        session.setAttribute("phoneAuthCertKey", passwordEncoder.encode(phoneAuthKey));
+        session.setAttribute("phoneNum", phone);
+
         return "sign-up/phoneCkAuth";
     }
 
     @ResponseBody
     @RequestMapping(value = "/phoneCkProc2", method = RequestMethod.POST) // 인증키 일치 여부 확인 페이지
-    public String phoneCkProc(@RequestParam String authKey, @RequestParam String phoneAuthKey) {
-        if (passwordEncoder.matches(authKey, phoneAuthKey)) {
-            return "인증되었습니다.";
+    public Map<String, String> phoneCkProc(HttpSession session, @RequestParam String certKey) {
+        Map<String, String> result = new HashMap<>();
+        String phoneAuthCertKey = (String) session.getAttribute("phoneAuthCertKey");
+        if (passwordEncoder.matches(certKey, phoneAuthCertKey)) {
+            result.put("resultCode", "success");
+            result.put("phoneNum", (String) session.getAttribute("phoneNum"));
+            session.removeAttribute("phoneNum");
         } else {
-            return "인증에 실패했습니다.";
+            result.put("resultCode", "fail");
         }
+            return result;
     }
 
 
@@ -119,12 +126,19 @@ public class SignupController {
                 .provider(provider)
                 .build();
         memberService.saveMember(member);
-        mailService.sendGreetingMail(member.getIdentifier());
+        Map<String, String> result = mailService.sendGreetingMail(member.getIdentifier());
 
         /* DB에 저장된 데이터 로드 */
         Member createdMember = memberService.findByIdentifier(email);
         log.info("생성된 유저 : " + createdMember.toString());
-        return createdMember.getMemNo();
+
+        if (result.get("resultCode") == "success") {
+            return createdMember.getMemNo();
+        } else { //result.get("resultCode") == "fail"
+            memberService.deletUserInfo(createdMember.getMemNo());
+            return -1L;
+        }
+
     }
 
     @ResponseBody

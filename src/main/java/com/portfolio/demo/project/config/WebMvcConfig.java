@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -14,5 +16,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/summernoteImageFiles/"); // file:////C:/
         registry.addResourceHandler("/profileImage/**") // 프로필 이미지 업로드
                 .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/profileImages/");
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(rememberMeIntercepter())
+                .excludePathPatterns("/assets/**", "/images/**");
+    }
+
+    @Bean
+    public RememberMeIntercepter rememberMeIntercepter() {
+        return new RememberMeIntercepter();
     }
 }

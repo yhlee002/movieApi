@@ -1,7 +1,9 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.service.PhoneMessageService;
 import com.portfolio.demo.project.util.KakaoLoginApiUtil;
 import com.portfolio.demo.project.util.KakaoProfileApiUtil;
 import com.portfolio.demo.project.util.NaverLoginApiUtil;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -24,7 +27,9 @@ import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.Principal;
 import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -45,7 +50,22 @@ public class SignInController {
 
     /* Naver, Kakao Login API 관련 */
     @RequestMapping("/sign-in")
-    public String signInPage(Model model, HttpSession session) throws UnsupportedEncodingException {
+    public String signInPage(Model model, HttpSession session, Principal principal) throws UnsupportedEncodingException {
+
+        if (principal != null) {
+            log.info("현재 principal 정보 : " + principal.toString());
+
+            Member member = memberService.findByIdentifier(principal.getName());
+
+            Authentication auth = memberService.getAuthentication(member);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            MemberVO memberVO = new MemberVO(member);
+            session.setAttribute("member", memberVO);
+
+            return "redirect:/";
+        }
+
         /* 네이버 */
         String NAVER_CLIENT_ID = resourceBundle.getString("naverClientId");
         String naverCallBackURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "utf-8");
@@ -177,7 +197,11 @@ public class SignInController {
         Member member = memberService.findByIdentifier(email);
         if (member != null) { // 해당 이메일의 회원이 존재할 경우
             if (passwordEncoder.matches(pwd, member.getPassword())) { // 해당 회원의 비밀번호와 일치할 경우
-                return "matched";
+                if (member.getCertification().equals("Y")) { // 인증된 회원인 경우
+                    return "matched";
+                } else { // 인증되지 않은 회원인 경우
+                    return "not certified";
+                }
             } else { // 해당 회원의 비밀번호와 일치하지 않을 경우
                 return "didn't matching";
             }
@@ -186,7 +210,14 @@ public class SignInController {
         }
     }
 
+    @Autowired
+    MailService mailService;
+
+    // 인증 이메일을 다시 받고자 할 때 작동
+    @ResponseBody
+    @RequestMapping("/sendCertMail")
+    public Map<String, String> sendCertMail(String email) {
+        return mailService.sendGreetingMail(email);
+    }
+
 }
-
-
-/* 네아로 갱신 핸들러 필요(안만들 경우 한시간만 로그인 유지) */

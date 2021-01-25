@@ -18,7 +18,6 @@ $(function () {
     // 회원가입 페이지의 이메일 체크
     $('#email').on("blur", function () {
         let email = $('#email').val();
-        console.log("email check - email : " + email);
 
         // 빈 문자열 검사
         if (email == "" || email.length == 0) {
@@ -39,7 +38,6 @@ $(function () {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function (data) {
-                        console.log(data);
                         if (data == "") {
                             eMessage.html("사용 가능한 이메일입니다.");
                             eMessage.addClass("visible");
@@ -55,7 +53,7 @@ $(function () {
                         eMessage.html("죄송합니다. 잠시 후 다시 시도해주세요.");
                         eMessage.addClass("visible");
                         eMessage.removeClass("invisible");
-                        console.log("code : " + status + "\nmessage : " + request.responseText);
+                        console.warn("code : " + status + "\nmessage : " + request.responseText);
                         return false;
                     }
                 });
@@ -71,7 +69,6 @@ $(function () {
     // 이름(닉네임) 체크
     $('#name').on("blur", function () {
         let name = $('#name').val();
-        console.log("name check - name : " + name);
 
         if (name == "" || name.length == 0) {
             nMessage.html("유저명을 입력해주세요.");
@@ -102,7 +99,6 @@ $(function () {
                             xhr.setRequestHeader(header, token);
                         },
                         success: function (data) {
-                            console.log(data);
                             if (data == "") {
                                 nMessage.html("사용가능한 회원명입니다.");
                                 nMessage.addClass("visible");
@@ -118,7 +114,7 @@ $(function () {
                             nMessage.html('죄송합니다. 잠시 후 다시 시도해주세요.');
                             nMessage.addClass("visible");
                             nMessage.removeClass("invisible");
-                            console.log("code : " + status + "\nmessage : " + request.responseText);
+                            console.warn("code : " + status + "\nmessage : " + request.responseText);
                             return false;
                         }
                     })
@@ -139,7 +135,6 @@ $(function () {
 
     $('#password').on("blur", function () {
         let pwd = $('#password').val();
-        console.log("입력된 password : " + pwd);
         // (1) pwd 빈값 검사
         if (pwd == "" || pwd.length == 0) {
             pMessage.html("비밀번호를 입력해주세요.");
@@ -166,7 +161,6 @@ $(function () {
     $('#passwordConf').on("blur", function () {
         let pwd = $('#password').val();
         let pwdConf = $('#passwordConf').val();
-        console.log("입력된 password : " + pwd + "\npasswordConf : " + pwdConf);
 
         // (3) pwdCk 빈값 검사
         if (pwdCk_pwdBlank == true) {
@@ -194,10 +188,6 @@ $(function () {
             pConfMessage.addClass("visible");
             pConfMessage.removeClass("invisible");
         }
-        console.log("pwdCk_pwdBlank = " + pwdCk_pwdBlank
-            + "\npwdCk_pwdConfBlank = " + pwdCk_pwdConfBlank
-            + "\npwdCk_pwdReg = " + pwdCk_pwdReg
-            + "\npwdCk_auth = " + pwdCk_auth);
 
         if (pwdCk_pwdBlank && pwdCk_pwdConfBlank && pwdCk_pwdReg && pwdCk_auth) {
             pwdCk = true;
@@ -208,13 +198,7 @@ $(function () {
     // 인증 완료시 사용가능한 핸드폰번호라면 read-only인 채로 $('#phone')에 값만 넣어주기 + 다시 인증하기 버튼 show)
     // 다시 인증하기 버튼 클릭시 $('phone')값은 그대로. 다시 인증하기 버튼 클릭시 인증창으로 보내주고, 인증 완료시 사용 가능한 핸드폰번호라면 $('#phone')에 값 변경 + 다시 인증하기 버튼 show
 
-    let phone = $("phone").val();
-
     $('#phoneBnt').on("click", function () {
-        // phoneCk = false;
-        // if (phone == "" || phone.length > 0) {
-        //     $('#phone').val("");
-        // }
         window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=500, height=300")
     });
 
@@ -222,11 +206,8 @@ $(function () {
         let phone = $('input[name=phoneNum]').val();
         let phoneReg = RegExp(/^(01[016789]{1})(\d{3,4})(\d{4})$/);
 
-        console.log("phone : " + phone);
-
         if (phone == "") {
             alert("핸드폰 번호를 입력해주세요.");
-            console.log("핸드폰 번호를 입력해주세요.")
         } else if (phoneReg.test(phone) == false) {
             alert('핸드폰 번호 양식을 확인해주세요');
         } else if (phone.length < 10 || phone.length > 11) {
@@ -235,7 +216,6 @@ $(function () {
             phone = phone.replace(/[^0-9]/g, "").replace(/(^0[0-9]{2})([0-9]+)?([0-9]{4})/, "$1-$2-$3");
 
             provider = $("#provider", opener.document).val();
-            console.log("** provider : " + provider);
 
             $.ajax({
                 url: "/sign-up/phoneCk",
@@ -262,9 +242,7 @@ $(function () {
     });
 
     $('#phoneSbm2').on("click", function () {
-        let authKey = $('#authKey').val();
-        let phoneAuthKey = $('#phoneAuthKey').val();
-        let phoneNum = $('#phoneNum').val();
+        let certKey = $('#certKey').val();
 
         // ajax로 컨트롤러에 전송, authKey의 해시값이 phoneAuthKey와 일치할 경우 인증 성공 메세지 전달
         $.ajax({
@@ -272,27 +250,27 @@ $(function () {
             type: 'post',
             dataType: 'text',
             data: {
-                'phoneAuthKey': phoneAuthKey,
-                'authKey': authKey
+                'certKey': certKey,
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader(header, token);
             },
             success: function (data) {
-                if (data == "인증되었습니다.") {
-                    alert(data);
-                    $(opener.document).find('#phone').val(phoneNum);
+                let result = JSON.parse(data);
+                if (result.resultCode == "success") {
+                    alert("인증에 성공하였습니다.");
+                    $(opener.document).find('#phone').val(result.phoneNum);
                     $(opener.document).find('#phoneBnt').val("재인증");
                     window.close();
                     phoneCk = true;
-                } else {
-                    alert(data); // 인증에 실패했습니다.
+                } else { // result.resultCode == "fail"
+                    alert("인증에 실패했습니다.");
                     window.close();
                 }
             },
             error: function (request, status) {
                 alert("내부 서버의 문제로 인해 인증에 실패했습니다.")
-                console.log("code : " + status + "\nmessage : " + request.responseText);
+                console.warn("code : " + status + "\nmessage : " + request.responseText);
                 return false;
             }
         });
@@ -300,7 +278,6 @@ $(function () {
     });
 
     $('input[name=reset]').on("click", function () {
-        console.log("리셋 버튼 클릭");
         eMessage.addClass("invisible");
         eMessage.removeClass("visible");
 
@@ -314,9 +291,8 @@ $(function () {
         pConfMessage.removeClass("visible");
     });
 
-    /* Oauth2.0 회원가입 페이지 js */
 
-    // let phoneCk = false;
+    /* Oauth2.0 회원가입 페이지 js */
 
     // 전체 인증(이메일, 이름, 연락처)
     $('input[name=submit]').on("click", function () { // submit_o
@@ -326,18 +302,12 @@ $(function () {
         }
 
         let provider = $('#provider').val();
-        console.log("-- provider : " + provider);
 
         if (provider == "none") {
-            console.log("emailCk : " + emailCk
-                + "\nnameCk : " + nameCk
-                + "\npwdCk : " + pwdCk
-                + "\nphoneCk : " + phoneCk);
 
             if (emailCk && nameCk && pwdCk && phoneCk) {
 
                 let formData = $('#form_signup').serialize();
-                console.log(formData);
 
                 $.ajax({
                     url: "/sign-up/sign-up-processor",
@@ -348,17 +318,15 @@ $(function () {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function (data) {
-                        console.log(data);
-                        if (data != "") {
+                        if (data != "-1") {
                             location.href = "/sign-up/success?memNo=" + data;
                         } else {
                             alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
-                            // return false;
                         }
 
                     },
                     error: function (request, status) {
-                        console.log("code : " + status + "\nmessage : " + request.responseText);
+                        console.warn("code : " + status + "\nmessage : " + request.responseText);
                         alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
                     }
                 });
@@ -368,12 +336,9 @@ $(function () {
             return false;
         } else if (provider == "naver" || provider == "kakao") {
 
-            console.log("phoneCk : " + phoneCk);
-
             if (phoneCk) {
 
                 let formData = $('#form_signup_o').serialize();
-                console.log(formData);
 
                 $.ajax({
                     url: "/sign-up/sign-up-processor_oauth",
@@ -384,7 +349,6 @@ $(function () {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function (data) {
-                        console.log(data);
                         if (data != "") {
                             location.href = "/sign-up/success?oauthMemNo=" + data; /* 로그인 처리되는 화면으로 이동해 바로 메인페이지로 가게 하기 */
                         } else {

@@ -3,6 +3,19 @@ $(function () {
     let token = $("meta[name='_csrf']").attr("content");
     let header = $("meta[name='_csrf_header']").attr("content");
 
+    let oauth_message = $('#oauthMsg').val(); // "[[${oauth_message}]]"
+
+    if (oauth_message === "kakao user") { // 카카오 로그인 api 구현시 사라질 조건
+        window.alert("카카오 아이디를 통해 로그인이 필요한 회원입니다.");
+    } else if (oauth_message === "conventional user") {
+        window.alert("비밀번호를 통한 로그인이 필요한 회원입니다.");
+    } else if (oauth_message === "not user") {
+        let conf = window.confirm("가입되지 않은 사용자입니다. 회원가입 페이지로 이동하시겠습니까?");
+        if (conf) {
+            location.href = "/sign-up/oauthMem";
+        }
+    }
+
     $('input[name=sign-in-submit]').on("click", function () {
         let email = $('#email').val();
         let pwd = $('#password').val();
@@ -30,9 +43,14 @@ $(function () {
                             xhr.setRequestHeader(header, token);
                         },
                         success: function (data) {
-                            console.log(data);
                             if (data == "didn't matching" || data == "not user") {
                                 alert("잘못된 이메일 혹은 비밀번호 입니다.");
+                                return false;
+                            } else if (data == "not certified") {
+                                let conf = confirm("이메일 인증이 필요한 계정입니다. 이메일 재전송을 원하십니까?");
+                                if (conf) {
+                                    sendCertMailAgain(email);
+                                }
                                 return false;
                             } else { // matched
                                 $('#sign-up-form').submit();
@@ -47,28 +65,33 @@ $(function () {
                 }
             }
         }
-
     });
-    1
+
+    function sendCertMailAgain(email) {
+        $.ajax({
+            url: "/sendCertMail",
+            data: {
+                'email': email
+            },
+            type: "post",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(header, token);
+            },
+            success: function (result) {
+                if (result.resultCode == "success") {
+                    alert("인증 메일을 다시 발송했습니다.");
+                } else {
+                    alert("메일 전송에 실패했습니다.");
+                }
+            }, error: function (status, request) {
+                console.warn("code : " + status + "\nmessage : " + request.responseText);
+            }
+        });
+    }
+
 });
 
-$(document).ready(function () {
-    let oauth_message = $('#oauthMsg').val(); // "[[${oauth_message}]]"
-    console.log(oauth_message);
-
-    if (oauth_message === "kakao user") { // 카카오 로그인 api 구현시 사라질 조건
-        window.alert("카카오 아이디를 통해 로그인이 필요한 회원입니다.");
-    } else if (oauth_message === "conventional user") {
-        window.alert("비밀번호를 통한 로그인이 필요한 회원입니다.");
-    } else if (oauth_message === "not user") {
-        let conf = window.confirm("가입되지 않은 사용자입니다. 회원가입 페이지로 이동하시겠습니까?");
-        if (conf) {
-            location.href = "/sign-up/oauthMem";
-        }
-    }
-}, false);
-
 function goLoginProc(url) {
-    // window.open(url, "width=600px, height=800px;");
     location.href = url;
 }
+

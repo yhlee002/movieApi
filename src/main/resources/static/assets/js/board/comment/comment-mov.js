@@ -127,7 +127,7 @@ function getCommentList(pageNum, movieCd) {
 
         }, error: function (request, status) {
             alert("현재 내부서버 오류로 인해 댓글 조회 기능이 어렵습니다.");
-            console.log("code : " + status + "\nmessage : " + request.responseText);
+            console.warn("code : " + status + "\nmessage : " + request.responseText);
         }
     });
 }
@@ -213,7 +213,7 @@ function updateComment() {
         },
         error: function (request, status) {
             alert("내부 서버의 문제로 댓글 수정에 실패했습니다.");
-            console.log("code : " + status + "\nmessage : " + request.responseText);
+            console.warn("code : " + status + "\nmessage : " + request.responseText);
         }
     });
 }

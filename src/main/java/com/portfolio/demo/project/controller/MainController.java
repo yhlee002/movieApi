@@ -2,6 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import com.portfolio.demo.project.service.*;
+import com.portfolio.demo.project.vo.MemberVO;
 import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -40,7 +43,7 @@ public class MainController {
     MailService mailService;
 
     @RequestMapping("/")
-    public String mainPage(Model model) { // Principal principal
+    public String mainPage(Model model, HttpSession session) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
          * Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
