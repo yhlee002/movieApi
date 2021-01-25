@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.entity.member;
 
 import lombok.*;
-import org.springframework.data.jpa.repository.Temporal;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;

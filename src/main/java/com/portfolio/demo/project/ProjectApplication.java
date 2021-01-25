@@ -10,12 +10,6 @@ import java.util.*;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = {"com.portfolio.demo.project.repository"})
-//@ComponentScan({
-//        "com.portfolio.demo.project.config",
-//        "com.portfolio.demo.project.controller",
-//        "com.portfolio.demo.project.service"
-//})
-//@ComponentScan(basePackages = "com.portfolio.demo.project")
 @EntityScan("com.portfolio.demo.project.entity")
 public class ProjectApplication {
 

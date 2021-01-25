@@ -52,12 +52,11 @@ $(document).ready(function () {
                 xhr.setRequestHeader(header, token);
             },
             success: function (data) {
-                console.log("data : " + data);
                 $(editor).summernote('insertImage', data.url);
             },
             error: function (request, status) {
                 alert("문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다.");
-                console.log("code : " + status + "\nmessage : " + request.responseText);
+                console.warn("code : " + status + "\nmessage : " + request.responseText);
             }
         });
     }
@@ -87,12 +86,11 @@ $(document).ready(function () {
                     xhr.setRequestHeader(header, token);
                 },
                 success: function (data) {
-                    console.log("board id : " + data);
                     location.href = "/imp/" + data;
                 },
                 error: function (request, status) {
                     alert("문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다." + "title : " + title);
-                    console.log("code : " + status + "\nmessage : " + request.responseText);
+                    console.warn("code : " + status + "\nmessage : " + request.responseText);
                 }
             });
         }

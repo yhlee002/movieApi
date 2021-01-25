@@ -9,41 +9,50 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Random;
+import java.util.ResourceBundle;
 
 @Slf4j
 @Service
 public class PhoneMessageService {
+    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private final static String API_KEY = resourceBundle.getString("coolSmsKey");
+    private final static String API_SECRET = resourceBundle.getString("coolSmsSecret");
+    private final static String sender = resourceBundle.getString("testPhoneNum");
 
-    // sign-up 시에 핸드폰 번호 인증 메세지 전송
-    public String sendMessageForSignUp(String phone) {
-        Random ran = new Random();
-        int authNum = ran.nextInt(9000) + 1000; // => 1000 ~ 9999 범위의 난수 생성
-
-        String api_key = "NCSEUE2ARTGQJVO8";
-        String api_secret = "YRAN4R2GHMXBZ8VXYYTT61XDTJVNDZJZ";
-
-        Message coolsms = new Message(api_key, api_secret);
+    // 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송
+    public String sendCertificationMessage(String phone) {
+        int tempKey = getTempKey();
 
         HashMap<String, String> params = new HashMap<String, String>();
-        params.put("to", "01033955304");    // 수신번호
-        params.put("from", phone);    // 발신번호
+        params.put("to", phone);    // 수신번호
+        params.put("from", sender);    // 발신번호
         params.put("type", "SMS");
-        params.put("text", "This message is sended from [SiteName]. Your Verification PIN is " + authNum);
+        params.put("text", "This message is sended from Movie Info Site. Your Verification PIN is - " + tempKey);
         params.put("app_version", "test app 1.2"); // application name and version
 
+//        send(params);
+        log.info("인증번호 : "+tempKey);
+        return Integer.toString(tempKey);
+    }
+
+    // 랜덤 키 생성
+    protected int getTempKey() {
+        Random ran = new Random();
+        return ran.nextInt(9000) + 1000; // => 1000 ~ 9999 범위의 난수 생성
+    }
+
+    // 메세지 전송
+    protected void send(HashMap<String, String> params) { // params에 메세지 정보를 만들어서 전달
+        Message coolsms = new Message(API_KEY, API_SECRET);
+
         try {
-            JSONObject obj = (JSONObject) coolsms.send(params);
+            JSONObject obj = coolsms.send(params);
             log.info("result : " + obj.toString());
-            log.info("success_count : "+obj.get("success_count")); // 메시지아이디
+            log.info("success_count : " + obj.get("success_count"));
         } catch (CoolsmsException e) {
-            log.info("error message : "+e.getMessage());
-            log.info("error code : "+e.getCode());
+            log.info("error message : " + e.getMessage());
+            log.info("error code : " + e.getCode());
         }
-        return Integer.toString(authNum);
     }
 
-    // 이메일 분실시 인증 메세지 전송
-    public void sendMessageForFindEmail(Member member) {
-
-    }
 }

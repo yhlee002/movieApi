@@ -19,14 +19,12 @@
         #naverSignInBtn {
             background: url("http://localhost:8080/images/naver-oauth-xs.PNG") no-repeat;
             background-size: 100% 100%;
-            /*width: 211px;*/
             margin-bottom: 1em;
         }
 
         #kakaoSignInBtn {
             background: url("http://localhost:8080/images/kakao-oauth-xs.png") no-repeat;
             background-size: 100% 100%;
-            /*width: 185px;*/
             margin-bottom: 1em;
         }
     </style>
@@ -59,15 +57,15 @@
                         <br>
                         <!-- remember me checkbox -->
                         <div class="field half align-left">
-                            <input id="rememberme" type="checkbox" name="auto-login">
+                            <input id="rememberme" type="checkbox" name="remember-me">
                             <!-- Security Config의 Param명과 일치 -->
                             <label for="rememberme">Remember Me</label>
                             <br>
-                            <a href="#" class="text-decoration-none">forget email address or password?</a>
+                            <a onclick="window.open('/findaccount', '회원 정보 찾기', 'height=500px, width=650px, scrollbars=no');" style="cursor:pointer" class="text-decoration-none">forget email address or password?</a>
                         </div>
                         <br>
 
-                        <!-- 네이버, 카카오, 구글 로그인 api 버튼 필요 -->
+                        <!-- 네이버, 카카오, 구글 로그인 api 버튼 -->
                         <button id="naverSignInBtn" class="oauthBtn" type="button"
                                 th:onclick="goLoginProc([[${naverLoginUrl}]])"></button><!-- javascript:naverLogin() -->
                         <button id="kakaoSignInBtn" class="oauthBtn" type="button"

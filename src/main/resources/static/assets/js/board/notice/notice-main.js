@@ -39,8 +39,6 @@ $(document).ready(function () {
 
 // 게시글 작성 자격 검사
 function checkRoleAdmin(role) {
-    console.log("role : " + role);
-
     if (role === "ROLE_ADMIN") {
         location.href = "/notice/write";
     } else if (role.equals("ROLE_USER")) { //

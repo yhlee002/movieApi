@@ -53,6 +53,7 @@ public class CertKeyService {
                 .phone(member.getPhone())
                 .role(member.getRole())
                 .certKey(passwordEncoder.encode(certKey))
+                .provider(member.getProvider())
                 .certification("Y")
                 .regDt(member.getRegDt())
                 .build());

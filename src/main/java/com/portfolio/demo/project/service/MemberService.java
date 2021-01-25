@@ -3,6 +3,7 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
+import com.portfolio.demo.project.util.TempKey;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +25,9 @@ public class MemberService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    TempKey tempKey;
 
     public Member findByMemNo(Long memNo) {
         Member mem = null;
@@ -94,6 +98,25 @@ public class MemberService {
         );
     }
 
+    public void updatePwd(Long memNo, String pwd){
+        Member member = memberRepository.findById(memNo).get();
+        if (member != null){
+            member.setPassword(passwordEncoder.encode(pwd));
+            Member memberUpdated = memberRepository.save(member);
+            log.info("업데이트된 회원 정보 : "+memberUpdated.toString());
+        }
+    }
+
+    public void updateCertKey(Long memNo) {
+        String certKey = tempKey.getKey(10, false);
+
+        Member member = memberRepository.findById(memNo).get();
+        if (member != null) {
+            member.setCertKey(passwordEncoder.encode(certKey));
+            memberRepository.save(member);
+        }
+    }
+
     /* provider 전달 필요(naver, kakao) */
     public Member findByProfile(String identifier, String provider) {
         Member member = memberRepository.findByIdentifierAndProvider(identifier, provider);
@@ -131,6 +154,10 @@ public class MemberService {
     public void deletUserInfo(Long memNo) {
         log.info("삭제될 User id : " + memNo);
         Member member = memberRepository.findById(memNo).get();
+        memberRepository.delete(member);
+    }
+
+    public void deleteMember(Member member) {
         memberRepository.delete(member);
     }
 }

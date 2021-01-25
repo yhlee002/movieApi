@@ -1,10 +1,11 @@
 package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.security.CustomAuthenticationProvider;
-//import com.portfolio.demo.project.security.CustomCsrfFilter;
 import com.portfolio.demo.project.security.SignInSuccessHandler;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -13,15 +14,21 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 
+import javax.sql.DataSource;
 import java.security.SecureRandom;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsServiceImpl userDetailsService;
+    private final DataSource dataSource;
 
     private static final String[] CSRF_IGNORE = {"/signin/**", "/signup/**"};
 
@@ -44,7 +51,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in/sign-in-processor")
-//                .permitAll(); // anonymous만 접근 가능한 경로로 변경 필요
                 .successHandler(signInSuccessHandler())
                 .permitAll();
 
@@ -56,17 +62,19 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .logoutSuccessUrl("/")
                 .clearAuthentication(true)
                 .invalidateHttpSession(true) // 로그아웃시 세션 삭제
-                .deleteCookies("JSESSIONID"); // 로그아웃시 쿠키 삭제
+                .deleteCookies("JSESSIONID", "mvif-remember"); // 로그아웃시 쿠키 삭제 ( Remember-me 쿠키도 제거)
+
 
 //        http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler());
-    }
 
-//    @Bean
-//    protected CsrfTokenRepository csrfTokenRepository() {
-//        HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-//        repository.setHeaderName(CustomCsrfFilter.CSRF_COOKIE_NAME);
-//        return repository;
-//    }
+        http.rememberMe()
+                .key("mvif-remember") // 쿠키에 사용되는 값을 암호화하기 위한 키 값
+                .userDetailsService(userDetailsService) // 시스템에서 사용자 계정을 조회하기 위한 service
+                .tokenRepository(tokenRepository())
+                .tokenValiditySeconds(60 * 60 * 24) // 토큰은 24시간 동안 유효
+                .rememberMeCookieName("mvif-remember") //브라우저에 보관되는 쿠키의 이름(기본값 : remember-me)
+                .rememberMeParameter("remember-me");// 웹 화면에서 로그인할 때 리멤버미 기능의 체크박스 이름
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -93,10 +101,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new SignInSuccessHandler();
     }
 
+    // 로그아웃시 세션정보 제거(세션이 삭제되어도 세션 정보(Set)에 추가된 사용자 정보는 사라지지 않음)
+    @Bean
+    protected static ServletListenerRegistrationBean httpSessionEventPublisher() {
+        return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
+    }
 
-//    @Bean
-//    public RememberMeTokenService rememberMeTokenService() throws Exception {
-//        return new RememberMeTokenService();
-//    }
+    @Bean
+    public PersistentTokenRepository tokenRepository() {
+        JdbcTokenRepositoryImpl repository = new JdbcTokenRepositoryImpl();
+        repository.setDataSource(dataSource);
+        return repository;
+    }
 
 }

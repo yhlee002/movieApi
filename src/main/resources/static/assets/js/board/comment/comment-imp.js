@@ -83,7 +83,7 @@ function updateComment() {
         },
         error: function (request, status) {
             alert("내부 서버의 문제로 댓글 수정에 실패했습니다.");
-            console.log("code : " + status + "\nmessage : " + request.responseText);
+            console.warn("code : " + status + "\nmessage : " + request.responseText);
         }
     });
 }
@@ -137,7 +137,7 @@ function getCommentList(boardId) {
             }
 
         }, error: function (request, status) {
-            console.log("code : " + status + ", message : " + request.responseText);
+            console.warn("code : " + status + ", message : " + request.responseText);
         }
 
     });
@@ -183,7 +183,7 @@ function CheckMemberId(memNo) {
                 }
             }
         }, error: function (request, status) {
-            console.log("code : " + status + ", message : " + request.responseText);
+            console.warn("code : " + status + ", message : " + request.responseText);
         }
     });
 }
