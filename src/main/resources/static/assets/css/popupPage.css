@@ -1,0 +1,11 @@
+/* 팝업창들에 해당되는 부분 */
+.wrapper {
+    margin: 2em 0 0 0 !important;
+}
+
+.box {
+    padding: 1em !important;
+}
+#footer{
+    padding: 0 0 1rem 0 !important;
+}

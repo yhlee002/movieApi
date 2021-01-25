@@ -79,7 +79,6 @@ public class MemberService {
         if (profileImage != null) {
             profileImage = profileImage.replace("\\", "");
         }
-        log.info("profileImage : " + profileImage);
 
         memberRepository.save(
                 Member.builder()
@@ -136,14 +135,12 @@ public class MemberService {
         if (originMemberOpt.isPresent()) {
             originMember = originMemberOpt.get();
 
-            log.info("서비스단에서 찾은 해당 회원의 기존 정보 : " + originMember.toString());
-
             /* 비밀번호 null 체크 */
             if (member.getPassword() != null && member.getPassword().length() != 0) {
                 originMember.setPassword(passwordEncoder.encode(member.getPassword()));
             }
-            originMember.setName(member.getName());
-            originMember.setPhone(member.getPhone());
+            originMember.setName(member.getName()); // 닉네임 변경시 저장
+            originMember.setPhone(member.getPhone()); // 번호 변경시 저장
             memberRepository.save(originMember);
 
             log.info("변경된 회원 정보 : " + originMember.toString());
@@ -152,7 +149,6 @@ public class MemberService {
     }
 
     public void deletUserInfo(Long memNo) {
-        log.info("삭제될 User id : " + memNo);
         Member member = memberRepository.findById(memNo).get();
         memberRepository.delete(member);
     }

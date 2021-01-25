@@ -2,9 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.service.BoardImpService;
-import com.portfolio.demo.project.service.CommentImpService;
-import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.service.*;
 import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +25,8 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -41,6 +42,15 @@ public class MyPageController {
 
     @Autowired
     CommentImpService commentImpService;
+
+    @Autowired
+    PhoneMessageService messageService;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
+    RememberMeTokenService rememberMeTokenService;
 
     @RequestMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
@@ -65,7 +75,6 @@ public class MyPageController {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         commentImpService.setMemNo(memberVO.getMemNo());
         CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
-//        log.info(pagenation.toString());
         model.addAttribute("pagenation", pagenation);
 
         return "/mypage/impComments";
@@ -73,7 +82,6 @@ public class MyPageController {
 
     @RequestMapping("/mypage/modify_info")
     public String modifyUserInfo() {
-
         return "mypage/modifyInfo";
     }
 
@@ -111,6 +119,7 @@ public class MyPageController {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         System.out.println(memberVO.toString());
         memberService.deletUserInfo(memberVO.getMemNo());
+        rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
@@ -119,9 +128,6 @@ public class MyPageController {
 
         return "redirect:/";
     }
-
-//    @RequestMapping("/mypage/delete_info/kakao/oauth2") : 카카오 로그인 연결 끊기 콜백 url
-
 
     @RequestMapping("/mypage/uploadProfileImage")
     public String uploadProfileImageForm() {
@@ -153,6 +159,52 @@ public class MyPageController {
         }
 
         return jsonObject;
+    }
+
+    // 새로운 핸드폰 번호 입력 페이지
+    @RequestMapping("/mypage/modify_info/phoneCk")
+    public String phoneCkForm() {
+        return "/mypage/modifyInfo_phoneUpdate1";
+    }
+
+    @ResponseBody
+    @RequestMapping("/mypage/modify_info/phoneCkProc")
+    public String phoneCkProc(String phone) {
+        Member member = memberService.findByPhone(phone);
+        if (member != null) {
+            return "exist";
+        } else {
+            return "not exist"; // 없어야 해당 번호 사용 가능
+        }
+    }
+
+    // 인증번호 입력 페이지
+    @RequestMapping("/mypage/modify_info/phoneCkCert")
+    public String phoneCkCertForm(HttpSession session, @RequestParam String phone) {
+        String certKey = messageService.sendCertificationMessage(phone);
+        session.setAttribute("phoneNum", phone);
+        session.setAttribute("certKey", certKey);
+        return "/mypage/modifyInfo_phoneUpdate2";
+    }
+
+    // 인증번호 검증(일치하는지 여부 보내주기)
+    @ResponseBody
+    @RequestMapping("/mypage/modify_info/phoneCkCertProc")
+    public Map<String, String> phoneCkCertProc(HttpSession session, String certKey) {
+        Map<String, String> result = new HashMap<>();
+        String phone = (String) session.getAttribute("phoneNum");
+        session.removeAttribute("phoneNum");
+        String userCertKey = (String) session.getAttribute("certKey");
+        session.removeAttribute("certKey");
+
+        if (certKey.equals(userCertKey)) {
+            result.put("resultCode", "true");
+            result.put("phoneNum", phone);
+        } else {
+            result.put("resultCode", "false");
+        }
+
+        return result;
     }
 
 }

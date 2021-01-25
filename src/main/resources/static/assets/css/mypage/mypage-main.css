@@ -48,8 +48,7 @@ button[name='modify_info'] {
     }
 }
 
-form[name='modify_user_form'], form[name='delete_user_form'] {
-    display: inline-block;
+myPage_actions {
     margin-top: 1em;
 }
 

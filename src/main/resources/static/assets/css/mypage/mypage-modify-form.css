@@ -1,7 +1,40 @@
+
+a {
+    text-decoration: none;
+}
+
+label {
+    display: block !important;
+}
+
 form[name='modify_info_form'] {
     width: 600px;
     margin: 1.5em auto;
     padding: 1.5em;
+}
+
+@media screen and (max-width: 736px) {
+    form[name='modify_info_form'] {
+        width: 400px;
+    }
+}
+
+form[name='modify_info_form'] #phone {
+    width: 82%;
+    display: inline;
+    margin-right: 0.3em;
+}
+
+@media screen and (max-width: 980px) {
+    form[name='modify_info_form'] #phone {
+        width: 84%;
+    }
+}
+
+@media screen and (max-width: 736px) {
+    form[name='modify_info_form'] #phone {
+        width: 75%;
+    }
 }
 
 .form-group {
@@ -10,12 +43,6 @@ form[name='modify_info_form'] {
 
 input[name='modifyinfo_submitBtn'] {
     margin: 1em;
-}
-
-@media screen and (max-width: 736px) {
-    form[name='modify_info_form'] {
-        width: 400px;
-    }
 }
 
 input[type=text], input[type=password] {

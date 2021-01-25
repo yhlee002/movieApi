@@ -30,7 +30,7 @@ public class PhoneMessageService {
         params.put("text", "This message is sended from Movie Info Site. Your Verification PIN is - " + tempKey);
         params.put("app_version", "test app 1.2"); // application name and version
 
-//        send(params);
+        send(params);
         log.info("인증번호 : "+tempKey);
         return Integer.toString(tempKey);
     }

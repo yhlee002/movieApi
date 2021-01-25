@@ -199,7 +199,7 @@ $(function () {
     // 다시 인증하기 버튼 클릭시 $('phone')값은 그대로. 다시 인증하기 버튼 클릭시 인증창으로 보내주고, 인증 완료시 사용 가능한 핸드폰번호라면 $('#phone')에 값 변경 + 다시 인증하기 버튼 show
 
     $('#phoneBnt').on("click", function () {
-        window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=500, height=300")
+        window.open("/sign-up/phoneCkForm", "Phone Check Form", "width=500, height=300");
     });
 
     $('#phoneSbm').on("click", function () {
