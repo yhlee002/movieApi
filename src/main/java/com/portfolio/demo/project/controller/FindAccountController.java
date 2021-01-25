@@ -141,7 +141,6 @@ public class FindAccountController {
     public String updatePwdProc(HttpSession session, @RequestParam String pwd) {
         Long memNo = (Long) session.getAttribute("memNo");
         session.removeAttribute("memNo");
-        log.info("들어온 회원 번호 : "+memNo);
         memberService.updatePwd(memNo, pwd);
         return "";
     }
