@@ -13,7 +13,7 @@
 * 운영체제 : Window 10
 
 * 사용된 프레임워크 : Spring MVC, Spring Web, Spring Security, JPA, Bootstrap 4
-* 사용된 외부 라이브러리 : Lombok, Gson, FontAwsome, WebJar 
+* 사용된 외부 라이브러리 : Lombok, Gson, FontAwesome, WebJar 
 * 사용된 Open API
    - 영화진흥위원회 박스오피스 API
    - 영화진흥위원회 영화 상세 정보 API
