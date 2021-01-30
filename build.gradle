@@ -16,17 +16,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    // queryDSL
-
-    implementation 'javax.mail:mail:1.4.7'
     implementation 'org.springframework:spring-context-support:3.2.8.RELEASE'
-
+    implementation 'javax.mail:mail:1.4.7'
     implementation 'com.google.code.gson:gson:2.8.6'
-
     implementation 'net.nurigo:javaSDK:2.2'
     compileOnly 'org.projectlombok:lombok'
     implementation 'org.webjars:bootstrap:4.5.2'
@@ -42,7 +37,6 @@ dependencies {
 
     /* libs 디렉토리의 모든 라이브러리 의존성 추가 */
     compile fileTree(dir: 'libs', include: ['*.jar'])
-
 }
 
 test {
