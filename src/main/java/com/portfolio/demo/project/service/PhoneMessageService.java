@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.entity.member.Member;
 import lombok.extern.slf4j.Slf4j;
 import net.nurigo.java_sdk.api.Message;
 import net.nurigo.java_sdk.exceptions.CoolsmsException;
@@ -31,7 +30,7 @@ public class PhoneMessageService {
         params.put("app_version", "test app 1.2"); // application name and version
 
         send(params);
-        log.info("인증번호 : "+tempKey);
+        log.info("인증번호 : " + tempKey);
         return Integer.toString(tempKey);
     }
 
