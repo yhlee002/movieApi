@@ -4,19 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 @Slf4j
 public class KakaoProfileApiUtil {
@@ -24,7 +20,7 @@ public class KakaoProfileApiUtil {
     private Map<String, String> profiles = new HashMap<>();
 
     public Map<String, String> getProfile(String token) throws ParseException {
-        String header = "Bearer "+token;
+        String header = "Bearer " + token;
 
         Map<String, String> requestHeader = new HashMap<>();
         requestHeader.put("Authorization", header);

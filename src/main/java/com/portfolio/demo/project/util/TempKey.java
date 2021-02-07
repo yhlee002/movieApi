@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.util;
 
-
 import org.springframework.stereotype.Component;
 
 import java.util.Random;

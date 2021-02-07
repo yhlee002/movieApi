@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.config;
+package com.portfolio.demo.project.intercepter;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;

@@ -3,12 +3,12 @@ package com.portfolio.demo.project.util;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
+
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.net.HttpURLConnection;
