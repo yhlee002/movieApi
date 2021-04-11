@@ -43,6 +43,10 @@ public class MainController {
     MailService mailService;
 
     @RequestMapping("/")
+    public String testPage(){
+        return "testPage";
+    }
+    @RequestMapping("/m")
     public String mainPage(Model model, HttpSession session) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
