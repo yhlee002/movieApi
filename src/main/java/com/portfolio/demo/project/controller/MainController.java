@@ -42,7 +42,7 @@ public class MainController {
     @Autowired
     MailService mailService;
 
-    @RequestMapping("/")
+    @RequestMapping("/test")
     public String testPage(){
         return "testPage";
     }
