@@ -99,7 +99,7 @@ public class FindAccountController {
 
     @RequestMapping("/findPwd") // 인증할 이메일 입력 -> Ajax 검증 후, 이메일 전송(certKey 포함 링크) -> 링크 클릭시 비밀번호 변경 페이지로 이동
     public String findPwd() {
-        return "/sign-in/findPwdForm";
+        return "sign-in/findPwdForm";
     }
 
     @ResponseBody
@@ -133,7 +133,7 @@ public class FindAccountController {
 
     @RequestMapping("/findPwd/updatePwd")
     public String updatePwdForm() {
-        return "/sign-in/updatePwd";
+        return "sign-in/updatePwd";
     }
 
     @ResponseBody
