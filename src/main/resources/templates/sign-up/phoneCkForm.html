@@ -3,13 +3,13 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="/fragments/config.html :: configFragment"></head>
+<head th:replace="fragments/config.html :: configFragment"></head>
 
 <th:block layout:fragment="script">
     <script type="text/javascript" th:src="@{/assets/js/sign-up/sign-up-main.js}"></script>
 </th:block>
 
 <body>
-<div th:replace="/fragments/phoneCkForm.html :: phoneCkFormFragment"></div>
+<div th:replace="fragments/phoneCkForm.html :: phoneCkFormFragment"></div>
 </body>
 </html>
