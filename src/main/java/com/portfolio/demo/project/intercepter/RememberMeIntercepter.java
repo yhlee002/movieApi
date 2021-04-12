@@ -4,6 +4,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.vo.MemberVO;
+import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
