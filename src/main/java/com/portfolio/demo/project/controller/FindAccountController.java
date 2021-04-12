@@ -35,7 +35,7 @@ public class FindAccountController {
 
     @RequestMapping("/findaccount")
     public String findAccount() {
-        return "/sign-in/find-account";
+        return "sign-in/find-account";
     }
 
 
@@ -43,7 +43,7 @@ public class FindAccountController {
 
     @RequestMapping("/findEmail") // 인증할 연락처(문자) 입력 페이지
     public String findEmail() {
-        return "/sign-in/findEmailForm";
+        return "sign-in/findEmailForm";
     }
 
     @ResponseBody
@@ -65,7 +65,7 @@ public class FindAccountController {
         session.setAttribute("certKey", passwordEncoder.encode(tempKey));
         session.setAttribute("phoneNum", phone);
 
-        return "/sign-in/findEmailForm2";
+        return "sign-in/findEmailForm2";
     }
 
     @ResponseBody
@@ -91,7 +91,7 @@ public class FindAccountController {
 
         Member member = memberService.findByPhone(phone);
         model.addAttribute("email", member.getIdentifier());
-        return "/sign-in/findEmailResult";
+        return "sign-in/findEmailResult";
     }
 
 
@@ -127,7 +127,7 @@ public class FindAccountController {
             memberService.updateCertKey(memNo); // 인증에 성공하면 certKey는 다시 갱신시키기
             return "redirect:/findPwd/updatePwd"; //패스워드 변경 페이지로
         } else {
-            return "/error"; // 잘못된 접근입니다.
+            return "error"; // 잘못된 접근입니다.
         }
     }
 
