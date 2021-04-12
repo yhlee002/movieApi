@@ -82,7 +82,7 @@ public class MainController {
 
     @RequestMapping("/contact")
     public String csMain() {
-        return "/contact/main";
+        return "contact/main";
     }
 
 }
