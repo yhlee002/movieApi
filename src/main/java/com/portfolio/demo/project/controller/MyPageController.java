@@ -67,7 +67,7 @@ public class MyPageController {
         boardImpService.setMemNo(memberVO.getMemNo());
         model.addAttribute("pagenation", boardImpService.getMyImpListView(pageNum));
 
-        return "/mypage/impBoards";
+        return "mypage/impBoards";
     }
 
     @RequestMapping("/mypage/imp-comment")
@@ -77,7 +77,7 @@ public class MyPageController {
         CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
         model.addAttribute("pagenation", pagenation);
 
-        return "/mypage/impComments";
+        return "mypage/impComments";
     }
 
     @RequestMapping("/mypage/modify_info")
@@ -166,7 +166,7 @@ public class MyPageController {
     // 새로운 핸드폰 번호 입력 페이지
     @RequestMapping("/mypage/modify_info/phoneCk")
     public String phoneCkForm() {
-        return "/mypage/modifyInfo_phoneUpdate1";
+        return "mypage/modifyInfo_phoneUpdate1";
     }
 
     @ResponseBody
@@ -186,7 +186,7 @@ public class MyPageController {
         String certKey = messageService.sendCertificationMessage(phone);
         session.setAttribute("phoneNum", phone);
         session.setAttribute("certKey", certKey);
-        return "/mypage/modifyInfo_phoneUpdate2";
+        return "mypage/modifyInfo_phoneUpdate2";
     }
 
     // 인증번호 검증(일치하는지 여부 보내주기)
