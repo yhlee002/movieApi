@@ -4,7 +4,7 @@
       xmlns:layout="http://www.ultraq.nz/thymeleaf/layout"
       xmlns:th="http://www.thymeleaf.org">
 
-<head th:replace="/fragments/config.html :: configFragment"></head>
+<head th:replace="fragments/config.html :: configFragment"></head>
 <th:block layout:fragment="script">
     <script th:src="@{/assets/js/index/index-main.js}"></script>
 </th:block>
