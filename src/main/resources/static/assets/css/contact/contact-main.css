@@ -11,7 +11,6 @@
     width: 80%;
     margin: 0.5em auto;
     text-align: center;
-    padding: 3em;
     color: #222222;
 }
 
@@ -22,7 +21,7 @@
 }
 
     #myInfo1 img {
-        width: 10em;
+        width: 7em;
     }
 
 #myInfo2 {
