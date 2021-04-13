@@ -23,17 +23,25 @@
 }
 
 #myInfo2 {
-    margin: 6em 2em 0 2em;
+    /*margin: 6em 2em 0 2em;*/
+    margin: 1.4em 2em 0 4em;
     text-align: left !important;
+}
+#myInfo2 p {
+    margin: 0;
 }
 
 @media screen and (max-width: 980px) {
     #myInfo1 {
         margin: 0.5em auto;
+        width: 100%;
+        text-align: center;
     }
 
     #myInfo2 {
         margin: 1em auto;
+        width: 100%;
+        text-align: center !important;
     }
 }
 
