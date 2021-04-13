@@ -201,6 +201,7 @@ public class SignInController {
         log.info("로그인을 위해 들어온 pwd : {}", pwd);
         Member member = memberService.findByIdentifier(email);
         log.info("기존 회원의 비밀번호 정보(해싱값): {}", member.getPassword());
+        log.info("들어온 패스워드 해싱 : {}", passwordEncoder.encode(pwd));
         log.info("회원이 입력한 값과의 일치 관계 : {}", passwordEncoder.matches(pwd, member.getPassword()));
         if (member != null) { // 해당 이메일의 회원이 존재할 경우
             if (passwordEncoder.matches(pwd, member.getPassword())) { // 해당 회원의 비밀번호와 일치할 경우
