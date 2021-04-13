@@ -32,8 +32,10 @@ $(function () {
                     if (result.resultCode === "exist") {
                         let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
                         if (conf) {
-                            location.href = "/findEmail/checkCertKey?p="+phone;
+                            location.href = "/findEmail/checkCertKey?p=" + phone;
                         }
+                    } else if (result.resultCode === "oauth-member") {
+                        alert("소셜 로그인 회원입니다.");
                     } else { // not exist
                         alert("해당 정보의 계정이 없습니다.");
                     }
@@ -60,7 +62,7 @@ $(function () {
             success: function (data) {
                 if (data.resultCode === "true") {
                     alert("인증에 성공했습니다.");
-                    location.href="/findEmail/result";
+                    location.href = "/findEmail/result";
                 } else {
                     alert("인증번호가 다릅니다."); //
                 }
