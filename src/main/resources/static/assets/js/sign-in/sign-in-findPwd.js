@@ -30,7 +30,6 @@ $(function () {
                     console.warn("code : " + status + "\nmessage : " + request.responseText);
                 }
 
-
             });
         } else {
             alert("이메일 형식에 맞지 않습니다.");
