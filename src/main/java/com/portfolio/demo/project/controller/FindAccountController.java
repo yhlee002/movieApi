@@ -47,13 +47,16 @@ public class FindAccountController {
     }
 
     @ResponseBody
-    @RequestMapping("/findEmail/phoneCk") // 존재하는 번호인지 Ajax로 검증 - 있는 이메일이라면 문자 보낼지 확인 -> 확인시 문자 전송 후 /find-email2로 이동
+    @RequestMapping("/findEmail/phoneCk")
+    // 존재하는 번호인지, aouth인증 회원인지 Ajax로 검증 - 있는 이메일이라면 문자 보낼지 확인 -> 확인시 문자 전송 후 /find-email2로 이동
     public Map<String, String> findEmailCheckPhone(String phone) {
         Map<String, String> result = new HashMap<>();
         Member member = memberService.findByPhone(phone);
-        if (member != null) {
+        if (member != null && member.getProvider().equals("none")) {
             result.put("resultCode", "exist");
-        } else {
+        } else if (member != null && (member.getProvider().equals("naver") || member.getProvider().equals("kakao"))) {
+            result.put("resultCode", "oauth-member");
+        } else { // member == null
             result.put("resultCode", "not exist");
         }
         return result;
@@ -109,7 +112,7 @@ public class FindAccountController {
         String result = "";
         if (member != null) {
             result = "exist";
-        }else{
+        } else {
             result = "not exist";
         }
         log.info("비밀번호찾기 이메일 조회 - result : {}", result);
