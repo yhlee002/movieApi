@@ -106,10 +106,14 @@ public class FindAccountController {
     @RequestMapping("/findPwd/checkEmail")
     public String findPwd2(@RequestParam String email) {
         Member member = memberService.findByIdentifier(email);
+        String result = "";
         if (member != null) {
-            return "exist";
+            result = "exist";
+        }else{
+            result = "not exist";
         }
-        return "not exist";
+        log.info("비밀번호찾기 이메일 조회 - result : {}", result);
+        return result;
     }
 
     @ResponseBody
