@@ -22,6 +22,8 @@ $(function () {
                         if (conf) {
                             sendMail(email);
                         }
+                    } else { // not exist
+                        alert("존재하지 않는 회원입니다.");
                     }
                 },
                 error: function (request, status) {
@@ -30,16 +32,18 @@ $(function () {
 
 
             });
+        } else {
+            alert("이메일 형식에 맞지 않습니다.");
         }
 
     });
 
     function sendMail(email) {
         $.ajax({
-           url:"/findPwd/sendMail",
+            url: "/findPwd/sendMail",
             type: "post",
             data: {
-               'email': email
+                'email': email
             },
             beforeSend: function (xhr) {
                 xhr.setRequestHeader(header, token);
@@ -48,7 +52,7 @@ $(function () {
                 if (data === "success") {
                     window.close();
                     opener.alert("이메일 전송에 성공했습니다.");
-                } else{
+                } else {
                     window.close();
                     opener.alert("서버 내부 문제로 이메일 전송에 실패했습니다. 문제가 지속될 경우 관리자에게 문의바랍니다.");
                 }
@@ -83,13 +87,13 @@ $(function () {
                     },
                     success: function (data) { // ""
                         alert("비밀번호가 변경되었습니다.");
-                        location.href="/";
+                        location.href = "/";
                     },
                     error: function (request, status) {
                         console.warn("code : " + status + "\nmessage : " + request.responseText);
                     }
                 });
-            }else{
+            } else {
                 alert("비밀번호는 최소 8자리에 숫자, 문자, 특수문자 각각 1개 이상을 포함해야합니다.");
             }
         }
