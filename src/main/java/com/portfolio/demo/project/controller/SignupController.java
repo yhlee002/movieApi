@@ -125,6 +125,11 @@ public class SignupController {
                 .phone(phone)
                 .provider(provider)
                 .build();
+        // 여러번 클릭시 멤버는 여러번 생성되었는데 이메일이 가지 않았을 경우를 대비
+        Member temp_member = memberService.findByIdentifier(email);
+        if(temp_member != null){
+            memberService.deleteMember(temp_member);
+        }
         memberService.saveMember(member);
         Map<String, String> result = mailService.sendGreetingMail(member.getIdentifier());
 
