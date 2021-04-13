@@ -12,49 +12,39 @@
     margin: 0.5em auto;
     text-align: center;
     padding: 3em;
-}
-
-#myInfo1, #myInfo2 {
-    float: left;
+    color: #222222;
 }
 
 #myInfo1 {
-    margin: 2em;
+    margin: 0.5em auto;
+    width: 100%;
+    text-align: center;
 }
+
+    #myInfo1 img {
+        width: 10em;
+    }
 
 #myInfo2 {
     /*margin: 6em 2em 0 2em;*/
-    margin: 1.4em 2em 0 4em;
-    text-align: left !important;
-}
-#myInfo2 p {
-    margin: 0;
+    width: 100%;
+    margin: 1em auto;
+    text-align: center !important;
 }
 
-@media screen and (max-width: 980px) {
-    #myInfo1 {
-        margin: 0.5em auto;
-        width: 100%;
-        text-align: center;
+    #myInfo2 b {
+        font-weight: bold;
     }
 
-    #myInfo2 {
-        margin: 1em auto;
-        width: 100%;
-        text-align: center !important;
+    #myInfo2 p {
+        margin: 0;
     }
-}
 
-#myInfo1 img {
-    width: 10em;
-}
+    #myInfo2 a {
+        text-decoration: none;
+    }
 
-#myInfo2 span {
-    font-size: 1.1em;
-    color: #444444;
-}
-
-contact::after {
-    content: "";
-    clear: both;
-}
+    #myInfo2 span {
+        font-size: 1.1em;
+        color: #444444;
+    }

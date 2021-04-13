@@ -10,10 +10,13 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 @Slf4j
@@ -38,7 +41,8 @@ public class MailService {
     protected Map<String, String> send(String toMail, String title, String content) {
         Map<String, String> result = new HashMap<>();
         MimeMessage message = mailSender.createMimeMessage();
-
+        Properties props = System.getProperties();
+        Session session = Session.getDefaultInstance(props);
         try {
             MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
 
@@ -60,7 +64,7 @@ public class MailService {
     }
 
     public Map<String, String> sendCertMail(String email) {
-        log.info("들어온 메일 주소 : "+email);
+        log.info("들어온 메일 주소 : " + email);
         String certKey = tempKey.getKey(10, false);
         Member member = memberRepository.findByIdentifier(email);
 
@@ -76,6 +80,8 @@ public class MailService {
 
         if (result.get("resultCode").equals("success")) {
             saveCertKey(member, certKey);
+        } else{
+            log.info("메일 전송 실패");
         }
 
         return result;
@@ -98,6 +104,8 @@ public class MailService {
         Map<String, String> result = send(tomail, title, content);
         if (result.get("resultCode").equals("success")) {
             saveCertKey(member, certKey);
+        } else{
+            log.info("메일 전송 실패");
         }
 
         return result;
