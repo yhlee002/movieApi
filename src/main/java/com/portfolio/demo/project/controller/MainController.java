@@ -42,11 +42,7 @@ public class MainController {
     @Autowired
     MailService mailService;
 
-    @RequestMapping("/test")
-    public String testPage(){
-        return "testPage";
-    }
-    @RequestMapping("/m")
+    @RequestMapping("/")
     public String mainPage(Model model, HttpSession session) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법

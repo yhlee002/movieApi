@@ -35,10 +35,10 @@ public class MovieInfoController {
 
     // 영화 검색시 네이버 api를 통해 검색 결과 나열
     @RequestMapping("/movieInfo/search")
-    public String movieSearch(Model model, @RequestParam(name = "q") String title) {
-        List<NaverMovieDetailVO> movieList = movieService.getMovieListByTitle(title);
+    public String movieSearch(Model model, @RequestParam(name = "q") String query) {
+        List<NaverMovieDetailVO> movieList = movieService.getMovieListByTitle(query);
         model.addAttribute("movieList", movieList);
-        model.addAttribute("query", title);
+        model.addAttribute("query", query);
         return "movieInfo/searchResult";
     }
 }
