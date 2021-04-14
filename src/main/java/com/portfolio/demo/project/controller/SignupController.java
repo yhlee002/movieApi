@@ -90,11 +90,15 @@ public class SignupController {
     @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
     public String phoneCkPage(HttpSession session, @RequestParam String phone, @RequestParam(required = false) String provider) {
 
-        String phoneAuthKey = phoneMessageService.sendCertificationMessage(phone);
-        log.info("phoneAuthKey 인코딩 전 값 : " + phoneAuthKey);
-        session.setAttribute("phoneAuthCertKey", passwordEncoder.encode(phoneAuthKey));
-        session.setAttribute("phoneNum", phone);
+        Map<String, String> resultMap = phoneMessageService.sendCertificationMessage(phone);
+        String result = resultMap.get("result");
+        String phoneAuthKey = resultMap.get("certKey");
 
+        if (result.equals("success")) {
+            log.info("phoneAuthKey 인코딩 전 값 : " + phoneAuthKey);
+            session.setAttribute("phoneAuthCertKey", passwordEncoder.encode(phoneAuthKey));
+            session.setAttribute("phoneNum", phone);
+        }
         return "sign-up/phoneCkAuth";
     }
 

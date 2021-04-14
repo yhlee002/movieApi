@@ -24,6 +24,7 @@ dependencies {
     implementation 'javax.mail:mail:1.4.7'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'net.nurigo:javaSDK:2.2'
+    implementation 'com.vonage:client:[6.1.0,7.0.0)'
     compileOnly 'org.projectlombok:lombok'
     implementation 'org.webjars:bootstrap:4.5.2'
     implementation 'org.webjars:jquery:3.5.1'
