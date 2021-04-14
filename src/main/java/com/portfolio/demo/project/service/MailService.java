@@ -71,9 +71,9 @@ public class MailService {
         String tomail = email;
         String title = "SiteName 비밀번호 찾기 인증 메일";
         String content = "<div style=\"text-align:center\">"
-                + "<img src=\"http://localhost:8080/images/banner-sign-up2.jpg\" width=\"600\"><br>"
+                + "<img src=\"http://3.36.203.4:8080/images/banner-sign-up2.jpg\" width=\"600\"><br>"
                 + "<p>안녕하세요 " + member.getName() + "님. 본인이 맞으시면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://localhost:8080/findPwd/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "인증하기 링크 : <a href='http://3.36.203.4:8080/findPwd/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
         Map<String, String> result = send(tomail, title, content);
@@ -95,9 +95,9 @@ public class MailService {
         String tomail = email;
         String title = "SiteName 회원가입 인증 메일";
         String content = "<div style=\"text-align:center\">"
-                + "<img src=\"http://localhost:8080/images/banner-sign-up2.jpg\" width=\"600\"><br>"
+                + "<img src=\"http://3.36.203.4:8080/images/banner-sign-up2.jpg\" width=\"600\"><br>"
                 + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://localhost:8080/sign-up/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "인증하기 링크 : <a href='http://3.36.203.4:8080/sign-up/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
 
