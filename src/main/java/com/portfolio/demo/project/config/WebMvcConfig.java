@@ -14,9 +14,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/summernoteImage/**") // 써머노트 이미지 업로드
-                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/summernoteImageFiles/"); // file:////C:/
+                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/summernoteImageFiles/");
+//                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/summernoteImageFiles/");
         registry.addResourceHandler("/profileImage/**") // 프로필 이미지 업로드
-                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/profileImages/");
+                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/profileImages/");
+//                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/profileImages/");
+
     }
 
     @Override
