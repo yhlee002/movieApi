@@ -64,9 +64,15 @@ public class FindAccountController {
 
     @RequestMapping("/findEmail/checkCertKey") // 인증 번호 입력하는 페이지
     public String sendCertMessage(HttpSession session, @RequestParam(name = "p") String phone) {
-        String tempKey = messageService.sendCertificationMessage(phone); // 메세지 전송 후 인증번호를 해시값으로 변형해 세션에 저장
-        session.setAttribute("certKey", passwordEncoder.encode(tempKey));
-        session.setAttribute("phoneNum", phone);
+        Map<String, String> resultMap = messageService.sendCertificationMessage(phone);
+        String result = resultMap.get("result");
+        String certKey = resultMap.get("certKey");
+
+        if (result.equals("success")) {
+            // 메세지 전송 후 인증번호를 해시값으로 변형해 세션에 저장
+            session.setAttribute("certKey", passwordEncoder.encode(certKey));
+            session.setAttribute("phoneNum", phone);
+        }
 
         return "sign-in/findEmailForm2";
     }

@@ -1,57 +1,38 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.util.VonageMessageUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.nurigo.java_sdk.api.Message;
-import net.nurigo.java_sdk.exceptions.CoolsmsException;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.ResourceBundle;
 
 @Slf4j
 @Service
 public class PhoneMessageService {
-    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-    private final static String API_KEY = resourceBundle.getString("coolSmsKey");
-    private final static String API_SECRET = resourceBundle.getString("coolSmsSecret");
-    private final static String sender = resourceBundle.getString("testPhoneNum");
 
-    // 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송
-    public String sendCertificationMessage(String phone) {
-        int tempKey = getTempKey();
+    @Autowired
+    VonageMessageUtil messageUtil;
 
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("to", phone);    // 수신번호
-        params.put("from", sender);    // 발신번호
-        params.put("type", "SMS");
-        params.put("text", "This message is sended from Movie Info Site. Your Verification PIN is - " + tempKey);
-        params.put("app_version", "test app 1.2"); // application name and version
+    // 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송(결과 반환) + 인증키 서버로 다시 보내기
+    public Map<String, String> sendCertificationMessage(String phone) {
+        Map<String, String> resultMap = new HashMap<>();
+        String certKey = Integer.toString(getTempKey());
+        String result = messageUtil.sendPinNumber(certKey, phone);
 
-        send(params);
-        log.info("인증번호 : " + tempKey);
-        return Integer.toString(tempKey);
+        resultMap.put("certKey", certKey);
+        resultMap.put("result", result);
+
+        return resultMap;
     }
 
     // 랜덤 키 생성
-    protected int getTempKey() {
+    private int getTempKey() {
         Random ran = new Random();
         return ran.nextInt(9000) + 1000; // => 1000 ~ 9999 범위의 난수 생성
     }
-
-    // 메세지 전송
-    protected void send(HashMap<String, String> params) { // params에 메세지 정보를 만들어서 전달
-        Message coolsms = new Message(API_KEY, API_SECRET);
-
-        try {
-            JSONObject obj = coolsms.send(params);
-            log.info("result : " + obj.toString());
-            log.info("success_count : " + obj.get("success_count"));
-        } catch (CoolsmsException e) {
-            log.info("error message : " + e.getMessage());
-            log.info("error code : " + e.getCode());
-        }
-    }
-
 }

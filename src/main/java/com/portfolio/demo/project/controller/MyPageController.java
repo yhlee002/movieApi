@@ -90,6 +90,7 @@ public class MyPageController {
                                      @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
                                      @RequestParam(name = "profileImage", required = false) String profileImage) {
         log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone + ", profileImage : " + profileImage);
+        log.info("pwd 글자 수 : "+pwd.length());
         Member originMember = memberService.findByMemNo(memNo);
         if (originMember != null) {
             if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
@@ -183,9 +184,14 @@ public class MyPageController {
     // 인증번호 입력 페이지
     @RequestMapping("/mypage/modify_info/phoneCkCert")
     public String phoneCkCertForm(HttpSession session, @RequestParam String phone) {
-        String certKey = messageService.sendCertificationMessage(phone);
-        session.setAttribute("phoneNum", phone);
-        session.setAttribute("certKey", certKey);
+        Map<String, String> resultMap = messageService.sendCertificationMessage(phone);
+        String result = resultMap.get("result");
+        String certKey = resultMap.get("certKey");
+
+        if (result.equals("success")) {
+            session.setAttribute("phoneNum", phone);
+            session.setAttribute("certKey", certKey);
+        }
         return "mypage/modifyInfo_phoneUpdate2";
     }
 
