@@ -15,7 +15,7 @@ public class VonageMessageUtil {
     private final static String API_SECRET = resourceBundle.getString("vonageMessageSecret");
     private final static String sender = resourceBundle.getString("testPhoneNum");
 
-    private static VonageClient client = VonageClient.builder().apiKey("API_KEY").apiSecret("API_SECRET").build();
+    private static VonageClient client = VonageClient.builder().apiKey(API_KEY).apiSecret(API_SECRET).build();
 
     public String sendPinNumber(String certKey, String phone) {
         TextMessage message = new TextMessage("Vonage APIs",
