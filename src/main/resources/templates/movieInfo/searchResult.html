@@ -21,26 +21,31 @@
             <!-- 영화 검색 -->
             <div class="content align-center">
                 <input class="searchInput" type="text" name="keyword" th:value="${query}">
-                <button class="searchMovieBtn" type="button" style="display:inline;">검색</button>
+                <button class="searchMovieBtn" type="button" style="display:inline;">검색</button><br>
+                <p>영화 정보를 클릭할 시 네이버 영화 상세 정보 페이지로 이동합니다.</p>
             </div>
             <div th:if="${movieList.size() != 0}">
                 <ul class="movie-group list-group" style="list-style: none;">
                     <li class="movie-item list-group-item" th:each="movie : ${movieList}">
-                        <div class="movie-poster image">
-                            <img th:if="${movie.getImage().length() != 0}" th:src="${movie.getImage()}">
-                            <img th:unless="${movie.getImage().length() != 0}" th:src="@{/images/sample-poster.png}">
-                        </div>
-                        <div class="movie-info" th:onclick="'location.href=\''+@{movie.getLink()}+'\''">
-                            <p class="movie-title" th:utext="${movie.getTitle()}"></p>
-                            <p class="movie-pubDate" th:text="${'제작년도 : '+movie.getPubDate()}"></p>
-                            <p class="movie-director" th:text="'감독 : '+${movie.getDirector()}"></p>
-                            <p class="movie-actor" th:if="${movie.getActor().length() == 0}" th:text="'배우 : 정보없음'"></p>
-                            <p class="movie-actor" th:unless="${movie.getActor().length() == 0}"
-                               th:text="'배우 : '+${movie.getActor()}"></p>
-                            <p>
-                                <span class="movie-userRating" th:text="'평점 : '+${movie.getUserRating()}"></span>
-                            </p>
-                        </div>
+                        <a th:href="'' + ${movie.getLink()}">
+                            <div class="movie-poster image">
+                                <img th:if="${movie.getImage().length() != 0}" th:src="${movie.getImage()}">
+                                <img th:unless="${movie.getImage().length() != 0}"
+                                     th:src="@{/images/sample-poster.png}">
+                            </div>
+                            <div class="movie-info">
+                                <p class="movie-title" th:utext="${movie.getTitle()}"></p>
+                                <p class="movie-pubDate" th:text="${'제작년도 : '+movie.getPubDate()}"></p>
+                                <p class="movie-director" th:text="'감독 : '+${movie.getDirector()}"></p>
+                                <p class="movie-actor" th:if="${movie.getActor().length() == 0}"
+                                   th:text="'배우 : 정보없음'"></p>
+                                <p class="movie-actor" th:unless="${movie.getActor().length() == 0}"
+                                   th:text="'배우 : '+${movie.getActor()}"></p>
+                                <p>
+                                    <span class="movie-userRating" th:text="'평점 : '+${movie.getUserRating()}"></span>
+                                </p>
+                            </div>
+                        </a>
                     </li>
                 </ul>
             </div>

@@ -36,7 +36,6 @@ public class CommentController {
 
     @RequestMapping("/movieInfo/comment/regDt") // getCommentListOrderByRegDt
     public Map<String, Object> getCommentList(@RequestParam(name = "p") int pageNum, Long movieCd) {
-        log.info("pageNum : " + pageNum + ", movieCd : " + movieCd);
         Map<String, Object> map = commentMovService.getCommentListVOOrderByRegDate(pageNum, movieCd);
 
         return map;

@@ -96,7 +96,7 @@ public class MyPageController {
             if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
                 originMember.setName(name);
             }
-            if (pwd.length() != 0) {
+            if (!pwd.equals("")) {
                 originMember.setPassword(pwd);
             }
             if (profileImage.length() != 0) { // 프로필 이미지가 존재할 때
