@@ -29,7 +29,7 @@ public class KakaoLoginApiUtil {
 
         String kakaoCode = request.getParameter("code");
         String kakaoState = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://localhost:8080/sign-in/kakao/oauth2", "UTF-8");
+        String redirectURI = URLEncoder.encode("http://3.36.203.4:8080/sign-in/kakao/oauth2", "UTF-8");
 
         String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
         apiURL += "&client_id=" + CLIENT_ID;

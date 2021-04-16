@@ -45,7 +45,7 @@ public class MovieInfoUtil {
                 movieDetail = gson.fromJson(movieInfoResult.get("movieInfo").toString(), MovieDetailVO.class); // new TypeToken<ArrayList<MovieVO>>() {}.getType()
 
                 List<NationVO> nations = gson.fromJson(movieInfo.get("nations").getAsJsonArray().toString(), new TypeToken<ArrayList<NationVO>>() {
-                }.getType()); // 국가가 둘 이상이면?
+                }.getType());
                 List<GenreVO> genres = gson.fromJson(movieInfo.get("genres").toString(), new TypeToken<ArrayList<GenreVO>>() {
                 }.getType());
                 List<DirectorVO> directors = gson.fromJson(movieInfo.get("directors").toString(), new TypeToken<ArrayList<DirectorVO>>() {
