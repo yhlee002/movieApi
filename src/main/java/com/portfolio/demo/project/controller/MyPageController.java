@@ -89,30 +89,18 @@ public class MyPageController {
     public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name,
                                      @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
                                      @RequestParam(name = "profileImage", required = false) String profileImage) {
-        log.info("memNo : " + memNo + ", name : " + name + ", pwd : " + pwd + ", phone : " + phone + ", profileImage : " + profileImage);
-        log.info("pwd 글자 수 : "+pwd.length());
-        Member originMember = memberService.findByMemNo(memNo);
-        if (originMember != null) {
-            if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
-                originMember.setName(name);
-            }
-            if (!pwd.equals("")) {
-                originMember.setPassword(pwd);
-            }
-            if (profileImage.length() != 0) { // 프로필 이미지가 존재할 때
-                if (!profileImage.equals(originMember.getProfileImage())) { // 프로필 이미지가 현재 DB의 프로필 이미지와 다르면(새로 등록했다면)
-                    originMember.setProfileImage(profileImage); // 저장하기
-                }
-            } else { // 이미지가 없거나 있었다가 제거한 경우
-                originMember.setProfileImage(null);
-            }
-            if (!phone.equals(originMember.getPhone())) { // 이미 있음
-                originMember.setPhone(phone);
-            }
-            Member member = memberService.updateUserInfo(originMember);
 
-            session.setAttribute("member", new MemberVO(member));
-        }
+        Member inputMember = Member.builder()
+                .memNo(memNo)
+                .name(name)
+                .password(pwd)
+                .phone(phone)
+                .profileImage(profileImage)
+                .build();
+
+        Member createdMember = memberService.updateUserInfo(inputMember); // 비밀번호 체크는 서비스단에서 실시
+
+        session.setAttribute("member", new MemberVO(createdMember));
 
         return "redirect:/mypage";
     }
@@ -149,7 +137,8 @@ public class MyPageController {
         String savedFileName = UUID.randomUUID() + extension;
 
         File newFile = new File(fileRoot + savedFileName);
-        log.info("file 절대 경로 : "+ newFile.getAbsolutePath());
+        log.info("저장된 file 절대 경로 : " + newFile.getAbsolutePath());
+
         JsonObject jsonObject = new JsonObject();
         try {
             InputStream inputStream = file.getInputStream();
