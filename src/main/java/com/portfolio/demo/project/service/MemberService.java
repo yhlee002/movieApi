@@ -97,12 +97,12 @@ public class MemberService {
         );
     }
 
-    public void updatePwd(Long memNo, String pwd){
+    public void updatePwd(Long memNo, String pwd) {
         Member member = memberRepository.findById(memNo).get();
-        if (member != null){
+        if (member != null) {
             member.setPassword(passwordEncoder.encode(pwd));
             Member memberUpdated = memberRepository.save(member);
-            log.info("업데이트된 회원 정보 : "+memberUpdated.toString());
+            log.info("업데이트된 회원 정보 : " + memberUpdated.toString());
         }
     }
 
@@ -135,6 +135,32 @@ public class MemberService {
         if (originMemberOpt.isPresent()) {
             originMember = originMemberOpt.get();
 
+            /***/
+
+            String name = member.getName();
+            String profileImg = member.getProfileImage();
+            String phone = member.getPhone();
+
+            /* 닉네임 체크 */
+            if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
+                originMember.setName(name);
+            }
+            /* 프로필 이미지 체크 */
+            if (profileImg.length() != 0) { // 프로필 이미지가 존재할 때
+                if (!profileImg.equals(originMember.getProfileImage())) { // 프로필 이미지가 현재 DB의 프로필 이미지와 다르면(새로 등록했다면)
+                    originMember.setProfileImage(profileImg); // 저장하기
+                }
+            } else { // 이미지가 없거나 있었다가 제거한 경우
+                originMember.setProfileImage(null);
+            }
+            /* 연락처 체크 */
+            if (!phone.equals(originMember.getPhone())) { // 번호가 바뀐 경우
+                originMember.setPhone(phone);
+            }
+
+            /***/
+
+            log.info("updateMemberInfo()에 들어온 회원의 비밀번호 : " + member.getPassword());
             /* 비밀번호 null 체크 */
             if (member.getPassword() != null && member.getPassword().length() != 0) {
                 originMember.setPassword(passwordEncoder.encode(member.getPassword()));
