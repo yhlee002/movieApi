@@ -4640,7 +4640,7 @@ body.is-loading #banner:before {
 }
 
 .movieDetailInfoList {
-    list-style-image: url("images/check-mark2.png");
+    list-style-image: url("/images/check-mark2.png");
 }
 
 .box::after {
