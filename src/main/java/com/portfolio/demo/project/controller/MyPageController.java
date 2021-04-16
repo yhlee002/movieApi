@@ -149,6 +149,7 @@ public class MyPageController {
         String savedFileName = UUID.randomUUID() + extension;
 
         File newFile = new File(fileRoot + savedFileName);
+        log.info("file 절대 경로 : "+ newFile.getAbsolutePath());
         JsonObject jsonObject = new JsonObject();
         try {
             InputStream inputStream = file.getInputStream();
