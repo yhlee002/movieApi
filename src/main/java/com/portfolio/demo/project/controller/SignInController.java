@@ -83,7 +83,7 @@ public class SignInController {
 
         /* 네이버 */
         String NAVER_CLIENT_ID = resourceBundle.getString("naverClientId");
-        String naverCallBackURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "utf-8");
+        String naverCallBackURI = URLEncoder.encode("http://3.36.203.4:8080/sign-in/naver/oauth2", "utf-8");
         String naverApiURL = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
         String naverState = new BigInteger(130, random).toString();
 
@@ -93,7 +93,7 @@ public class SignInController {
 
         /* 카카오 */
         String KAKAO_CLIENT_ID = resourceBundle.getString("kakaoClientId");
-        String kakaoCallBackUrl = URLEncoder.encode("http://localhost:8080/sign-in/kakao/oauth2", "utf-8");
+        String kakaoCallBackUrl = URLEncoder.encode("http://3.36.203.4:8080/sign-in/kakao/oauth2", "utf-8");
         String kakaoApiURL = "https://kauth.kakao.com/oauth/authorize?response_type=code";
         String kakaoState = new BigInteger(130, random).toString();
 
