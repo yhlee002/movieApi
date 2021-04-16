@@ -2181,7 +2181,7 @@ hr {
 }
 
 .box .content {
-    padding: 1rem 3rem;
+    padding: 1rem 3rem 2rem 3rem;
 }
 
 .box > :last-child,
