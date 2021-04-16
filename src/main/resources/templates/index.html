@@ -37,23 +37,26 @@
             <div class="content align-center">
                 <h2>일일 박스오피스</h2>
                 <hr>
-                <div class="align-center" th:each="movie : ${movieList}"> <!--  style="border-bottom: rgba(0, 0, 0, 0.15) 0.1em solid;" -->
-                    <div th:onclick="'location.href=\''+@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}+'\';'">
-                        <h3 style="display: inline-block; margin-right: 0.3em; margin-bottom: 1rem !important;"
-                            th:text="${movie.getRank()}"></h3>
-                        <b style="display: inline-block; margin-right: 0.7em" th:text="${movie.getMovieNm()}"></b>
-                        <!-- 순위 변동 -->
-                        <span style="display: inline-block;" class="sort_rankInten"
-                              th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
-                              th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
-                        <span style="display: inline-block;">
-                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) < 0}"
-                                         th:src="@{/images/sort_down.png}">
-                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) == 0}"
-                                         th:src="@{/images/horizontal_line.png}">
-                                    <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) > 0}"
-                                         th:src="@{/images/sort_up.png}"></span>
-                    </div>
+                <div class="align-center" th:each="movie : ${movieList}">
+                    <a style="text-decoration: none;" th:href="@{/movieInfo/{movieCd}(movieCd=${movie.getMovieCd()})}">
+                        <div>
+                            <h3 style="display: inline-block; margin-right: 0.3em; margin-bottom: 1rem !important;"
+                                th:text="${movie.getRank()}"></h3>
+                            <b style="display: inline-block; margin-right: 0.7em" th:text="${movie.getMovieNm()}"></b>
+                            <!-- 순위 변동 -->
+                            <span style="display: inline-block;" class="sort_rankInten"
+                                  th:if="${T(Integer).parseInt(movie.getRankInten()) != 0}"
+                                  th:text="${T(Math).abs(T(Integer).parseInt(movie.getRankInten()))}"></span>
+                            <span style="display: inline-block;">
+                                        <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) < 0}"
+                                             th:src="@{/images/sort_down.png}">
+                                        <img class="sort_icons"
+                                             th:if="${T(Integer).parseInt(movie.getRankInten()) == 0}"
+                                             th:src="@{/images/horizontal_line.png}">
+                                        <img class="sort_icons" th:if="${T(Integer).parseInt(movie.getRankInten()) > 0}"
+                                             th:src="@{/images/sort_up.png}"></span>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
