@@ -25,7 +25,7 @@ public class NaverLoginApiUtil {
     public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
         String naverCode = request.getParameter("code");
         String naverState = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://localhost:8080/sign-in/naver/oauth2", "UTF-8");
+        String redirectURI = URLEncoder.encode("http://3.36.203.4:8080/sign-in/naver/oauth2", "UTF-8");
 
         String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&";
         apiURL += "client_id=" + CLIENTID;
@@ -56,8 +56,6 @@ public class NaverLoginApiUtil {
 
                 String access_token = (String) parsedJson.get("access_token");
                 String refresh_token = (String) parsedJson.get("refresh_token");
-//                log.info("access token : " + access_token);
-//                log.info("refresh token : " + refresh_token);
 
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
