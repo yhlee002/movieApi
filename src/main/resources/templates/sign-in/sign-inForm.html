@@ -10,22 +10,26 @@
 </th:block>
 <th:block layout:fragment="css">
     <style>
+
+        #rememberme-box {
+            margin-bottom: 1.3rem !important;
+        }
+
         .oauthBtn {
-            border-radius: 12px;
+            border-radius: 1.5em;
             border: none;
-            height: 45.59px;
+            height: 3em;
+            margin-bottom: 2em;
         }
 
         #naverSignInBtn {
             background: url("http://3.36.203.4:8080/images/naver-xs.png") no-repeat;
             background-size: 100% 100%;
-            margin-bottom: 1em;
         }
 
         #kakaoSignInBtn {
             background: url("http://3.36.203.4:8080/images/kakao-xs.png") no-repeat;
             background-size: 100% 100%;
-            margin-bottom: 1em;
         }
     </style>
 </th:block>
@@ -39,7 +43,8 @@
             </div>
             <div class="content">
                 <h2 class="align-center title">Sign In</h2>
-                <input id="oauthMsg" hidden="hidden" th:if="${not #strings.isEmpty(oauth_message)}" th:value="${oauth_message}">
+                <input id="oauthMsg" hidden="hidden" th:if="${not #strings.isEmpty(oauth_message)}"
+                       th:value="${oauth_message}">
                 <div class="container align-center">
                     <form id="sign-up-form" th:action="@{/sign-in/sign-in-processor}" method="post">
                         <!-- th:action을 사용할 경우, CSRF 토큰이 필요할 경우 자동으로 포함해 전송 -->
@@ -56,12 +61,13 @@
                         </div>
                         <br>
                         <!-- remember me checkbox -->
-                        <div class="field half align-left">
+                        <div id="rememberme-box" class="field half align-left">
                             <input id="rememberme" type="checkbox" name="remember-me">
                             <!-- Security Config의 Param명과 일치 -->
                             <label for="rememberme">Remember Me</label>
                             <br>
-                            <a onclick="window.open('/findaccount', '회원 정보 찾기', 'height=500px, width=650px, scrollbars=no');" style="cursor:pointer" class="text-decoration-none">forget email address or password?</a>
+                            <a onclick="window.open('/findaccount', '회원 정보 찾기', 'height=500px, width=650px, scrollbars=no');"
+                               style="cursor:pointer" class="text-decoration-none">forget email address or password?</a>
                         </div>
                         <br>
 
