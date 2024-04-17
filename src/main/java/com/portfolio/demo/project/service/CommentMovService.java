@@ -2,26 +2,30 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.comment.CommentMov;
+import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CommentMovRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.CommentMovPagenationVO;
 import com.portfolio.demo.project.vo.CommentMovVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class CommentMovService {
 
-    @Autowired
-    CommentMovRepository commentMovRepository;
+    private final CommentMovRepository commentMovRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     private final static int COMMENTS_PER_PAGE = 20;
 
@@ -39,106 +43,82 @@ public class CommentMovService {
         return comment;
     }
 
+    /**
+     * 추천순으로 댓글 조회(미개발)
+     * @param pageNum
+     * @param movieId
+     * @return
+     */
+    public Map<String, Object> getCommentListVOOrderByRecommended(int pageNum, Long movieId) {
+        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by(Sort.Direction.DESC, "recommended"));
+        Page<CommentMov> page = commentMovRepository.findCommentMovsByMovieNoOrderByRecommended(movieId, pageable);
+        List<CommentMovVO> commentMovVOList = page.getContent().stream().map(CommentMovVO::create).collect(Collectors.toList());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", commentMovVOList);
+        result.put("totalPageCnt", page.getTotalPages());
+        result.put("totalCommentCnt", page.getTotalElements());
+        return result;
+    }
 
     /**
      * 댓글 출력(Ajax 비동기 통신 사용)
      */
-
-    public Map<String, Object> getCommentListVOOrderByRecommended(int pageNum, Long movieId) {
-        long totalCommentCnt = getCommentCntByMovieId(movieId);
-        int startRow = 0;
-        List<CommentMov> commentMovList = null;
-
-        if (totalCommentCnt > 0) {
-            startRow = (pageNum - 1) * COMMENTS_PER_PAGE;
-            commentMovList = commentMovRepository.findCommentMovsByOrderByRecommended(movieId, startRow, COMMENTS_PER_PAGE);
-        } else {
-            pageNum = 0;
-        }
-        int end = startRow * COMMENTS_PER_PAGE;
-
-        CommentMovPagenationVO pagenationVO = new CommentMovPagenationVO(totalCommentCnt, pageNum, commentMovList, COMMENTS_PER_PAGE, startRow, end);
-
-        // pagenationVO의 commentMovList를 VOList로 변환시켜 보냄(json 직렬화를 위해)
-        List<CommentMovVO> commentMovVOList = new ArrayList<>();
-        for (CommentMov comm : commentMovList) {
-            commentMovVOList.add(new CommentMovVO(comm));
-        }
-
+    public Map<String, Object> getCommentsOrderByRegDate(int pageNum, Long movieNo) {
+        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by(Sort.Direction.DESC, "reg_dt"));
+        Page<CommentMovVO> page = commentMovRepository.findAllByMovieNo(movieNo, pageable)
+                .map(CommentMovVO::create);
         Map<String, Object> result = new HashMap<>();
-        result.put("list", commentMovVOList);
-        result.put("totalPageCnt", pagenationVO.getTotalPageCnt());
-        result.put("totalCommentCnt", pagenationVO.getTotalCommentCnt());
+        result.put("list", page.getContent());
+        result.put("totalPageCnt", page.getTotalPages());
+        result.put("totalCommentCnt", page.getTotalElements());
         return result;
     }
 
-    public Map<String, Object> getCommentListVOOrderByRegDate(int pageNum, Long movieId) {
-        long totalCommentCnt = getCommentCntByMovieId(movieId);
-        int startRow = 0;
-        List<CommentMov> commentMovList = null;
-        List<CommentMovVO> commentMovVOList = new ArrayList<>(); // pagenationVO의 commentMovList를 VOList로 변환시켜 보냄(json 직렬화를 위해)
-
-        if (totalCommentCnt > 0) {
-            startRow = (pageNum - 1) * COMMENTS_PER_PAGE;
-            commentMovList = commentMovRepository.findCommentMovsByOrderByRegDate(movieId, startRow, COMMENTS_PER_PAGE);
-        } else {
-            pageNum = 0;
-        }
-        int end = startRow * COMMENTS_PER_PAGE;
-
-        // 아예 CommentMovPagenationVO 의 commentMovList 필드를 VO필드로 바꾸는 것도 고려해보기
-        CommentMovPagenationVO pagenationVO = new CommentMovPagenationVO(totalCommentCnt, pageNum, commentMovList, COMMENTS_PER_PAGE, startRow, end);
-
-        if (commentMovList != null) {
-            for (CommentMov comm : commentMovList) {
-                commentMovVOList.add(new CommentMovVO(comm));
-            }
-        }
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", commentMovVOList);
-        result.put("totalPageCnt", pagenationVO.getTotalPageCnt());
-        result.put("totalCommentCnt", pagenationVO.getTotalCommentCnt());
-        return result;
-    }
-    
-    // 해당 영화정보의 코멘트 모두 불러오기
-    private Long getCommentCntByMovieId(Long movieId) {
-        Long cnt = commentMovRepository.countByMovieNo(movieId);
-        if (cnt == null) {
-            cnt = 0L;
-        }
-        return cnt;
-    }
-
-    // 해당 영화에 대한 모든 리뷰 가져오기(안쓸듯)
-    public List<CommentMovVO> getCommentVOListByMovieCd(Long movieCd) {
-        List<CommentMov> commentMov = commentMovRepository.findByMovieNo(movieCd);
+    /**
+     * 해당 영화에 대한 모든 리뷰 가져오기
+     * @param movieCd
+     */
+    public List<CommentMovVO> getCommentsByMovie(int pageNum, Long movieCd) {
+        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
+        List<CommentMov> commentMov = commentMovRepository.findAllByMovieNo(movieCd, pageable).getContent();
         List<CommentMovVO> commentMovVOList = new ArrayList<>();
         for (CommentMov comm : commentMov) {
-            commentMovVOList.add(new CommentMovVO(comm));
+            commentMovVOList.add(CommentMovVO.create(comm));
         }
         return commentMovVOList;
     }
 
-    // 사용자가 쓴 댓글 조회(수정, 삭제 버튼)
-    public List<CommentMovVO> getCommentVOListByMemNo(Long memNo) {
-        List<CommentMov> commentMov = commentMovRepository.findByWriter_MemNo(memNo);
-        List<CommentMovVO> commentMovVOList = new ArrayList<>();
-        for (CommentMov comm : commentMov) {
-            commentMovVOList.add(new CommentMovVO(comm));
-        }
+    /**
+     * 사용자가 쓴 댓글 조회(수정, 삭제 버튼)
+     * @param member
+     * @param page
+     */
+    public List<CommentMovVO> getCommentsByMember(Member member, int page) {
+        Pageable pageable = PageRequest.of(page, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
+        Page<CommentMov> pages = commentMovRepository.findByWriter(member, pageable);
+        List<CommentMovVO> commentMovVOList = pages.getContent()
+                .stream()
+                .map(CommentMovVO::create)
+                .collect(Collectors.toList());
         return commentMovVOList;
     }
 
-    // 댓글 수정
+    /**
+     * 댓글 수정
+     * @param commentId
+     * @param content
+     */
     public CommentMov updateMovComment(Long commentId, String content) {
         CommentMov originImp = commentMovRepository.findById(commentId).get();
         originImp.setContent(content);
         return commentMovRepository.save(originImp);
     }
 
-    // 댓글 삭제
+    /**
+     * 댓글 삭제
+     * @param commentId
+     */
     public void deleteMovComment(Long commentId) {
         Optional<CommentMov> comm = commentMovRepository.findById(commentId);
         if (comm.isPresent()) {

@@ -6,15 +6,16 @@ import com.portfolio.demo.project.util.NaverMovieInfoUtil;
 import com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO;
 import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
 import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.ResourceBundle;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class MovieService {
 
@@ -22,14 +23,11 @@ public class MovieService {
 
     private static String KEY = null;
 
-    @Autowired
-    DailyBoxOfficeListUtil dailyBoxOfficeListUtil;
+    private final DailyBoxOfficeListUtil dailyBoxOfficeListUtil;
 
-    @Autowired
-    MovieInfoUtil movieInfoUtil;
+    private final MovieInfoUtil movieInfoUtil;
 
-    @Autowired
-    NaverMovieInfoUtil naverMovieInfoUtil;
+    private final NaverMovieInfoUtil naverMovieInfoUtil;
 
     @PostConstruct
     public void initialize() {

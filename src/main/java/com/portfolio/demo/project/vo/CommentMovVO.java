@@ -2,14 +2,14 @@ package com.portfolio.demo.project.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.comment.CommentMov;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
-@Setter
+@Builder
 @Getter
 @ToString
 public class CommentMovVO {
@@ -23,13 +23,15 @@ public class CommentMovVO {
     private LocalDateTime regDate;
     private int rating;
 
-    public CommentMovVO(CommentMov entity) {
-        this.id = entity.getId();
-        this.writerId = entity.getWriter().getMemNo();
-        this.writerName = entity.getWriter().getName();
-        this.movieNo = entity.getMovieNo();
-        this.content = entity.getContent();
-        this.regDate = entity.getRegDate();
-        this.rating = entity.getRating();
+    public static CommentMovVO create(CommentMov mov) {
+        return CommentMovVO.builder()
+                .id(mov.getId())
+                .writerId(mov.getWriter().getMemNo())
+                .writerName(mov.getWriter().getName())
+                .movieNo(mov.getMovieNo())
+                .content(mov.getContent())
+                .regDate(mov.getRegDate())
+                .rating(mov.getRating())
+                .build();
     }
 }

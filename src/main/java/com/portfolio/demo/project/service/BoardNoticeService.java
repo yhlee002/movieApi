@@ -1,45 +1,56 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class BoardNoticeService {
 
-    @Autowired
-    BoardNoticeRepository boardNoticeRepository;
+    private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
+    private final BoardNoticeRepository boardNoticeRepository;
+    
+    private final MemberRepository memberRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
-
-    /* 조회 */
-    public List<BoardNotice> selectAllBoards() {
-        return boardNoticeRepository.findAllBoardNotice();
+    /**
+     * @deprecated 페이지네이션되는 api 사용으로 사용되지 않음
+     * 전체 공지사항 게시글 조회
+     */
+    public List<BoardNotice> getAllBoards() {
+        return boardNoticeRepository.findAll();
     }
 
-    // 게시글 단건 조회
-    public BoardNotice selectBoardByBoardId(Long boardId) {
-        BoardNotice board = null;
-        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
-        if (boardOpt.isPresent()) {
-            board = boardOpt.get();
-        }
+    /**
+     * 공지사항 게시글 단건 조회
+     * @param boardId
+     * @return 단건 공지 게시글
+     */
+    public BoardNotice findById(Long boardId) {
+        BoardNotice board = boardNoticeRepository.findBoardNoticeByBoardId(boardId);
         return board;
     }
 
-    // 게시글 단건 조회 + 이전글, 다음글
+    /**
+     * 공지사항 게시글 단건 조회 + 이전글, 다음글
+     * @param boardId
+     */
     @Transactional
     public HashMap<String, BoardNotice> selectBoardsByBoardId(Long boardId) {
         BoardNotice board = null;
@@ -58,56 +69,35 @@ public class BoardNoticeService {
         return boardNoticeMap;
     }
 
-    // 최근 공지사항 게시글 top 5
+    /**
+     * 최근 공지사항 게시글 top 5
+     */
     public List<BoardNotice> getRecNoticeBoard() {
         return boardNoticeRepository.findTop5ByOrderByRegDateDesc();
     }
 
-    /* 추가(작성) */
+    /**
+     * 공지사항 게시글 수정
+     * @param notice
+     */
     @Transactional
-    public BoardNotice saveBoard(String title, Long memNo, String content) {
-        Member member = null;
-        Optional<Member> memOpt = memberRepository.findById(memNo);
-        if (memOpt.isPresent()) {
-            member = memOpt.get();
-        }
+    public Long updateBoard(BoardNotice notice) {
+        Member member = notice.getWriter();
 
         return boardNoticeRepository.save(
                 BoardNotice.builder()
-                        .id(null)
-                        .title(title)
+                        .id(notice.getId())
+                        .title(notice.getTitle())
                         .writer(member)
-                        .content(content)
+                        .content(notice.getContent())
                         .build()
-        );
+        ).getId();
     }
 
-    /* 수정 */
-    @Transactional
-    public Long updateBoard(Long boardId, String title, Long memNo, String content) {
-        BoardNotice newBoard = null;
-        BoardNotice originBoard = null;
-
-        Optional<BoardNotice> originBoardOpt = boardNoticeRepository.findById(boardId);
-        if (originBoardOpt.isPresent()) {
-            originBoard = originBoardOpt.get();
-        }
-
-        Member member = null;
-        Optional<Member> memOpt = memberRepository.findById(memNo);
-        if (memOpt.isPresent()) {
-            member = memOpt.get();
-        }
-
-        return boardNoticeRepository.save(BoardNotice.builder()
-                .id(boardId)
-                .title(title)
-                .writer(member)
-                .content(content)
-                .build()).getId();
-    }
-
-    /* 삭제 */
+    /**
+     * 공지사항 게시글 삭제
+     * @param boardId
+     */
     @Transactional
     public void deleteBoardByBoardId(Long boardId) {
         Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
@@ -116,12 +106,19 @@ public class BoardNoticeService {
         }
     }
 
+    /**
+     * 선택된 공지사항 게시글 삭제
+     * @param boards
+     */
     public void deleteBoards(List<BoardNotice> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-
         boardNoticeRepository.deleteAll(boards);
     }
 
-    // 게시글 조회수 증가
+    /**
+     * 공지사항 게시글 조회수 증가
+     * @param  boardId
+     */
+
     @Transactional
     public void upViewCnt(Long boardId) {
         BoardNotice notice = boardNoticeRepository.findById(boardId).get();
@@ -129,50 +126,34 @@ public class BoardNoticeService {
         boardNoticeRepository.save(notice);
     }
 
-    /* 페이지 네이션 */
-    private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
-
-    // 기본 화면에서의 페이지네이션 리스트 뷰
+    /**
+     * 공지사항 게시글 조회(10page씩)
+     * @param page
+     */
     @Transactional
-    public NoticePagenationVO getNoticeListView(int pageNum) {
-        int totalBoardCnt = boardNoticeRepository.findCount();
-        int startRow = 0;
-        List<BoardNotice> boardNoticeList = null;
-        NoticePagenationVO noticePagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
+    public NoticePagenationVO getBoardNotices(int page) {
+        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "regDate"));
+        Page<BoardNotice> pages = boardNoticeRepository.findBoardNotices(pageable);
 
-            boardNoticeList = boardNoticeRepository.findBoardNoticeListView(startRow, BOARD_COUNT_PER_PAGE);
-        } else {
-            pageNum = 0;
-        }
-
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-
-        noticePagenationVO = new NoticePagenationVO(totalBoardCnt, pageNum, boardNoticeList, BOARD_COUNT_PER_PAGE, startRow, endRow);
-
-        return noticePagenationVO;
+        return NoticePagenationVO.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardNoticeList(pages.getContent())
+                .build();
     }
 
-    // 검색어가 존재할 때 페이지네이션 리스트 뷰
+    /**
+     * 공지사항 게시글 조회(검색어가 존재)
+     * @param page
+     * @param keyword
+     */
     @Transactional
-    public NoticePagenationVO getNoticeListViewByTitleOrContent(int pageNum, String titleOrContent) {
-        int totalBoardCnt = boardNoticeRepository.findBoardNoticeSearchResultTotalCountTC(titleOrContent);
-        int startRow = 0;
-        List<BoardNotice> boardNoticeList = null;
-        NoticePagenationVO noticePagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
+    public NoticePagenationVO getBoardNoticesByTitleOrContent(String keyword, int page) {
+        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
+        Page<BoardNotice> pages = boardNoticeRepository.findByTitleOrContentContaining(keyword, pageable);
 
-            boardNoticeList = boardNoticeRepository.findBoardNoticeListViewByTitleOrContent(titleOrContent, startRow, BOARD_COUNT_PER_PAGE);
-        } else {
-            pageNum = 0;
-        }
-
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-
-        noticePagenationVO = new NoticePagenationVO(totalBoardCnt, pageNum, boardNoticeList, BOARD_COUNT_PER_PAGE, startRow, endRow);
-
-        return noticePagenationVO;
+        return NoticePagenationVO.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardNoticeList(pages.getContent())
+                .build();
     }
 }

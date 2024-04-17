@@ -6,7 +6,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -51,5 +51,6 @@ public class BoardImp {
         this.content = content;
         this.writer = writer;
         this.regDate = regDate;
+        this.views = 0;
     }
 }

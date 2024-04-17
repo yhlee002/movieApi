@@ -1,20 +1,21 @@
-$(function () {
-    let token = $("meta[name='_csrf']").attr("content");
-    let header = $("meta[name='_csrf_header']").attr("content");
+import util from '/assets/js/util2';
 
-    $('#delete_info').on("click", function () {
+$(function () {
+
+    const delInfoBtn = document.getElementById('delete_info');
+    delInfoBtn.onclick = async function () {
         let conf = window.confirm("유저 정보를 삭제하시겠습니까? 작성하신 글과 댓글이 모두 함께 삭제됩니다.");
         if (conf) {
-            location.href='/mypage/delete_info';
+            await deleteCurrentUser();
         } else {
             return false;
         }
+    };
 
-    });
-
-    $('#profileImageDlBtn').on("click", function () {
+    const profileImageDelBtn = document.getElementById('profileImageDlBtn');
+    profileImageDelBtn.onclick = function () {
         $('.profile_image').attr("src", "/images/test-account-96.png");
-    });
+    }
 
     let provider = $('input[name=provider]').val();
     if (provider === "naver" || provider === "kakao") {
@@ -22,7 +23,8 @@ $(function () {
         $('input[name=pwd_checked]').attr("readonly", true);
     }
 
-    $('input[name=modifyinfo_submitBtn]').on("click", function () {
+    const modifyBtn = document.querySelector('input[name=modifyinfo_submitBtn]');
+    modifyBtn.onclick = function () {
         let pwd = $('input[name=pwd]').val();
         let pwdChecked = $('input[name=pwd_checked]').val();
         let profileImage = $('.profile_image').attr("src");
@@ -59,14 +61,16 @@ $(function () {
                 }
             }
         }
-    });
+    }
 
     // 변경할 핸드폰 번호
-    $('#phoneUpdateBtn').on("click", function () {
-        window.open("/mypage/modify_info/phoneCk", "Phone Check Form", "width=500, height=300");
-    });
+    const phoneUpdateBtn = document.getElementById('phoneUpdateBtn');
+    phoneUpdateBtn.onclick = function () {
+        window.open("/mypage/modify_info/phone", "Phone Check Form", "width=500, height=300");
+    };
 
-    $('#phoneSbm').on("click", function () {
+    const phonSubmitBtn = document.getElementById('phoneSbm');
+    phonSubmitBtn.onclick = async function () {
         let phone = $('input[name=phoneNum]').val();
         let phoneReg = RegExp(/^(01[016789]{1})(\d{3,4})(\d{4})$/);
 
@@ -82,43 +86,37 @@ $(function () {
             provider = $("#provider", opener.document).val();
             console.log("provider : "+provider);
 
-            $.ajax({
-                url: "/mypage/modify_info/phoneCkProc",
-                type: "post",
-                data: {"phone": phone},
-                dataType: "text",
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader(header, token);
-                },
-                success: function (data) {
-                    if (data == "not exist") {
-                        let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
-                        if (conf) {
-                            location.href = "/mypage/modify_info/phoneCkCert?phone=" + phone;
-                        }
-                    } else {
-                        alert("이미 가입된 번호입니다.");
-                    }
-                    return false;
+            const phoneExist = await checkPhoneExist(phone);
+            if (phoneExist > 0) {
+                let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
+                if (conf) {
+                    const result = await sendCertMsg(phone);
+
+                    if (result.result === 'success') location.href = '/mypage/modify_info/phone2';
+                    else alert("내부 서버 오류입니다. 관리자에게 문의바랍니다."); // 임시
                 }
-            });
+            } else {
+                alert("이미 가입된 번호입니다.");
+            }
 
         }
-    });
+    }
 
-    $('#phoneSbm2').on("click", function () {
+    const phonSubmitBtn2 = document.getElementById('phoneSbm2');
+
+    phonSubmitBtn2.onclick = function () {
         let certKey = $('#certKey').val();
 
         // ajax로 컨트롤러에 전송, authKey의 해시값이 phoneAuthKey와 일치할 경우 인증 성공 메세지 전달
         $.ajax({
-            url: "/mypage/modify_info/phoneCkCertProc",
+            url: "/mypage/modify_info/phone/check/certmessage",
             type: 'post',
             dataType: 'text',
             data: {
                 'certKey': certKey,
             },
             beforeSend: function (xhr) {
-                xhr.setRequestHeader(header, token);
+                xhr.setRequestHeader(util.getHeader(), util.getToken());
             },
             success: function (data) {
                 let result = JSON.parse(data);
@@ -126,8 +124,8 @@ $(function () {
                     alert("인증에 성공하였습니다.");
                     $(opener.document).find('#phone').val(result.phoneNum);
                     window.close();
-                    phoneCk = true;
-                } else { // result.resultCode == "false"
+                    // phoneCk = true;
+                } else {
                     alert("인증에 실패했습니다.");
                     window.close();
                 }
@@ -138,7 +136,42 @@ $(function () {
                 return false;
             }
         });
+    }
 
-    });
+    async function checkPhoneExist(phone) {
+        const queryParams = new URLSearchParams({ phone: phone });
+        return await fetch(`/mypage/modify_info/phone/check/exist?${queryParams}`, {
+            method: 'GET',
+            dataType: "json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(util.getHeader(), util.getToken());
+            }
+        })
+    }
 
+    async function sendCertMsg(phone) {
+        return await fetch('/mypage/modify_info/phone/check', {
+            method: 'POST',
+            data: {
+                'phone': phone
+            },
+            dataType: "json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(util.getHeader(), util.getToken());
+            }
+        })
+    }
+
+    async function deleteCurrentUser() {
+        return await fetch('/mypage/info', {
+            method: 'DELETE',
+            headers: {
+                'content-Type': 'text',
+            },
+            dataType: "json",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader(util.getHeader(), util.getToken());
+            }
+        })
+    }
 });

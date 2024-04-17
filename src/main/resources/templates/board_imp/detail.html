@@ -45,13 +45,13 @@
                 </div>
                 <div class="updateBtns" sec:authorize="isAuthenticated()">
                     <ul class="align-right" th:if="${session.member.getMemNo() == board.getWriter().getMemNo()}">
-                        <form th:action="@{/imp/update}" th:type="post" id="impUpdateForm">
+                        <form th:action="@{/imp}" th:type="post" id="impUpdateForm">
                             <input type="text" id="updateForm_boardId" name="boardId" th:value="${board.getId()}"
                                    hidden="hidden">
                             <input type="submit" id="updateBtn" value="수정">
                         </form>
 
-                        <form th:action="@{/imp/delete}" th:type="post" id="impDeleteForm">
+                        <form th:action="@{/imp}" th:type="delete" id="impDeleteForm">
                             <input type="text" id="deleteForm_boardId" name="boardId" th:value="${board.getId()}"
                                    hidden="hidden">
                             <input type="button" id="deleteBtn" th:value="삭제">

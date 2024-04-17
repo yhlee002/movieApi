@@ -1,21 +1,21 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> {
 
-    // 모든 notice 게시글 조회
-    @Query(value = "select b from BoardNotice b")
-    List<BoardNotice> findAllBoardNotice();
-
-    // board_id로 조회
-//    BoardNotice findByBoarId(Long boardId);
+    /**
+     * 공지사항 게시글 단건 조회
+     * @param boardId
+     * @return
+     */
+    BoardNotice findBoardNoticeByBoardId(Long boardId);
 
     // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)  join Member m on b.writer_no = m.mem_no
     @Query(value = "select b.* from board_notice b where b.id = " +
@@ -33,24 +33,20 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     List<BoardNotice> findTop5ByOrderByRegDateDesc();
 
 
-    /* 페이지네이션 */
-    // 전체 게시글 조회
-    @Query("select count(b) from BoardNotice b")
-    int findCount();
-
+    /**
+     * @deprecated
+     * 페이지네이션
+     */
     @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no order by b.id desc limit ?1, ?2"
             , nativeQuery = true)
     List<BoardNotice> findBoardNoticeListView(int startRow, int boardCntPerPage);
 
-    // 제목 또는 내용으로 검색 결과 조회
-    @Query("select count(b) from BoardNotice b where b.title like %?1% or b.content like %?1%")
-    int findBoardNoticeSearchResultTotalCountTC(String titleOrContent);
+    Page<BoardNotice> findBoardNotices(Pageable pageable);
 
-    @Query(value = "select b.* from board_notice b where b.title like %?1% or b.content like %?1% order by b.id desc limit ?2, ?3"
-            , nativeQuery = true)
-    List<BoardNotice> findBoardNoticeListViewByTitleOrContent(String titleOrContent, int startRow, int boardCntPerPage);
-
-    // '제목 또는 내용'으로 검색(검색창만 두고 조건 선택 X)
-    @Query("select b from BoardNotice b where b.title like %?1% or b.content like %?1%")
-    List<BoardNotice> findByTitleOrContentContaining(String titleOrContent);
+    /**
+     * 제목 또는 내용으로 검색 결과 조회
+     * @param keyword
+     * @return
+     */
+    Page<BoardNotice> findByTitleOrContentContaining(String keyword, Pageable pageable);
 }

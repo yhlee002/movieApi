@@ -3,24 +3,21 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.util.TempKey;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class CertKeyService {
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    TempKey tempKey;
+    private final TempKey tempKey;
 
     public Boolean CheckCertInfo(Long memNo, String certKey) {
 

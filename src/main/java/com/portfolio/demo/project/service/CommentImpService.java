@@ -8,33 +8,39 @@ import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.tomcat.util.http.ResponseUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class CommentImpService {
 
-    @Autowired
-    CommentImpRepository commentImpRepository;
+    private final CommentImpRepository commentImpRepository;
 
-    @Autowired
-    BoardImpRepository boardImpRepository;
+    private final BoardImpRepository boardImpRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     public List<CommentImpVO> getMyCommTop5(Long memNo) {
         List<CommentImp> commList = commentImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
         List<CommentImpVO> commVOList = new ArrayList<>();
         for (CommentImp c : commList) {
-            commVOList.add(new CommentImpVO(c));
+            commVOList.add(CommentImpVO.create(c));
         }
         return commVOList;
     }
@@ -65,59 +71,71 @@ public class CommentImpService {
         }
     }
 
-    public List<CommentImpVO> getCommentVOList(Long boardId) {
-        List<CommentImp> commList = commentImpRepository.findByBoardId(boardId);
+    public List<CommentImpVO> getCommentsByBoard(BoardImp board, int page) {
+
+        List<CommentImp> commList = commentImpRepository.findByBoard(board);
         List<CommentImpVO> commVOList = new ArrayList<>();
 
         for (CommentImp comment : commList) {
-            commVOList.add(new CommentImpVO(comment));
+            commVOList.add(CommentImpVO.create(comment));
         }
 
         return commVOList;
     }
 
-    public List<CommentImpVO> getCommentVOListByMemNo(Long memNo) {
-        List<CommentImp> commList = commentImpRepository.findByWriter_MemNo(memNo);
-        List<CommentImpVO> commVOList = new ArrayList<>();
+    public List<CommentImpVO> getCommentsByMember(Member member, int pageNum) {
+        Pageable pageable = PageRequest.of(pageNum, COMMENT_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "reg_dt"));
+        Page<CommentImpVO> page = commentImpRepository.findAllByWriter(member, pageable).map(CommentImpVO::create);
 
-        for (CommentImp comment : commList) {
-            commVOList.add(new CommentImpVO(comment));
-        }
-
-        return commVOList;
+        return page.getContent();
     }
 
     private final static int COMMENT_COUNT_PER_PAGE = 20;
-    private Long memNo;
 
-    public void setMemNo(Long memNo) {
-        this.memNo = memNo;
+//    /**
+//     * @deprecated getMyComments로 대체 예정
+//     * 본인이 작성한 댓글(마이페이지에서 조회 가능)
+//     * @param pageNum 페이지 번호
+//     */
+//    @Transactional
+//    public CommentImpPagenationVO getMyCommListView(int pageNum) {
+//        Long totalCommCnt = commentImpRepository.countCommentImpsByWriter_MemNo(memNo);
+//        int startRow = 0;
+//        List<CommentImpVO> commVOList = new ArrayList<>();
+//        CommentImpPagenationVO commPagenationVO = null;
+//        if (totalCommCnt > 0) {
+//            startRow = (pageNum - 1) * COMMENT_COUNT_PER_PAGE;
+//
+//            List<CommentImp> commList = commentImpRepository.findCommentImpsByWriterNo(memNo, startRow, COMMENT_COUNT_PER_PAGE);
+//            for (CommentImp comment : commList) {
+//                commVOList.add(CommentImpVO.create(comment));
+//            }
+//
+//        } else {
+//            pageNum = 0;
+//        }
+//
+//        commPagenationVO = CommentImpPagenationVO.builder()
+//                .totalCommentCnt(totalCommCnt)
+//                .currentPageNo(pageNum)
+//                .commentImpsList(commVOList)
+//                .commentsPerPage(COMMENT_COUNT_PER_PAGE)
+//                .build();
+//
+//        return commPagenationVO;
+//    }
+
+    public Long getTotalCommentCount(Member member) {
+        return commentImpRepository.countCommentImpsByWriter(member);
     }
 
-    // 본인이 작성한 댓글(마이페이지에서 조회 가능)
-    @Transactional
-    public CommentImpPagenationVO getMyCommListView(int pageNum) {
-        Long totalCommCnt = commentImpRepository.findCountByWriter_MemNo(memNo);
-        int startRow = 0;
-        List<CommentImpVO> commVOList = new ArrayList<>();
-        CommentImpPagenationVO commPagenationVO = null;
-        if (totalCommCnt > 0) {
-            startRow = (pageNum - 1) * COMMENT_COUNT_PER_PAGE;
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
+    public List<CommentImpVO> getMyComments(Member member, int pageNum, String criteria) { // criteria : 정렬 기준
 
-            List<CommentImp> commList = commentImpRepository.findCommImpListViewByWriterNo(memNo, startRow, COMMENT_COUNT_PER_PAGE);
-            for (CommentImp comment : commList) {
-                commVOList.add(new CommentImpVO(comment));
-            }
+        Pageable pageable = PageRequest.of(pageNum, COMMENT_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, criteria));
+        Page<CommentImpVO> page = commentImpRepository.findAllByWriter(member, pageable).map(CommentImpVO::create);
 
-        } else {
-            pageNum = 0;
-        }
-
-        int endRow = startRow * COMMENT_COUNT_PER_PAGE;
-
-        commPagenationVO = new CommentImpPagenationVO(totalCommCnt, pageNum, commVOList, COMMENT_COUNT_PER_PAGE, startRow, endRow);
-
-        return commPagenationVO;
+        return page.getContent();
     }
 
 }

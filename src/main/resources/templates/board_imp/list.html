@@ -21,10 +21,10 @@
             </div>
             <div class="content">
                 <h2>감상 후기</h2>
-                <div th:if="${pagenation.getTotalBoardCnt() == 0}">
+                <div th:if="${totalBoardCount == 0}">
                     <p>작성된 글이 존재하지 않습니다.</p>
                 </div>
-                <div th:unless="${pagenation.getTotalBoardCnt() == 0}">
+                <div th:unless="${totalBoardCount == 0}">
                     <table class="table table-hover">
                         <thead>
                         <tr>
@@ -36,7 +36,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:each="board : ${pagenation.getBoardImpList()}" style="cursor:pointer"
+                        <tr th:each="board : ${list}" style="cursor:pointer"
                             th:onclick="'location.href=\''+@{/imp/{bNo}(bNo=${board.getId()})}+'\';'">
                             <td th:text="${board.getId()}"></td>
                             <td th:text="${board.getTitle() + ' [' + board.getComments().size() + ']'}"></td>
@@ -49,7 +49,7 @@
 
                     <!-- 페이지네이션 -->
                     <div id="pagenation">
-                        <a th:each="index : ${#numbers.sequence(1, {pagenation.getTotalPageCnt()})}"
+                        <a th:each="index : ${#numbers.sequence(1, {totalPageCount})}"
                            th:text="${index}"
                            th:href="@{/imp?p={i}(i=${index})}"></a>
                     </div>
@@ -71,7 +71,7 @@
 
                 <div class="align-right">
                     <button type="button" sec:authorize="isAuthenticated()"
-                            onclick="location.href='/imp/write'">글쓰기
+                            onclick="location.href='/imp/new'">글쓰기
                     </button>
                     <button type="button" sec:authorize="isAnonymous()"
                             onclick="checkAnonymous()">글쓰기

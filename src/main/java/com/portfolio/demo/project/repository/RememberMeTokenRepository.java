@@ -6,9 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken, String> {
-    List<RememberMeToken> findAll();
 
     RememberMeToken findBySeries(String series);
 

@@ -2,47 +2,41 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import com.portfolio.demo.project.service.*;
-import com.portfolio.demo.project.vo.MemberVO;
 import com.portfolio.demo.project.vo.kobis.movie.MovieVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 public class MainController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
-    MovieService movieService;
+    private final MovieService movieService;
 
-    @Autowired
-    BoardNoticeService boardNoticeService;
+    private final BoardNoticeService boardNoticeService;
 
-    @Autowired
-    BoardImpService boardImpService;
+    private final BoardImpService boardImpService;
 
-    @Autowired
-    MailService mailService;
+    private final MailService mailService;
 
-    @RequestMapping("/")
+    @GetMapping("/")
     public String mainPage(Model model, HttpSession session) { // Principal principal
         /**
          * 인증 정보를 꺼내는 법
@@ -62,12 +56,12 @@ public class MainController {
         return "index";
     }
 
-    @RequestMapping("/sign-up")
+    @GetMapping("/sign-up")
     public String signUpPage() {
         return "sign-up/sign-upForm";
     }
 
-    @RequestMapping(value = "/logout", method = RequestMethod.POST)
+    @PostMapping("/logout")
     public String loout(HttpServletRequest request, HttpServletResponse response) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
@@ -76,7 +70,7 @@ public class MainController {
         return "redirect:/";
     }
 
-    @RequestMapping("/contact")
+    @GetMapping("/contact")
     public String csMain() {
         return "contact/main";
     }

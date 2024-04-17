@@ -2,23 +2,23 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.RememberMeToken;
 import com.portfolio.demo.project.repository.RememberMeTokenRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class RememberMeTokenService implements PersistentTokenRepository {
 
-    @Autowired
-    private RememberMeTokenRepository rememberMeTokenRepository;
+    private final RememberMeTokenRepository rememberMeTokenRepository;
 
     @Override
     public void createNewToken(PersistentRememberMeToken token) {
