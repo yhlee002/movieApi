@@ -16,9 +16,9 @@
     <div class="inner">
         <h2>내가 작성한 댓글</h2>
         <div class="box" id="myPage_comment">
-            <div th:if="${pagenation.getTotalCommentCnt() > 0}">
+            <div th:if="${list.length > 0}">
                 <ul style="list-style: none;">
-                    <li th:each="comment : ${pagenation.getCommentImpsList()}">
+                    <li th:each="comment : ${list}">
                         <a th:href="@{/imp/{boardId}(boardId=${comment.getBoardId()})}">
                             <div class="commentList-item">
                                 <p class="comment_content" th:if="${comment.getContent().length() > 11}"
@@ -33,11 +33,11 @@
                 </ul>
                 <!-- 페이지네이션 -->
                 <div class="pagenation">
-                    <a th:each="index : ${#numbers.sequence(1, {pagenation.getTotalPageCnt()})}" th:text="${index}"
+                    <a th:each="index : ${#numbers.sequence(1, {list.length})}" th:text="${index}"
                        th:href="@{/mypage/imp-comment?p={i}(i=${index})}"></a>
                 </div>
             </div>
-            <div th:if="${pagenation.getTotalCommentCnt() == 0}" class="align-center">
+            <div th:if="${list.length == 0}" class="align-center">
                 <p>작성한 댓글이 없습니다.</p>
             </div>
         </div>

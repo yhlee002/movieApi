@@ -4,16 +4,14 @@ import com.portfolio.demo.project.security.CustomAuthenticationProvider;
 import com.portfolio.demo.project.security.SignInSuccessHandler;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
@@ -24,25 +22,24 @@ import java.security.SecureRandom;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
     private final DataSource dataSource;
 
     private static final String[] CSRF_IGNORE = {"/signin/**", "/signup/**"};
 
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/favicon.ico", "/resources/**", "/js/**", "/css/**", "/webjars/**", "/webjars/bootstrap/4.5.2/**", "/images/**", "/templates/fragments/**");
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() throws Exception {
+        return (web) -> web.ignoring().requestMatchers("/favicon.ico", "/resources/**", "/js/**", "/css/**", "/webjars/**", "/webjars/bootstrap/4.5.2/**", "/images/**", "/templates/fragments/**");
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/", "/sign-up/**", "/notice", "/imp").permitAll()
-                .antMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
-                .antMatchers("/admin/**", "/notice/write").hasRole("ADMIN");
+                .requestMatchers("/", "/sign-up/**", "/notices", "/imps").permitAll()
+                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
+                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN");
 
         http.httpBasic();
 
@@ -74,36 +71,32 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .tokenValiditySeconds(60 * 60 * 24) // 토큰은 24시간 동안 유효
                 .rememberMeCookieName("mvif-remember") //브라우저에 보관되는 쿠키의 이름(기본값 : remember-me)
                 .rememberMeParameter("remember-me");// 웹 화면에서 로그인할 때 리멤버미 기능의 체크박스 이름
+        return http.build();
     }
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(authenticationProvider());
-    }
-
-    @Bean
+    @Bean // 제거 임시 보류
     protected BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    protected CustomAuthenticationProvider authenticationProvider() {
+    public CustomAuthenticationProvider authenticationProvider() {
         return new CustomAuthenticationProvider();
     }
 
     @Bean
-    protected SecureRandom secureRandom() {
+    public SecureRandom secureRandom() {
         return new SecureRandom();
     }
 
     @Bean
-    protected SignInSuccessHandler signInSuccessHandler() {
+    public SignInSuccessHandler signInSuccessHandler() {
         return new SignInSuccessHandler();
     }
 
     // 로그아웃시 세션정보 제거(세션이 삭제되어도 세션 정보(Set)에 추가된 사용자 정보는 사라지지 않음)
     @Bean
-    protected static ServletListenerRegistrationBean httpSessionEventPublisher() {
+    public static ServletListenerRegistrationBean httpSessionEventPublisher() {
         return new ServletListenerRegistrationBean(new HttpSessionEventPublisher());
     }
 

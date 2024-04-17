@@ -32,7 +32,7 @@ $(document).ready(function () {
             if (commentVal != null && commentVal.trim().length != 0 && 0 < rating <= 5) {
 
                 $.ajax({
-                    url: "/movieInfo/comment/write",
+                    url: "/movieInfo/comment",
                     data: {
                         'commentContent': commentVal,
                         'memNo': memNo,
@@ -44,11 +44,11 @@ $(document).ready(function () {
                         xhr.setRequestHeader(header, token);
                     },
                     success(data) {
-                        if (data === "writeSuccess") {
+                        if (data === "success") {
                             // $('#ratingSelector').val(1); // 별 하나로 표시될까?
                             $('#commentContent').val("");
-                            getCommentList(1, movieNo, memNo);
-                        } else { // 'data === writerFail'
+                            getCommentList(1, movieNo);
+                        } else {
                             alert("댓글 작성 중 문제가 발생했습니다. 지속될 경우 관리자에 문의바랍니다.");
                         }
 
@@ -66,7 +66,7 @@ $(document).ready(function () {
 
 function getCommentList(pageNum, movieCd) {
     $.ajax({
-        url: "/movieInfo/comment/regDt",
+        url: "/movieInfo/comment",
         data: {
             'p': pageNum,
             'movieCd': movieCd
@@ -164,7 +164,7 @@ function deleteComment(btn) {
 
         $.ajax({
             url: "/movieInfo/comment/delete",
-            type: "post",
+            type: "delete",
             data: {
                 "commentId": commId
             },
@@ -195,8 +195,8 @@ function openUpdateForm(btn) {
 function updateComment() {
     let content = $('#newContent').val();
     $.ajax({
-        url: "/movieInfo/comment/update",
-        type: "post",
+        url: "/movieInfo/comment",
+        type: "PATCH",
         data: {
             'content': content,
             'commentId': commId

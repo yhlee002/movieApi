@@ -4,8 +4,8 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,25 +13,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 @Slf4j
 public class FindAccountController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    PhoneMessageService messageService;
+    private final PhoneMessageService messageService;
 
-    @Autowired
-    MailService mailService;
+    private final MailService mailService;
 
     @RequestMapping("/findaccount")
     public String findAccount() {

@@ -40,7 +40,7 @@ $(document).ready(function () {
 // 게시글 작성 자격 검사
 function checkRoleAdmin(role) {
     if (role === "ROLE_ADMIN") {
-        location.href = "/notice/write";
+        location.href = "/notice/new";
     } else if (role === "ROLE_USER") { //
         alert("관리자만 접근가능한 페이지입니다.");
     }

@@ -33,8 +33,8 @@ function deleteComment(btn) {
         commId = btn.parentNode.parentNode.childNodes[0].children[0].value;
 
         $.ajax({
-            url: "/imp/comment/delete",
-            type: "post",
+            url: "/imp/comment",
+            type: "delete",
             data: {
                 "commentId": commId
             },
@@ -65,8 +65,8 @@ function openUpdateForm(btn) {
 function updateComment() {
     let content = $('#newContent').val();
     $.ajax({
-        url: "/imp/comment/update",
-        type: "post",
+        url: "/imp/comment",
+        type: "patch",
         data: {
             'content': content,
             'commentId': commId
@@ -91,7 +91,7 @@ function updateComment() {
 function getCommentList(boardId) {
 
     $.ajax({
-        url: "/imp/comment/list",
+        url: "/imp/comments",
         type: "get",
         data: {
             'boardId': boardId
@@ -145,12 +145,12 @@ function getCommentList(boardId) {
 
 function writeComment(content) {
     $.ajax({
-        url: "/imp/comment/write",
-        type: "get",
+        url: "/imp/comment",
+        type: "post",
         data: {
-            'content': content,
             'memNo': memNo,
-            'boardId': boardId
+            'boardId': boardId,
+            'content': content
         },
         beforeSend: function (xhr) {
             xhr.setRequestHeader(header, token);

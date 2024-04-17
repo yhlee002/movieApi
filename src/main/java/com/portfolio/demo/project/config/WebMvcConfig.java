@@ -1,12 +1,15 @@
 package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.intercepter.RememberMeIntercepter;
+import com.portfolio.demo.project.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@RequiredArgsConstructor
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
     //외부 경로 리소스를 url로 불러올 수 있게함

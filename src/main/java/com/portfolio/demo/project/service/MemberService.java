@@ -4,30 +4,29 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class MemberService {
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    TempKey tempKey;
+    private final TempKey tempKey;
 
     public Member findByMemNo(Long memNo) {
         Member mem = null;
@@ -51,8 +50,12 @@ public class MemberService {
         return memberRepository.findByPhone(phone);
     }
 
-    public Member findByIdentifierAndProvider(String identifier, String provider) {
-        return memberRepository.findByIdentifierAndProvider(identifier, provider);
+    public Long CountFindByPhone(String phone) {
+        return memberRepository.countByPhone(phone);
+    }
+
+    public Member findMemberByIdentifierAndProvider(String identifier, String provider) {
+        return memberRepository.findMemberByIdentifierAndProvider(identifier, provider);
     }
 
     public void saveMember(Member member) {
@@ -118,7 +121,7 @@ public class MemberService {
 
     /* provider 전달 필요(naver, kakao) */
     public Member findByProfile(String identifier, String provider) {
-        Member member = memberRepository.findByIdentifierAndProvider(identifier, provider);
+        Member member = memberRepository.findMemberByIdentifierAndProvider(identifier, provider);
 
         return member;
     }

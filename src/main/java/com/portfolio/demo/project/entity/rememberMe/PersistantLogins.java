@@ -2,7 +2,7 @@ package com.portfolio.demo.project.entity.rememberMe;
 
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Table(name = "persistant_logins")
 @Entity

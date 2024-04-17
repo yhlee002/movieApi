@@ -4,55 +4,46 @@ import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.*;
 import com.portfolio.demo.project.vo.CommentImpPagenationVO;
+import com.portfolio.demo.project.vo.CommentImpVO;
 import com.portfolio.demo.project.vo.MemberVO;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 public class MyPageController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    BoardImpService boardImpService;
+    private final BoardImpService boardImpService;
 
-    @Autowired
-    CommentImpService commentImpService;
+    private final CommentImpService commentImpService;
 
-    @Autowired
-    PhoneMessageService messageService;
+    private final PhoneMessageService messageService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final RememberMeTokenService rememberMeTokenService;
 
-    @Autowired
-    RememberMeTokenService rememberMeTokenService;
-
-    @RequestMapping("/mypage")
+    @GetMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         model.addAttribute("boardList", boardImpService.getMyImpTop5(memberVO.getMemNo()));
@@ -61,31 +52,36 @@ public class MyPageController {
         return "mypage/memberInfo";
     }
 
-    @RequestMapping("/mypage/imp-board")
+    @GetMapping("/mypage/imp-board")
     public String myImpBoard(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        boardImpService.setMemNo(memberVO.getMemNo());
-        model.addAttribute("pagenation", boardImpService.getMyImpListView(pageNum));
+        Member member = memberService.findByMemNo(memberVO.getMemNo());
+        model.addAttribute("pagenation", boardImpService.getMyImpListView(member, pageNum));
 
         return "mypage/impBoards";
     }
 
-    @RequestMapping("/mypage/imp-comment")
+    @GetMapping("/mypage/imp-comment")
     public String myImpComment(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        commentImpService.setMemNo(memberVO.getMemNo());
-        CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
-        model.addAttribute("pagenation", pagenation);
+        Member member = memberService.findByMemNo(memberVO.getMemNo());
+//        commentImpService.setMemNo(memberVO.getMemNo());
+//        CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
+//        model.addAttribute("pagenation", pagenation);
 
+        /* pagenation 변경 예정 */
+        List<CommentImpVO> list = commentImpService.getMyComments(member, pageNum, "reg_dt");
+        /* 끝 */
+        model.addAttribute("list", list);
         return "mypage/impComments";
     }
 
-    @RequestMapping("/mypage/modify_info")
+    @GetMapping("/mypage/modify_info")
     public String modifyUserInfo() {
         return "mypage/modifyInfo";
     }
 
-    @RequestMapping("/mypage/modify_info_proc")
+    @PatchMapping("/mypage/modify_info")
     public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name,
                                      @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
                                      @RequestParam(name = "profileImage", required = false) String profileImage) {
@@ -105,10 +101,10 @@ public class MyPageController {
         return "redirect:/mypage";
     }
 
-    @RequestMapping("/mypage/delete_info")
+    @DeleteMapping("/mypage/info")
     public String deleteUserInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        System.out.println(memberVO.toString());
+        log.info("delete user info: {}", memberVO.toString());
         memberService.deletUserInfo(memberVO.getMemNo());
         rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
 
@@ -120,7 +116,7 @@ public class MyPageController {
         return "redirect:/";
     }
 
-    @RequestMapping("/mypage/uploadProfileImage")
+    @GetMapping("/mypage/uploadProfileImage")
     public String uploadProfileImageForm() {
         /* 프로필 이미지 변경시 업로드 페이지로 감 */
         return "mypage/uploadProfileImageForm";
@@ -137,7 +133,7 @@ public class MyPageController {
         String savedFileName = UUID.randomUUID() + extension;
 
         File newFile = new File(fileRoot + savedFileName);
-        log.info("저장된 file 절대 경로 : " + newFile.getAbsolutePath());
+        log.info("saved file path: {}" + newFile.getAbsolutePath());
 
         JsonObject jsonObject = new JsonObject();
         try {
@@ -154,26 +150,31 @@ public class MyPageController {
         return jsonObject;
     }
 
-    // 새로운 핸드폰 번호 입력 페이지
-    @RequestMapping("/mypage/modify_info/phoneCk")
+    /**
+     * 새로운 핸드폰 번호 입력 페이지
+     */
+    @GetMapping("/mypage/modify_info/phone")
     public String phoneCkForm() {
         return "mypage/modifyInfo_phoneUpdate1";
     }
 
-    @ResponseBody
-    @RequestMapping("/mypage/modify_info/phoneCkProc")
-    public String phoneCkProc(String phone) {
-        Member member = memberService.findByPhone(phone);
-        if (member != null) {
-            return "exist";
-        } else {
-            return "not exist"; // 없어야 해당 번호 사용 가능
-        }
+    /**
+     * 새로운 핸드폰 번호 유효성 검사(존재 여부 확인)
+     * @param phone
+     * @return 해당 핸드폰 번호로 저장되어있는 사용자 수
+     */
+    @GetMapping("/mypage/modify_info/phone/check/exist")
+    public Long phoneCkProc(@RequestParam String phone) {
+        return memberService.CountFindByPhone(phone);
     }
 
-    // 인증번호 입력 페이지
-    @RequestMapping("/mypage/modify_info/phoneCkCert")
-    public String phoneCkCertForm(HttpSession session, @RequestParam String phone) {
+    /**
+     * 인증번호 전송
+     * @param phone
+     * @return 인증번호 전송 결과
+     */
+    @PostMapping("/mypage/modify_info/phone/check")
+    public ResponseEntity<String> phoneCertForm(HttpSession session, @RequestParam String phone) {
         Map<String, String> resultMap = messageService.sendCertificationMessage(phone);
         String result = resultMap.get("result");
         String certKey = resultMap.get("certKey");
@@ -181,14 +182,26 @@ public class MyPageController {
         if (result.equals("success")) {
             session.setAttribute("phoneNum", phone);
             session.setAttribute("certKey", certKey);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
+
+        // Todo. Error Status 수정
+        return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/mypage/modify_info/phone2")
+    public String updatePhoneForm() {
         return "mypage/modifyInfo_phoneUpdate2";
     }
 
-    // 인증번호 검증(일치하는지 여부 보내주기)
+    /**
+     * 인증번호 일치 여부 검증
+     * @param certKey
+     * @return 검증 결과
+     */
     @ResponseBody
-    @RequestMapping("/mypage/modify_info/phoneCkCertProc")
-    public Map<String, String> phoneCkCertProc(HttpSession session, String certKey) {
+    @RequestMapping("/mypage/modify_info/phone/check/certmessage")
+    public ResponseEntity<Map<String, String>> checkPhoneCertVal(HttpSession session, String certKey) {
         Map<String, String> result = new HashMap<>();
         String phone = (String) session.getAttribute("phoneNum");
         session.removeAttribute("phoneNum");
@@ -202,7 +215,7 @@ public class MyPageController {
             result.put("resultCode", "false");
         }
 
-        return result;
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

@@ -3,63 +3,54 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.PhoneMessageService;
 import com.portfolio.demo.project.util.KakaoLoginApiUtil;
 import com.portfolio.demo.project.util.KakaoProfileApiUtil;
 import com.portfolio.demo.project.util.NaverLoginApiUtil;
 import com.portfolio.demo.project.util.NaverProfileApiUtil;
 import com.portfolio.demo.project.vo.MemberVO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 @Slf4j
+@RequiredArgsConstructor
 @Controller
 public class SignInController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    SecureRandom random;
+    private final SecureRandom random;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    NaverLoginApiUtil naverLoginApi;
+    private final NaverLoginApiUtil naverLoginApi;
 
-    @Autowired
-    NaverProfileApiUtil naverProfileApiUtil;
+    private final NaverProfileApiUtil naverProfileApiUtil;
 
-    @Autowired
-    KakaoLoginApiUtil kakaoLoginApiUtil;
+    private final KakaoLoginApiUtil kakaoLoginApiUtil;
 
-    @Autowired
-    KakaoProfileApiUtil kakaoProfileApiUtil;
+    private final KakaoProfileApiUtil kakaoProfileApiUtil;
 
-    @Autowired
-    MailService mailService;
+    private final MailService mailService;
 
     private final static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
@@ -194,7 +185,7 @@ public class SignInController {
     }
 
 
-    @RequestMapping("/sign-in/checkProc")
+    @PostMapping("/sign-in/check")
     @ResponseBody
     public String checkProc(String email, String pwd) {
         Member member = memberService.findByIdentifier(email);
@@ -216,7 +207,7 @@ public class SignInController {
 
     // 인증 이메일을 다시 받고자 할 때 작동
     @ResponseBody
-    @RequestMapping("/sendCertMail")
+    @PostMapping("/certMail")
     public Map<String, String> sendCertMail(String email) {
         return mailService.sendGreetingMail(email);
     }

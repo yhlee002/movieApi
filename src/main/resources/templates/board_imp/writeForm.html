@@ -24,11 +24,28 @@
                     <img th:src="@{/images/banner-imp.jpg}" alt="">
                 </div>
                 <h2>후기 작성</h2>
-                <input type="text" name="title" id="imp_title" style="margin:1em auto; text-align: left" placeholder="제목">
-                <input type="text" name="writerNo" id="writerNo" hidden="hidden" th:value="${session.member.getMemNo()}">
-                <form method="post">
-                    <textarea id="summernote" name="editordata"></textarea>
-                </form>
+
+                <th:block th:if="${board != null}">
+                    <!-- update -->
+                    <input type="text" name="boardId" id="boardId" hidden="hidden" th:value="${board.getBoardId()}">
+                    <input type="text" name="title" id="imp_title" style="margin:1em auto; text-align: left"
+                           th:value="${board.getTitle()}">
+                    <input type="text" name="writerNo" id="writerNo" hidden="hidden"
+                           th:value="${session.member.getMemNo()}">
+                    <form method="post">
+                        <textarea id="summernote" name="editordata" th:utext="${board.getContent()}"></textarea>
+                    </form>
+                </th:block>
+                <th:block th:if="${board == null}">
+                    <input type="text" name="title" id="imp_title" style="margin:1em auto; text-align: left" placeholder="제목">
+                    <input type="text" name="writerNo" id="writerNo" hidden="hidden" th:value="${session.member.getMemNo()}">
+                    <form method="post">
+                        <textarea id="summernote" name="editordata"></textarea>
+                    </form>
+                </th:block>
+
+
+
                 <div class="align-right">
                     <p id="inputLengthBox"><span id="currentInputLength"></span>/2048</p>
                 </div>

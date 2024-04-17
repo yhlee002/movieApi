@@ -1,13 +1,11 @@
 package com.portfolio.demo.project.entity.board;
 
-import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Table(name = "board_notice")
 @Setter

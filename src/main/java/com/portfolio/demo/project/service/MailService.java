@@ -3,14 +3,13 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.util.TempKey;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
@@ -20,20 +19,17 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class MailService {
 
-    @Autowired
-    JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    TempKey tempKey;
+    private final TempKey tempKey;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
     private final static String fromMail = resourceBundle.getString("mail");

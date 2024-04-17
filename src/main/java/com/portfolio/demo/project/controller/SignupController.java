@@ -6,8 +6,8 @@ import com.portfolio.demo.project.service.CertKeyService;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,23 +24,19 @@ import java.util.Optional;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/sign-up")
 public class SignupController {
 
-    @Autowired
-    MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    PhoneMessageService phoneMessageService;
+    private final PhoneMessageService phoneMessageService;
 
-    @Autowired
-    MailService mailService;
+    private final MailService mailService;
 
-    @Autowired
-    CertKeyService certKeyService;
+    private final CertKeyService certKeyService;
 
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @ResponseBody
     @RequestMapping(value = "/emailCk", method = RequestMethod.POST)
@@ -156,7 +152,7 @@ public class SignupController {
         memberService.saveOauthMember(session, id, name, phone, provider);
 
         /* DB에 저장된 데이터 로드 */
-        Member createdMember = memberService.findByIdentifierAndProvider(id, provider);
+        Member createdMember = memberService.findMemberByIdentifierAndProvider(id, provider);
         log.info("생성된 유저 : " + createdMember.toString());
 
         return createdMember.getMemNo();
