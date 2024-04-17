@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -26,7 +25,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class BoardController {
+public class BoardApi {
 
     private final BoardNoticeService boardNoticeService;
 

@@ -2,7 +2,6 @@ package com.portfolio.demo.project.vo;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.comment.CommentImp;
-import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.Builder;
 import lombok.Getter;

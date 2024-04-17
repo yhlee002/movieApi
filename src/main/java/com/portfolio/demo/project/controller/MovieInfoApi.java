@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class MovieInfoController {
+public class MovieInfoApi {
 
     private final MovieService movieService;
 

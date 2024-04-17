@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.service.CertKeyService;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
@@ -17,16 +16,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/sign-up")
-public class SignupController {
+public class SignupApi {
 
     private final MemberService memberService;
 

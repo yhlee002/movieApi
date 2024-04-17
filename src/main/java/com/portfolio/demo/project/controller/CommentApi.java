@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class CommentController {
+public class CommentApi {
 
     private final CommentMovService commentMovService;
 

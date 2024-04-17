@@ -3,7 +3,6 @@ package com.portfolio.demo.project.controller;
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.*;
-import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,7 +29,7 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class MyPageController {
+public class MyPageApi {
 
     private final MemberService memberService;
 

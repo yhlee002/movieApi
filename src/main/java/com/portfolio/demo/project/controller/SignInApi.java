@@ -34,7 +34,7 @@ import java.util.ResourceBundle;
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class SignInController {
+public class SignInApi {
 
     private final MemberService memberService;
 
