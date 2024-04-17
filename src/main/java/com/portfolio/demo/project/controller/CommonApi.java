@@ -16,17 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.security.Principal;
+
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Controller
-public class MainController {
-
-    private final MemberService memberService;
-
-    private final UserDetailsServiceImpl userDetailsService;
+public class CommonApi {
 
     private final MovieService movieService;
 

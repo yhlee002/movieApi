@@ -20,7 +20,7 @@ import java.util.Map;
 @Controller
 @RequiredArgsConstructor
 @Slf4j
-public class FindAccountController {
+public class FindAccountApi {
 
     private final MemberService memberService;
 
