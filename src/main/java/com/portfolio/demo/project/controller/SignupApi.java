@@ -10,14 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -53,17 +51,17 @@ public class SignupApi {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/nameCk", method = RequestMethod.POST)
-    public Member nameCkProc(@RequestParam String name) {
-        Member member = memberService.findByName(name);
+    @GetMapping("/nameCk")
+    public Integer nameCkProc(@RequestParam String name) {
+        List<Member> members = memberService.findAllByName(name);
 
-        if (member != null) {
-            log.info("[nameCkProc] member 정보 : " + member.toString());
-            return member;
+        if (members.size() > 0) {
+            log.info("[name 사용 가능 여부 확인] member 정보 존재(확인한 name : {})", name);
         } else {
-            log.info("[nameCkProc] member 정보 : null");
-            return null;
+            log.info("[name 사용 가능 여부 확인] member 정보 존재하지 않음(확인한 name : {})", name);
         }
+
+        return members.size();
     }
 
     @ResponseBody

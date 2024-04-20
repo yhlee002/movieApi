@@ -9,7 +9,7 @@
 * Spring Boot 2.3.4.RELEASE
 * Gradle 버전 : 6.6.1
 * 템플릿 엔진 : Thymeleaf 3.0.11.RELEASE
-* 데이터베이스 : MariaDB
+* 데이터베이스 : MySql
 * 운영체제 : Window 10
 * 사용된 프레임워크 : Spring MVC, Spring Web, Spring Security, JPA, Bootstrap 4
 * 사용된 외부 라이브러리 : Lombok, Gson, FontAwesome, WebJar 

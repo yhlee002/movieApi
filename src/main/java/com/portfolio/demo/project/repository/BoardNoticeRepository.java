@@ -12,41 +12,44 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
 
     /**
      * 공지사항 게시글 단건 조회
-     * @param boardId
+     *
+     * @param id
      * @return
      */
-    BoardNotice findBoardNoticeByBoardId(Long boardId);
+    BoardNotice findBoardNoticeById(Long id);
 
     // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)  join Member m on b.writer_no = m.mem_no
     @Query(value = "select b.* from board_notice b where b.id = " +
-            "(select b.id from board_notice b where b.id < ?1 order by id desc limit 1)"
-            , nativeQuery = true)
-    BoardNotice findPrevBoardNoticeByBoardId(Long boardId); // 인자로 받는 boardId는 기준이 되는 글의 번호
+        "(select b.id from board_notice b where b.id < :id order by id desc limit 1)"
+        , nativeQuery = true)
+    BoardNotice findPrevBoardNoticeById(Long id); // 인자로 받는 id는 기준이 되는 글의 번호
 
     // 해당 글의 다음글(해당 글보다 board_id가 높은 글들을 올림차순으로 나열해 가장 첫번째 것) join Member m on b.writer_no = m.mem_no
     @Query(value = "select b.* from board_notice b where b.id = " +
-            "(select b.id from board_notice b where b.id > ?1 order by id asc limit 1)"
-            , nativeQuery = true)
-    BoardNotice findNextBoardNoticeByBoardId(Long boardId);
+        "(select b.id from board_notice b where b.id > :id order by id asc limit 1)"
+        , nativeQuery = true)
+    BoardNotice findNextBoardNoticeById(Long id);
 
     // 최신 게시글 top 5 조회
     List<BoardNotice> findTop5ByOrderByRegDateDesc();
 
 
     /**
-     * @deprecated
-     * 페이지네이션
+     * @deprecated 페이지네이션
      */
     @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no order by b.id desc limit ?1, ?2"
-            , nativeQuery = true)
+        , nativeQuery = true)
     List<BoardNotice> findBoardNoticeListView(int startRow, int boardCntPerPage);
 
-    Page<BoardNotice> findBoardNotices(Pageable pageable);
+    Page<BoardNotice> findAll(Pageable pageable);
 
     /**
      * 제목 또는 내용으로 검색 결과 조회
-     * @param keyword
-     * @return
+     *
+     * @param title
+     * @param content
      */
-    Page<BoardNotice> findByTitleOrContentContaining(String keyword, Pageable pageable);
+//    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where title like %:title% order by b.reg_dt"
+//        , nativeQuery = true)
+    Page<BoardNotice> findByTitleOrContentContaining(String title, String content, Pageable pageable);
 }

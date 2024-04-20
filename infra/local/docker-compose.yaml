@@ -1,21 +1,25 @@
-# infra/test/docker-compose.yaml
+# infra/local/docker-compose.yaml
 
 version: "3.8"
 
 services:
-  test-db:
+  local-db:
     image: mysql:8
     environment:
       MYSQL_DATABASE: moviesite
       MYSQL_ROOT_PASSWORD: password
-  test-db-migrate:
+    ports:
+      - 3306:3306
+    volumes:
+      - ./dbdata:/var/lib/mysql/
+  local-db-migrate:
     image: flyway/flyway:7
     restart: always
     environment:
-      - FLYWAY_DB_URL=jdbc:mysql://test-db/moviesite
+      - FLYWAY_DB_URL=jdbc:mysql://local-db/moviesite
       - FLYWAY_DB_USER=root
       - FLYWAY_DB_PASSWORD=password
     command: migrate
     volumes:
       - ../../db/flyway.conf:/flyway/conf/flyway.conf
-      - ../../db/migration/:/flyway/sql/
+      - ../../db/migration:/flyway/sql

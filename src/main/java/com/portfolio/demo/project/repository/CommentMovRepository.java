@@ -17,16 +17,16 @@ public interface CommentMovRepository extends JpaRepository<CommentMov, Long> {
 
     Page<CommentMov> findByWriter(Member member, Pageable pageable);
 
-    /**
-     * 추천수로 정렬(20개씩 조회)
-     * @param movieNo
-     * @param pageable
-     */
-    Page<CommentMov> findCommentMovsByMovieNoOrderByRecommended(Long movieNo, Pageable pageable);
+//    /**
+//     * 추천수로 정렬(20개씩 조회)
+//     * @param movieNo
+//     * @param pageable
+//     */
+//    Page<CommentMov> findAllByMovieNoOrderByRecommended(Long movieNo, Pageable pageable);
 
     /**
      * 최신순으로 정렬(20개씩 조회)
      */
-    List<CommentMov> findCommentMovsByMovieOrderByRegDate(Long movieNo, Pageable pageable);
+    List<CommentMov> findAllByMovieNoOrderByRegDateDesc(Long movieNo, Pageable pageable);
 
 }

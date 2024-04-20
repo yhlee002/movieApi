@@ -24,9 +24,9 @@ import java.util.Optional;
 @Service
 public class BoardNoticeService {
 
-    private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
+    private final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
     private final BoardNoticeRepository boardNoticeRepository;
-    
+
     private final MemberRepository memberRepository;
 
     /**
@@ -43,7 +43,7 @@ public class BoardNoticeService {
      * @return 단건 공지 게시글
      */
     public BoardNotice findById(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findBoardNoticeByBoardId(boardId);
+        BoardNotice board = boardNoticeRepository.findBoardNoticeById(boardId);
         return board;
     }
 
@@ -59,8 +59,8 @@ public class BoardNoticeService {
             board = boardOpt.get();
         }
 
-        BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeByBoardId(boardId);
-        BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeByBoardId(boardId);
+        BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeById(boardId);
+        BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeById(boardId);
         HashMap<String, BoardNotice> boardNoticeMap = new HashMap<>();
         boardNoticeMap.put("board", board);
         boardNoticeMap.put("prevBoard", prevBoard);
@@ -133,7 +133,7 @@ public class BoardNoticeService {
     @Transactional
     public NoticePagenationVO getBoardNotices(int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "regDate"));
-        Page<BoardNotice> pages = boardNoticeRepository.findBoardNotices(pageable);
+        Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
 
         return NoticePagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
@@ -149,7 +149,7 @@ public class BoardNoticeService {
     @Transactional
     public NoticePagenationVO getBoardNoticesByTitleOrContent(String keyword, int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<BoardNotice> pages = boardNoticeRepository.findByTitleOrContentContaining(keyword, pageable);
+        Page<BoardNotice> pages = boardNoticeRepository.findByTitleOrContentContaining(keyword, keyword, pageable);
 
         return NoticePagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())

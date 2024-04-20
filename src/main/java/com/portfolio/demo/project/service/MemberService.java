@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -42,8 +43,8 @@ public class MemberService {
         return memberRepository.findByIdentifier(identifier);
     }
 
-    public Member findByName(String name) {
-        return memberRepository.findByName(name);
+    public List<Member> findAllByName(String name) {
+        return memberRepository.findAllByName(name);
     }
 
     public Member findByPhone(String phone) {

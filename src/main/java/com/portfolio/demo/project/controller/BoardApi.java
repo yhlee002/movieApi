@@ -133,7 +133,7 @@ public class BoardApi {
      */
     @RequestMapping("/imp/{boardNo}")
     public String impDetail(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardImp> boards = boardImpService.selectBoardsByBoardId(boardNo);
+        Map<String, BoardImp> boards = boardImpService.selectBoardsById(boardNo);
         model.addAttribute("board", boards.get("board"));
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));

@@ -22,30 +22,32 @@ import java.util.List;
 @Service
 public class BoardImpService {
 
+    private final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
+
     private final BoardImpRepository boardImpRepository;
 
     /**
      * 전체 감상평 게시글 조회
      * @deprecated 페이지네이션되는 api 사용으로 사용되지 않음
      */
-    public List<BoardImp> getAllBoards() {
+    public java.util.List<BoardImp> getAllBoards() {
         return boardImpRepository.findAll();
     }
 
     /**
      * 감상평 게시글 식별번호로 게시글 조회
-     * @param boardId
+     * @param id
      * @return
      */
-    public BoardImp findById(Long boardId) {
-        return boardImpRepository.findBoardImpById(boardId);
+    public BoardImp findById(Long id) {
+        return boardImpRepository.findBoardImpById(id);
     }
 
     // 게시글 단건 조회 + 이전글, 다음글
-    public HashMap<String, BoardImp> selectBoardsByBoardId(Long boardId) {
-        BoardImp board = boardImpRepository.findBoardImpById(boardId);
-        BoardImp prevBoard = boardImpRepository.findPrevBoardImpByBoardId(boardId);
-        BoardImp nextBoard = boardImpRepository.findNextBoardImpByBoardId(boardId);
+    public HashMap<String, BoardImp> selectBoardsById(Long id) {
+        BoardImp board = boardImpRepository.findBoardImpById(id);
+        BoardImp prevBoard = boardImpRepository.findPrevBoardImpByBoardId(id);
+        BoardImp nextBoard = boardImpRepository.findNextBoardImpByBoardId(id);
         HashMap<String, BoardImp> boardNoticeMap = new HashMap<>();
         boardNoticeMap.put("board", board);
         boardNoticeMap.put("prevBoard", prevBoard);
@@ -91,20 +93,20 @@ public class BoardImpService {
 
     /**
      * 감상평 게시글 삭제
-     * @param boardId
+     * @param id
      */
     @Transactional
-    public void deleteBoardByBoardId(Long boardId) {
+    public void deleteById(Long id) {
         BoardImp board = boardImpRepository.findBoardImpById(boardId);
         boardImpRepository.delete(board);
     }
 
     /**
      * 감상평 게시글 추천수 업데이트
-     * @param boardId
+     * @param id
      */
-    public void upViewCnt(Long boardId) {
-        BoardImp imp = boardImpRepository.findById(boardId).get();
+    public void upViewCnt(Long id) {
+        BoardImp imp = boardImpRepository.findById(id).get();
         imp.setViews(imp.getViews() + 1);
         boardImpRepository.save(imp);
     }
@@ -113,12 +115,9 @@ public class BoardImpService {
      * 복수의 감상평 게시글 삭제
      * @param boards
      */
-    public void deleteBoards(List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+    public void deleteBoards(java.util.List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
         boardImpRepository.deleteAll(boards);
     }
-
-    /* 페이지 네이션 */
-    private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
 
     /**
      * 감상평 게시글 조회
@@ -128,7 +127,7 @@ public class BoardImpService {
     @Transactional
     public ImpressionPagenationVO getImps(int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("id").descending());
-        Page<BoardImp> pages = boardImpRepository.findBoardImpsOrderById(pageable);
+        Page<BoardImp> pages = boardImpRepository.findAllByOrderByIdDesc(pageable);
 
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
@@ -139,12 +138,12 @@ public class BoardImpService {
     /**
      * 검색 기능 (작성자명)
      * @param page
-     * @param writer
+     * @param keyword
      */
     @Transactional
-    public ImpressionPagenationVO getBoardImpsByWriterName(int page, String writer) {
+    public ImpressionPagenationVO getBoardImpsByWriterName(int page, String keyword) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<BoardImp> pages = boardImpRepository.findBoardImpsByWriter_Name(writer, pageable);
+        Page<BoardImp> pages = boardImpRepository.findAllByWriterNameOrderByRegDateDesc(keyword, pageable);
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
                 .boardImpList(pages.getContent())
@@ -159,7 +158,7 @@ public class BoardImpService {
     @Transactional
     public ImpressionPagenationVO getBoardImpsByTitleAndContent(int pageNum, String keyword) {
         Pageable pageable = PageRequest.of(pageNum, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BoardImp> pages = boardImpRepository.findBoardImpsByTitleOrContent(keyword, pageable);
+        Page<BoardImp> pages = boardImpRepository.findAllByTitleOrContentContainingOrderByRegDate(keyword, keyword, pageable);
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
                 .boardImpList(pages.getContent())
@@ -175,7 +174,7 @@ public class BoardImpService {
     @Transactional
     public List<BoardImp> getMyImpListView(Member member, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BoardImp> page = boardImpRepository.findBoardImpsByWriter(member, pageable);
+        Page<BoardImp> page = boardImpRepository.findAllByWriter(member, pageable);
         return page.getContent();
     }
 
