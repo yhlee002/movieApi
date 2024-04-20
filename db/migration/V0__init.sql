@@ -1,3 +1,18 @@
+CREATE TABLE IF NOT EXISTS member (
+    `mem_no` bigint NOT NULL AUTO_INCREMENT,
+    `identifier` varchar(64) NOT NULL COMMENT '이메일 혹은 소셜 로그인 사용자의 고유 회원 번호',
+    `provider` enum('none','naver','kakao') NOT NULL DEFAULT (_utf8mb4'none') COMMENT '기존 회원가입/소셜 로그인 api를 통한 회원가입 구분',
+    `name` varchar(20) NOT NULL COMMENT '닉네임',
+    `pwd` varchar(100) DEFAULT NULL COMMENT '비밀번호(소셜 api를 통해 회원가입한 경우 null)',
+    `phone` varchar(20) DEFAULT NULL COMMENT '연락처',
+    `reg_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '회원가입일',
+    `profile_image` varchar(100) DEFAULT NULL COMMENT '프로필 이미지',
+    `role` enum('role_user','role_admin') DEFAULT 'role_user' COMMENT '권한(일반회원과 관리자 구분)',
+    `certification` char(1) DEFAULT '0' COMMENT '인증 여부(소셜 api를 이용하지 않고 회원가입할 경우 메일 인증 여부 저장)',
+    `cert_key` varchar(100) DEFAULT NULL COMMENT '메일 인증에 사용되는 키(해시)',
+    PRIMARY KEY (`mem_no`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사용자 정보';
+
 CREATE TABLE IF NOT EXISTS board_imp (
     `id` bigint NOT NULL AUTO_INCREMENT COMMENT '게시글 식별번호',
     `writer_no` bigint NOT NULL COMMENT '작성자',
@@ -47,21 +62,6 @@ CREATE TABLE IF NOT EXISTS comment_movie (
     KEY `writer_no` (`writer_no`),
     CONSTRAINT `comment_movie_ibfk_1` FOREIGN KEY (`writer_no`) REFERENCES `member` (`mem_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='영화 리뷰 댓글';
-
-CREATE TABLE IF NOT EXISTS member (
-    `mem_no` bigint NOT NULL AUTO_INCREMENT,
-    `identifier` varchar(64) NOT NULL COMMENT '이메일 혹은 소셜 로그인 사용자의 고유 회원 번호',
-    `provider` enum('none','naver','kakao') NOT NULL DEFAULT (_utf8mb4'none') COMMENT '기존 회원가입/소셜 로그인 api를 통한 회원가입 구분',
-    `name` varchar(20) NOT NULL COMMENT '닉네임',
-    `pwd` varchar(100) DEFAULT NULL COMMENT '비밀번호(소셜 api를 통해 회원가입한 경우 null)',
-    `phone` varchar(20) DEFAULT NULL COMMENT '연락처',
-    `reg_date` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '회원가입일',
-    `profile_image` varchar(100) DEFAULT NULL COMMENT '프로필 이미지',
-    `role` enum('role_user','role_admin') DEFAULT 'role_user' COMMENT '권한(일반회원과 관리자 구분)',
-    `certification` char(1) DEFAULT '0' COMMENT '인증 여부(소셜 api를 이용하지 않고 회원가입할 경우 메일 인증 여부 저장)',
-    `cert_key` varchar(100) DEFAULT NULL COMMENT '메일 인증에 사용되는 키(해시)',
-    PRIMARY KEY (`mem_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사용자 정보';
 
 CREATE TABLE IF NOT EXISTS persistent_logins (
     `series` varchar(64) NOT NULL,

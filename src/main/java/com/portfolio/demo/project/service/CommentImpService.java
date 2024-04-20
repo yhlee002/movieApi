@@ -6,29 +6,26 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.ResponseUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class CommentImpService {
+
+    private final int COMMENT_COUNT_PER_PAGE = 20;
 
     private final CommentImpRepository commentImpRepository;
 
@@ -89,8 +86,6 @@ public class CommentImpService {
 
         return page.getContent();
     }
-
-    private final static int COMMENT_COUNT_PER_PAGE = 20;
 
 //    /**
 //     * @deprecated getMyComments로 대체 예정

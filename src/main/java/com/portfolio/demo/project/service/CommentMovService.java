@@ -43,23 +43,24 @@ public class CommentMovService {
         return comment;
     }
 
-    /**
-     * 추천순으로 댓글 조회(미개발)
-     * @param pageNum
-     * @param movieId
-     * @return
-     */
-    public Map<String, Object> getCommentListVOOrderByRecommended(int pageNum, Long movieId) {
-        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by(Sort.Direction.DESC, "recommended"));
-        Page<CommentMov> page = commentMovRepository.findCommentMovsByMovieNoOrderByRecommended(movieId, pageable);
-        List<CommentMovVO> commentMovVOList = page.getContent().stream().map(CommentMovVO::create).collect(Collectors.toList());
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", commentMovVOList);
-        result.put("totalPageCnt", page.getTotalPages());
-        result.put("totalCommentCnt", page.getTotalElements());
-        return result;
-    }
+//    /**
+//     * 추천순으로 댓글 조회(미개발)
+//     * @param pageNum
+//     * @param movieId
+//     * @return
+//     */
+//    public Map<String, Object> getCommentListVOOrderByRecommended(int pageNum, String direction, Long movieId) {
+//        Sort.Direction sortDirection = direction != null && direction.toUpperCase().equals("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
+//        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by(sortDirection, "recommended"));
+//        Page<CommentMov> page = commentMovRepository.findAllByMovieNoOrderByRecommended(movieId, pageable);
+//        List<CommentMovVO> commentMovVOList = page.getContent().stream().map(CommentMovVO::create).collect(Collectors.toList());
+//
+//        Map<String, Object> result = new HashMap<>();
+//        result.put("list", commentMovVOList);
+//        result.put("totalPageCnt", page.getTotalPages());
+//        result.put("totalCommentCnt", page.getTotalElements());
+//        return result;
+//    }
 
     /**
      * 댓글 출력(Ajax 비동기 통신 사용)

@@ -99,7 +99,7 @@ $(function () {
                             xhr.setRequestHeader(header, token);
                         },
                         success: function (data) {
-                            if (data == "") {
+                            if (data == 0) {
                                 nMessage.html("사용가능한 회원명입니다.");
                                 nMessage.addClass("visible");
                                 nMessage.removeClass("invisible");
