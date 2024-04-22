@@ -10,6 +10,8 @@ import com.portfolio.demo.project.vo.NoticePagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +34,15 @@ public class BoardApi {
     private final BoardImpService boardImpService;
 
     /**
-     * 공지사항 게시판
+     * 전체 공지사항 게시글 조회 및 검색
+     *
+     * @param model
+     * @param pageNum
+     * @param query
      */
-    // 전체 조회 및 검색
     @RequestMapping("/notices")
-    public String noticeBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
-                              @RequestParam(name = "query", required = false) String query) {
+    public String notices(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
+                          @RequestParam(name = "query", required = false) String query) {
 
         NoticePagenationVO pagenationVO = null;
         if (query != null) {
@@ -51,9 +56,14 @@ public class BoardApi {
         return "board_notice/list";
     }
 
-    // 게시글 단건 조회(자세히 보기)
+    /**
+     * 공지사항 게시글 단건 조회
+     *
+     * @param boardNo
+     * @param model
+     */
     @RequestMapping("/notice/{boardNo}")
-    public String noticeDetail(@PathVariable Long boardNo, Model model) {
+    public String notice(@PathVariable Long boardNo, Model model) {
         Map<String, BoardNotice> boards = boardNoticeService.selectBoardsByBoardId(boardNo);
         model.addAttribute("board", boards.get("board"));
         model.addAttribute("prevBoard", boards.get("prevBoard"));
@@ -63,37 +73,46 @@ public class BoardApi {
         return "board_notice/detail";
     }
 
-    // 게시글 작성 페이지 접근
+    /**
+     * 공지사항 게시글 작성 페이지 접근
+     *
+     * @param boardId
+     * @param model
+     */
     @GetMapping("/notice/new")
-    public String noticeBoardWriteForm(Long boardId, Model model) {
+    public String noticeBoardUpdateForm(Long boardId, Model model) {
         if (boardId != null) {
             model.addAttribute("board", boardNoticeService.findById(boardId));
         }
         return "board_notice/writeForm";
     }
 
-    // 게시글 작성
+    /**
+     * 공지사항 게시글 작성
+     *
+     * @param notice
+     */
     @ResponseBody
     @PostMapping(value = "/notice")
-    public Long noticeWriteProc(@RequestBody BoardNotice notice) {
-         return boardNoticeService.updateBoard(notice);
+    public ResponseEntity<BoardNotice> updateNotice(@RequestBody BoardNotice notice) {
+        return new ResponseEntity<>(boardNoticeService.updateBoard(notice), HttpStatus.OK);
     }
 
-    // 게시글 삭제
+    /**
+     * 공지사항 게시글 삭제
+     *
+     * @param boardId
+     */
     @DeleteMapping("/notice")
-    public String noticeDeleteProc(Long boardId) {
+    public String deleteNotice(Long boardId) {
         boardNoticeService.deleteBoardByBoardId(boardId);
 
         return "redirect:/notices";
     }
 
-
     /**
-     * 후기 게시판
-     */
-
-    /**
-     * 전체 조회 및 검색
+     * 전체 후기 게시글 조회 및 검색
+     *
      * @param model
      * @param pageNum
      * @param con
@@ -127,6 +146,7 @@ public class BoardApi {
 
     /**
      * 후기 게시글 단건 조회
+     *
      * @param boardNo
      * @param model
      * @return
@@ -143,7 +163,8 @@ public class BoardApi {
     }
 
     /**
-     * 게시글 수정 페이지 접근
+     * 후기 게시글 수정 페이지 접근
+     *
      * @param boardId
      * @param model
      */
@@ -155,28 +176,30 @@ public class BoardApi {
     }
 
     /**
-     * 게시글 수정
+     * 후기 게시글 수정
+     *
      * @param imp
      */
     @ResponseBody
-    @PostMapping("/imp")
-    public Long impUpdateProc(@RequestBody BoardImp imp) {
-        return boardImpService.updateBoard(imp);
+    @PatchMapping("/imp")
+    public ResponseEntity<BoardImp> updateImp(@RequestBody BoardImp imp) {
+        return new ResponseEntity<>(boardImpService.updateBoard(imp), HttpStatus.OK);
     }
 
     /**
-     * 게시글 삭제
+     * 후기 게시글 삭제
+     *
      * @param boardId
      */
     @DeleteMapping("/imp")
-    public String impDeleteProc(Long boardId) {
-        boardImpService.deleteBoardByBoardId(boardId);
+    public String deleteImp(Long boardId) {
+        boardImpService.deleteById(boardId);
 
         return "redirect:/imps";
     }
 
     /**
-     * 이미지 업로드
+     * summernote 이미지 업로드
      */
     @PutMapping(value = "/summernoteImageFile", produces = "application/json")
     @ResponseBody

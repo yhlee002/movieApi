@@ -2,18 +2,30 @@ package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.member.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface MemberRepository extends JpaRepository<Member, Long>{
+@Repository
+public interface MemberRepository extends JpaRepository<Member, Long> {
 
-   Member findByIdentifier(String identifier);
+    Member findByIdentifier(String identifier);
 
-   List<Member> findAllByName(String name);
+    @Query(value = "select m.* from Member m where m.name like %:name%", nativeQuery = true)
+    List<Member> findByNameIgnoreCaseContaining(@Param("name") String name);
 
-   Member findByPhone(String phone);
+    @Query(value = "select m.* from Member m where m.name like %:name% limit :offset, :size", nativeQuery = true)
+    List<Member> findByNameIgnoreCaseContaining(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
 
-   Long countByPhone(String phone);
+    Boolean existsByName(String name);
 
-   Member findMemberByIdentifierAndProvider(String identifier, String provider);
+    Member findByPhone(String phone);
+
+    Boolean existsByPhone(String phone);
+
+    Member findTop5ByOrderByRegDtDesc();
+
+    Member findByIdentifierAndProvider(String identifier, String provider);
 }

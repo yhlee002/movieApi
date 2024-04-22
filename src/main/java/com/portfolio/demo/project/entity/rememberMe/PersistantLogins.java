@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor
 public class PersistantLogins {
 

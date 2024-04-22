@@ -8,15 +8,16 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Table(name = "comment_imp")
+@Entity
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 public class CommentImp {
 
     @Id

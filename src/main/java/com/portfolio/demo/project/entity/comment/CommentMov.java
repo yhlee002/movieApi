@@ -2,23 +2,21 @@ package com.portfolio.demo.project.entity.comment;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Table(name = "comment_movie")
+@Entity
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 public class CommentMov {
 
     @Id

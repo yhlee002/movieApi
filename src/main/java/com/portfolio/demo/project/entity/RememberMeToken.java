@@ -1,11 +1,13 @@
 package com.portfolio.demo.project.entity;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -13,6 +15,7 @@ import java.util.Date;
 @Table(name = "persistent_logins")
 @Getter
 @Setter
+@EqualsAndHashCode
 @NoArgsConstructor
 public class RememberMeToken {
 

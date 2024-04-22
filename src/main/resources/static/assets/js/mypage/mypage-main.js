@@ -84,10 +84,10 @@ $(function () {
             phone = phone.replace(/[^0-9]/g, "").replace(/(^0[0-9]{2})([0-9]+)?([0-9]{4})/, "$1-$2-$3");
 
             provider = $("#provider", opener.document).val();
-            console.log("provider : "+provider);
+            console.log("provider : " + provider);
 
             const phoneExist = await checkPhoneExist(phone);
-            if (phoneExist > 0) {
+            if (phoneExist) {
                 let conf = window.confirm("해당하는 번호로 인증 문자를 보냅니다.");
                 if (conf) {
                     const result = await sendCertMsg(phone);
@@ -139,7 +139,7 @@ $(function () {
     }
 
     async function checkPhoneExist(phone) {
-        const queryParams = new URLSearchParams({ phone: phone });
+        const queryParams = new URLSearchParams({phone: phone});
         return await fetch(`/mypage/modify_info/phone/check/exist?${queryParams}`, {
             method: 'GET',
             dataType: "json",

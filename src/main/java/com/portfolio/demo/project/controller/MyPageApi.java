@@ -8,6 +8,7 @@ import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +56,7 @@ public class MyPageApi {
     public String myImpBoard(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         Member member = memberService.findByMemNo(memberVO.getMemNo());
-        model.addAttribute("pagenation", boardImpService.getMyImpListView(member, pageNum));
+        model.addAttribute("pagenation", boardImpService.getImpsByMember(member, pageNum));
 
         return "mypage/impBoards";
     }
@@ -92,7 +94,7 @@ public class MyPageApi {
                 .profileImage(profileImage)
                 .build();
 
-        Member createdMember = memberService.updateUserInfo(inputMember); // 비밀번호 체크는 서비스단에서 실시
+        Member createdMember = memberService.updateMember(inputMember); // 비밀번호 체크는 서비스단에서 실시
 
         session.setAttribute("member", new MemberVO(createdMember));
 
@@ -100,10 +102,11 @@ public class MyPageApi {
     }
 
     @DeleteMapping("/mypage/info")
-    public String deleteUserInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) {
+    public String deleteUserInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         log.info("delete user info: {}", memberVO.toString());
-        memberService.deletUserInfo(memberVO.getMemNo());
+
+        memberService.deleteUserInfo(memberVO.getMemNo());
         rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -158,16 +161,19 @@ public class MyPageApi {
 
     /**
      * 새로운 핸드폰 번호 유효성 검사(존재 여부 확인)
+     *
      * @param phone
      * @return 해당 핸드폰 번호로 저장되어있는 사용자 수
      */
     @GetMapping("/mypage/modify_info/phone/check/exist")
-    public Long phoneCkProc(@RequestParam String phone) {
-        return memberService.CountFindByPhone(phone);
+    public ResponseEntity<Boolean> phoneCkProc(@RequestParam String phone) {
+        return new ResponseEntity<>(memberService.existsByPhone(phone)
+                , HttpStatus.OK);
     }
 
     /**
      * 인증번호 전송
+     *
      * @param phone
      * @return 인증번호 전송 결과
      */
@@ -194,6 +200,7 @@ public class MyPageApi {
 
     /**
      * 인증번호 일치 여부 검증
+     *
      * @param certKey
      * @return 검증 결과
      */

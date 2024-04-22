@@ -53,15 +53,10 @@ public class SignupApi {
     @ResponseBody
     @GetMapping("/nameCk")
     public Integer nameCkProc(@RequestParam String name) {
-        List<Member> members = memberService.findAllByName(name);
-
-        if (members.size() > 0) {
-            log.info("[name 사용 가능 여부 확인] member 정보 존재(확인한 name : {})", name);
-        } else {
-            log.info("[name 사용 가능 여부 확인] member 정보 존재하지 않음(확인한 name : {})", name);
-        }
-
-        return members.size();
+        Boolean exists = memberService.validateDuplicationName(name);
+        if (!exists) log.info("[name 사용 가능 여부 확인] member 정보 존재하지 않음(확인한 name : {})", name);
+        else log.info("[name 사용 가능 여부 확인] member 정보 존재(확인한 name : {})", name);
+        return exists ? 1 : 0;
     }
 
     @ResponseBody
@@ -121,7 +116,8 @@ public class SignupApi {
                 .phone(phone)
                 .provider(provider)
                 .build();
-        // 여러번 클릭시 멤버는 여러번 생성되었는데 이메일이 가지 않았을 경우를 대비
+        /* 여러번 클릭시 멤버는 여러번 생성되었는데 이메일이 가지 않았을 경우를 대비해
+           이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용 */
         Member temp_member = memberService.findByIdentifier(email);
         if(temp_member != null){
             memberService.deleteMember(temp_member);
@@ -135,8 +131,8 @@ public class SignupApi {
 
         if (result.get("resultCode") == "success") {
             return createdMember.getMemNo();
-        } else { //result.get("resultCode") == "fail"
-            memberService.deletUserInfo(createdMember.getMemNo());
+        } else {
+            memberService.deleteUserInfo(createdMember.getMemNo());
             return -1L;
         }
 
@@ -148,7 +144,7 @@ public class SignupApi {
         memberService.saveOauthMember(session, id, name, phone, provider);
 
         /* DB에 저장된 데이터 로드 */
-        Member createdMember = memberService.findMemberByIdentifierAndProvider(id, provider);
+        Member createdMember = memberService.findByIdentifierAndProvider(id, provider);
         log.info("생성된 유저 : " + createdMember.toString());
 
         return createdMember.getMemNo();
