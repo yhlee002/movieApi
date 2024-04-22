@@ -4,23 +4,24 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
-//@Data // @Data만 쓰면 NoArgConstructor만 생성
 @Table(name = "member")
+@Entity
 @Setter
 @Getter
 @ToString(exclude = "certKey")
-//@AllArgsConstructor // @AllArgsConsturctor을 쓰면 기본 생성자가 없어짐
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
-@Entity
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 DB에 위임(id값을 null로 전달할 경우 DB가 알아서 AUTO_INCREMENT)
     private Long memNo;
 
-    @Column(name = "identifier", nullable = false)
+    @Column(name = "identifier", unique = true, nullable = false)
     private String identifier;
 
     @Column(name = "name", nullable = false)
@@ -50,19 +51,4 @@ public class Member {
 
     @Column(name = "certification")
     private String certification;
-
-    @Builder
-    public Member(Long memNo, String identifier, String name, String password, String phone, LocalDateTime regDt, String profileImage, String provider, String role, String certKey, String certification) {
-        this.memNo = memNo;
-        this.identifier = identifier;
-        this.name = name;
-        this.password = password;
-        this.phone = phone;
-        this.regDt = regDt;
-        this.profileImage = profileImage;
-        this.provider = provider;
-        this.role = role;
-        this.certKey = certKey;
-        this.certification = certification;
-    }
 }

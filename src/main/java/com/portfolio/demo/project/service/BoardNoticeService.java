@@ -39,6 +39,7 @@ public class BoardNoticeService {
 
     /**
      * 공지사항 게시글 단건 조회
+     *
      * @param boardId
      * @return 단건 공지 게시글
      */
@@ -49,6 +50,7 @@ public class BoardNoticeService {
 
     /**
      * 공지사항 게시글 단건 조회 + 이전글, 다음글
+     *
      * @param boardId
      */
     @Transactional
@@ -78,24 +80,42 @@ public class BoardNoticeService {
 
     /**
      * 공지사항 게시글 수정
+     *
      * @param notice
      */
     @Transactional
-    public Long updateBoard(BoardNotice notice) {
+    public BoardNotice updateBoard(BoardNotice notice) {
+        // 작성자 정보 검증
         Member member = notice.getWriter();
+        if (member != null) {
+            Optional<Member> opt = memberRepository.findById(member.getMemNo());
 
-        return boardNoticeRepository.save(
-                BoardNotice.builder()
-                        .id(notice.getId())
-                        .title(notice.getTitle())
-                        .writer(member)
-                        .content(notice.getContent())
-                        .build()
-        ).getId();
+            opt.ifPresentOrElse(m -> {
+                        log.info("작성자 정보(memNo : {}) : valid", m.getMemNo());
+
+                        boardNoticeRepository.save(
+                                BoardNotice.builder()
+                                        .id(notice.getId())
+                                        .title(notice.getTitle())
+                                        .writer(member)
+                                        .content(notice.getContent())
+                                        .build()
+                        );
+                    },
+                    () -> {
+                        throw new IllegalStateException("존재하지 않는 회원 정보입니다.");
+                    }
+            );
+        } else {
+            throw new IllegalStateException("작성자 정보가 누락되었습니다.");
+        }
+
+        return notice;
     }
 
     /**
      * 공지사항 게시글 삭제
+     *
      * @param boardId
      */
     @Transactional
@@ -108,6 +128,7 @@ public class BoardNoticeService {
 
     /**
      * 선택된 공지사항 게시글 삭제
+     *
      * @param boards
      */
     public void deleteBoards(List<BoardNotice> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
@@ -116,18 +137,20 @@ public class BoardNoticeService {
 
     /**
      * 공지사항 게시글 조회수 증가
-     * @param  boardId
+     *
+     * @param boardId
      */
 
     @Transactional
     public void upViewCnt(Long boardId) {
         BoardNotice notice = boardNoticeRepository.findById(boardId).get();
-        notice.setViews(notice.getViews()+1);
+        notice.setViews(notice.getViews() + 1);
         boardNoticeRepository.save(notice);
     }
 
     /**
      * 공지사항 게시글 조회(10page씩)
+     *
      * @param page
      */
     @Transactional
@@ -143,6 +166,7 @@ public class BoardNoticeService {
 
     /**
      * 공지사항 게시글 조회(검색어가 존재)
+     *
      * @param page
      * @param keyword
      */

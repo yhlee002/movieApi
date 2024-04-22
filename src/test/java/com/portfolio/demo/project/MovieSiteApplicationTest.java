@@ -4,15 +4,18 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.repository.MemberRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class MovieSiteApplicationTest extends IntegrationTest {
 
-    @Autowired private MemberRepository memberRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
-    @Autowired private EntityManager entityManager;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Test
     void contextLoad() {

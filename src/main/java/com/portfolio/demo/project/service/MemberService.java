@@ -6,13 +6,13 @@ import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpSession;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -30,50 +30,44 @@ public class MemberService {
     private final TempKey tempKey;
 
     public Member findByMemNo(Long memNo) {
-        Member mem = null;
-        Optional<Member> member = memberRepository.findById(memNo);
-        if (member.isPresent()) {
-            mem = member.get();
-        }
+        Optional<Member> opt = memberRepository.findById(memNo);
 
-        return mem;
+        return opt.orElseGet(() -> null);
     }
 
     public Member findByIdentifier(String identifier) {
         return memberRepository.findByIdentifier(identifier);
     }
 
-    public List<Member> findAllByName(String name) {
-        return memberRepository.findAllByName(name);
+    public List<Member> findAllByNameContaining(String name, int page, int size) {
+        return memberRepository.findByNameIgnoreCaseContaining(name, page, size);
+    }
+
+    public Boolean validateDuplicationName(String name) {
+        return memberRepository.existsByName(name);
     }
 
     public Member findByPhone(String phone) {
         return memberRepository.findByPhone(phone);
     }
 
-    public Long CountFindByPhone(String phone) {
-        return memberRepository.countByPhone(phone);
+    public Boolean existsByPhone(String phone) {
+        return memberRepository.existsByPhone(phone);
     }
 
-    public Member findMemberByIdentifierAndProvider(String identifier, String provider) {
-        return memberRepository.findMemberByIdentifierAndProvider(identifier, provider);
+    public Member findByIdentifierAndProvider(String identifier, String provider) {
+        return memberRepository.findByIdentifierAndProvider(identifier, provider);
     }
 
-    public void saveMember(Member member) {
-        memberRepository.save(
-                Member.builder().memNo(null)
-                        .identifier(member.getIdentifier())
-                        .name(member.getName())
-                        .password(passwordEncoder.encode(member.getPassword())) // null일 경우 어떻게 처리되는지?
-                        .phone(member.getPhone())
-                        .role("ROLE_USER")
-                        .profileImage(member.getProfileImage())
-                        .provider(member.getProvider()) // none, naver, kakao
-                        .regDt(member.getRegDt())
-                        .certKey(null)
-                        .certification("N")
-                        .build()
-        );
+    public Member saveMember(Member member) {
+        if (member.getMemNo() == null) {
+            member.setPassword(passwordEncoder.encode(member.getPassword()));
+            member.setRole("ROLE_USER");
+            member.setCertification("N");
+            memberRepository.save(member);
+        }
+
+        return memberRepository.save(member);
     }
 
     public void saveOauthMember(HttpSession session, String id, String name, String phone, String provider) { // Member member
@@ -122,7 +116,7 @@ public class MemberService {
 
     /* provider 전달 필요(naver, kakao) */
     public Member findByProfile(String identifier, String provider) {
-        Member member = memberRepository.findMemberByIdentifierAndProvider(identifier, provider);
+        Member member = memberRepository.findByIdentifierAndProvider(identifier, provider);
 
         return member;
     }
@@ -133,13 +127,11 @@ public class MemberService {
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
     }
 
-    public Member updateUserInfo(Member member) {
+    public Member updateMember(Member member) {
         Member originMember = null;
         Optional<Member> originMemberOpt = memberRepository.findById(member.getMemNo());
         if (originMemberOpt.isPresent()) {
             originMember = originMemberOpt.get();
-
-            /***/
 
             String name = member.getName();
             String profileImg = member.getProfileImage();
@@ -162,25 +154,28 @@ public class MemberService {
                 originMember.setPhone(phone);
             }
 
-            /***/
-
-            log.info("updateMemberInfo()에 들어온 회원의 비밀번호 : " + member.getPassword());
             /* 비밀번호 null 체크 */
-            if (member.getPassword() != null && member.getPassword().length() != 0) {
-                originMember.setPassword(passwordEncoder.encode(member.getPassword()));
+            if (member.getProvider().equals("none")) {
+                if (member.getPassword() != null && member.getPassword().length() != 0) {
+                    originMember.setPassword(passwordEncoder.encode(member.getPassword()));
+                }
             }
+
             originMember.setName(member.getName()); // 닉네임 변경시 저장
             originMember.setPhone(member.getPhone()); // 번호 변경시 저장
             memberRepository.save(originMember);
 
-            log.info("변경된 회원 정보 : " + originMember.toString());
+//            log.info("변경된 회원 정보 : " + originMember.toString());
         }
         return originMember;
     }
 
-    public void deletUserInfo(Long memNo) {
-        Member member = memberRepository.findById(memNo).get();
-        memberRepository.delete(member);
+    public void deleteUserInfo(Long memNo) {
+        Optional<Member> opt = memberRepository.findById(memNo);
+        if (!opt.isPresent()) {
+            log.error("회원 삭제 실패 : 존재하지 않는 회원(MemNo : {})", memNo);
+        }
+        memberRepository.delete(opt.get());
     }
 
     public void deleteMember(Member member) {

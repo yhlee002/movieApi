@@ -3,6 +3,7 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
+import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +26,11 @@ public class BoardImpService {
     private final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
 
     private final BoardImpRepository boardImpRepository;
+    private final MemberRepository memberRepository;
 
     /**
      * 전체 감상평 게시글 조회
+     *
      * @deprecated 페이지네이션되는 api 사용으로 사용되지 않음
      */
     public java.util.List<BoardImp> getAllBoards() {
@@ -36,6 +39,7 @@ public class BoardImpService {
 
     /**
      * 감상평 게시글 식별번호로 게시글 조회
+     *
      * @param id
      * @return
      */
@@ -58,6 +62,7 @@ public class BoardImpService {
 
     /**
      * 내가 쓴 감상평 게시글 최신순 5개 조회
+     *
      * @param memNo
      * @return
      */
@@ -75,34 +80,56 @@ public class BoardImpService {
 
     /**
      * 감상평 게시글 수정
+     *
      * @param imp
      */
     @Transactional
-    public Long updateBoard(BoardImp imp) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
-        Member member = imp.getWriter();
+    public BoardImp updateBoard(BoardImp imp) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+        // 작성자 정보 검증
+        Boolean exist = validateMember(imp.getWriter());
+        if (exist) {
+            log.info("작성자 정보(memNo : {}) : valid", imp.getWriter().getMemNo());
 
-        return boardImpRepository.save(
-                BoardImp.builder()
-                        .id(imp.getId())
-                        .title(imp.getTitle())
-                        .writer(member)
-                        .content(imp.getContent())
-                        .build()
-        ).getId();
+            boardImpRepository.save(
+                    BoardImp.builder()
+                            .id(imp.getId())
+                            .title(imp.getTitle())
+                            .writer(imp.getWriter())
+                            .content(imp.getContent())
+                            .build()
+            );
+        } else {
+            log.error("작성자 정보가 누락되었습니다.");
+            throw new IllegalStateException();
+        }
+
+        return imp;
+    }
+
+    /**
+     * 해당 사용자 정보 확인
+     *
+     * @param member
+     */
+    public Boolean validateMember(Member member) {
+        if (member == null) return false;
+        else return memberRepository.existsById(member.getMemNo());
     }
 
     /**
      * 감상평 게시글 삭제
+     *
      * @param id
      */
     @Transactional
     public void deleteById(Long id) {
-        BoardImp board = boardImpRepository.findBoardImpById(boardId);
+        BoardImp board = boardImpRepository.findBoardImpById(id);
         boardImpRepository.delete(board);
     }
 
     /**
      * 감상평 게시글 추천수 업데이트
+     *
      * @param id
      */
     public void upViewCnt(Long id) {
@@ -113,6 +140,7 @@ public class BoardImpService {
 
     /**
      * 복수의 감상평 게시글 삭제
+     *
      * @param boards
      */
     public void deleteBoards(java.util.List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
@@ -121,6 +149,7 @@ public class BoardImpService {
 
     /**
      * 감상평 게시글 조회
+     *
      * @param page
      * @return
      */
@@ -137,6 +166,7 @@ public class BoardImpService {
 
     /**
      * 검색 기능 (작성자명)
+     *
      * @param page
      * @param keyword
      */
@@ -152,6 +182,7 @@ public class BoardImpService {
 
     /**
      * 검색 기능 (제목 또는 내용)
+     *
      * @param pageNum
      * @param keyword
      */
@@ -168,11 +199,12 @@ public class BoardImpService {
 
     /**
      * 본인이 작성한 글(마이페이지에서 조회 가능)
+     *
      * @param member
      * @param pageNum
      */
     @Transactional
-    public List<BoardImp> getMyImpListView(Member member, int pageNum) {
+    public List<BoardImp> getImpsByMember(Member member, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "id"));
         Page<BoardImp> page = boardImpRepository.findAllByWriter(member, pageable);
         return page.getContent();

@@ -5,14 +5,17 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
+
 @Table(name = "board_notice")
+@Entity
 @Setter
 @Getter
 @ToString
+@EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 public class BoardNotice {
 
     @Id
