@@ -7,6 +7,10 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -115,10 +119,11 @@ public class MemberRepositoryTest {
         memberRepository.save(member4);
 
         // when
-        List<Member> members = memberRepository.findByNameIgnoreCaseContaining(member.getName());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDt").descending());
+        Page<Member> members2 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable);
 
         // then
-        Assertions.assertEquals(3, members.size());
+        Assertions.assertEquals(3, members2.getContent().size());
     }
 
     @Test
@@ -146,14 +151,17 @@ public class MemberRepositoryTest {
         memberRepository.save(member4);
 
         // when
-        List<Member> members1 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), 0, 10);
-        List<Member> members2 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), 0, 2);
-        List<Member> members3 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), 2, 2);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDt").descending());
+        Page<Member> members1 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable);
+        Pageable pageable2 = PageRequest.of(0, 2, Sort.by("regDt").descending());
+        Page<Member> members2 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable2);
+        Pageable pageable3 = PageRequest.of(2, 2, Sort.by("regDt").descending());
+        Page<Member> members3 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable3);
 
         // then
-        Assertions.assertEquals(3, members1.size());
-        Assertions.assertEquals(2, members2.size());
-        Assertions.assertEquals(1, members3.size());
+        Assertions.assertEquals(3, members1.getContent().size());
+        Assertions.assertEquals(2, members2.getContent().size());
+        Assertions.assertEquals(1, members3.getContent().size());
     }
 
     @Test
