@@ -4,6 +4,7 @@ package com.portfolio.demo.project.entity.comment;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
@@ -34,7 +35,8 @@ public class CommentMov {
     private String content;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @Column(name = "reg_dt", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "reg_dt", insertable = false)
+    @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
@@ -37,7 +38,8 @@ public class CommentImp {
     private String content;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @Column(name = "reg_dt", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "reg_dt", updatable = false)
+    @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 
