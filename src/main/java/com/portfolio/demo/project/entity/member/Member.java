@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.entity.member;
 
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
@@ -33,7 +34,8 @@ public class Member {
     @Column(name = "phone", nullable = false)
     private String phone;
 
-    @Column(name = "reg_date", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @Column(name = "reg_date", updatable = false)
+    @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDt;
 
@@ -49,6 +51,6 @@ public class Member {
     @Column(name = "cert_key")
     private String certKey;
 
-    @Column(name = "certification")
+    @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
     private String certification;
 }
