@@ -6,6 +6,9 @@ import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +43,8 @@ public class MemberService {
     }
 
     public List<Member> findAllByNameContaining(String name, int page, int size) {
-        return memberRepository.findByNameIgnoreCaseContaining(name, page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDt").descending());
+        return memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
     }
 
     public Boolean validateDuplicationName(String name) {
@@ -62,7 +66,7 @@ public class MemberService {
     public Member saveMember(Member member) {
         if (member.getMemNo() == null) {
             member.setPassword(passwordEncoder.encode(member.getPassword()));
-            member.setRole("ROLE_USER");
+            if (member.getRole() == null) member.setRole("ROLE_USER");
             member.setCertification("N");
             memberRepository.save(member);
         }
