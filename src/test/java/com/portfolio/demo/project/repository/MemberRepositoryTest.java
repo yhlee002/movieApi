@@ -24,22 +24,31 @@ public class MemberRepositoryTest {
     private EntityManager entityManager;
 
     @Test
-    @Order(1)
     public void 회원_생성() {
-        Member member = MemberTestDataBuilder.user().build();
-        memberRepository.save(member);
-        entityManager.flush();
+        // given
+        Member member = MemberTestDataBuilder.user()
+                .password("1234").build();
 
-        System.out.println("저장된 회원 식별번호 : " + member.getMemNo());
+        // when
+        memberRepository.save(member);
+
+        // then
+        Assertions.assertNotNull(member.getMemNo());
+        Assertions.assertNotNull(member.getName());
+        Assertions.assertEquals("1234", member.getPassword());
+        Assertions.assertNotNull(member.getIdentifier());
+        Assertions.assertNotNull(member.getProvider());
+        Assertions.assertNotNull(member.getRegDt());
+        Assertions.assertNotNull(member.getPhone());
+        Assertions.assertEquals("N", member.getCertification());
+        Assertions.assertNull(member.getCertKey());
     }
 
     @Test
-    @Order(2)
     public void 회원_정보_수정() {
         // given
         Member member = MemberTestDataBuilder.user().build();
         memberRepository.save(member);
-        entityManager.flush();
 
         System.out.println("생성된 회원 이름 : " + member.getName());
         System.out.println("생성된 회원 패스워드 : " + member.getPassword());
@@ -51,19 +60,13 @@ public class MemberRepositoryTest {
         member.setPhone("010-1234-5678");
         memberRepository.save(member);
         entityManager.flush();
-
-        System.out.println("변경된 회원 이름 : " + member.getName());
-        System.out.println("변경된 회원 패스워드 : " + member.getPassword());
-        System.out.println("변경된 회원 휴대폰 번호 : " + member.getPhone());
     }
 
     @Test
-    @Order(3)
     public void 회원_탈퇴() {
         // given
         Member member = MemberTestDataBuilder.user().build();
         memberRepository.save(member);
-        entityManager.flush();
 
         // when
         memberRepository.delete(member);
@@ -81,10 +84,10 @@ public class MemberRepositoryTest {
         memberRepository.save(member);
 
         // when
-        Member findMember = memberRepository.findByIdentifier(member.getIdentifier());
+        Member foundMember = memberRepository.findByIdentifier(member.getIdentifier());
 
         // then
-        Assertions.assertEquals(member.getIdentifier(), findMember.getIdentifier());
+        Assertions.assertEquals(member.getIdentifier(), foundMember.getIdentifier());
     }
 
     @Test
@@ -113,7 +116,6 @@ public class MemberRepositoryTest {
 
         // when
         List<Member> members = memberRepository.findByNameIgnoreCaseContaining(member.getName());
-
 
         // then
         Assertions.assertEquals(3, members.size());
@@ -177,10 +179,10 @@ public class MemberRepositoryTest {
         memberRepository.save(member);
 
         // when
-        Member findMember = memberRepository.findByPhone(member.getPhone());
+        Member foundMember = memberRepository.findByPhone(member.getPhone());
 
         // then
-        org.assertj.core.api.Assertions.assertThat(member).isEqualTo(findMember);
+        org.assertj.core.api.Assertions.assertThat(member).isEqualTo(foundMember);
     }
 
     @Test
@@ -211,13 +213,38 @@ public class MemberRepositoryTest {
         memberRepository.save(member);
 
         // when
-        Member findMember = memberRepository.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
-        Member findMember2 = memberRepository.findByIdentifierAndProvider("238095572", "naver");
+        Member foundMember = memberRepository.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
+        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", "naver");
 
         // then
-        Assertions.assertNotNull(findMember);
-        Assertions.assertNull(findMember2);
-        org.assertj.core.api.Assertions.assertThat(findMember).isEqualTo(member);
+        Assertions.assertNotNull(foundMember);
+        Assertions.assertNull(foundMember2);
+        org.assertj.core.api.Assertions.assertThat(foundMember).isEqualTo(member);
+    }
+
+    @Test
+    public void role으로_회원_조회() {
+        // given
+        Member admin = memberRepository.save(MemberTestDataBuilder.admin().build());
+        Member m1 = memberRepository.save(MemberTestDataBuilder.randomIdentifierUser()
+                .name("test-member1")
+                .build());
+        Member m2 = memberRepository.save(MemberTestDataBuilder.randomIdentifierUser()
+                .name("test-member2")
+                .build());
+
+        memberRepository.save(admin);
+        memberRepository.save(m1);
+        memberRepository.save(m2);
+
+        // when
+        List<Member> admins = memberRepository.findByRoleIgnoreCase("ROLE_ADMIN");
+        List<Member> members = memberRepository.findByRoleIgnoreCase("ROLE_USER");
+
+        // then
+        Assertions.assertEquals(1, admins.size());
+        Assertions.assertEquals(2, members.size());
+
     }
 
 

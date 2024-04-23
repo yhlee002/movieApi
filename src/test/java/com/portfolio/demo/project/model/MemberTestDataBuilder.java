@@ -13,7 +13,8 @@ public class MemberTestDataBuilder {
                 .name("이영현")
                 .phone("000-000-0000")
                 .role("role_admin")
-                .provider("none");
+                .provider("none")
+                .certification("Y");
     }
 
     public static Member.MemberBuilder user() {
@@ -22,7 +23,8 @@ public class MemberTestDataBuilder {
                 .name("이영현")
                 .phone("000-111-0000")
                 .role("role_user")
-                .provider("none");
+                .provider("none")
+                .certification("N");
     }
 
     public static Member.MemberBuilder randomIdentifierUser() {

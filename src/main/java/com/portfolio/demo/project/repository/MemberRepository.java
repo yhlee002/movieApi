@@ -21,11 +21,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByName(String name);
 
+    List<Member> findByRoleIgnoreCase(String role);
+
     Member findByPhone(String phone);
 
     Boolean existsByPhone(String phone);
-
-    Member findTop5ByOrderByRegDtDesc();
 
     Member findByIdentifierAndProvider(String identifier, String provider);
 }
