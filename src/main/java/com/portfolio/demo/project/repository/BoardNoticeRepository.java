@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -30,17 +31,16 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
         , nativeQuery = true)
     BoardNotice findNextBoardNoticeById(Long id);
 
-    // 최신 게시글 top 5 조회
-    List<BoardNotice> findTop5ByOrderByRegDateDesc();
+    /**
+     * 최신 게시글 top {size} 조회
+     */
 
+    @Query("select b from BoardNotice b join Member m on b.writer = m order by b.regDate desc limit :size")
+    List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
 
     /**
-     * @deprecated 페이지네이션
+     * @deprecated 게시글 전체 조회
      */
-    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no order by b.id desc limit ?1, ?2"
-        , nativeQuery = true)
-    List<BoardNotice> findBoardNoticeListView(int startRow, int boardCntPerPage);
-
     Page<BoardNotice> findAll(Pageable pageable);
 
     /**
@@ -51,5 +51,5 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
 //    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where title like %:title% order by b.reg_dt"
 //        , nativeQuery = true)
-    Page<BoardNotice> findByTitleOrContentContaining(String title, String content, Pageable pageable);
+    Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 }
