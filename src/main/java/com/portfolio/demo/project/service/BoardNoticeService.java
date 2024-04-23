@@ -72,10 +72,10 @@ public class BoardNoticeService {
     }
 
     /**
-     * 최근 공지사항 게시글 top 5
+     * 최근 공지사항 게시글 top {size}
      */
-    public List<BoardNotice> getRecNoticeBoard() {
-        return boardNoticeRepository.findTop5ByOrderByRegDateDesc();
+    public List<BoardNotice> getRecNoticeBoard(int size) {
+        return boardNoticeRepository.findRecentBoardNoticesOrderByRegDate(size);
     }
 
     /**
@@ -173,7 +173,7 @@ public class BoardNoticeService {
     @Transactional
     public NoticePagenationVO getBoardNoticesByTitleOrContent(String keyword, int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<BoardNotice> pages = boardNoticeRepository.findByTitleOrContentContaining(keyword, keyword, pageable);
+        Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
         return NoticePagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
