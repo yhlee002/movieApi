@@ -109,19 +109,9 @@ public class MailService {
 
     // 인증키 저장(갱신)
     protected void saveCertKey(Member member, String certKey) {
-        memberRepository.save(Member.builder()
-                .memNo(member.getMemNo())
-                .identifier(member.getIdentifier())
-                .name(member.getName())
-                .password(member.getPassword())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .regDt(member.getRegDt())
-                .provider("none")
-                .certKey(passwordEncoder.encode(certKey))
-                .certification(member.getCertification())
-                .build()
-        );
+        member.updateProvider("none");
+        member.updateCertKey(passwordEncoder.encode(certKey));
+        memberRepository.save(member);
     }
 }
 
