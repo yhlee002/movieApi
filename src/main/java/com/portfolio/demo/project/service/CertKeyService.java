@@ -42,18 +42,9 @@ public class CertKeyService {
         /* member 테이블의 certification 값 'Y'로 변경
            member 테이블의 cert_key 값 새로 만들어 넣기 */
         String certKey = tempKey.getKey(10, false);
-        memberRepository.save(Member.builder()
-                .memNo(member.getMemNo())
-                .identifier(member.getIdentifier())
-                .name(member.getName())
-                .password(member.getPassword())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .certKey(passwordEncoder.encode(certKey))
-                .provider(member.getProvider())
-                .certification("Y")
-                .regDt(member.getRegDt())
-                .build());
+        member.updateCertKey(passwordEncoder.encode(certKey));
+        member.updateCertification("Y");
 
+        memberRepository.save(member);
     }
 }

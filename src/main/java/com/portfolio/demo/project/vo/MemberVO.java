@@ -28,7 +28,7 @@ public class MemberVO {
         this.nickname = member.getName();
         this.profileImage = member.getProfileImage();
         this.phone = member.getPhone();
-        this.regDt = member.getRegDt();
+        this.regDt = member.getRegDate();
         this.role = member.getRole();
         this.provider = member.getProvider();
     }
