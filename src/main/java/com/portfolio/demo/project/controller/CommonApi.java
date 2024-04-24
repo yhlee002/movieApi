@@ -46,8 +46,8 @@ public class CommonApi {
         List<MovieVO> movieVOList = movieService.getDailyBoxOfficeList();
 
         model.addAttribute("movieList", movieVOList);
-        model.addAttribute("recent_notice", boardNoticeService.getRecNoticeBoard());
-        model.addAttribute("favorite_imp", boardImpService.getFavImpBoard());
+        model.addAttribute("recent_notice", boardNoticeService.getRecNoticeBoard(5));
+        model.addAttribute("favorite_imp", boardImpService.getMostFavImpBoard(5));
 
         return "index";
     }

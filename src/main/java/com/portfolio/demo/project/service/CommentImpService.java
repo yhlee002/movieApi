@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,20 +34,20 @@ public class CommentImpService {
 
     private final MemberRepository memberRepository;
 
-    public List<CommentImpVO> getMyCommTop5(Long memNo) {
-        List<CommentImp> commList = commentImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
-        List<CommentImpVO> commVOList = new ArrayList<>();
-        for (CommentImp c : commList) {
-            commVOList.add(CommentImpVO.create(c));
+    public List<CommentImpVO> getRecentCommentsByMemberNo(Long memNo, int size) {
+        Optional<Member> opt = memberRepository.findById(memNo);
+        if (opt.isEmpty()) {
+            throw new IllegalStateException();
         }
-        return commVOList;
+
+        Member member = opt.get();
+        return commentImpRepository.findRecentCommentImpsByWriter(member, size).stream().map(CommentImpVO::create).toList();
     }
 
     public CommentImp saveComment(String content, Long boardId, Long memNo) {
         BoardImp imp = boardImpRepository.findById(boardId).get();
         Member writer = memberRepository.findById(memNo).get();
         CommentImp commImp = CommentImp.builder()
-                .id(null)
                 .content(content)
                 .writer(writer)
                 .board(imp)
@@ -57,7 +58,7 @@ public class CommentImpService {
 
     public CommentImp updateComment(Long commentId, String content) {
         CommentImp originImp = commentImpRepository.findById(commentId).get();
-        originImp.setContent(content);
+        originImp.updateContent(content);
         return commentImpRepository.save(originImp);
     }
 
