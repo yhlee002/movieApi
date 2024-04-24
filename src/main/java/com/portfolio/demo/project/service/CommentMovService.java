@@ -33,7 +33,6 @@ public class CommentMovService {
     public CommentMov saveComment(Long writerNo, String content, Long movieNo, int rating) {
         CommentMov comment = commentMovRepository.save(
                 CommentMov.builder()
-                        .id(null)
                         .writer(memberRepository.findById(writerNo).get())
                         .content(content)
                         .movieNo(movieNo)

@@ -46,8 +46,8 @@ public class MyPageApi {
     @GetMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        model.addAttribute("boardList", boardImpService.getMyImpTop5(memberVO.getMemNo()));
-        model.addAttribute("commList", commentImpService.getMyCommTop5(memberVO.getMemNo()));
+        model.addAttribute("boardList", boardImpService.getRecentBoardImpsByMemberNo(memberVO.getMemNo(), 5));
+        model.addAttribute("commList", commentImpService.getRecentCommentsByMemberNo(memberVO.getMemNo(), 5));
 
         return "mypage/memberInfo";
     }

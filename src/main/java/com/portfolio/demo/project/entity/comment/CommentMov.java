@@ -2,6 +2,7 @@ package com.portfolio.demo.project.entity.comment;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,7 +19,7 @@ import java.time.LocalDateTime;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommentMov {
+public class CommentMov extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,21 +35,22 @@ public class CommentMov {
     @Column(name = "content")
     private String content;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @Column(name = "reg_dt", insertable = false)
-    @CreationTimestamp
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate;
-
     @Column(name = "rating")
     private int rating;
 
     @Builder
-    public CommentMov(Long id, Member writer, String content, Long movieNo, int rating) {
-        this.id = id;
+    public CommentMov(Member writer, String content, Long movieNo, int rating) {
         this.writer = writer;
         this.content = content;
         this.movieNo = movieNo;
+        this.rating = rating;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateRating(int rating) {
         this.rating = rating;
     }
 }

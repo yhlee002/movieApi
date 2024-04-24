@@ -4,6 +4,7 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.vo.BoardImpVO;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,15 +68,21 @@ public class BoardImpService {
      * @param memNo
      * @return
      */
-    public List<BoardImp> getMyImpTop5(Long memNo) {
-        return boardImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
+    public List<BoardImpVO> getRecentBoardImpsByMemberNo(Long memNo, int size) {
+        Optional<Member> opt = memberRepository.findById(memNo);
+        if (opt.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        Member member = opt.get();
+        return boardImpRepository.findRecentBoardsByMember(member, size).stream().map(BoardImpVO::create).toList();
     }
 
     /**
-     * 인기 감상평 게시글 top 5 조회
+     * 인기 감상평 게시글 top {size} 조회
      */
-    public List<BoardImp> getFavImpBoard() {
-        return boardImpRepository.findTop5ByOrderByViewsDesc();
+    public List<BoardImpVO> getMostFavImpBoard(int size) {
+        return boardImpRepository.findMostFavImpBoards(size)
+                .stream().map(BoardImpVO::create).toList();
     }
 
 
@@ -90,14 +98,7 @@ public class BoardImpService {
         if (exist) {
             log.info("작성자 정보(memNo : {}) : valid", imp.getWriter().getMemNo());
 
-            boardImpRepository.save(
-                    BoardImp.builder()
-                            .id(imp.getId())
-                            .title(imp.getTitle())
-                            .writer(imp.getWriter())
-                            .content(imp.getContent())
-                            .build()
-            );
+            boardImpRepository.save(imp);
         } else {
             log.error("작성자 정보가 누락되었습니다.");
             throw new IllegalStateException();
@@ -134,7 +135,7 @@ public class BoardImpService {
      */
     public void upViewCnt(Long id) {
         BoardImp imp = boardImpRepository.findById(id).get();
-        imp.setViews(imp.getViews() + 1);
+        imp.updateViewCount();
         boardImpRepository.save(imp);
     }
 
@@ -156,7 +157,7 @@ public class BoardImpService {
     @Transactional
     public ImpressionPagenationVO getImps(int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("id").descending());
-        Page<BoardImp> pages = boardImpRepository.findAllByOrderByIdDesc(pageable);
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
@@ -172,11 +173,11 @@ public class BoardImpService {
      */
     @Transactional
     public ImpressionPagenationVO getBoardImpsByWriterName(int page, String keyword) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<BoardImp> pages = boardImpRepository.findAllByWriterNameOrderByRegDateDesc(keyword, pageable);
+        List<BoardImp> list = boardImpRepository.findByWriterNameOrderByRegDateDesc(keyword, page, BOARD_COUNT_PER_PAGE);
+        int totalPages = boardImpRepository.findTotalPagesByWriterNameOrderByRegDateDesc(keyword, page, BOARD_COUNT_PER_PAGE);
         return ImpressionPagenationVO.builder()
-                .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent())
+                .totalPageCnt(totalPages)
+                .boardImpList(list)
                 .build();
     }
 

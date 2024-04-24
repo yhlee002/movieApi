@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.entity.board;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
@@ -13,11 +14,9 @@ import java.util.List;
 
 @Table(name = "board_imp")
 @Entity
-@Setter
 @Getter
-@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BoardImp {
+public class BoardImp extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,11 +32,6 @@ public class BoardImp {
     @JoinColumn(name = "writer_no")
     private Member writer;
 
-    @Column(name = "reg_dt", updatable = false)
-    @CreationTimestamp
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate;
-
     @Column(name = "views")
     private int views; // 조회수
 
@@ -47,12 +41,22 @@ public class BoardImp {
     private List<CommentImp> comments;
 
     @Builder
-    public BoardImp(Long id, String title, String content, Member writer, LocalDateTime regDate) {
-        this.id = id;
+    public BoardImp(String title, String content, Member writer) {
         this.title = title;
         this.content = content;
         this.writer = writer;
-        this.regDate = regDate;
         this.views = 0;
+    }
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateViewCount() {
+        this.views++;
     }
 }
