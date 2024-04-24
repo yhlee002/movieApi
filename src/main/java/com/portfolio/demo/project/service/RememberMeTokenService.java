@@ -23,16 +23,17 @@ public class RememberMeTokenService implements PersistentTokenRepository {
     @Override
     public void createNewToken(PersistentRememberMeToken token) {
         RememberMeToken rmT = new RememberMeToken(token);
-        log.info("token 발급 : "+ rmT.getToken().toString());
         rememberMeTokenRepository.save(rmT);
+
+        log.info("token 발급 : "+ rmT.getToken().toString());
     }
 
     @Override
     public void updateToken(String series, String tokenValue, Date lastUsed) {
         RememberMeToken rmT = rememberMeTokenRepository.findBySeries(series);
         if(rmT != null){
-            rmT.setToken(tokenValue);
-            rmT.setLastUsed(lastUsed);
+            rmT.updateToken(tokenValue);
+            rmT.updateLastUsed(lastUsed);
             rememberMeTokenRepository.save(rmT);
         }
     }

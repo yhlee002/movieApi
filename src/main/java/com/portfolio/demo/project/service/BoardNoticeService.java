@@ -93,14 +93,7 @@ public class BoardNoticeService {
             opt.ifPresentOrElse(m -> {
                         log.info("작성자 정보(memNo : {}) : valid", m.getMemNo());
 
-                        boardNoticeRepository.save(
-                                BoardNotice.builder()
-                                        .id(notice.getId())
-                                        .title(notice.getTitle())
-                                        .writer(member)
-                                        .content(notice.getContent())
-                                        .build()
-                        );
+                        boardNoticeRepository.save(notice);
                     },
                     () -> {
                         throw new IllegalStateException("존재하지 않는 회원 정보입니다.");
@@ -144,7 +137,7 @@ public class BoardNoticeService {
     @Transactional
     public void upViewCnt(Long boardId) {
         BoardNotice notice = boardNoticeRepository.findById(boardId).get();
-        notice.setViews(notice.getViews() + 1);
+        notice.updateViewCount();
         boardNoticeRepository.save(notice);
     }
 

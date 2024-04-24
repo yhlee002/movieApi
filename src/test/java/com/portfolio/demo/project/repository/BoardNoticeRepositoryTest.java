@@ -16,10 +16,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @SpringBootTest
 @Transactional
@@ -41,19 +39,65 @@ class BoardNoticeRepositoryTest {
     @BeforeEach
     public void setUp() {
         boardNoticeRepository.deleteAll();
+        boardNoticeRepository.flush();
         memberRepository.deleteAll();
+        memberRepository.flush();
+        entityManager.clear();
+    }
+
+    Member createAdmin() {
+        Member admin = MemberTestDataBuilder.admin().build();
+        memberRepository.save(admin);
+        return admin;
     }
 
     @Test
-    void 공지사항_게시글_작성() {
+    void 모든_공지사항_게시글_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
+        Member admin = createAdmin();
 
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
+        List<BoardNotice> boardList = new ArrayList<>();
+        BoardNotice board = BoardNoticeTestDataBuilder.board()
+                .title("abcdefg")
+                .content("1234566")
                 .writer(admin)
                 .build();
-        boardNoticeRepository.save(boardNotice);
+        boardList.add(board);
+
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board()
+                .title("poiuytre")
+                .content("566789")
+                .writer(admin)
+                .build();
+        boardList.add(board2);
+
+        BoardNotice board3 = BoardNoticeTestDataBuilder.board()
+                .title("mnbkjbcd")
+                .content("1234")
+                .writer(admin)
+                .build();
+        boardList.add(board3);
+
+        boardNoticeRepository.saveAll(boardList);
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
+        Page<BoardNotice> page = boardNoticeRepository.findAll(pageable);
+
+        // then
+        Assertions.assertEquals(3, page.getTotalElements());
+        Assertions.assertEquals(3, page.getContent().size());
+        Assertions.assertEquals(1, page.getTotalPages());
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    void 공지사항_게시글_작성() {
+        // given
+        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
+                .writer(createAdmin())
+                .build();
+        boardNoticeRepository.saveAndFlush(boardNotice);
 
         // when
         Assertions.assertNotNull(boardNotice.getId());
@@ -68,74 +112,46 @@ class BoardNoticeRepositoryTest {
     @Test
     void 공지사항_게시글_수정1() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
-
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice notice = BoardNoticeTestDataBuilder.board()
+                .title("Original title")
+                .content("Original content")
+                .writer(createAdmin())
                 .build();
-        boardNoticeRepository.save(boardNotice);
+        boardNoticeRepository.save(notice);
 
         // when
-        boardNotice.setTitle("Modified title");
-        boardNotice.setContent("Modified content");
-
-        boardNoticeRepository.save(boardNotice);
-        BoardNotice foundNotice = boardNoticeRepository.findById(boardNotice.getId()).get();
+        notice.updateTitle("Modified title");
+        notice.updateContent("Modified content");
+        boardNoticeRepository.save(notice);
 
         // then
-        org.assertj.core.api.Assertions.assertThat(boardNotice).isEqualTo(foundNotice);
-    }
-
-    @Test
-    void 공지사항_게시글_수정2_작성일자는_수정되지_않는다() {
-        // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
-
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
-                .build();
-        boardNoticeRepository.save(boardNotice);
-
-        // when
-        BoardNotice foundNotice = boardNoticeRepository.findById(boardNotice.getId()).get();
-        foundNotice.setRegDate(LocalDateTime.now());
-        boardNoticeRepository.save(foundNotice);
-
-        // then
-        Assertions.assertEquals(boardNotice.getRegDate(), foundNotice.getRegDate());
+        Assertions.assertEquals("Modified title",notice.getTitle());
+        Assertions.assertEquals("Modified content",notice.getContent());
     }
 
     @Test
     void 공지사항_게시글_삭제() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
-
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice board = BoardNoticeTestDataBuilder.board()
+                .writer(createAdmin())
                 .build();
-        boardNoticeRepository.save(boardNotice);
+        boardNoticeRepository.save(board);
 
         // when
-        BoardNotice foundNotice = boardNoticeRepository.findBoardNoticeById(boardNotice.getId());
-        boardNoticeRepository.delete(foundNotice);
-        BoardNotice foundNotice2 = boardNoticeRepository.findBoardNoticeById(boardNotice.getId());
+        boolean exists = boardNoticeRepository.existsById(board.getId());
+        boardNoticeRepository.delete(board);
+        boolean exists2 = boardNoticeRepository.existsById(board.getId());
 
         // then
-        org.assertj.core.api.Assertions.assertThat(boardNotice).isEqualTo(foundNotice);
-        Assertions.assertNull(foundNotice2);
+        Assertions.assertTrue(exists);
+        Assertions.assertFalse(exists2);
     }
 
     @Test
     void 공지사항_게시글_식별번호를_이용한_단건_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
-
         BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+                .writer(createAdmin())
                 .build();
         boardNoticeRepository.save(boardNotice);
 
@@ -150,8 +166,7 @@ class BoardNoticeRepositoryTest {
     @Test
     void 공지사항_게시글_식별번호를_이용한_이전글_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
+        Member admin = createAdmin();
 
         BoardNotice prevBoard = BoardNoticeTestDataBuilder.board()
                 .writer(admin)
@@ -174,8 +189,7 @@ class BoardNoticeRepositoryTest {
     @Test
     void 공지사항_게시글_식별번호를_이용한_다음글_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
+        Member admin = createAdmin();
 
         BoardNotice prevBoard = BoardNoticeTestDataBuilder.board()
                 .writer(admin)
@@ -199,8 +213,7 @@ class BoardNoticeRepositoryTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 최근_공지사항_게시글_조회_작성일자_내림차순() throws InterruptedException {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
+        Member admin = createAdmin();
 
         int seq = 0;
         while (seq < 10) {
@@ -243,42 +256,9 @@ class BoardNoticeRepositoryTest {
     }
 
     @Test
-    void 모든_공지사항_게시글_조회() {
-        // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
-
-        List<BoardNotice> boardList = new ArrayList<>();
-        BoardNotice board = BoardNoticeTestDataBuilder.board()
-                .title("abcdefg")
-                .content("1234566")
-                .build();
-        boardList.add(board);
-
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board()
-                .title("poiuytre")
-                .content("566789")
-                .build();
-        boardList.add(board2);
-
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board()
-                .title("mnbkjbcd")
-                .content("1234")
-                .build();
-        boardList.add(board3);
-
-        // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("reg_date").descending());
-        Page<BoardNotice> page = boardNoticeRepository.findAll(pageable);
-
-        // then
-    }
-
-    @Test
     void 공지사항_게시글의_제목_또는_내용으로_검색() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberRepository.save(admin);
+        Member admin = createAdmin();
 
         List<BoardNotice> boardList = new ArrayList<>();
         BoardNotice board = BoardNoticeTestDataBuilder.board()
@@ -308,7 +288,6 @@ class BoardNoticeRepositoryTest {
                 .writer(admin)
                 .build();
         boardList.add(board4);
-
 
         boardNoticeRepository.saveAll(boardList);
 
