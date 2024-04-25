@@ -7,6 +7,8 @@ import java.util.Random;
 
 public class MemberTestDataBuilder {
 
+    private static final Random random = new Random();
+
     public static Member.MemberBuilder admin() {
         return Member.builder()
                 .identifier("dldudgus214@naver.com")
@@ -28,9 +30,18 @@ public class MemberTestDataBuilder {
     }
 
     public static Member.MemberBuilder randomIdentifierUser() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 10; i++) {
+            sb.append((char) random.nextInt(26));
+        }
+        String randomString = sb.toString();
+
         return Member.builder()
                 .identifier("test" + new Random().nextInt(10000) + "@gmail.com")
+                .name(randomString)
+                .phone("010-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
                 .role("role_user")
-                .provider("none");
+                .provider("none")
+                .certification("N");
     }
 }

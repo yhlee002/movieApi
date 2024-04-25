@@ -5,11 +5,10 @@ import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Table(name = "board_imp")
@@ -38,7 +37,7 @@ public class BoardImp extends BaseEntity {
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "board_id")
-    private List<CommentImp> comments;
+    private List<CommentImp> comments = new ArrayList<>();
 
     @Builder
     public BoardImp(String title, String content, Member writer) {
