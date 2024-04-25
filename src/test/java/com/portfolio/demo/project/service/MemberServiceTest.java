@@ -84,7 +84,7 @@ class MemberServiceTest {
         // given
         Member member = MemberTestDataBuilder.user().password("1234").build();
         Member savedMember = memberService.saveMember(member);
-        savedMember.setPassword("5678");
+        savedMember.updatePassword("5678");
         Member savedMember2 = memberService.saveMember(savedMember);
         Member foundMember = memberService.findByMemNo(savedMember2.getMemNo());
 
