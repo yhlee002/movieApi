@@ -52,8 +52,8 @@ public class BoardImpService {
     // 게시글 단건 조회 + 이전글, 다음글
     public HashMap<String, BoardImp> selectBoardsById(Long id) {
         BoardImp board = boardImpRepository.findBoardImpById(id);
-        BoardImp prevBoard = boardImpRepository.findPrevBoardImpByBoardId(id);
-        BoardImp nextBoard = boardImpRepository.findNextBoardImpByBoardId(id);
+        BoardImp prevBoard = boardImpRepository.findPrevBoardImpById(id);
+        BoardImp nextBoard = boardImpRepository.findNextBoardImpById(id);
         HashMap<String, BoardImp> boardNoticeMap = new HashMap<>();
         boardNoticeMap.put("board", board);
         boardNoticeMap.put("prevBoard", prevBoard);
@@ -74,7 +74,7 @@ public class BoardImpService {
             throw new IllegalStateException();
         }
         Member member = opt.get();
-        return boardImpRepository.findRecentBoardsByMember(member, size).stream().map(BoardImpVO::create).toList();
+        return boardImpRepository.findAllByWriter(member, size).stream().map(BoardImpVO::create).toList();
     }
 
     /**
@@ -189,8 +189,8 @@ public class BoardImpService {
      */
     @Transactional
     public ImpressionPagenationVO getBoardImpsByTitleAndContent(int pageNum, String keyword) {
-        Pageable pageable = PageRequest.of(pageNum, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BoardImp> pages = boardImpRepository.findAllByTitleOrContentContainingOrderByRegDate(keyword, keyword, pageable);
+        Pageable pageable = PageRequest.of(pageNum, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
                 .boardImpList(pages.getContent())

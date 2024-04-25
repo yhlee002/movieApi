@@ -42,7 +42,7 @@ public class MemberRepositoryTest {
         Assertions.assertEquals("1234", member.getPassword());
         Assertions.assertNotNull(member.getIdentifier());
         Assertions.assertNotNull(member.getProvider());
-        Assertions.assertNotNull(member.getRegDt());
+        Assertions.assertNotNull(member.getRegDate());
         Assertions.assertNotNull(member.getPhone());
         Assertions.assertEquals("N", member.getCertification());
         Assertions.assertNull(member.getCertKey());
@@ -59,9 +59,9 @@ public class MemberRepositoryTest {
         System.out.println("생성된 회원 휴대폰 번호 : " + member.getPhone());
 
         // when
-        member.setName("김영현");
-        member.setPassword("1234");
-        member.setPhone("010-1234-5678");
+        member.updateName("김영현");
+        member.updatePassword("1234");
+        member.updatePhone("010-1234-5678");
         memberRepository.save(member);
         entityManager.flush();
     }

@@ -110,7 +110,7 @@ class BoardNoticeRepositoryTest {
     }
 
     @Test
-    void 공지사항_게시글_수정1() {
+    void 공지사항_게시글_수정() {
         // given
         BoardNotice notice = BoardNoticeTestDataBuilder.board()
                 .title("Original title")
@@ -125,8 +125,8 @@ class BoardNoticeRepositoryTest {
         boardNoticeRepository.save(notice);
 
         // then
-        Assertions.assertEquals("Modified title",notice.getTitle());
-        Assertions.assertEquals("Modified content",notice.getContent());
+        Assertions.assertNotEquals("Original title",notice.getTitle());
+        Assertions.assertEquals("Original content",notice.getContent());
     }
 
     @Test

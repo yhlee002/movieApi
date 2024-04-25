@@ -28,7 +28,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query(value = "select b.* from board_imp b join member m on b.writer_no = m.mem_no where b.id = " +
             "(select b.id from board_imp b where b.id < :id order by b.id desc limit 1)"
             , nativeQuery = true)
-    BoardImp findPrevBoardImpByBoardId(Long id);
+    BoardImp findPrevBoardImpById(Long id);
 
     /**
      * 다음글
@@ -38,7 +38,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query(value = "select b.* from board_imp b join member m on b.writer_no = m.mem_no where b.id = " +
             "(select b.id from board_imp b where b.id > :id order by b.id limit 1)"
             , nativeQuery = true)
-    BoardImp findNextBoardImpByBoardId(Long id);
+    BoardImp findNextBoardImpById(Long id);
 
     /**
      * 인기 게시글 top {size} 조회
@@ -54,6 +54,10 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             "where m.name like %:name% order by b.id desc limit :size offset :offset")
     List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
 
+    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
+            "where m.name like %:name%")
+    Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
+
     @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
             "where m.name like %:name% order by b.id desc limit :size offset :offset")
     Integer findTotalPagesByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
@@ -61,10 +65,10 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     /**
      * 제목 또는 내용으로 검색 결과 조회
      */
-    Page<BoardImp> findAllByTitleOrContentContainingOrderByRegDate(String title, String content, Pageable pageable);
+    Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     /**
-     * 유저가 작성한 게시글 조회
+     * 특정 회원이 작성한 게시글 조회
      * ex. 마이페이지 > 자신이 작성한 글 조회
      *
      * @param member
@@ -74,9 +78,9 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     Page<BoardImp> findAllByWriter(Member member, Pageable pageable);
 
     /**
-     * 자신이 작성한 글 최신순 {size}개(마이페이지)
+     * 특정 회원이 작성한 글 최신순 {size}개(마이페이지)
      *
      */
     @Query("select b from BoardImp b join Member m on b.writer = m where m = :member order by b.regDate desc limit :size")
-    List<BoardImp> findRecentBoardsByMember(@Param("member") Member member, @Param("size") int size);
+    List<BoardImp> findAllByWriter(@Param("member") Member member, @Param("size") int size);
 }
