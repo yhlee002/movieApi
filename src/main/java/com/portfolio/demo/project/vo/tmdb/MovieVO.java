@@ -1,5 +1,11 @@
 package com.portfolio.demo.project.vo.tmdb;
 
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
+
+@Builder
+@Getter @ToString
 public class MovieVO {
     private boolean adult; // 관람 등급 성인 여부
     private String backdropPath; // backdrop_path

@@ -1,9 +1,14 @@
 package com.portfolio.demo.project.vo.tmdb;
 
+import lombok.Builder;
+import lombok.Setter;
+
+@Builder
+@Setter
 public class MovieDetailVO {
     private boolean adult; // 관람 등급 성인 여부
     private String backdropPath; // backdrop_path
-    private ? belongsToCollection; // belongs_to_collection
+    private String belongsToCollection; // belongs_to_collection // 확실하지 않음!
     private int budget;
     private GenreVO[] genres; // 장르 아이디 목록
     private String homepage;

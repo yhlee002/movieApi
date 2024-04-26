@@ -56,10 +56,6 @@ public class MovieInfoUtil {
                 log.error(res);
                 con.disconnect();
             }
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

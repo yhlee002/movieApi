@@ -16,6 +16,4 @@ public class NaverApiConfig {
     public NaverProfileApiUtil naverProfileApi(){
         return new NaverProfileApiUtil();
     }
-    @Bean
-    public NaverMovieInfoUtil naverMovieInfoUtil() { return new NaverMovieInfoUtil();}
 }
