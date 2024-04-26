@@ -1,5 +1,10 @@
 package com.portfolio.demo.project.vo.tmdb;
 
+import lombok.Builder;
+import lombok.Getter;
+
+@Builder
+@Getter
 public class ImageVO {
     private double aspectRatio; // aspect_ratio
     private double height;
