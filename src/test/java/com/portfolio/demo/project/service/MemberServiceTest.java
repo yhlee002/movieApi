@@ -2,9 +2,7 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 //@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Transactional
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 //@DataJpaTest
 //@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class MemberServiceTest {

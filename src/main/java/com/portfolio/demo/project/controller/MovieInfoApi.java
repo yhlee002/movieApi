@@ -2,8 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.service.MovieService;
 import com.portfolio.demo.project.service.CommentMovService;
-import com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO;
-import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
+import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -25,7 +24,7 @@ public class MovieInfoApi {
 
     @GetMapping("/movieInfo/{movieCd}")
     public String movieDetail(@PathVariable String movieCd, Model model) {
-        MovieDetailVO movieInfo = movieService.getMovieInfo(movieCd);
+        com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO movieInfo = movieService.getMovieInfo(movieCd);
         model.addAttribute("movie", movieInfo);
 
         String movieImgUrl = movieService.getMovieImg(movieInfo.getMovieNm());
@@ -36,8 +35,8 @@ public class MovieInfoApi {
 
     // 영화 검색시 네이버 api를 통해 검색 결과 나열
     @GetMapping("/movieInfo/search")
-    public String movieSearch(Model model, @RequestParam(name = "q") String query) {
-        List<NaverMovieDetailVO> movieList = movieService.getMovieListByTitle(query);
+    public String movieSearch(Model model, @RequestParam(name = "q") String query, @RequestParam(name = "page") Integer page, @RequestParam("year") String year) {
+        List<com.portfolio.demo.project.vo.tmdb.MovieVO> movieList = movieService.getMovieListByTitle(query, true, page, year);
         model.addAttribute("movieList", movieList);
         model.addAttribute("query", query);
         return "movieInfo/searchResult";
