@@ -2,7 +2,6 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.util.DailyBoxOfficeListUtil;
 import com.portfolio.demo.project.util.MovieInfoUtil;
-import com.portfolio.demo.project.util.NaverMovieInfoUtil;
 
 import com.portfolio.demo.project.util.TMDBUtil;
 import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
@@ -16,30 +15,34 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class MovieService {
 
-    private final ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-    private final String BOXOFFICEKEY = bundle.getString("boxOfficeKey");
-    private final String TMDBKEY = bundle.getString("apiKey");
-
-    private final String language = "ko-KR";
-    private final String region = "ko";
-
-    private final DailyBoxOfficeListUtil dailyBoxOfficeListUtil;
+    private final DailyBoxOfficeListUtil dailyBoxOfficeListUtil = new DailyBoxOfficeListUtil();
 
     private final MovieInfoUtil movieInfoUtil = new MovieInfoUtil();
 
-    private static final TMDBUtil tmdbUtil = new TMDBUtil();
+    private final TMDBUtil tmdbUtil = new TMDBUtil();
+
+    private final ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private final String KOBIS_KEY = bundle.getString("boxOfficeKey");
+    private final String TMDB_KEY = bundle.getString("apiKey");
+    private final String TMDB_ACCESS_TOKEN = bundle.getString("apiAccessToken");
+
+    public static final String TMDB_IMAGE_PATH = "https://image.tmdb.org/t/p/"; // + file size / file path
 
     public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
-        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> movieList = dailyBoxOfficeListUtil.getMovieList(BOXOFFICEKEY);
-        return movieList;
+        return dailyBoxOfficeListUtil.getMovieList();
     }
 
     public com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO getMovieInfo(String movieCd) {
-        return movieInfoUtil.getMovieInfo(BOXOFFICEKEY, movieCd);
+        return movieInfoUtil.getMovieInfo(movieCd);
+    }
+
+    {
+        dailyBoxOfficeListUtil.setKey(KOBIS_KEY);
+        movieInfoUtil.setKey(KOBIS_KEY);
+        tmdbUtil.setKey(TMDB_KEY, TMDB_ACCESS_TOKEN);
     }
 
     /**
@@ -114,6 +117,4 @@ public class MovieService {
     public List<MovieVO> getMovieListByTitle(String query, Boolean includeAdult, Integer page, String year) {
         return tmdbUtil.getMoviesByTitle(query, includeAdult, page, year);
     }
-
-
 }
