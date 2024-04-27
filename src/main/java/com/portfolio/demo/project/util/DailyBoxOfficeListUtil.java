@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,12 +19,19 @@ import java.util.ArrayList;
 
 @Slf4j
 public class DailyBoxOfficeListUtil {
+
     private final static String DAILYBOXOFFICE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
     private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-    public ArrayList<MovieVO> getMovieList(String key) {
+    private String KEY = null;
+
+    public void setKey(String key) {
+        this.KEY = key;
+    }
+
+    public ArrayList<MovieVO> getMovieList() {
         ArrayList<MovieVO> movieList = null;
-        String apiUrl = DAILYBOXOFFICE_URL + "?key=" + key + "&targetDt=" + targetDt;
+        String apiUrl = DAILYBOXOFFICE_URL + "?key=" + KEY + "&targetDt=" + targetDt;
         try {
             URL url = new URL(apiUrl);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -42,7 +47,8 @@ public class DailyBoxOfficeListUtil {
                 JsonObject result = gson.fromJson(res, JsonObject.class);
                 JsonObject boxOfficeResult = result.get("boxOfficeResult").getAsJsonObject();
                 JsonArray dailyBoxOfficeList = boxOfficeResult.get("dailyBoxOfficeList").getAsJsonArray();
-                movieList = gson.fromJson(dailyBoxOfficeList.toString(), new TypeToken<ArrayList<MovieVO>>() {}.getType());
+                movieList = gson.fromJson(dailyBoxOfficeList.toString(), new TypeToken<ArrayList<MovieVO>>() {
+                }.getType());
 
             } else { // 에러 발생
                 res = getResult(con.getErrorStream());
@@ -50,10 +56,6 @@ public class DailyBoxOfficeListUtil {
                 con.disconnect();
             }
 
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

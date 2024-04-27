@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.util;
 
-import aj.org.objectweb.asm.TypeReference;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -25,15 +24,16 @@ public class TMDBUtil {
 
     private static final Gson gson = new Gson();
 
-    private final ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-
-    private final String KEY = bundle.getString("apiKey");
-
-    private final String ACCESS_TOKEN = bundle.getString("apiAccessToken");
+    private String KEY = null;
+    private String ACCESS_TOKEN = null;
 
     private final String language = "ko-KR";
-
     private final String region = "ko";
+
+    public void setKey(String key, String token) {
+        this.KEY = key;
+        this.ACCESS_TOKEN = token;
+    }
 
     /**
      * HTTP request 전송
