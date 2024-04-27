@@ -14,17 +14,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 public class MovieInfoUtil {
+
     private final static String MOVIEINFO_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json";
 
-    public MovieDetailVO getMovieInfo(String KEY, String movieCd) {
+    private String KEY = null;
+
+    public void setKey(String key) {
+        this.KEY = key;
+    }
+
+    public MovieDetailVO getMovieInfo(String movieCd) {
         MovieDetailVO movieDetail = null;
         String apiUrl = MOVIEINFO_URL + "?key=" + KEY + "&movieCd=" + movieCd;
         try {

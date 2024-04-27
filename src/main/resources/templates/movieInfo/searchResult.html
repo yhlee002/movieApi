@@ -27,25 +27,26 @@
             <div th:if="${movieList.size() != 0}">
                 <ul class="movie-group list-group" style="list-style: none;">
                     <li class="movie-item list-group-item" th:each="movie : ${movieList}">
-                        <a th:href="'' + ${movie.getLink()}">
+<!--                        <a th:href="'' + ${movie.getLink()}">-->
                             <div class="movie-poster image">
-                                <img th:if="${movie.getImage().length() != 0}" th:src="${movie.getImage()}">
-                                <img th:unless="${movie.getImage().length() != 0}"
+                                <img th:if="${movie.getPosterPath().length() != 0}" th:src="${'https://image.tmdb.org/t/p/original/' + movie.getPosterPath()}">
+                                <img th:unless="${movie.getPosterPath().length() != 0}"
                                      th:src="@{/images/sample-poster.png}">
                             </div>
                             <div class="movie-info">
                                 <p class="movie-title" th:utext="${movie.getTitle()}"></p>
-                                <p class="movie-pubDate" th:text="${'제작년도 : '+movie.getPubDate()}"></p>
-                                <p class="movie-director" th:text="'감독 : '+${movie.getDirector()}"></p>
-                                <p class="movie-actor" th:if="${movie.getActor().length() == 0}"
-                                   th:text="'배우 : 정보없음'"></p>
-                                <p class="movie-actor" th:unless="${movie.getActor().length() == 0}"
-                                   th:text="'배우 : '+${movie.getActor()}"></p>
+                                <p class="movie-pubDate" th:text="${'제작년도 : '+movie.getReleaseDate()}"></p>
+<!--                                <p class="movie-director" th:text="'감독 : '+${movie.getDirector()}"></p>-->
+<!--                                <p class="movie-actor" th:if="${movie.getActor().length() == 0}"-->
+<!--                                   th:text="'배우 : 정보없음'"></p>-->
+<!--                                <p class="movie-actor" th:unless="${movie.getActor().length() == 0}"-->
+<!--                                   th:text="'배우 : '+${movie.getActor()}"></p>-->
+<!--                                <p class="movie-genre" th:text="'장르 : ' + ${}"></p>-->
                                 <p>
-                                    <span class="movie-userRating" th:text="'평점 : '+${movie.getUserRating()}"></span>
+                                    <span class="movie-userRating" th:text="'평점 : '+${movie.getVoteAverage()} + '(' + ${movie.getVoteCount()}')'"></span>
                                 </p>
                             </div>
-                        </a>
+<!--                        </a>-->
                     </li>
                 </ul>
             </div>

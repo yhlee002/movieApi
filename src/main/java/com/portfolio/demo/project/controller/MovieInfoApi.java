@@ -22,23 +22,36 @@ public class MovieInfoApi {
 
     private final CommentMovService commentMovService;
 
+    @Deprecated
     @GetMapping("/movieInfo/{movieCd}")
     public String movieDetail(@PathVariable String movieCd, Model model) {
         com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO movieInfo = movieService.getMovieInfo(movieCd);
         model.addAttribute("movie", movieInfo);
+        model.addAttribute("filePath", MovieService.TMDB_IMAGE_PATH);
 
-        String movieImgUrl = movieService.getMovieImg(movieInfo.getMovieNm());
-        model.addAttribute("movieThumnailUrl", movieImgUrl);
+//        String movieImgUrl = movieService.getMovieImg(movieInfo.getMovieNm());
+//        model.addAttribute("movieThumnailUrl", movieImgUrl);
 
         return "movieInfo/movieInfo";
     }
 
     // 영화 검색시 네이버 api를 통해 검색 결과 나열
+//    @GetMapping("/movieInfo/search")
+//    public String movieSearch(Model model, @RequestParam(name = "q") String query, @RequestParam(name = "page") Integer page, @RequestParam("year") String year) {
+//        List<com.portfolio.demo.project.vo.tmdb.MovieVO> movieList = movieService.getMovieListByTitle(query, true, page, year);
+//        model.addAttribute("movieList", movieList);
+//        model.addAttribute("query", query);
+//        return "movieInfo/searchResult";
+//    }
+
     @GetMapping("/movieInfo/search")
-    public String movieSearch(Model model, @RequestParam(name = "q") String query, @RequestParam(name = "page") Integer page, @RequestParam("year") String year) {
-        List<com.portfolio.demo.project.vo.tmdb.MovieVO> movieList = movieService.getMovieListByTitle(query, true, page, year);
+    public String movieSearch(Model model, @RequestParam("q") String query, @RequestParam("includeAdult") Boolean includeAdult,
+                              @RequestParam("page") Integer page, @RequestParam("year") String year) {
+        List<com.portfolio.demo.project.vo.tmdb.MovieVO> movieList = movieService.getMovieListByTitle(query, includeAdult, page, year);
         model.addAttribute("movieList", movieList);
         model.addAttribute("query", query);
+        model.addAttribute("filePath", MovieService.TMDB_IMAGE_PATH);
+
         return "movieInfo/searchResult";
     }
 }
