@@ -1,10 +1,9 @@
 package com.portfolio.demo.project.util;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.vo.kobis.movie.MovieElementVO;
+import com.portfolio.demo.project.vo.kobis.movie.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
@@ -12,60 +11,135 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 public class BoxOfficeListUtil {
 
-    private static String MOVIELISTURL = "http://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json";
-    private static String KEY = null;
-    private static String itemPerPage = "100";
-    private static String openStartDt = "2020";
-    private static int curPage = 1;
-    private static int totCont;
+    private final static String DAILYBOXOFFICE_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json";
+    private final static String WEEKLYBOXOFFICE_URL = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json";
+    private final static String MOVIEINFO_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json";
 
+    private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
-    public List<MovieElementVO> getMovieList(String KEY) {
-        List<MovieElementVO> movieElementList = null;
-        String res = null;
-        curPage++;
+    private String KEY = null;
 
-        String apiUrl = MOVIELISTURL + "?key=" + KEY + "&itemPerPage=" + itemPerPage + "&openStartDt=" + openStartDt + "&curPage=" + curPage;
+    private final Gson gson = new Gson();
+
+    public void setKey(String key) {
+        this.KEY = key;
+    }
+
+    public List<MovieVO> getDailyBoxOfficeMovies() {
+        List<MovieVO> movieList = null;
+
         try {
-            URL url = new URL(apiUrl);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            HttpURLConnection con = getConnection(DAILYBOXOFFICE_URL + "?key=" + KEY + "&targetDt=" + targetDt);
+            String res = null;
+
             int responseCode = con.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
+            if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
                 res = getResult(con.getInputStream());
 
-                Gson gson = new Gson();
                 JsonObject result = gson.fromJson(res, JsonObject.class);
-                JsonObject movieListResult = result.get("movieListResult").getAsJsonObject();
-                totCont = movieListResult.get("totCnt").getAsInt();
-                JsonArray movieList = movieListResult.get("movieList").getAsJsonArray();
-                movieElementList = gson.fromJson(movieList.toString(), new TypeToken<ArrayList<MovieElementVO>>() {
-                }.getType());
+                String boxOfficeResult = result.get("boxOfficeResult").getAsJsonObject().toString();
+                BoxOfficeResultVO resultVO = gson.fromJson(boxOfficeResult, BoxOfficeResultVO.class);
+                movieList = resultVO.getDailyBoxOfficeList();
 
-            } else {
+            } else { // 에러 발생
                 res = getResult(con.getErrorStream());
-                log.info(res);
+                log.error(res);
                 con.disconnect();
             }
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return movieElementList;
+        return movieList;
     }
 
-    public HttpURLConnection connect(URL url) throws IOException {
-        return (HttpURLConnection) url.openConnection();
+    public List<MovieVO> getWeeklyBoxOfficeMovies() {
+        List<MovieVO> movieList = null;
+
+        try {
+            HttpURLConnection con = getConnection(WEEKLYBOXOFFICE_URL + "?key=" + KEY + "&targetDt=" + targetDt);
+            String res = null;
+
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) { // 정상 호출
+                res = getResult(con.getInputStream());
+
+                JsonObject result = gson.fromJson(res, JsonObject.class);
+                String boxOfficeResult = result.get("boxOfficeResult").getAsJsonObject().toString();
+                BoxOfficeResultVO resultVO = gson.fromJson(boxOfficeResult, BoxOfficeResultVO.class);
+                movieList = resultVO.getWeeklyBoxOfficeList();
+
+            } else { // 에러 발생
+                res = getResult(con.getErrorStream());
+                log.error(res);
+                con.disconnect();
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return movieList;
+    }
+
+    public Map<String, Object> getMovieInfo(String movieCd) {
+        Map<String, Object> datas = new HashMap<>();
+
+        try {
+            HttpURLConnection con = getConnection(MOVIEINFO_URL + "?key=" + KEY + "&movieCd=" + movieCd);
+            String res = null;
+
+            if (con.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                res = getResult(con.getInputStream());
+
+                JsonObject result = gson.fromJson(res, JsonObject.class);
+                JsonObject movieInfoResult = result.get("movieInfoResult").getAsJsonObject();
+                JsonObject movieInfo = movieInfoResult.get("movieInfo").getAsJsonObject();
+
+                MovieDetailVO movieDetail = gson.fromJson(movieInfoResult.get("movieInfo").toString(), MovieDetailVO.class); // new TypeToken<ArrayList<MovieVO>>() {}.getType()
+
+
+                datas.put("movie", movieDetail);
+                datas.put("nations", gson.fromJson(movieInfo.get("nations").getAsJsonArray().toString(), new TypeToken<ArrayList<NationVO>>() {
+                }.getType()));
+                datas.put("genres", gson.fromJson(movieInfo.get("genres").toString(), new TypeToken<ArrayList<GenreVO>>() {
+                }.getType()));
+                datas.put("directors", gson.fromJson(movieInfo.get("directors").toString(), new TypeToken<ArrayList<DirectorVO>>() {
+                }.getType()));
+
+            } else { // 에러 발생
+                res = getResult(con.getErrorStream());
+                log.error(res);
+                con.disconnect();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return datas;
+    }
+
+    public HttpURLConnection getConnection(String apiUrl) {
+        HttpURLConnection con = null;
+        try {
+            URL url = new URL(apiUrl);
+            con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return con;
     }
 
     public String getResult(InputStream stream) throws IOException {

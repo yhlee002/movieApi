@@ -1,12 +1,10 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.util.DailyBoxOfficeListUtil;
-import com.portfolio.demo.project.util.MovieInfoUtil;
+import com.portfolio.demo.project.util.BoxOfficeListUtil;
 
 import com.portfolio.demo.project.util.TMDBUtil;
 import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
 import com.portfolio.demo.project.vo.tmdb.MovieVO;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +16,7 @@ import java.util.ResourceBundle;
 @Service
 public class MovieService {
 
-    private final DailyBoxOfficeListUtil dailyBoxOfficeListUtil = new DailyBoxOfficeListUtil();
-
-    private final MovieInfoUtil movieInfoUtil = new MovieInfoUtil();
+    private final BoxOfficeListUtil dailyBoxOfficeListUtil = new BoxOfficeListUtil();
 
     private final TMDBUtil tmdbUtil = new TMDBUtil();
 
@@ -31,18 +27,21 @@ public class MovieService {
 
     public static final String TMDB_IMAGE_PATH = "https://image.tmdb.org/t/p/"; // + file size / file path
 
-    public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
-        return dailyBoxOfficeListUtil.getMovieList();
-    }
-
-    public com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO getMovieInfo(String movieCd) {
-        return movieInfoUtil.getMovieInfo(movieCd);
-    }
-
     {
         dailyBoxOfficeListUtil.setKey(KOBIS_KEY);
-        movieInfoUtil.setKey(KOBIS_KEY);
         tmdbUtil.setKey(TMDB_KEY, TMDB_ACCESS_TOKEN);
+    }
+
+    public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
+        return dailyBoxOfficeListUtil.getDailyBoxOfficeMovies();
+    }
+
+    public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getWeeklyBoxOfficeList() {
+        return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies();
+    }
+
+    public Map<String, Object> getMovieInfo(String movieCd) {
+        return dailyBoxOfficeListUtil.getMovieInfo(movieCd);
     }
 
     /**

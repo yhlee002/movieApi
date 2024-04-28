@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.vo.naver.NaverMovieDetailVO;
 import com.portfolio.demo.project.vo.tmdb.ImageVO;
 import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
 import com.portfolio.demo.project.vo.tmdb.MovieVO;
@@ -23,9 +22,22 @@ class MovieServiceTest {
     private MovieService movieService;
 
     @Test
-    void kobis_전체_영화_목록_조회() {
+    void kobis_일간_박스오피스_영화_목록_조회() {
         // given & when
         List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> movieList = movieService.getDailyBoxOfficeList();
+
+        for (com.portfolio.demo.project.vo.kobis.movie.MovieVO movieVO : movieList) {
+            System.out.println(movieVO);
+        }
+
+        // then
+        Assertions.assertNotNull(movieList);
+        Assertions.assertEquals(10, movieList.size());
+    }
+
+    @Test
+    void kobis_주간_박스오피스_영화_목록_조회() {
+        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> movieList = movieService.getWeeklyBoxOfficeList();
 
         for (com.portfolio.demo.project.vo.kobis.movie.MovieVO movieVO : movieList) {
             System.out.println(movieVO);
@@ -42,7 +54,8 @@ class MovieServiceTest {
         String movieId = "20234675";
 
         // when
-        com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO movieDetailVO = movieService.getMovieInfo(movieId);
+        Map<String, Object> result = movieService.getMovieInfo(movieId);
+        com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO movieDetailVO = (com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO) result.get("movie");
 
         // then
         assertEquals("파묘", movieDetailVO.getMovieNm());
