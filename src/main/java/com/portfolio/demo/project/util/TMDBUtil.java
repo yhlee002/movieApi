@@ -28,7 +28,7 @@ public class TMDBUtil {
     private String ACCESS_TOKEN = null;
 
     private final String language = "ko-KR";
-    private final String region = "ko";
+    private final String region = "KR"; // ISO 3166-1
 
     public void setKey(String key, String token) {
         this.KEY = key;
