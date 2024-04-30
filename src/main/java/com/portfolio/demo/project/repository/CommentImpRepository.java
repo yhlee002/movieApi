@@ -21,6 +21,4 @@ public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
     List<CommentImp> findRecentCommentImpsByWriter(@Param("member") Member member, @Param("size") int size);
 
     Long countCommentImpsByWriter(Member member);
-
-    List<CommentImp> findByWriterOrderByRegDateDesc(Member member, Pageable pageable);
 }

@@ -23,10 +23,4 @@ public interface CommentMovRepository extends JpaRepository<CommentMov, Long> {
 //     * @param pageable
 //     */
 //    Page<CommentMov> findAllByMovieNoOrderByRecommended(Long movieNo, Pageable pageable);
-
-    /**
-     * 최신순으로 정렬(20개씩 조회)
-     */
-    List<CommentMov> findAllByMovieNoOrderByRegDateDesc(Long movieNo, Pageable pageable);
-
 }
