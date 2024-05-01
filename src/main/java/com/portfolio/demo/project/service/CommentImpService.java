@@ -41,7 +41,10 @@ public class CommentImpService {
         }
 
         Member member = opt.get();
-        return commentImpRepository.findRecentCommentImpsByWriter(member, size).stream().map(CommentImpVO::create).toList();
+
+        Pageable pageable  = PageRequest.of(0, size, Sort.by("regDate").descending());
+        List<CommentImp> list = commentImpRepository.findAllByWriter(member, pageable).getContent();
+        return list.stream().map(CommentImpVO::create).toList();
     }
 
     public CommentImp saveComment(String content, Long boardId, Long memNo) {
@@ -64,14 +67,13 @@ public class CommentImpService {
 
     public void deleteComment(Long commentId) {
         Optional<CommentImp> comm = commentImpRepository.findById(commentId);
-        if (comm.isPresent()) {
-            commentImpRepository.delete(comm.get());
-        }
+        comm.ifPresent(commentImpRepository::delete);
     }
 
     public List<CommentImpVO> getCommentsByBoard(BoardImp board, int page) {
-
-        List<CommentImp> commList = commentImpRepository.findByBoard(board);
+        Pageable pageable  = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
+        Page<CommentImp> result = commentImpRepository.findByBoard(board, pageable);
+        List<CommentImp> commList = result.getContent();
         List<CommentImpVO> commVOList = new ArrayList<>();
 
         for (CommentImp comment : commList) {
@@ -121,7 +123,7 @@ public class CommentImpService {
 //        return commPagenationVO;
 //    }
 
-    public Long getTotalCommentCount(Member member) {
+    public Integer getTotalCommentCount(Member member) {
         return commentImpRepository.countCommentImpsByWriter(member);
     }
 

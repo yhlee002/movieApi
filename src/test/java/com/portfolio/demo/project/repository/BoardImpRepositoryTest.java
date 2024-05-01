@@ -64,24 +64,21 @@ class BoardImpRepositoryTest {
         Member user = createUser();
 
         List<BoardImp> boardList = new ArrayList<>();
-        BoardImp board = BoardImpTestDataBuilder.board()
+        BoardImp board = BoardImpTestDataBuilder.board(user)
                 .title("test-board-1")
                 .content("test-content-1")
-                .writer(user)
                 .build();
         boardList.add(board);
 
-        BoardImp board2 = BoardImpTestDataBuilder.board()
+        BoardImp board2 = BoardImpTestDataBuilder.board(user)
                 .title("test-board-2")
                 .content("test-content-2")
-                .writer(user)
                 .build();
         boardList.add(board2);
 
-        BoardImp board3 = BoardImpTestDataBuilder.board()
+        BoardImp board3 = BoardImpTestDataBuilder.board(user)
                 .title("test-board-3")
                 .content("test-content-3")
-                .writer(user)
                 .build();
         boardList.add(board3);
 
@@ -99,8 +96,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_작성() {
         // given
-        BoardImp board = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+        BoardImp board = BoardImpTestDataBuilder.board(createUser())
                 .build();
         boardImpRepository.save(board);
 
@@ -117,8 +113,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_수정() {
         // given
-        BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+        BoardImp imp = BoardImpTestDataBuilder.board(createUser())
                 .title("Original title")
                 .content("Original content")
                 .build();
@@ -137,8 +132,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_삭제() {
         // given
-        BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+        BoardImp imp = BoardImpTestDataBuilder.board(createUser())
                 .build();
         boardImpRepository.save(imp);
 
@@ -156,8 +150,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_식별번호를_이용한_단건_조회() {
         // given
-        BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+        BoardImp imp = BoardImpTestDataBuilder.board(createUser())
                 .build();
         boardImpRepository.save(imp);
 
@@ -173,13 +166,11 @@ class BoardImpRepositoryTest {
         // given
         Member user = createUser();
 
-        BoardImp prevBoard = BoardImpTestDataBuilder.board()
-                .writer(user)
+        BoardImp prevBoard = BoardImpTestDataBuilder.board(user)
                 .build();
         boardImpRepository.save(prevBoard);
 
-        BoardImp nextBoard = BoardImpTestDataBuilder.board()
-                .writer(user)
+        BoardImp nextBoard = BoardImpTestDataBuilder.board(user)
                 .build();
         boardImpRepository.save(nextBoard);
 
@@ -197,13 +188,11 @@ class BoardImpRepositoryTest {
         // given
         Member user = createUser();
 
-        BoardImp prevBoard = BoardImpTestDataBuilder.board()
-                .writer(user)
+        BoardImp prevBoard = BoardImpTestDataBuilder.board(user)
                 .build();
         boardImpRepository.save(prevBoard);
 
-        BoardImp nextBoard = BoardImpTestDataBuilder.board()
-                .writer(user)
+        BoardImp nextBoard = BoardImpTestDataBuilder.board(user)
                 .build();
         boardImpRepository.save(nextBoard);
 
@@ -219,13 +208,11 @@ class BoardImpRepositoryTest {
     void 인기_게시글_topN_조회() {
         Random random = new Random();
         // given
-        Member user = createUser();
         int n = 0;
         while (n < 5) {
-            BoardImp imp = BoardImpTestDataBuilder.board()
+            BoardImp imp = BoardImpTestDataBuilder.board(createUser())
                     .title("test-title-" + n)
                     .content("test-content" + n)
-                    .writer(user)
                     .build();
             boardImpRepository.saveAndFlush(imp);
 
@@ -258,19 +245,17 @@ class BoardImpRepositoryTest {
 
         int n = 0;
         while (n < 5) {
-            BoardImp imp = BoardImpTestDataBuilder.board()
+            BoardImp imp = BoardImpTestDataBuilder.board(user)
                     .title("test-title-" + n)
                     .content("test content " + n)
-                    .writer(user)
                     .build();
             boardImpRepository.saveAndFlush(imp);
             n++;
         }
 
-        boardImpRepository.save(BoardImpTestDataBuilder.board()
+        boardImpRepository.save(BoardImpTestDataBuilder.board(user2)
                 .title("test-title-5")
                 .content("test content 5")
-                .writer(user2)
                 .build());
         boardImpRepository.flush();
 
@@ -299,18 +284,16 @@ class BoardImpRepositoryTest {
 
         int n = 0;
         while (n < 10) {
-            boardImpRepository.saveAndFlush(BoardImpTestDataBuilder.board()
+            boardImpRepository.saveAndFlush(BoardImpTestDataBuilder.board(user)
                     .title("test-board-" + n)
-                    .writer(user)
                     .build()
             );
             n++;
         }
 
         while (n < 14) {
-            boardImpRepository.saveAndFlush(BoardImpTestDataBuilder.board()
+            boardImpRepository.saveAndFlush(BoardImpTestDataBuilder.board(user2)
                     .title("test-board-" + n)
-                    .writer(user2)
                     .build()
             );
             n++;
@@ -344,31 +327,27 @@ class BoardImpRepositoryTest {
         // given
         Member user = createUser();
         List<BoardImp> boardList = new ArrayList<>();
-        BoardImp board = BoardImpTestDataBuilder.board()
+        BoardImp board = BoardImpTestDataBuilder.board(user)
                 .title("efg")
                 .content("example content")
-                .writer(user)
                 .build();
         boardList.add(board);
 
-        BoardImp board2 = BoardImpTestDataBuilder.board()
+        BoardImp board2 = BoardImpTestDataBuilder.board(user)
                 .title("bcde")
                 .content("test content ef")
-                .writer(user)
                 .build();
         boardList.add(board2);
 
-        BoardImp board3 = BoardImpTestDataBuilder.board()
+        BoardImp board3 = BoardImpTestDataBuilder.board(user)
                 .title("abcdefg")
                 .content("234566")
-                .writer(user)
                 .build();
         boardList.add(board3);
 
-        BoardImp board4 = BoardImpTestDataBuilder.board()
+        BoardImp board4 = BoardImpTestDataBuilder.board(user)
                 .title("example")
                 .content("bcd")
-                .writer(user)
                 .build();
         boardList.add(board4);
 
