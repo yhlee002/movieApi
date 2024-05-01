@@ -3,7 +3,7 @@ package com.portfolio.demo.project.model;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 
-public class CommentMoveTestDataBuilder {
+public class CommentMovTestDataBuilder {
 
     public static CommentMov.CommentMovBuilder noWayUpComment(Member member) {
         return CommentMov

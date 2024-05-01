@@ -57,24 +57,21 @@ class BoardNoticeRepositoryTest {
         Member admin = createAdmin();
 
         List<BoardNotice> boardList = new ArrayList<>();
-        BoardNotice board = BoardNoticeTestDataBuilder.board()
+        BoardNotice board = BoardNoticeTestDataBuilder.board(admin)
                 .title("abcdefg")
                 .content("1234566")
-                .writer(admin)
                 .build();
         boardList.add(board);
 
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board()
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board(admin)
                 .title("poiuytre")
                 .content("566789")
-                .writer(admin)
                 .build();
         boardList.add(board2);
 
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board()
+        BoardNotice board3 = BoardNoticeTestDataBuilder.board(admin)
                 .title("mnbkjbcd")
                 .content("1234")
-                .writer(admin)
                 .build();
         boardList.add(board3);
 
@@ -94,8 +91,7 @@ class BoardNoticeRepositoryTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 공지사항_게시글_작성() {
         // given
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(createAdmin())
+        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board(createAdmin())
                 .build();
         boardNoticeRepository.saveAndFlush(boardNotice);
 
@@ -112,10 +108,9 @@ class BoardNoticeRepositoryTest {
     @Test
     void 공지사항_게시글_수정() {
         // given
-        BoardNotice notice = BoardNoticeTestDataBuilder.board()
+        BoardNotice notice = BoardNoticeTestDataBuilder.board(createAdmin())
                 .title("Original title")
                 .content("Original content")
-                .writer(createAdmin())
                 .build();
         boardNoticeRepository.save(notice);
 
@@ -125,15 +120,14 @@ class BoardNoticeRepositoryTest {
         boardNoticeRepository.save(notice);
 
         // then
-        Assertions.assertNotEquals("Original title",notice.getTitle());
-        Assertions.assertEquals("Original content",notice.getContent());
+        Assertions.assertNotEquals("Original title", notice.getTitle());
+        Assertions.assertEquals("Original content", notice.getContent());
     }
 
     @Test
     void 공지사항_게시글_삭제() {
         // given
-        BoardNotice board = BoardNoticeTestDataBuilder.board()
-                .writer(createAdmin())
+        BoardNotice board = BoardNoticeTestDataBuilder.board(createAdmin())
                 .build();
         boardNoticeRepository.save(board);
 
@@ -150,8 +144,7 @@ class BoardNoticeRepositoryTest {
     @Test
     void 공지사항_게시글_식별번호를_이용한_단건_조회() {
         // given
-        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board()
-                .writer(createAdmin())
+        BoardNotice boardNotice = BoardNoticeTestDataBuilder.board(createAdmin())
                 .build();
         boardNoticeRepository.save(boardNotice);
 
@@ -168,13 +161,11 @@ class BoardNoticeRepositoryTest {
         // given
         Member admin = createAdmin();
 
-        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board(admin)
                 .build();
         boardNoticeRepository.save(prevBoard);
 
-        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board(admin)
                 .build();
         boardNoticeRepository.save(nextBoard);
 
@@ -191,13 +182,11 @@ class BoardNoticeRepositoryTest {
         // given
         Member admin = createAdmin();
 
-        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board(admin)
                 .build();
         boardNoticeRepository.save(prevBoard);
 
-        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board()
-                .writer(admin)
+        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board(admin)
                 .build();
         boardNoticeRepository.save(nextBoard);
 
@@ -217,8 +206,7 @@ class BoardNoticeRepositoryTest {
 
         int seq = 0;
         while (seq < 10) {
-            BoardNotice board = BoardNoticeTestDataBuilder.board()
-                    .writer(admin)
+            BoardNotice board = BoardNoticeTestDataBuilder.board(admin)
                     .title("test-notice-" + seq)
                     .content("test-notice-" + seq + " content.")
                     .build();
@@ -261,31 +249,27 @@ class BoardNoticeRepositoryTest {
         Member admin = createAdmin();
 
         List<BoardNotice> boardList = new ArrayList<>();
-        BoardNotice board = BoardNoticeTestDataBuilder.board()
+        BoardNotice board = BoardNoticeTestDataBuilder.board(admin)
                 .title("abcdefg")
                 .content("1234566")
-                .writer(admin)
                 .build();
         boardList.add(board);
 
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board()
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board(admin)
                 .title("poiuytre")
                 .content("566789")
-                .writer(admin)
                 .build();
         boardList.add(board2);
 
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board()
+        BoardNotice board3 = BoardNoticeTestDataBuilder.board(admin)
                 .title("mnbkjbcd")
                 .content("234566")
-                .writer(admin)
                 .build();
         boardList.add(board3);
 
-        BoardNotice board4 = BoardNoticeTestDataBuilder.board()
+        BoardNotice board4 = BoardNoticeTestDataBuilder.board(admin)
                 .title("dfg45341234")
                 .content("bcd")
-                .writer(admin)
                 .build();
         boardList.add(board4);
 

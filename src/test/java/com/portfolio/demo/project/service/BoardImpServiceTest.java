@@ -78,7 +78,7 @@ class BoardImpServiceTest {
         ).when(memberServiceMock).findByMemNo(100L);
 
         Member member = memberService.findByMemNo(100L);
-        BoardImp imp = BoardImpTestDataBuilder.board().writer(member).build();
+        BoardImp imp = BoardImpTestDataBuilder.board(member).build();
 
         // when & then
         Assertions.assertThrows(IllegalStateException.class, () -> {
@@ -93,7 +93,7 @@ class BoardImpServiceTest {
         // given
         Member member = memberService.saveMember(MemberTestDataBuilder.user().build());
 
-        BoardImp imp = BoardImpTestDataBuilder.board().writer(member).build();
+        BoardImp imp = BoardImpTestDataBuilder.board(member).build();
 
         // when & then
         boardImpService.updateBoard(imp); // BoardImp savedImp =
