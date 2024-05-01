@@ -2,7 +2,7 @@ package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.model.CommentMoveTestDataBuilder;
+import com.portfolio.demo.project.model.CommentMovTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -47,10 +47,10 @@ class CommentMovRepositoryTest {
         Member member = createRandomMember();
         memberRepository.save(member);
 
-        CommentMov commentMov = CommentMoveTestDataBuilder.noWayUpComment(member)
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment(member)
                 .content("Nice movie!")
                 .build();
-        CommentMov commentMov2 = CommentMoveTestDataBuilder.noWayUpComment(member)
+        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment(member)
                 .content("Good!")
                 .build();
         commentMovRepository.save(commentMov);
@@ -75,19 +75,19 @@ class CommentMovRepositoryTest {
         Member user2 = createRandomMember();
         memberRepository.save(user2);
 
-        CommentMov commentMov = CommentMoveTestDataBuilder.noWayUpComment(user)
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment(user)
                 .content("Nice movie!")
                 .rating(5)
                 .build();
         commentMovRepository.save(commentMov);
 
-        CommentMov commentMov2 = CommentMoveTestDataBuilder.noWayUpComment(user2)
+        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment(user2)
                 .content("Good!")
                 .rating(5)
                 .build();
         commentMovRepository.save(commentMov2);
 
-        CommentMov commentMov3 = CommentMoveTestDataBuilder.noWayUpComment(user)
+        CommentMov commentMov3 = CommentMovTestDataBuilder.noWayUpComment(user)
                 .content("So so..")
                 .rating(3)
                 .build();
@@ -121,7 +121,7 @@ class CommentMovRepositoryTest {
         memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMoveTestDataBuilder
+        CommentMov commentMov = CommentMovTestDataBuilder
                 .noWayUpComment(member)
                 .build();
         commentMovRepository.save(commentMov);
@@ -137,7 +137,7 @@ class CommentMovRepositoryTest {
         memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMoveTestDataBuilder
+        CommentMov commentMov = CommentMovTestDataBuilder
                 .noWayUpComment(member)
                 .build();
         commentMovRepository.save(commentMov);
@@ -161,7 +161,7 @@ class CommentMovRepositoryTest {
         memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMoveTestDataBuilder
+        CommentMov commentMov = CommentMovTestDataBuilder
                 .noWayUpComment(member)
                 .build();
         commentMovRepository.save(commentMov);
