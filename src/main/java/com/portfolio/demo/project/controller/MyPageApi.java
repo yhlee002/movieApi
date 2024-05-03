@@ -102,11 +102,11 @@ public class MyPageApi {
     }
 
     @DeleteMapping("/mypage/info")
-    public String deleteUserInfo(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+    public String deleteMember(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         log.info("delete user info: {}", memberVO.toString());
 
-        memberService.deleteUserInfo(memberVO.getMemNo());
+        memberService.deleteMember(memberVO.getMemNo());
         rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
