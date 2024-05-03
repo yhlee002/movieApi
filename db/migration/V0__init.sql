@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS member (
     `phone` varchar(20) DEFAULT NULL COMMENT '연락처',
     `reg_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '회원가입일',
     `profile_image` varchar(100) DEFAULT NULL COMMENT '프로필 이미지',
-    `role` enum('role_user','role_admin') DEFAULT 'role_user' COMMENT '권한(일반회원과 관리자 구분)',
+    `role` enum('ROLE_USER','ROLE_ADMIN') DEFAULT 'ROLE_USER' COMMENT '권한(일반회원과 관리자 구분)',
     `certification` char(1) DEFAULT '0' COMMENT '인증 여부(소셜 api를 이용하지 않고 회원가입할 경우 메일 인증 여부 저장)',
     `cert_key` varchar(100) DEFAULT NULL COMMENT '메일 인증에 사용되는 키(해시)',
     PRIMARY KEY (`mem_no`)

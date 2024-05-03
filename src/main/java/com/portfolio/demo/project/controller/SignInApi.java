@@ -3,6 +3,7 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.service.RememberMeTokenService;
 import com.portfolio.demo.project.util.KakaoLoginApiUtil;
 import com.portfolio.demo.project.util.KakaoProfileApiUtil;
 import com.portfolio.demo.project.util.NaverLoginApiUtil;
@@ -37,6 +38,8 @@ import java.util.ResourceBundle;
 public class SignInApi {
 
     private final MemberService memberService;
+
+    private final RememberMeTokenService rememberMeTokenService;
 
     private final SecureRandom random;
 
@@ -116,7 +119,7 @@ public class SignInApi {
         log.info("profile : " + profile);
 
         /* 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환 */
-        Member member = memberService.findByProfile(profile.get("id"), "naver");
+        Member member = memberService.findByIdentifierAndProvider(profile.get("id"), "naver");
 
         if (member != null) { // info.getRole().equals("ROLE_USER")
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
@@ -158,7 +161,7 @@ public class SignInApi {
         Map<String, String> profile = kakaoProfileApiUtil.getProfile(access_token);
         log.info("profile : " + profile);
 
-        Member member = memberService.findByProfile(profile.get("id"), "kakao");
+        Member member = memberService.findByIdentifierAndProvider(profile.get("id"), "kakao");
         if (member != null) {
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
