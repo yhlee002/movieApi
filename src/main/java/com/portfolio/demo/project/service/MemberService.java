@@ -43,7 +43,7 @@ public class MemberService {
     }
 
     public List<Member> findAllByNameContaining(String name, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("regDt").descending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         return memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
     }
 
@@ -65,45 +65,31 @@ public class MemberService {
 
     public Member saveMember(Member member) {
         if (member.getMemNo() == null) {
-            member.updatePassword(passwordEncoder.encode(member.getPassword()));
+            if (member.getProvider().equals("none")) {
+                member.updatePassword(passwordEncoder.encode(member.getPassword()));
+                member.updateCertification("N");
+            } else {
+                member.updateCertification("Y");
+            }
             if (member.getRole() == null) member.updateRole("ROLE_USER");
-            member.updateCertification("N");
-            memberRepository.save(member);
         }
 
         return memberRepository.save(member);
     }
 
-    public void saveOauthMember(HttpSession session, String id, String name, String phone, String provider) { // Member member
-        Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
-        log.info("profile : " + profile);
-        String profileImage = profile.get("profile_image");
-        if (profileImage != null) {
-            profileImage = profileImage.replace("\\", "");
-        }
-
-        memberRepository.save(
-                Member.builder()
-                        .memNo(null)
-                        .identifier(id)
-                        .name(name)
-                        .password("")
-                        .phone(phone)
-                        .profileImage(profileImage)
-                        .provider(provider) // none, naver, kakao
-                        .role("ROLE_USER")
-                        .certKey(null)
-                        .certification("Y")
-                        .build()
-        );
+    public void saveOauthMember(Member member) {
+        memberRepository.save(member);
     }
 
     public void updatePwd(Long memNo, String pwd) {
-        Member member = memberRepository.findById(memNo).get();
-        if (member != null) {
+        Optional<Member> opt = memberRepository.findById(memNo);
+        if (opt.isPresent()) {
+            Member member = opt.get();
             member.updatePassword(passwordEncoder.encode(pwd));
-            Member memberUpdated = memberRepository.save(member);
-            log.info("업데이트된 회원 정보 : " + memberUpdated.toString());
+            memberRepository.save(member);
+            log.info("회원 비밀번호 업데이트(회원 식별번호 : " + member.getMemNo() + ")");
+        } else {
+            throw new IllegalStateException("존재하지 않는 회원입니다.");
         }
     }
 
@@ -115,13 +101,6 @@ public class MemberService {
             member.updateCertKey(passwordEncoder.encode(certKey));
             memberRepository.save(member);
         }
-    }
-
-    /* provider 전달 필요(naver, kakao) */
-    public Member findByProfile(String identifier, String provider) {
-        Member member = memberRepository.findByIdentifierAndProvider(identifier, provider);
-
-        return member;
     }
 
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
@@ -173,15 +152,10 @@ public class MemberService {
         return originMember;
     }
 
-    public void deleteUserInfo(Long memNo) {
+    public void deleteMember(Long memNo) {
         Optional<Member> opt = memberRepository.findById(memNo);
-        if (!opt.isPresent()) {
+        if (opt.isEmpty()) {
             log.error("회원 삭제 실패 : 존재하지 않는 회원(MemNo : {})", memNo);
-        }
-        memberRepository.delete(opt.get());
-    }
-
-    public void deleteMember(Member member) {
-        memberRepository.delete(member);
+        } else memberRepository.delete(opt.get());
     }
 }

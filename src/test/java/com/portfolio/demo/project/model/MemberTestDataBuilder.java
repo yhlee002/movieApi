@@ -14,7 +14,7 @@ public class MemberTestDataBuilder {
                 .identifier("dldudgus214@naver.com")
                 .name("이영현")
                 .phone("000-000-0000")
-                .role("role_admin")
+                .role("ROLE_ADMIN")
                 .provider("none")
                 .certification("Y");
     }
@@ -24,9 +24,19 @@ public class MemberTestDataBuilder {
                 .identifier("xxxoxxo002@gmail.com")
                 .name("이영현")
                 .phone("000-111-0000")
-                .role("role_user")
+//                .role("ROLE_USER")
                 .provider("none")
                 .certification("N");
+    }
+
+    public static Member.MemberBuilder naverUser() {
+        return Member.builder()
+                .identifier("353896214578115")
+                .name("이영현")
+                .phone("000-1212-3434")
+                .role("ROLE_USER")
+                .provider("naver")
+                .certification("Y");
     }
 
     public static Member.MemberBuilder randomIdentifierUser() {
@@ -40,7 +50,7 @@ public class MemberTestDataBuilder {
                 .identifier("test" + new Random().nextInt(10000) + "@gmail.com")
                 .name(randomString)
                 .phone("010-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
-                .role("role_user")
+                .role("ROLE_USER")
                 .provider("none")
                 .certification("N");
     }

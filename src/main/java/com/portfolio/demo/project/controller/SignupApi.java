@@ -101,7 +101,7 @@ public class SignupApi {
         } else {
             result.put("resultCode", "fail");
         }
-            return result;
+        return result;
     }
 
 
@@ -118,9 +118,9 @@ public class SignupApi {
                 .build();
         /* 여러번 클릭시 멤버는 여러번 생성되었는데 이메일이 가지 않았을 경우를 대비해
            이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용 */
-        Member temp_member = memberService.findByIdentifier(email);
-        if(temp_member != null){
-            memberService.deleteMember(temp_member);
+        Member tempMember = memberService.findByIdentifier(email);
+        if (tempMember != null) {
+            memberService.deleteMember(tempMember.getMemNo());
         }
         memberService.saveMember(member);
         Map<String, String> result = mailService.sendGreetingMail(member.getIdentifier());
@@ -132,7 +132,7 @@ public class SignupApi {
         if (result.get("resultCode") == "success") {
             return createdMember.getMemNo();
         } else {
-            memberService.deleteUserInfo(createdMember.getMemNo());
+            memberService.deleteMember(createdMember.getMemNo());
             return -1L;
         }
 
@@ -141,7 +141,28 @@ public class SignupApi {
     @ResponseBody
     @RequestMapping(value = "/sign-up-processor_oauth", method = RequestMethod.POST)
     public Long signUpProc_o(HttpSession session, @RequestParam String id, @RequestParam String name, @RequestParam String phone, @RequestParam String provider) {
-        memberService.saveOauthMember(session, id, name, phone, provider);
+        Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
+        log.info("profile : " + profile);
+
+        String profileImage = profile.get("profile_image");
+        if (profileImage != null) {
+            profileImage = profileImage.replace("\\", "");
+        }
+
+        // id, name, phone, provider, profileImage
+        memberService.saveOauthMember(
+                Member.builder()
+                        .identifier(id)
+                        .password("")
+                        .name(name)
+                        .phone(phone)
+                        .provider(provider)
+                        .profileImage(profileImage)
+                        .role("ROLE_USER")
+                        .certKey(null)
+                        .certification("Y")
+                        .build()
+        );
 
         /* DB에 저장된 데이터 로드 */
         Member createdMember = memberService.findByIdentifierAndProvider(id, provider);
