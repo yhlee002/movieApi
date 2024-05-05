@@ -107,7 +107,7 @@ class BoardImpRepositoryTest {
         Assertions.assertNotNull(board.getWriter());
         Assertions.assertEquals(0, board.getViews());
         Assertions.assertNotNull(board.getRegDate());
-        Assertions.assertNull(board.getComments());
+        Assertions.assertEquals(0, board.getComments().size());
     }
 
     @Test
@@ -210,7 +210,7 @@ class BoardImpRepositoryTest {
         // given
         int n = 0;
         while (n < 5) {
-            BoardImp imp = BoardImpTestDataBuilder.board(createUser())
+            BoardImp imp = BoardImpTestDataBuilder.board(createRandomUser())
                     .title("test-title-" + n)
                     .content("test-content" + n)
                     .build();
