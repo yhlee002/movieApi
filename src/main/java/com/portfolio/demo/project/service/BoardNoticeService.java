@@ -44,7 +44,7 @@ public class BoardNoticeService {
      * @param boardId
      * @return 단건 공지 게시글
      */
-    public BoardNotice findById(Long boardId) {
+    public BoardNotice getById(Long boardId) {
         BoardNotice board = boardNoticeRepository.findBoardNoticeById(boardId);
         return board;
     }
@@ -55,7 +55,7 @@ public class BoardNoticeService {
      * @param boardId
      */
     @Transactional
-    public HashMap<String, BoardNotice> selectBoardsByBoardId(Long boardId) {
+    public HashMap<String, BoardNotice> getBoardsByBoardId(Long boardId) {
         BoardNotice board = null;
         Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
         if (boardOpt.isPresent()) {
@@ -75,7 +75,7 @@ public class BoardNoticeService {
     /**
      * 최근 공지사항 게시글 top {size}
      */
-    public List<BoardNotice> getRecNoticeBoard(int size) {
+    public List<BoardNotice> getRecentNoticeBoard(int size) {
         return boardNoticeRepository.findRecentBoardNoticesOrderByRegDate(size);
     }
 
@@ -149,7 +149,7 @@ public class BoardNoticeService {
      * @param page
      */
     @Transactional
-    public NoticePagenationVO getBoardNotices(int page) {
+    public NoticePagenationVO getBoardNoticePagenation(int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "regDate"));
         Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
 
@@ -166,7 +166,7 @@ public class BoardNoticeService {
      * @param keyword
      */
     @Transactional
-    public NoticePagenationVO getBoardNoticesByTitleOrContent(String keyword, int page) {
+    public NoticePagenationVO getBoardNoticePagenationByTitleOrContent(String keyword, int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
         Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
