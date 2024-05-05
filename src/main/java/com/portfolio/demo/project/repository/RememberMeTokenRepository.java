@@ -11,4 +11,6 @@ public interface RememberMeTokenRepository extends JpaRepository<RememberMeToken
     RememberMeToken findBySeries(String series);
 
     List<RememberMeToken> findByUsername(String username);
+
+    void deleteByUsername(String username);
 }
