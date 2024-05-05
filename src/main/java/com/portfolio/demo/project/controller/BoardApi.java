@@ -48,10 +48,10 @@ public class BoardApi {
 
         NoticePagenationVO pagenationVO = null;
         if (query != null) {
-            pagenationVO = boardNoticeService.getBoardNoticesByTitleOrContent(query, pageNum);
+            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(query, pageNum);
             model.addAttribute("pagenation", pagenationVO);
         } else {
-            pagenationVO = boardNoticeService.getBoardNotices(pageNum);
+            pagenationVO = boardNoticeService.getBoardNoticePagenation(pageNum);
             model.addAttribute("pagenation", pagenationVO);
         }
 
@@ -66,7 +66,7 @@ public class BoardApi {
      */
     @RequestMapping("/notice/{boardNo}")
     public String notice(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardNotice> boards = boardNoticeService.selectBoardsByBoardId(boardNo);
+        Map<String, BoardNotice> boards = boardNoticeService.getBoardsByBoardId(boardNo);
         model.addAttribute("board", boards.get("board"));
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
@@ -84,7 +84,7 @@ public class BoardApi {
     @GetMapping("/notice/new")
     public String noticeBoardUpdateForm(Long boardId, Model model) {
         if (boardId != null) {
-            model.addAttribute("board", boardNoticeService.findById(boardId));
+            model.addAttribute("board", boardNoticeService.getById(boardId));
         }
         return "board_notice/writeForm";
     }
