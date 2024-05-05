@@ -148,17 +148,16 @@ public class CommentApi {
     @GetMapping("/imp/comments")
     public List<CommentImpVO> getCommentList(Long boardId, int page) {
         BoardImp board = boardImpService.findById(boardId);
-        List<CommentImpVO> impList = commentImpService.getCommentsByBoard(board, page);
+        return commentImpService.getCommentsByBoard(board, page)
+                .stream().map(CommentImpVO::create).toList();
 
-        return impList;
     }
 
     @GetMapping("/imp/comment/checkMemNo")
     public List<CommentImpVO> getCommentListByMemNo(Long memNo, int page) {
         Member member = memberService.findByMemNo(memNo);
-        List<CommentImpVO> impList = commentImpService.getCommentsByMember(member, page);
-
-        return impList;
+        return commentImpService.getCommentsByMember(member, page)
+                .stream().map(CommentImpVO::create).toList();
     }
 
 

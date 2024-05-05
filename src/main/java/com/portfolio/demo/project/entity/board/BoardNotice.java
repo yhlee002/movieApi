@@ -1,9 +1,9 @@
 package com.portfolio.demo.project.entity.board;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -37,7 +37,8 @@ public class BoardNotice extends BaseEntity {
 
     @Column(name = "mod_dt")
     @LastModifiedDate
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss:SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss:SSS", timezone = "Asia/Seoul")
     private LocalDateTime modDate; // 최종 수정 시간
 
     @Column(name = "views")

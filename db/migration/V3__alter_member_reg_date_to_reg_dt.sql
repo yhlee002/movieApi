@@ -1,1 +1,0 @@
-ALTER TABLE member CHANGE reg_date reg_dt DATETIME;
