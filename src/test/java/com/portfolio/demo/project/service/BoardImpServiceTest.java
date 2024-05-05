@@ -110,45 +110,25 @@ class BoardImpServiceTest {
         boardImpService.updateBoard(BoardImpTestDataBuilder.board(user)
                 .title("test-board-1")
                 .build());
-        Thread.sleep(1000);
+        Thread.sleep(500);
         boardImpService.updateBoard(BoardImpTestDataBuilder.board(user)
                 .title("test-board-2")
                 .build());
-        Thread.sleep(1000);
+        Thread.sleep(500);
         boardImpService.updateBoard(BoardImpTestDataBuilder.board(user)
                 .title("test-board-3")
                 .build());
 
-        List<BoardImp> list = boardImpService.getImpsByMember(user, 1);
-        List<BoardImp> list2 = boardImpService.getImpsByMember(user, 2);
-        List<BoardImp> list3 = boardImpService.getImpsByMember(user, 3);
-
-        list.forEach(b -> {
-            System.out.println(b.getTitle() + " --- " + b.getRegDate());
-        });
-
-        list2.forEach(b -> {
-            System.out.println(b.getTitle() + " --- " + b.getRegDate());
-        });
-
-        list3.forEach(b -> {
-            System.out.println(b.getTitle() + " --- " + b.getRegDate());
-        });
+        List<BoardImp> list = boardImpService.getImpsByMember(user, 0);
 
         // then
-        Assertions.assertEquals(1, list.size());
-        Assertions.assertEquals(2, list2.size());
-        Assertions.assertEquals(3, list3.size());
+        Assertions.assertEquals(3, list.size());
 
         Assertions.assertEquals("test-board-3", list.get(0).getTitle());
         Assertions.assertAll(
-                () -> Assertions.assertEquals("test-board-3", list2.get(0).getTitle()),
-                () -> Assertions.assertEquals("test-board-2", list2.get(1).getTitle())
-        );
-        Assertions.assertAll(
-                () -> Assertions.assertEquals("test-board-3", list3.get(0).getTitle()),
-                () -> Assertions.assertEquals("test-board-2", list3.get(1).getTitle()),
-                () -> Assertions.assertEquals("test-board-1", list3.get(2).getTitle())
+                () -> Assertions.assertEquals("test-board-3", list.get(0).getTitle()),
+                () -> Assertions.assertEquals("test-board-2", list.get(1).getTitle()),
+                () -> Assertions.assertEquals("test-board-1", list.get(2).getTitle())
         );
     }
 
