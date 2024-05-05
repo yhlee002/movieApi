@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity {
 
     @Column(name = "reg_dt", updatable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss:SSS", timezone = "Asia/Seoul")
     @CreationTimestamp
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss:SSS")
     private LocalDateTime regDate;
 }
