@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.BoardImpService;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +42,17 @@ public class CommentApi {
      */
     @PostMapping("/movieInfo/comment")
     public ResponseEntity<String> writeCommentMovieInfo(String commentContent, Long memNo, Long movieNo, int rating) {
-        CommentMov comment = commentMovService.saveComment(memNo, commentContent, movieNo, rating);
-        if (comment != null) {
+        Member user = memberService.findByMemNo(memNo);
+        try {
+            commentMovService.saveComment(
+                    CommentMov.builder()
+                            .writer(user)
+                            .content(commentContent)
+                            .movieNo(movieNo)
+                            .rating(rating)
+                            .build()
+            );
+        } catch (Exception e) {
             return new ResponseEntity<>("success", HttpStatus.OK);
         }
 
@@ -56,9 +67,14 @@ public class CommentApi {
      */
     @GetMapping("/movieInfo/comment")
     public Map<String, Object> getCommentList(@RequestParam(name = "p") int pageNum, Long movieCd) {
-        Map<String, Object> map = commentMovService.getCommentsOrderByRegDate(pageNum, movieCd);
+        List<CommentMovVO> list = commentMovService.getCommentsByMovie(pageNum, movieCd).stream().map(CommentMovVO::create).toList();
+        int totalPage = commentMovService.getTotalPageCountByMovieNo(movieCd);
+        Map<String, Object> result = new HashMap<>();
+        result.put("list", list);
+        result.put("totalPageCnt", totalPage);
+        result.put("totalCommentCnt", list.size());
 
-        return map;
+        return result;
     }
 
     /**
@@ -70,7 +86,7 @@ public class CommentApi {
     public ResponseEntity<List<CommentMovVO>> getMovieCommentListByMemNo(Long memNo, int page) {
         log.info("들어온 사용자 식별번호 : " + memNo);
         Member member = memberService.findByMemNo(memNo);
-        List<CommentMovVO> commList = commentMovService.getCommentsByMember(member, page);
+        List<CommentMovVO> commList = commentMovService.getCommentsByMember(member, page).stream().map(CommentMovVO::create).toList();
         log.info("반환될 댓글 리스트 : " + commList);
 
         return new ResponseEntity<>(commList, HttpStatus.OK);
@@ -97,7 +113,7 @@ public class CommentApi {
      */
     @DeleteMapping("/movieInfo/comment")
     public String deleteCommentMov(Long commentId) {
-        commentMovService.deleteMovComment(commentId);
+        commentMovService.deleteCommentById(commentId);
 
         return "success";
     }
@@ -112,20 +128,31 @@ public class CommentApi {
      */
     @PostMapping("/imp/comment")
     public void writeCommentImp(String content, Long boardId, Long memNo) {
-        commentImpService.saveComment(content, boardId, memNo);
+        BoardImp board = boardImpService.findById(boardId);
+        Member user = memberService.findByMemNo(memNo);
+        commentImpService.saveComment(
+                CommentImp.builder()
+                .content(content)
+                .writer(user)
+                .board(board)
+                .build());
     }
 
     /**
      * 댓글 수정
-     * @param content
-     * @param commentId
+     * @param comment
      */
     @PatchMapping("/imp/comment")
-    public String updateCommentImp(String content, Long commentId) {
-        if (commentImpService.updateComment(commentId, content) != null) {
-            return "success";
+    public String updateCommentImp(@RequestBody CommentImp comment) {
+        CommentImp original = commentImpService.getCommentById(comment.getId());
+
+        try {
+            original.updateContent(comment.getContent());
+            commentImpService.updateComment(original);
+        } catch (Exception e) {
+            return "false";
         }
-        return "false";
+        return "success";
     }
 
     /**
@@ -134,7 +161,7 @@ public class CommentApi {
      */
     @DeleteMapping("/imp/comment")
     public String deleteCommentImp(Long commentId) {
-        commentImpService.deleteComment(commentId);
+        commentImpService.deleteCommentById(commentId);
 
         return "success";
     }

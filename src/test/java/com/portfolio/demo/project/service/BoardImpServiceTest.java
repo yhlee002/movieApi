@@ -119,9 +119,9 @@ class BoardImpServiceTest {
                 .title("test-board-3")
                 .build());
 
-        List<BoardImp> list = boardImpService.getRecentBoardImpsByMemberNo(user.getMemNo(), 1);
-        List<BoardImp> list2 = boardImpService.getRecentBoardImpsByMemberNo(user.getMemNo(), 2);
-        List<BoardImp> list3 = boardImpService.getRecentBoardImpsByMemberNo(user.getMemNo(), 3);
+        List<BoardImp> list = boardImpService.getImpsByMember(user, 1);
+        List<BoardImp> list2 = boardImpService.getImpsByMember(user, 2);
+        List<BoardImp> list3 = boardImpService.getImpsByMember(user, 3);
 
         list.forEach(b -> {
             System.out.println(b.getTitle() + " --- " + b.getRegDate());

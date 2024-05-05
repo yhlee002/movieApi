@@ -13,4 +13,12 @@ public class CommentMovTestDataBuilder {
                 .movieNo(1096197L) // No Way Up
                 .rating(4);
     }
+
+    public static CommentMov.CommentMovBuilder duneComment(Member member) {
+        return CommentMov.builder()
+                .writer(member)
+                .content("dune comment.")
+                .movieNo(693134L)
+                .rating(4);
+    }
 }
