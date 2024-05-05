@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -68,32 +66,11 @@ public class BoardImpService {
     }
 
     /**
-     * 내가 쓴 감상평 게시글 최신순 {size}개 조회
-     *
-     * @param memNo
-     * @return
-     */
-    public List<BoardImp> getRecentBoardImpsByMemberNo(Long memNo, int size) {
-        Optional<Member> opt = memberRepository.findById(memNo);
-        if (opt.isEmpty()) {
-            throw new IllegalStateException();
-        }
-        Member member = opt.get();
-
-        Pageable pageable = PageRequest.of(0, size, Sort.by("regDate").descending());
-        Page<BoardImp> page = boardImpRepository.findAllByWriter(member, pageable);
-//        Page<BoardImp> page = boardImpRepository.findAllByWriterOrderByRegDateAsc(member.getMemNo(), pageable);
-
-        return page.getContent();
-    }
-
-    /**
      * 인기 감상평 게시글 top {size} 조회
      */
     public List<BoardImp> getMostFavImpBoard(int size) {
         return boardImpRepository.findMostFavImpBoards(size);
     }
-
 
     /**
      * 감상평 게시글 수정
@@ -101,7 +78,7 @@ public class BoardImpService {
      * @param imp
      */
     @Transactional
-    public void updateBoard(BoardImp imp) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+    public void updateBoard(BoardImp imp) { // TODO. 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
         // 작성자 정보 검증
         Boolean exist = validateMember(imp.getWriter());
         if (exist) {

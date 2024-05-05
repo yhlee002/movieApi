@@ -47,12 +47,13 @@ public class MyPageApi {
     @GetMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
+        Member member = memberService.findByMemNo(memberVO.getMemNo());
         model.addAttribute("boardList",
-                boardImpService.getRecentBoardImpsByMemberNo(memberVO.getMemNo(), 5)
+                boardImpService.getImpsByMember(member, 5)
                         .stream().map(BoardImpVO::create).toList()
         );
         model.addAttribute("commList",
-                commentImpService.getRecentCommentsByMemberNo(memberVO.getMemNo(), 5)
+                commentImpService.getCommentsByMember(member, 5)
                         .stream().map(CommentImpVO::create).toList()
         );
 
@@ -72,13 +73,8 @@ public class MyPageApi {
     public String myImpComment(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
         Member member = memberService.findByMemNo(memberVO.getMemNo());
-//        commentImpService.setMemNo(memberVO.getMemNo());
-//        CommentImpPagenationVO pagenation = commentImpService.getMyCommListView(pageNum);
-//        model.addAttribute("pagenation", pagenation);
 
-        /* pagenation 변경 예정 */
-        List<CommentImpVO> list = commentImpService.getMyComments(member, pageNum, "reg_dt");
-        /* 끝 */
+        List<CommentImpVO> list = commentImpService.getCommentsByMember(member, pageNum).stream().map(CommentImpVO::create).toList();
         model.addAttribute("list", list);
         return "mypage/impComments";
     }

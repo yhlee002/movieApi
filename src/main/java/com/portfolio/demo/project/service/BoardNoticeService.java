@@ -91,13 +91,14 @@ public class BoardNoticeService {
         if (member != null) {
             Optional<Member> opt = memberRepository.findById(member.getMemNo());
 
-            opt.ifPresentOrElse(m -> {
+            opt.ifPresentOrElse(
+                    m -> {
                         log.info("작성자 정보(memNo : {}) : valid", m.getMemNo());
 
                         boardNoticeRepository.save(notice);
                     },
                     () -> {
-                        throw new IllegalStateException("존재하지 않는 회원 정보입니다.");
+                        throw new IllegalStateException("존재하지 않는 회원입니다.");
                     }
             );
         } else {
