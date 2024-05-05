@@ -33,8 +33,6 @@ public class MailService {
     private final MemberRepository memberRepository;
 
     private static ResourceBundle properties = ResourceBundle.getBundle("application");
-    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-    private final static String fromMail = resourceBundle.getString("mail");
 
     private String host = null;
     private Integer port = null;
@@ -75,7 +73,7 @@ public class MailService {
             Message msg = new MimeMessage(session);
 
             Address toAddr = new InternetAddress(toMail);
-            Address fromAddr = new InternetAddress(fromMail);
+            Address fromAddr = new InternetAddress(username);
 
             msg.setFrom(fromAddr);
             msg.setRecipient(Message.RecipientType.TO, toAddr);
