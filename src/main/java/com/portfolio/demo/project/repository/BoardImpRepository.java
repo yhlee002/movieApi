@@ -68,19 +68,11 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     /**
-     * 특정 회원이 작성한 게시글 조회
+     * 특정 회원이 작성한 게시글 조회(최신순)
      * ex. 마이페이지 > 자신이 작성한 글 조회
      *
      * @param member
      * @return
      */
-
     Page<BoardImp> findAllByWriter(Member member, Pageable pageable);
-
-    /**
-     * 특정 회원이 작성한 글 최신순 {size}개(마이페이지)
-     *
-     */
-    @Query("select b from BoardImp b join Member m on b.writer = m where m = :member order by b.regDate desc limit :size")
-    List<BoardImp> findAllByWriter(@Param("member") Member member, @Param("size") int size);
 }
