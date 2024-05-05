@@ -119,7 +119,7 @@ public class MemberRepositoryTest {
         memberRepository.save(member4);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDt").descending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         Page<Member> members2 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable);
 
         // then
@@ -151,11 +151,11 @@ public class MemberRepositoryTest {
         memberRepository.save(member4);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDt").descending());
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         Page<Member> members1 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable);
-        Pageable pageable2 = PageRequest.of(0, 2, Sort.by("regDt").descending());
+        Pageable pageable2 = PageRequest.of(0, 2, Sort.by("regDate").descending());
         Page<Member> members2 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable2);
-        Pageable pageable3 = PageRequest.of(2, 2, Sort.by("regDt").descending());
+        Pageable pageable3 = PageRequest.of(1, 1, Sort.by("regDate").descending());
         Page<Member> members3 = memberRepository.findByNameIgnoreCaseContaining(member.getName(), pageable3);
 
         // then

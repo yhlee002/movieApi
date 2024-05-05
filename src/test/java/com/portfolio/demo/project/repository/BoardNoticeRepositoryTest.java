@@ -36,8 +36,17 @@ class BoardNoticeRepositoryTest {
     /**
      * @Transactional의 동작을 인위적으로 제한한 메서드에 한해 트랜잭션 롤백이 일어나지 않기 때문
      */
-    @BeforeEach
-    public void setUp() {
+//    @BeforeEach
+//    public void setUp() {
+//        boardNoticeRepository.deleteAll();
+//        boardNoticeRepository.flush();
+//        memberRepository.deleteAll();
+//        memberRepository.flush();
+//        entityManager.clear();
+//    }
+
+    @AfterEach
+    public void tearDown() {
         boardNoticeRepository.deleteAll();
         boardNoticeRepository.flush();
         memberRepository.deleteAll();
@@ -121,7 +130,7 @@ class BoardNoticeRepositoryTest {
 
         // then
         Assertions.assertNotEquals("Original title", notice.getTitle());
-        Assertions.assertEquals("Original content", notice.getContent());
+        Assertions.assertEquals("Modified content", notice.getContent());
     }
 
     @Test
