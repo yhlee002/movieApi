@@ -5,6 +5,7 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
+import com.portfolio.demo.project.vo.BoardImpVO;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -69,7 +71,7 @@ public class BoardApi {
         model.addAttribute("prevBoard", boards.get("prevBoard"));
         model.addAttribute("nextBoard", boards.get("nextBoard"));
 
-        boardNoticeService.upViewCnt(boardNo);
+        boardNoticeService.upViewCntById(boardNo);
         return "board_notice/detail";
     }
 
@@ -127,16 +129,16 @@ public class BoardApi {
         if (query != null) {
             switch (con) {
                 case "writerName":
-                    pagenationVO = boardImpService.getBoardImpsByWriterName(pageNum, query);
+                    pagenationVO = boardImpService.getImpPagenationByWriterName(pageNum, query);
                     break;
 
                 case "TitleOrContent":
-                    pagenationVO = boardImpService.getBoardImpsByTitleAndContent(pageNum, query);
+                    pagenationVO = boardImpService.getImpPagenationByTitleOrContent(pageNum, query);
                     break;
             }
 
         } else {
-            pagenationVO = boardImpService.getImps(pageNum);
+            pagenationVO = boardImpService.getImpPagenation(pageNum);
         }
         model.addAttribute("list", pagenationVO.getBoardImpList());
         model.addAttribute("totalPageCount", pagenationVO.getTotalPageCnt());
@@ -147,18 +149,17 @@ public class BoardApi {
     /**
      * 후기 게시글 단건 조회
      *
-     * @param boardNo
+     * @param id
      * @param model
      * @return
      */
-    @RequestMapping("/imp/{boardNo}")
-    public String impDetail(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardImp> boards = boardImpService.selectBoardsById(boardNo);
-        model.addAttribute("board", boards.get("board"));
-        model.addAttribute("prevBoard", boards.get("prevBoard"));
-        model.addAttribute("nextBoard", boards.get("nextBoard"));
+    @RequestMapping("/imp/{id}")
+    public String impDetail(@PathVariable Long id, Model model) {
+        model.addAttribute("board", boardImpService.findById(id));
+        model.addAttribute("prevBoard", boardImpService.findPrevById(id));
+        model.addAttribute("nextBoard", boardImpService.findNextById(id));
 
-        boardImpService.upViewCnt(boardNo);
+        boardImpService.upViewCntById(id);
         return "board_imp/detail";
     }
 
@@ -182,8 +183,11 @@ public class BoardApi {
      */
     @ResponseBody
     @PatchMapping("/imp")
-    public ResponseEntity<BoardImp> updateImp(@RequestBody BoardImp imp) {
-        return new ResponseEntity<>(boardImpService.updateBoard(imp), HttpStatus.OK);
+    public ResponseEntity<BoardImpVO> updateImp(@RequestBody BoardImp imp) {
+        boardImpService.updateBoard(imp);
+        BoardImp result = boardImpService.findById(imp.getId());
+
+        return new ResponseEntity<>(BoardImpVO.create(result), HttpStatus.OK);
     }
 
     /**

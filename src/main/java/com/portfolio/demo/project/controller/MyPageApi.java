@@ -3,6 +3,7 @@ package com.portfolio.demo.project.controller;
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.*;
+import com.portfolio.demo.project.vo.BoardImpVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
@@ -46,8 +47,14 @@ public class MyPageApi {
     @GetMapping("/mypage")
     public String mypage(Model model, HttpSession session) {
         MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        model.addAttribute("boardList", boardImpService.getRecentBoardImpsByMemberNo(memberVO.getMemNo(), 5));
-        model.addAttribute("commList", commentImpService.getRecentCommentsByMemberNo(memberVO.getMemNo(), 5));
+        model.addAttribute("boardList",
+                boardImpService.getRecentBoardImpsByMemberNo(memberVO.getMemNo(), 5)
+                        .stream().map(BoardImpVO::create).toList()
+        );
+        model.addAttribute("commList",
+                commentImpService.getRecentCommentsByMemberNo(memberVO.getMemNo(), 5)
+                        .stream().map(CommentImpVO::create).toList()
+        );
 
         return "mypage/memberInfo";
     }

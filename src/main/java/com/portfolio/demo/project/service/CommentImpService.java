@@ -34,7 +34,7 @@ public class CommentImpService {
 
     private final MemberRepository memberRepository;
 
-    public List<CommentImpVO> getRecentCommentsByMemberNo(Long memNo, int size) {
+    public List<CommentImp> getRecentCommentsByMemberNo(Long memNo, int size) {
         Optional<Member> opt = memberRepository.findById(memNo);
         if (opt.isEmpty()) {
             throw new IllegalStateException();
@@ -44,7 +44,7 @@ public class CommentImpService {
 
         Pageable pageable  = PageRequest.of(0, size, Sort.by("regDate").descending());
         List<CommentImp> list = commentImpRepository.findAllByWriter(member, pageable).getContent();
-        return list.stream().map(CommentImpVO::create).toList();
+        return list;
     }
 
     public CommentImp saveComment(String content, Long boardId, Long memNo) {
@@ -70,22 +70,17 @@ public class CommentImpService {
         comm.ifPresent(commentImpRepository::delete);
     }
 
-    public List<CommentImpVO> getCommentsByBoard(BoardImp board, int page) {
+    public List<CommentImp> getCommentsByBoard(BoardImp board, int page) {
         Pageable pageable  = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
         Page<CommentImp> result = commentImpRepository.findByBoard(board, pageable);
         List<CommentImp> commList = result.getContent();
-        List<CommentImpVO> commVOList = new ArrayList<>();
 
-        for (CommentImp comment : commList) {
-            commVOList.add(CommentImpVO.create(comment));
-        }
-
-        return commVOList;
+        return commList;
     }
 
-    public List<CommentImpVO> getCommentsByMember(Member member, int pageNum) {
+    public List<CommentImp> getCommentsByMember(Member member, int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, COMMENT_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "reg_dt"));
-        Page<CommentImpVO> page = commentImpRepository.findAllByWriter(member, pageable).map(CommentImpVO::create);
+        Page<CommentImp> page = commentImpRepository.findAllByWriter(member, pageable);
 
         return page.getContent();
     }

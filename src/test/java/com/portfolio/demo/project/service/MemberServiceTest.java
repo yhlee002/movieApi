@@ -27,7 +27,6 @@ class MemberServiceTest {
     void 회원_식별번호를_이용한_단건_조회() {
         // given
         Member member = MemberTestDataBuilder.admin().build();
-        member.updatePassword("1234");
         memberService.saveMember(member);
 
         // when
@@ -40,7 +39,7 @@ class MemberServiceTest {
     @Test
     void unique_key인_identifier를_이용한_단건_조회() {
         // given
-        Member user = MemberTestDataBuilder.user().password("1234").build();
+        Member user = MemberTestDataBuilder.user().build();
         memberService.saveMember(user);
 
         // when
@@ -58,14 +57,14 @@ class MemberServiceTest {
                     MemberTestDataBuilder
                     .randomIdentifierUser()
                     .name("abc" + i)
-                    .password("1234").build()
+                    .build()
             );
         }
         memberService.saveMember(
                 MemberTestDataBuilder
                         .randomIdentifierUser()
                         .name("efg")
-                        .password("1234").build()
+                        .build()
         );
 
         // when
@@ -81,7 +80,7 @@ class MemberServiceTest {
     void 휴대폰_번호로_회원정보_조회() {
         // given
         String phone = "010-1111-2222";
-        Member member = MemberTestDataBuilder.user().password("").phone(phone).build();
+        Member member = MemberTestDataBuilder.user().phone(phone).build();
         memberService.saveMember(member);
 
         // when
@@ -96,7 +95,7 @@ class MemberServiceTest {
     void 휴대폰_번호로_회원_존재여부_확인() {
         // given
         String phone = "010-1111-2222";
-        Member member = MemberTestDataBuilder.user().password("").phone(phone).build();
+        Member member = MemberTestDataBuilder.user().phone(phone).build();
         memberService.saveMember(member);
 
         // when
@@ -109,7 +108,7 @@ class MemberServiceTest {
     @Test
     void identifier와_provider를_이용한_회원정보_조회() {
         // given
-        Member member = MemberTestDataBuilder.user().password("").build();
+        Member member = MemberTestDataBuilder.user().build();
         memberService.saveMember(member);
 
         // when
@@ -124,8 +123,8 @@ class MemberServiceTest {
     @Test
     void 회원가입() {
         // given
-        Member admin = MemberTestDataBuilder.admin().password("1234").build();
-        Member user = MemberTestDataBuilder.user().password("1234").build();
+        Member admin = MemberTestDataBuilder.admin().build();
+        Member user = MemberTestDataBuilder.user().build();
 
         // when
         memberService.saveMember(admin);
@@ -141,7 +140,7 @@ class MemberServiceTest {
     @Test
     void 회원가입_패스워드_미기입시_오류_발생() {
         // when
-        Member member = MemberTestDataBuilder.user().build();
+        Member member = MemberTestDataBuilder.user().password(null).build();
 
         // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -177,7 +176,7 @@ class MemberServiceTest {
     @Test
     void 인증키_수정() {
         // given
-        Member member = MemberTestDataBuilder.user().password("1234").build();
+        Member member = MemberTestDataBuilder.user().build();
         memberService.saveMember(member);
         // 현재 member.certKey == null
 
@@ -191,8 +190,8 @@ class MemberServiceTest {
     @Test
     void 회원_정보를_기반으로_Authentication_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().password("1234").build();
-        Member user = MemberTestDataBuilder.user().password("1234").build();
+        Member admin = MemberTestDataBuilder.admin().build();
+        Member user = MemberTestDataBuilder.user().build();
         memberService.saveMember(admin);
 
         // when
@@ -206,7 +205,7 @@ class MemberServiceTest {
     @Test
     void 회원정보_수정() {
         // given
-        Member member  = MemberTestDataBuilder.user().password("1234").build();
+        Member member  = MemberTestDataBuilder.user().build();
         memberService.saveMember(member);
 
         // when
@@ -220,7 +219,7 @@ class MemberServiceTest {
     @Test
     void 회원_탈퇴() {
         // given
-        Member member  = MemberTestDataBuilder.user().password("1234").build();
+        Member member  = MemberTestDataBuilder.user().build();
         memberService.saveMember(member);
 
         // when

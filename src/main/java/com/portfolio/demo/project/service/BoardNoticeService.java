@@ -33,8 +33,9 @@ public class BoardNoticeService {
      * @deprecated 페이지네이션되는 api 사용으로 사용되지 않음
      * 전체 공지사항 게시글 조회
      */
-    public List<BoardNotice> getAllBoards() {
-        return boardNoticeRepository.findAll();
+    public List<BoardNotice> getAllBoards(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return boardNoticeRepository.findAll(pageable).getContent();
     }
 
     /**
@@ -135,7 +136,7 @@ public class BoardNoticeService {
      */
 
     @Transactional
-    public void upViewCnt(Long boardId) {
+    public void upViewCntById(Long boardId) {
         BoardNotice notice = boardNoticeRepository.findById(boardId).get();
         notice.updateViewCount();
         boardNoticeRepository.save(notice);
