@@ -5,7 +5,6 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 
 import jakarta.persistence.*;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
