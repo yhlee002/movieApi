@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,105 +31,43 @@ public class CommentImpService {
 
     private final CommentImpRepository commentImpRepository;
 
-    private final BoardImpRepository boardImpRepository;
-
-    private final MemberRepository memberRepository;
-
-    public List<CommentImp> getRecentCommentsByMemberNo(Long memNo, int size) {
-        Optional<Member> opt = memberRepository.findById(memNo);
-        if (opt.isEmpty()) {
-            throw new IllegalStateException();
-        }
-
-        Member member = opt.get();
-
-        Pageable pageable  = PageRequest.of(0, size, Sort.by("regDate").descending());
-        List<CommentImp> list = commentImpRepository.findAllByWriter(member, pageable).getContent();
-        return list;
+    public CommentImp getCommentById(Long id) {
+        return commentImpRepository.findById(id).orElse(null);
     }
 
-    public CommentImp saveComment(String content, Long boardId, Long memNo) {
-        BoardImp imp = boardImpRepository.findById(boardId).get();
-        Member writer = memberRepository.findById(memNo).get();
-        CommentImp commImp = CommentImp.builder()
-                .content(content)
-                .writer(writer)
-                .board(imp)
-                .build();
-        log.info("생성된 commImp의 내용 : " + commImp.getContent());
-        return commentImpRepository.save(commImp);
+    public CommentImp saveComment(CommentImp comment) {
+        return commentImpRepository.save(comment);
     }
 
-    public CommentImp updateComment(Long commentId, String content) {
-        CommentImp originImp = commentImpRepository.findById(commentId).get();
-        originImp.updateContent(content);
-        return commentImpRepository.save(originImp);
+    public void updateComment(CommentImp comment) {
+        Optional<CommentImp> opt = commentImpRepository.findById(comment.getId());
+        opt.ifPresentOrElse(
+                comm -> {
+                    comm.updateContent(comment.getContent());
+                    commentImpRepository.save(comm);
+                },
+                () -> {
+                    throw new IllegalStateException("존재하지 않는 댓글입니다.");
+                }
+        );
     }
 
-    public void deleteComment(Long commentId) {
+    public void deleteCommentById(Long commentId) {
         Optional<CommentImp> comm = commentImpRepository.findById(commentId);
         comm.ifPresent(commentImpRepository::delete);
     }
 
     public List<CommentImp> getCommentsByBoard(BoardImp board, int page) {
-        Pageable pageable  = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
+        Pageable pageable = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
         Page<CommentImp> result = commentImpRepository.findByBoard(board, pageable);
-        List<CommentImp> commList = result.getContent();
 
-        return commList;
+        return result.getContent();
     }
 
-    public List<CommentImp> getCommentsByMember(Member member, int pageNum) {
-        Pageable pageable = PageRequest.of(pageNum, COMMENT_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "reg_dt"));
-        Page<CommentImp> page = commentImpRepository.findAllByWriter(member, pageable);
+    public List<CommentImp> getCommentsByMember(Member member, int page) {
+        Pageable pageable = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
+        Page<CommentImp> result = commentImpRepository.findAllByWriter(member, pageable);
 
-        return page.getContent();
+        return result.getContent();
     }
-
-//    /**
-//     * @deprecated getMyComments로 대체 예정
-//     * 본인이 작성한 댓글(마이페이지에서 조회 가능)
-//     * @param pageNum 페이지 번호
-//     */
-//    @Transactional
-//    public CommentImpPagenationVO getMyCommListView(int pageNum) {
-//        Long totalCommCnt = commentImpRepository.countCommentImpsByWriter_MemNo(memNo);
-//        int startRow = 0;
-//        List<CommentImpVO> commVOList = new ArrayList<>();
-//        CommentImpPagenationVO commPagenationVO = null;
-//        if (totalCommCnt > 0) {
-//            startRow = (pageNum - 1) * COMMENT_COUNT_PER_PAGE;
-//
-//            List<CommentImp> commList = commentImpRepository.findCommentImpsByWriterNo(memNo, startRow, COMMENT_COUNT_PER_PAGE);
-//            for (CommentImp comment : commList) {
-//                commVOList.add(CommentImpVO.create(comment));
-//            }
-//
-//        } else {
-//            pageNum = 0;
-//        }
-//
-//        commPagenationVO = CommentImpPagenationVO.builder()
-//                .totalCommentCnt(totalCommCnt)
-//                .currentPageNo(pageNum)
-//                .commentImpsList(commVOList)
-//                .commentsPerPage(COMMENT_COUNT_PER_PAGE)
-//                .build();
-//
-//        return commPagenationVO;
-//    }
-
-    public Integer getTotalCommentCount(Member member) {
-        return commentImpRepository.countCommentImpsByWriter(member);
-    }
-
-    @Transactional(rollbackFor = Exception.class, readOnly = true)
-    public List<CommentImpVO> getMyComments(Member member, int pageNum, String criteria) { // criteria : 정렬 기준
-
-        Pageable pageable = PageRequest.of(pageNum, COMMENT_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, criteria));
-        Page<CommentImpVO> page = commentImpRepository.findAllByWriter(member, pageable).map(CommentImpVO::create);
-
-        return page.getContent();
-    }
-
 }

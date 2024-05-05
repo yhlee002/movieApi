@@ -25,21 +25,11 @@ public class CommentMovService {
 
     private final CommentMovRepository commentMovRepository;
 
-    private final MemberRepository memberRepository;
-
     private final static int COMMENTS_PER_PAGE = 20;
 
     // 댓글 작성
-    public CommentMov saveComment(Long writerNo, String content, Long movieNo, int rating) {
-        CommentMov comment = commentMovRepository.save(
-                CommentMov.builder()
-                        .writer(memberRepository.findById(writerNo).get())
-                        .content(content)
-                        .movieNo(movieNo)
-                        .rating(rating)
-                        .build());
-
-        return comment;
+    public void saveComment(CommentMov comment) {
+        commentMovRepository.save(comment);
     }
 
 //    /**
@@ -62,50 +52,48 @@ public class CommentMovService {
 //    }
 
     /**
-     * 댓글 출력(Ajax 비동기 통신 사용)
+     * 해당 영화에 대한 모든 리뷰 가져오기
      */
-    public Map<String, Object> getCommentsOrderByRegDate(int pageNum, Long movieNo) {
-        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by(Sort.Direction.DESC, "reg_dt"));
-        Page<CommentMovVO> page = commentMovRepository.findAllByMovieNo(movieNo, pageable)
-                .map(CommentMovVO::create);
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", page.getContent());
-        result.put("totalPageCnt", page.getTotalPages());
-        result.put("totalCommentCnt", page.getTotalElements());
-        return result;
+    public List<CommentMov> getCommentsByMovie(int pageNum, Long movieNo) {
+        Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
+        Page<CommentMov> page = commentMovRepository.findAllByMovieNo(movieNo, pageable);
+        return page.getContent();
     }
 
     /**
-     * 해당 영화에 대한 모든 리뷰 가져오기
-     * @param movieCd
+     * 해당 영화에 대한 모든 리뷰의 전체 페이지 수
      */
-    public List<CommentMovVO> getCommentsByMovie(int pageNum, Long movieCd) {
+    public Integer getTotalPageCountByMovieNo(Long movieNo) {
+        Pageable pageable = PageRequest.of(0, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
+        Page<CommentMov> page = commentMovRepository.findAllByMovieNo(movieNo, pageable);
+        return page.getTotalPages();
+    }
+
+    /**
+     * 전체 리뷰 조회
+     */
+    public List<CommentMov> getComments(int pageNum) {
         Pageable pageable = PageRequest.of(pageNum, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
-        List<CommentMov> commentMov = commentMovRepository.findAllByMovieNo(movieCd, pageable).getContent();
-        List<CommentMovVO> commentMovVOList = new ArrayList<>();
-        for (CommentMov comm : commentMov) {
-            commentMovVOList.add(CommentMovVO.create(comm));
-        }
-        return commentMovVOList;
+        Page<CommentMov> page = commentMovRepository.findAll(pageable);
+
+        return page.getContent();
     }
 
     /**
      * 사용자가 쓴 댓글 조회(수정, 삭제 버튼)
+     *
      * @param member
      * @param page
      */
-    public List<CommentMovVO> getCommentsByMember(Member member, int page) {
+    public List<CommentMov> getCommentsByMember(Member member, int page) {
         Pageable pageable = PageRequest.of(page, COMMENTS_PER_PAGE, Sort.by("regDate").descending());
         Page<CommentMov> pages = commentMovRepository.findByWriter(member, pageable);
-        List<CommentMovVO> commentMovVOList = pages.getContent()
-                .stream()
-                .map(CommentMovVO::create)
-                .collect(Collectors.toList());
-        return commentMovVOList;
+        return pages.getContent();
     }
 
     /**
      * 댓글 수정
+     *
      * @param commentId
      * @param content
      */
@@ -117,12 +105,22 @@ public class CommentMovService {
 
     /**
      * 댓글 삭제
+     *
      * @param commentId
      */
-    public void deleteMovComment(Long commentId) {
+    public void deleteCommentById(Long commentId) {
         Optional<CommentMov> comm = commentMovRepository.findById(commentId);
         if (comm.isPresent()) {
             commentMovRepository.delete(comm.get());
         }
+    }
+
+    /**
+     * id를 이용한 댓글 단건 조회
+     *
+     * @param commentId
+     */
+    public CommentMov getCommentById(Long commentId) {
+        return commentMovRepository.findById(commentId).orElse(null);
     }
 }
