@@ -33,7 +33,7 @@ public class RememberMeIntercepter implements HandlerInterceptor {
                 UserDetail userDetail = (UserDetail) auth.getPrincipal();
                 Member member = memberService.findByIdentifier(userDetail.getUsername());
                 log.info("찾아온 member : " + member.toString());
-                session.setAttribute("member", new MemberVO(member));
+                session.setAttribute("member", MemberVO.create(member));
             }
         }
 

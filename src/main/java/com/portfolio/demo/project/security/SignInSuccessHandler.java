@@ -54,7 +54,7 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             if (member != null) {
                 log.info("current member : " + member.toString());
 
-                memberVO = new MemberVO(member);
+                memberVO = MemberVO.create(member);
             }
         }
 
