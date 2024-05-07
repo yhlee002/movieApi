@@ -99,7 +99,7 @@ public class MyPageApi {
 
         Member createdMember = memberService.updateMember(inputMember); // 비밀번호 체크는 서비스단에서 실시
 
-        session.setAttribute("member", new MemberVO(createdMember));
+        session.setAttribute("member", MemberVO.create(createdMember));
 
         return "redirect:/mypage";
     }
