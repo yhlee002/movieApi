@@ -69,7 +69,7 @@ public class SignInApi {
             Authentication auth = memberService.getAuthentication(member);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-            MemberVO memberVO = new MemberVO(member);
+            MemberVO memberVO = MemberVO.create(member);
             session.setAttribute("member", memberVO);
 
             return "redirect:/";
@@ -128,7 +128,7 @@ public class SignInApi {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberVO memberVO = new MemberVO(member);
+                MemberVO memberVO = MemberVO.create(member);
                 session.setAttribute("member", memberVO);
 
                 return "redirect:/";
@@ -169,7 +169,7 @@ public class SignInApi {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberVO memberVO = new MemberVO(member);
+                MemberVO memberVO = MemberVO.create(member);
                 session.setAttribute("member", memberVO);
 
                 return "redirect:/";
