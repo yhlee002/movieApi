@@ -12,8 +12,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +24,6 @@ public class BoxOfficeListUtil {
     private final static String WEEKLYBOXOFFICE_URL = "http://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json";
     private final static String MOVIEINFO_URL = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.json";
 
-    private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
     private String KEY = null;
 
     private final Gson gson = new Gson();
@@ -36,7 +32,7 @@ public class BoxOfficeListUtil {
         this.KEY = key;
     }
 
-    public List<MovieVO> getDailyBoxOfficeMovies() {
+    public List<MovieVO> getDailyBoxOfficeMovies(String targetDt) {
         List<MovieVO> movieList = null;
 
         try {
@@ -66,7 +62,7 @@ public class BoxOfficeListUtil {
         return movieList;
     }
 
-    public List<MovieVO> getWeeklyBoxOfficeMovies() {
+    public List<MovieVO> getWeeklyBoxOfficeMovies(String targetDt) {
         List<MovieVO> movieList = null;
 
         try {

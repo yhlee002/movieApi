@@ -8,6 +8,8 @@ import com.portfolio.demo.project.vo.tmdb.MovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -27,17 +29,24 @@ public class MovieService {
 
     public static final String TMDB_IMAGE_PATH = "https://image.tmdb.org/t/p/"; // + file size / file path
 
+    private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    private String minus1Dt = LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
     {
         dailyBoxOfficeListUtil.setKey(KOBIS_KEY);
         tmdbUtil.setKey(TMDB_KEY, TMDB_ACCESS_TOKEN);
     }
 
     public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
-        return dailyBoxOfficeListUtil.getDailyBoxOfficeMovies();
+        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(targetDt);
+        if (!list.isEmpty()) return list;
+        else return dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(minus1Dt);
     }
 
     public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getWeeklyBoxOfficeList() {
-        return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies();
+        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(targetDt);
+        if (!list.isEmpty()) return list;
+        else return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(minus1Dt);
     }
 
     public Map<String, Object> getMovieInfo(String movieCd) {

@@ -15,9 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.sql.DataSource;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -40,7 +45,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/", "/sign-up/**", "/notices", "/imps").permitAll()
                 .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
                 .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN");
-
+        http.cors().configurationSource(corsConfigurationSource());
         http.httpBasic();
 
         http.formLogin()
@@ -74,6 +79,20 @@ public class WebSecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        List<String> allowOrigins = new ArrayList<String>();
+        allowOrigins.add("http://localhost:8077");
+        configuration.setAllowedOrigins(allowOrigins);
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(7200L);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     @Bean // 제거 임시 보류
     protected BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
