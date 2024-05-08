@@ -29,24 +29,35 @@ public class MovieService {
 
     public static final String TMDB_IMAGE_PATH = "https://image.tmdb.org/t/p/"; // + file size / file path
 
-    private String targetDt = LocalDateTime.now().minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-    private String minus1Dt = LocalDateTime.now().minusDays(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+    private LocalDateTime today = LocalDateTime.now();
+    private String targetDt = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 일일 박스오피스
+    private String minus1Dt = today.minusDays(1).format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 일일 박스오피스(전날)
+    private int dayOfWeek = today.getDayOfWeek().getValue();
+    private String weeklyTargetDt = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 주말 박스오피스
+    private String weeklyTargetDt2 = today.minusDays(dayOfWeek).format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 주말 박스오피스(저번주)
 
     {
         dailyBoxOfficeListUtil.setKey(KOBIS_KEY);
         tmdbUtil.setKey(TMDB_KEY, TMDB_ACCESS_TOKEN);
+
+        if (dayOfWeek < 5) {
+            LocalDateTime minusDt = today.minusDays(dayOfWeek);
+            weeklyTargetDt = minusDt.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        }
     }
 
     public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
         List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(targetDt);
+        log.info("일간 박스오피스 기준일 : {}", targetDt);
         if (!list.isEmpty()) return list;
         else return dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(minus1Dt);
     }
 
     public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getWeeklyBoxOfficeList() {
         List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(targetDt);
+        log.info("주간 박스오피스 기준일 : {}", weeklyTargetDt);
         if (!list.isEmpty()) return list;
-        else return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(minus1Dt);
+        else return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(weeklyTargetDt2);
     }
 
     public Map<String, Object> getMovieInfo(String movieCd) {
