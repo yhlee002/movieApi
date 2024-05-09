@@ -149,9 +149,12 @@ public class BoardNoticeService {
      * @param page
      */
     @Transactional
-    public NoticePagenationVO getBoardNoticePagenation(int page) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "regDate"));
+    public NoticePagenationVO getBoardNoticePagenation(int page, Integer size) {
+        if (size == null) size = BOARD_COUNT_PER_PAGE;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"));
         Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
+
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
         return NoticePagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
@@ -166,8 +169,9 @@ public class BoardNoticeService {
      * @param keyword
      */
     @Transactional
-    public NoticePagenationVO getBoardNoticePagenationByTitleOrContent(String keyword, int page) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
+    public NoticePagenationVO getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
+        if (size == null) size = BOARD_COUNT_PER_PAGE;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
         return NoticePagenationVO.builder()

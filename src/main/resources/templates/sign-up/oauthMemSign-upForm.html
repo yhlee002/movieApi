@@ -22,11 +22,12 @@
             </div>
             <div class="content text-center">
                 <h2 class="title">Sign up</h2>
-                <form id="form_signup_o" th:action="@{/sign-up/sign-up-processor}" method="post" class="form">
+                <form id="form_signup_o" th:action="@{/member}" method="post" class="form">
+                    <input name="type" id="type" value="o" hidden="hidden">
                     <input name="provider" id="provider" th:value="${session.provider}" value="naver" hidden="hidden">
                     <div class="form-group">
                         <label class="align-left" for="id">UniqueId</label><br>
-                        <input id="id" class="form-control" type="text" name="id" th:value="${id}" readonly><br>
+                        <input id="id" class="form-control" type="text" name="identifier" th:value="${id}" readonly><br>
                     </div>
 
                     <div class="form-group">
@@ -43,7 +44,8 @@
                         등의 목적만을 위해 연락처를 수집합니다.</small>
                     <hr>
                     <ul class="actions align-center">
-                        <input class="button special" type="button" name="submit" value="Submit">
+<!--                        <input class="button special" type="button" name="submit" value="Submit">-->
+                        <button class="button special" type="button" name="submit" value="Submit" onclick="document.getElementById('form_signup_o').submit();">확인</button>
                     </ul>
                 </form>
             </div>

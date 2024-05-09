@@ -5,15 +5,12 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
-import com.portfolio.demo.project.vo.BoardImpVO;
-import com.portfolio.demo.project.vo.ImpressionPagenationVO;
-import com.portfolio.demo.project.vo.NoticePagenationVO;
+import com.portfolio.demo.project.vo.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,41 +18,43 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
-@Controller
+@RestController
 public class BoardApi {
 
     private final BoardNoticeService boardNoticeService;
 
     private final BoardImpService boardImpService;
 
-    /**
-     * 전체 공지사항 게시글 조회 및 검색
-     *
-     * @param model
-     * @param pageNum
-     * @param query
-     */
-    @RequestMapping("/notices")
-    public String notices(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
-                          @RequestParam(name = "query", required = false) String query) {
+//    /**
+//     * 전체 공지사항 게시글 조회 및 검색
+//     *
+//     * @param size
+//     * @param pageNum
+//     * @param query
+//     */
+//    @GetMapping("/notices")
+//    public ResponseEntity<NoticePagenationVO> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+//                                                      @RequestParam(name = "p", required = false, defaultValue = "0") int pageNum,
+//                                                      @RequestParam(name = "query", required = false) String query) {
+//
+//        NoticePagenationVO pagenationVO = null;
+//        if (query != null) {
+//            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
+//        } else {
+//            pagenationVO = boardNoticeService.getBoardNoticePagenation(pageNum, size);
+//        }
+//
+//        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
+//    }
 
-        NoticePagenationVO pagenationVO = null;
-        if (query != null) {
-            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(query, pageNum);
-            model.addAttribute("pagenation", pagenationVO);
-        } else {
-            pagenationVO = boardNoticeService.getBoardNoticePagenation(pageNum);
-            model.addAttribute("pagenation", pagenationVO);
-        }
-
-        return "board_notice/list";
+    @GetMapping("/notices")
+    public List<BoardNoticeVO> notices() {
+        List<BoardNotice> list = boardNoticeService.getAllBoards(0, 10);
+        return list.stream().map(BoardNoticeVO::create).toList();
     }
 
     /**
@@ -64,16 +63,16 @@ public class BoardApi {
      * @param boardNo
      * @param model
      */
-    @RequestMapping("/notice/{boardNo}")
-    public String notice(@PathVariable Long boardNo, Model model) {
-        Map<String, BoardNotice> boards = boardNoticeService.getBoardsByBoardId(boardNo);
-        model.addAttribute("board", boards.get("board"));
-        model.addAttribute("prevBoard", boards.get("prevBoard"));
-        model.addAttribute("nextBoard", boards.get("nextBoard"));
-
-        boardNoticeService.upViewCntById(boardNo);
-        return "board_notice/detail";
-    }
+//    @RequestMapping("/notice/{boardNo}")
+//    public String notice(@PathVariable Long boardNo, Model model) {
+//        Map<String, BoardNotice> boards = boardNoticeService.getBoardsByBoardId(boardNo);
+//        model.addAttribute("board", boards.get("board"));
+//        model.addAttribute("prevBoard", boards.get("prevBoard"));
+//        model.addAttribute("nextBoard", boards.get("nextBoard"));
+//
+//        boardNoticeService.upViewCntById(boardNo);
+//        return "board_notice/detail";
+//    }
 
     /**
      * 공지사항 게시글 작성 페이지 접근
@@ -81,13 +80,13 @@ public class BoardApi {
      * @param boardId
      * @param model
      */
-    @GetMapping("/notice/new")
-    public String noticeBoardUpdateForm(Long boardId, Model model) {
-        if (boardId != null) {
-            model.addAttribute("board", boardNoticeService.getById(boardId));
-        }
-        return "board_notice/writeForm";
-    }
+//    @GetMapping("/notice/new")
+//    public String noticeBoardUpdateForm(Long boardId, Model model) {
+//        if (boardId != null) {
+//            model.addAttribute("board", boardNoticeService.getById(boardId));
+//        }
+//        return "board_notice/writeForm";
+//    }
 
     /**
      * 공지사항 게시글 작성
@@ -115,52 +114,49 @@ public class BoardApi {
     /**
      * 전체 후기 게시글 조회 및 검색
      *
-     * @param model
+     * @param size
      * @param pageNum
-     * @param con
+     * @param condition
      * @param query
      */
     @GetMapping("/imps")
-    public String impBoard(Model model, @RequestParam(name = "p", required = false, defaultValue = "1") int pageNum,
-                           @RequestParam(name = "con", required = false) String con,
-                           @RequestParam(name = "query", required = false) String query) {
+    public ResponseEntity<List<BoardImpVO>> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                            @RequestParam(name = "p", required = false, defaultValue = "0") int pageNum,
+                                                            @RequestParam(name = "con", required = false) String condition,
+                                                            @RequestParam(name = "query", required = false) String query) {
 
         ImpressionPagenationVO pagenationVO = null;
         if (query != null) {
-            switch (con) {
-                case "writerName":
-                    pagenationVO = boardImpService.getImpPagenationByWriterName(pageNum, query);
-                    break;
-
-                case "TitleOrContent":
-                    pagenationVO = boardImpService.getImpPagenationByTitleOrContent(pageNum, query);
-                    break;
-            }
+            pagenationVO = switch (condition) {
+                case "writerName" -> boardImpService.getImpPagenationByWriterName(pageNum, size, query);
+                case "TitleOrContent" -> boardImpService.getImpPagenationByTitleOrContent(pageNum, size, query);
+                default -> pagenationVO;
+            };
 
         } else {
-            pagenationVO = boardImpService.getImpPagenation(pageNum);
+            pagenationVO = boardImpService.getAllBoards(pageNum, size);
         }
-        model.addAttribute("list", pagenationVO.getBoardImpList());
-        model.addAttribute("totalPageCount", pagenationVO.getTotalPageCnt());
 
-        return "board_imp/list";
+        List<BoardImpVO> list = pagenationVO.getBoardImpList().stream().map(BoardImpVO::create).toList();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     /**
      * 후기 게시글 단건 조회
      *
      * @param id
-     * @param model
      * @return
      */
-    @RequestMapping("/imp/{id}")
-    public String impDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("board", boardImpService.findById(id));
-        model.addAttribute("prevBoard", boardImpService.findPrevById(id));
-        model.addAttribute("nextBoard", boardImpService.findNextById(id));
-
-        boardImpService.upViewCntById(id);
-        return "board_imp/detail";
+    @GetMapping("/imp/{id}")
+    public ResponseEntity<Map<String, BoardImpVO>> impDetail(@PathVariable Long id) {
+        Map<String, BoardImpVO> map = new HashMap<>();
+        BoardImp board = boardImpService.findById(id);
+        BoardImp prev = boardImpService.findPrevById(id);
+        BoardImp next = boardImpService.findNextById(id);
+        map.put("board", board != null ? BoardImpVO.create(board) : null);
+        map.put("prevBoard", prev != null ? BoardImpVO.create(prev) : null);
+        map.put("nextBoard", next != null ? BoardImpVO.create(next) : null);
+        return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
     /**

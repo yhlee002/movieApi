@@ -39,11 +39,6 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
 
     /**
-     * @deprecated 게시글 전체 조회
-     */
-    Page<BoardNotice> findAll(Pageable pageable);
-
-    /**
      * 제목 또는 내용으로 검색 결과 조회
      *
      * @param title
