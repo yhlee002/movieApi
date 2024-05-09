@@ -18,7 +18,7 @@ public class BoardImpVO {
     private String title;
     private String content;
     private Member writer;
-    private LocalDateTime regDate;
+    private String regDate;
     private int views; // 조회수
     private List<CommentImp> comments;
 
