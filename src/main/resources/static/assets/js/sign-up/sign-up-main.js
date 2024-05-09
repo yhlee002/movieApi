@@ -31,7 +31,7 @@ $(function () {
 
                 $.ajax({
                     url: "/sign-up/emailCk",
-                    type: "post",
+                    type: "get",
                     data: {'email': email},
                     dataType: "text",
                     beforeSend: function (xhr) {
@@ -219,7 +219,7 @@ $(function () {
 
             $.ajax({
                 url: "/sign-up/phoneCk",
-                type: "post",
+                type: "get",
                 data: {"phone": phone},
                 dataType: "text",
                 beforeSend: function (xhr) {
@@ -310,24 +310,23 @@ $(function () {
                 let formData = $('#form_signup').serialize();
 
                 $.ajax({
-                    url: "/sign-up/sign-up-processor",
+                    url: "/member",
                     type: "post",
-                    data: formData,
+                    data: {
+                        member: formData,
+                        type: 'd'
+                    },
                     dataType: "text",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function (data) {
-                        if (data != "-1") {
-                            location.href = "/sign-up/success?memNo=" + data;
-                        } else {
-                            alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
-                        }
+                        location.href = "/sign-up/success?memNo=" + data;
 
                     },
                     error: function (request, status) {
                         console.warn("code : " + status + "\nmessage : " + request.responseText);
-                        alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
+                        alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다."); // alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
                     }
                 });
             } else {
@@ -341,9 +340,12 @@ $(function () {
                 let formData = $('#form_signup_o').serialize();
 
                 $.ajax({
-                    url: "/sign-up/sign-up-processor_oauth",
+                    url: "/member", // sign-up-processor_oauth",
                     type: "post",
-                    data: formData,
+                    data: {
+                        member: formData,
+                        type: 'o'
+                    },
                     dataType: "text",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader(header, token);

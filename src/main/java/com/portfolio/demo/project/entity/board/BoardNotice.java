@@ -12,7 +12,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 
-
 @Table(name = "board_notice")
 @Entity
 @Getter
@@ -37,9 +36,7 @@ public class BoardNotice extends BaseEntity {
 
     @Column(name = "mod_dt")
     @LastModifiedDate
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss:SSS")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss:SSS", timezone = "Asia/Seoul")
-    private LocalDateTime modDate; // 최종 수정 시간
+    private String modDate; // 최종 수정 시간
 
     @Column(name = "views")
     private int views = 0; // 조회수

@@ -30,9 +30,16 @@ public class BoardImpService {
     /**
      * 전체 감상평 게시글 조회
      */
-    public List<BoardImp> getAllBoards(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return boardImpRepository.findAll(pageable).getContent();
+    public ImpressionPagenationVO getAllBoards(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
+
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+
+        return ImpressionPagenationVO.builder()
+                .boardImpList(pages.getContent())
+                .totalPageCnt(pages.getTotalPages())
+                .build();
     }
 
     /**
@@ -143,6 +150,8 @@ public class BoardImpService {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("id").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
                 .boardImpList(pages.getContent())
@@ -156,12 +165,15 @@ public class BoardImpService {
      * @param keyword
      */
     @Transactional
-    public ImpressionPagenationVO getImpPagenationByWriterName(int page, String keyword) {
-        List<BoardImp> list = boardImpRepository.findByWriterNameOrderByRegDateDesc(keyword, page, BOARD_COUNT_PER_PAGE);
-        int totalPages = boardImpRepository.findTotalPagesByWriterNameOrderByRegDateDesc(keyword, page, BOARD_COUNT_PER_PAGE);
+    public ImpressionPagenationVO getImpPagenationByWriterName(int page, Integer size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findByWriterNameOrderByRegDateDesc(keyword, pageable);
+
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+
         return ImpressionPagenationVO.builder()
-                .totalPageCnt(totalPages)
-                .boardImpList(list)
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(pages.getContent())
                 .build();
     }
 
@@ -172,8 +184,8 @@ public class BoardImpService {
      * @param keyword
      */
     @Transactional
-    public ImpressionPagenationVO getImpPagenationByTitleOrContent(int page, String keyword) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("regDate").descending());
+    public ImpressionPagenationVO getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())

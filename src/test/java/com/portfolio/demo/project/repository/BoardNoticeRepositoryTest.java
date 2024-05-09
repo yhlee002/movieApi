@@ -97,7 +97,6 @@ class BoardNoticeRepositoryTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 공지사항_게시글_작성() {
         // given
         BoardNotice boardNotice = BoardNoticeTestDataBuilder.board(createAdmin())

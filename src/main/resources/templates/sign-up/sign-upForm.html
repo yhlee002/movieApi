@@ -22,11 +22,12 @@
             </div>
             <div class="content text-center">
                 <h2 class="title">Sign up</h2>
-                <form id="form_signup" th:action="@{/sign-up/sign-up-processor}" method="post" class="form">
+                <form id="form_signup" th:action="@{/member}" method="post" class="form">
+                    <input name="type" id="type" value="o" hidden="hidden">
                     <input name="provider" id="provider" th:value="none" value="none" hidden="hidden">
                     <div class="form-group">
-                        <label class="align-left" for="email">Email</label><br>
-                        <input id="email" class="form-control" type="text" name="email"><br>
+                        <label class="align-left" for="identifier">Email</label><br>
+                        <input id="identifier" class="form-control" type="text" name="identifier"><br>
                         <p id="emailMessage" class="invisible">emailMessage</p>
                     </div>
                     <div class="form-group">
@@ -53,8 +54,10 @@
                         등의 목적만을 위해 연락처를 수집합니다.</small>
                     <hr>
                     <ul class="actions align-center">
-                        <input class="button" type="reset" name="reset" value="Reset">
-                        <input class="button special" type="button" name="submit" value="Submit">
+<!--                        <input class="button" type="reset" name="reset" value="Reset">-->
+<!--                        <input class="button special" type="button" name="submit" value="Submit">-->
+<!--                        <button class="button" type="button" name="reset" onclick="document.getElementById('form_signup').reset();">초기화</button>-->
+                        <button class="button special" type="button" name="submit" onclick="document.getElementById('form_signup').submit();">확인</button>
                     </ul>
                 </form>
             </div>

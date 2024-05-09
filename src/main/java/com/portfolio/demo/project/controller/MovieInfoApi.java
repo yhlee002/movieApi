@@ -68,14 +68,14 @@ public class MovieInfoApi {
     @GetMapping("/movie/boxoffice/daily")
     public ResponseEntity<List<MovieVO>> dailyBoxOffice() {
         List<MovieVO> list = movieService.getDailyBoxOfficeList();
-        log.info("조회된 일간 박스오피스(데이터 수 : {})", list.size());
+        log.info("조회된 주간 박스오피스(데이터 수 : {})", list.size());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 
     @GetMapping("/movie/boxoffice/weekly")
     public ResponseEntity<List<MovieVO>> weeklyBoxOffice() {
         List<MovieVO> list = movieService.getWeeklyBoxOfficeList();
-        log.info("조회된 주간 박스오피스(데이터 수 : {})", list.size());
+        log.info("조회된 주말 박스오피스(데이터 수 : {})", list.size());
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
 

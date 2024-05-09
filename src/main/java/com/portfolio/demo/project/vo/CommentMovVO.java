@@ -1,13 +1,9 @@
 package com.portfolio.demo.project.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -18,9 +14,7 @@ public class CommentMovVO {
     private String writerName;
     private Long movieNo;
     private String content;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate;
+    private String regDate;
     private int rating;
 
     public static CommentMovVO create(CommentMov mov) {
