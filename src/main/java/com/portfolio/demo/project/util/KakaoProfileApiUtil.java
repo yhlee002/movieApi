@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.util;
 
+import com.portfolio.demo.project.vo.SocialProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
@@ -17,9 +18,9 @@ import java.util.Map;
 @Slf4j
 public class KakaoProfileApiUtil {
     private static String URL = "https://kapi.kakao.com/v2/user/me";
-    private Map<String, String> profiles = new HashMap<>();
+    private SocialProfile profiles;
 
-    public Map<String, String> getProfile(String token) throws ParseException {
+    public SocialProfile getProfile(String token) throws ParseException {
         String header = "Bearer " + token;
 
         Map<String, String> requestHeader = new HashMap<>();
@@ -29,15 +30,9 @@ public class KakaoProfileApiUtil {
         Map<String, Object> parsedJson = new JSONParser(res).parseObject();
         String id = String.valueOf(parsedJson.get("id"));
         Map<String, Object> kakao_account = (Map<String, Object>) parsedJson.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) kakao_account.get("profile");
-        String nickname = (String) profile.get("nickname");
-        String profile_image = (String) profile.get("profile_image_url");
+        SocialProfile profile = (SocialProfile) kakao_account.get("profile");
 
-        profiles.put("id", id.toString());
-        profiles.put("nickname", nickname);
-        profiles.put("profile_image", profile_image);
-
-        return profiles;
+        return profile;
     }
 
     private static String get(String apiUrl, Map<String, String> requestHeaders) {

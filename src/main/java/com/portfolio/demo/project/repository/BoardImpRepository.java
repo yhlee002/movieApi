@@ -50,17 +50,18 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      * 작성자명으로 검색 결과 조회
      */
 
-    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
-            "where m.name like %:name% order by b.id desc limit :size offset :offset")
-    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
+//    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
+//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
+//    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
+    Page<BoardImp> findByWriterNameOrderByRegDateDesc(String name, Pageable pageable);
 
     @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
             "where m.name like %:name%")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
 
-    @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
-            "where m.name like %:name% order by b.id desc limit :size offset :offset")
-    Integer findTotalPagesByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
+//    @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
+//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
+//    Integer findTotalPagesByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
 
     /**
      * 제목 또는 내용으로 검색 결과 조회

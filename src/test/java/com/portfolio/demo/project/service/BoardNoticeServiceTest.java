@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -203,7 +204,7 @@ class BoardNoticeServiceTest {
         boardNoticeService.updateBoard(board2);
 
         // when
-        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenation(0);
+        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenation(0, null);
 
         // then
         Assertions.assertEquals(2, pagenation.getBoardNoticeList().size());
@@ -211,6 +212,7 @@ class BoardNoticeServiceTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 제목_또는_내용으로_공지사항_게시글_조회_페이지네이션vo() {
         // given
         Member admin = MemberTestDataBuilder.admin().build();
@@ -235,8 +237,8 @@ class BoardNoticeServiceTest {
         boardNoticeService.updateBoard(board3);
 
         // when
-        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenationByTitleOrContent("test", 0);
-        NoticePagenationVO pagenation2 = boardNoticeService.getBoardNoticePagenationByTitleOrContent("abc", 0);
+        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenationByTitleOrContent(0, null, "test");
+        NoticePagenationVO pagenation2 = boardNoticeService.getBoardNoticePagenationByTitleOrContent(0, 10, "abc");
 
         // then
         Assertions.assertEquals(3, pagenation.getBoardNoticeList().size());

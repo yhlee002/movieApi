@@ -40,7 +40,7 @@ class BoardImpServiceTest {
         }
 
         // when
-        List<BoardImp> list = boardImpService.getAllBoards(0, 10);
+        List<BoardImp> list = boardImpService.getAllBoards(0, 10).getBoardImpList();
 
         // then
         Assertions.assertEquals(3, list.size());
@@ -251,9 +251,9 @@ class BoardImpServiceTest {
         BoardImp board2 = BoardImpTestDataBuilder.board(user).build();
         boardImpService.updateBoard(board2);
 
-        int exists = boardImpService.getAllBoards(0, 10).size();
+        int exists = boardImpService.getAllBoards(0, 10).getBoardImpList().size();
         boardImpService.deleteBoards(Arrays.asList(new BoardImp[]{board, board2}));
-        int exists2 = boardImpService.getAllBoards(0, 10).size();
+        int exists2 = boardImpService.getAllBoards(0, 10).getBoardImpList().size();
 
         Assertions.assertEquals(2, exists);
         Assertions.assertEquals(0, exists2);
@@ -305,10 +305,10 @@ class BoardImpServiceTest {
         boardImpService.updateBoard(board3);
 
         // when
-        ImpressionPagenationVO pagenationVO = boardImpService.getImpPagenationByWriterName(0, user.getName());
-        ImpressionPagenationVO pagenationVO2 = boardImpService.getImpPagenationByWriterName(0, "test-user-name");
-        ImpressionPagenationVO pagenationVO3 = boardImpService.getImpPagenationByWriterName(0, user2.getName());
-        ImpressionPagenationVO pagenationVO4 = boardImpService.getImpPagenationByWriterName(0, "test");
+        ImpressionPagenationVO pagenationVO = boardImpService.getImpPagenationByWriterName(0, 10, user.getName());
+        ImpressionPagenationVO pagenationVO2 = boardImpService.getImpPagenationByWriterName(0, 10,"test-user-name");
+        ImpressionPagenationVO pagenationVO3 = boardImpService.getImpPagenationByWriterName(0, 10,user2.getName());
+        ImpressionPagenationVO pagenationVO4 = boardImpService.getImpPagenationByWriterName(0, 10,"test");
 
         // then
         Assertions.assertEquals(2, pagenationVO.getBoardImpList().size());

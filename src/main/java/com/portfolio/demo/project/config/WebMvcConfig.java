@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.intercepter.RememberMeIntercepter;
-import com.portfolio.demo.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,4 +34,32 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public RememberMeIntercepter rememberMeIntercepter() {
         return new RememberMeIntercepter();
     }
+
+//    @Override
+//    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//        LocalDateTimeSerializer localDateTimeSerializer = new LocalDateTimeSerializer(formatter); // formatter
+//        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(formatter); // formatter
+//
+//        JavaTimeModule module = new JavaTimeModule();
+//        module.addSerializer(LocalDateTime.class, localDateTimeSerializer);
+//        module.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
+//
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.registerModule(module);
+//        // add converter at the very front
+//        // if there are same type mappers in converters, setting in first mapper is used.
+//        converters.add(0, new MappingJackson2HttpMessageConverter(mapper));
+//    }
+
+//    @Bean
+//    public ObjectMapper getCustomObjectMapper() {
+//        final ObjectMapper mapper = new ObjectMapper();
+//        final SimpleModule module = new SimpleModule();
+//        module.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer());
+//        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+//        mapper.registerModule(module);
+//        return mapper;
+//    }
+
 }
