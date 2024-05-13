@@ -1,10 +1,11 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.util.BoxOfficeListUtil;
-
-import com.portfolio.demo.project.util.TMDBUtil;
-import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
-import com.portfolio.demo.project.vo.tmdb.MovieVO;
+import com.portfolio.demo.project.util.MovieUtil;
+import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.vo.kobis.movie.KobisMovieVO;
+import com.portfolio.demo.project.vo.tmdb.ImageConfigurationVO;
+import com.portfolio.demo.project.vo.tmdb.TmdbMovieDetailVO;
+import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -18,16 +19,14 @@ import java.util.ResourceBundle;
 @Service
 public class MovieService {
 
-    private final BoxOfficeListUtil dailyBoxOfficeListUtil = new BoxOfficeListUtil();
-
-    private final TMDBUtil tmdbUtil = new TMDBUtil();
+    private final MovieUtil movieUtil = new MovieUtil();
 
     private final ResourceBundle bundle = ResourceBundle.getBundle("Res_ko_KR_keys");
     private final String KOBIS_KEY = bundle.getString("boxOfficeKey");
     private final String TMDB_KEY = bundle.getString("apiKey");
     private final String TMDB_ACCESS_TOKEN = bundle.getString("apiAccessToken");
-
-    public static final String TMDB_IMAGE_PATH = "https://image.tmdb.org/t/p/"; // + file size / file path
+    private final String KMDB_kEY = bundle.getString("kmdbApiKey");
+    public static final String TMDB_IMAGE_PATH = "v"; // + file size / file path
 
     private LocalDateTime today = LocalDateTime.now();
     private String targetDt = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 일일 박스오피스
@@ -37,8 +36,9 @@ public class MovieService {
     private String weeklyTargetDt2 = today.minusDays(dayOfWeek).format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 주말 박스오피스(저번주)
 
     {
-        dailyBoxOfficeListUtil.setKey(KOBIS_KEY);
-        tmdbUtil.setKey(TMDB_KEY, TMDB_ACCESS_TOKEN);
+        movieUtil.setKobisKey(KOBIS_KEY);
+        movieUtil.setTmdbKey(TMDB_ACCESS_TOKEN);
+        movieUtil.setKmdbKey(KMDB_kEY);
 
         if (dayOfWeek < 5) {
             LocalDateTime minusDt = today.minusDays(dayOfWeek);
@@ -46,86 +46,106 @@ public class MovieService {
         }
     }
 
-    public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getDailyBoxOfficeList() {
-        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(targetDt);
+    public List<KobisMovieVO> getDailyBoxOfficeList() {
+        List<KobisMovieVO> list = movieUtil.getDailyBoxOfficeMovies(targetDt);
         log.info("일간 박스오피스 기준일 : {}", targetDt);
         if (!list.isEmpty()) return list;
-        else return dailyBoxOfficeListUtil.getDailyBoxOfficeMovies(minus1Dt);
+        else return movieUtil.getDailyBoxOfficeMovies(minus1Dt);
     }
 
-    public List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> getWeeklyBoxOfficeList() {
-        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> list = dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(targetDt);
+    public List<KobisMovieVO> getWeeklyBoxOfficeList() {
+        List<KobisMovieVO> list = movieUtil.getWeeklyBoxOfficeMovies(targetDt);
         log.info("주간 박스오피스 기준일 : {}", weeklyTargetDt);
         if (!list.isEmpty()) return list;
-        else return dailyBoxOfficeListUtil.getWeeklyBoxOfficeMovies(weeklyTargetDt2);
-    }
-
-    public Map<String, Object> getMovieInfo(String movieCd) {
-        return dailyBoxOfficeListUtil.getMovieInfo(movieCd);
+        else return movieUtil.getWeeklyBoxOfficeMovies(weeklyTargetDt2);
     }
 
     /**
-     * 단건 영화 정보 상세 조회
+     * 단건 영화 정보 상세 조회(Kobis)
+     * @param movieCd
+     * @return
+     */
+    public Map<String, Object> getMovieInfo(String movieCd) {
+        return movieUtil.getMovieInfo(movieCd);
+    }
+
+
+    public ImageConfigurationVO getTmdbConfigurationDetails() {
+        return movieUtil.getTmdbConfigurationDetails();
+    }
+
+    /**
+     * 단건 영화 정보 상세 조회(KMDb)
+     * @param title
+     * @param director
+     * @param releaseYear
+     */
+    public KmdbMovieDetailVO getMovieDetail(String title, String director, String releaseYear) {
+        return movieUtil.getMovieDetail(title, director, releaseYear);
+    }
+
+    /**
+     * 단건 영화 정보 상세 조회(TMDB)
      *
      * @param movieId
      * @return
      */
-    public MovieDetailVO getMovieDetail(String movieId) {
-        return tmdbUtil.getMovieDetail(movieId);
+    public TmdbMovieDetailVO getMovieDetail(String movieId) {
+        return movieUtil.getMovieDetail(movieId);
     }
 
     /**
-     * 영화 이미지 조회
+     * 영화 이미지 조회(TMDB)
      *
      * @param movieId
      * @return
      */
     public Map<String, Object> getMovieImages(String movieId) {
-        return tmdbUtil.getMovieImages(movieId);
+        return movieUtil.getMovieImages(movieId);
     }
 
     /**
-     * 현재 상영중인 영화 조회
+     * 현재 상영중인 영화 조회(TMDB)
      *
      * @param page
      * @return
      */
-    public List<MovieVO> getNowPlayingMovies(int page) {
-        return tmdbUtil.getNowPlayingMovies(page);
+    public List<TmdbMovieVO> getNowPlayingMovies(int page) {
+        return movieUtil.getNowPlayingMovies(page);
     }
 
     /**
-     * 최고 평점의 영화 조회
+     * 최고 평점의 영화 조회(TMDB)
      *
      * @param page
      * @return
      */
-    public List<MovieVO> getTopRatedMovies(int page) {
-        return tmdbUtil.getTopRatedMovies(page);
+    public List<TmdbMovieVO> getTopRatedMovies(int page) {
+        return movieUtil.getTopRatedMovies(page);
     }
 
     /**
-     * 인기 영화 조회
+     * 인기 영화 조회(TMDB)
      *
      * @param page
      * @return
      */
-    public List<MovieVO> getPopularMovies(int page) {
-        return tmdbUtil.getPopularMovies(page);
+    public List<TmdbMovieVO> getPopularMovies(int page) {
+        return movieUtil.getPopularMovies(page);
     }
 
     /**
-     * 개봉 예정인 영화 조회
+     * 개봉 예정인 영화 조회(TMDB)
      *
      * @param page
      * @return
      */
-    public List<MovieVO> getUpComingMovies(int page) {
-        return tmdbUtil.getUpcomingMovies(page);
+    public List<TmdbMovieVO> getUpComingMovies(int page) {
+        return movieUtil.getUpcomingMovies(page);
     }
 
     /**
-     * 영화 제목으로 검색
+     * 영화 제목으로 검색(TMDB)
      *
      * @param query
      * @param includeAdult
@@ -133,7 +153,7 @@ public class MovieService {
      * @param year
      * @return
      */
-    public List<MovieVO> getMovieListByTitle(String query, Boolean includeAdult, Integer page, String year) {
-        return tmdbUtil.getMoviesByTitle(query, includeAdult, page, year);
+    public List<TmdbMovieVO> getMovieListByTitle(String query, Boolean includeAdult, Integer page, String year) {
+        return movieUtil.getMoviesByTitle(query, includeAdult, page, year);
     }
 }

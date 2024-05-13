@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @ToString
-public class MovieDetailVO {
+public class KobisMovieDetailVO {
     private String movieCd; // 영화코드
     private String movieNm; // 영화명(국문)
     private String movieNmEn; // 영화명(영문) *국문명 뒤에 괄호 치고 붙이기
