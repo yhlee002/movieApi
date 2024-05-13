@@ -42,13 +42,13 @@ public class MemberService {
         return memberRepository.findByIdentifier(identifier);
     }
 
+    public Member findByName(String name) {
+        return memberRepository.findByNameIgnoreCase(name);
+    }
+
     public List<Member> findAllByNameContaining(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         return memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
-    }
-
-    public Boolean validateDuplicationName(String name) {
-        return memberRepository.existsByName(name);
     }
 
     public Member findByPhone(String phone) {

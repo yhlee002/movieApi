@@ -15,6 +15,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Member findByIdentifier(String identifier);
 
+    Member findByNameIgnoreCase(String name);
+
     Page<Member> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
     Boolean existsByName(String name);

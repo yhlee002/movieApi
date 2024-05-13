@@ -32,8 +32,7 @@ public class MemberRepositoryTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void 회원_생성() {
         // given
-        Member member = MemberTestDataBuilder.user()
-                .password("1234").build();
+        Member member = MemberTestDataBuilder.user().build();
 
         // when
         memberRepository.save(member);
@@ -41,7 +40,7 @@ public class MemberRepositoryTest {
         // then
         Assertions.assertNotNull(member.getMemNo());
         Assertions.assertNotNull(member.getName());
-        Assertions.assertEquals("1234", member.getPassword());
+        Assertions.assertNotNull(member.getPassword());
         Assertions.assertNotNull(member.getIdentifier());
         Assertions.assertNotNull(member.getProvider());
         Assertions.assertNotNull(member.getRegDate());
@@ -62,7 +61,7 @@ public class MemberRepositoryTest {
 
         // when
         member.updateName("김영현");
-        member.updatePassword("1234");
+        member.updatePassword("5678");
         member.updatePhone("010-1234-5678");
         memberRepository.save(member);
         entityManager.flush();

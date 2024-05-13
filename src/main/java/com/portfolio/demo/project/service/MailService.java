@@ -106,7 +106,7 @@ public class MailService {
         String content = "<div style=\"text-align:center\">"
                 + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
                 + "<p>안녕하세요 " + member.getName() + "님. 본인이 맞으시면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/findPwd/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/findPwd/cert-mail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
         Map<String, String> result = send(tomail, title, content);
@@ -130,7 +130,7 @@ public class MailService {
         String content = "<div style=\"text-align:center\">"
                 + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
                 + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-up/certificationEmail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-up/cert-mail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
 
