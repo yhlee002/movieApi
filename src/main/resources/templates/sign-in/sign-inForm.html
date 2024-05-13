@@ -23,12 +23,12 @@
         }
 
         #naverSignInBtn {
-            background: url("http://3.36.203.4:8080/images/naver-xs.png") no-repeat;
+            background: url("http://localhost:8080/images/naver-xs.png") no-repeat;
             background-size: 100% 100%;
         }
 
         #kakaoSignInBtn {
-            background: url("http://3.36.203.4:8080/images/kakao-xs.png") no-repeat;
+            background: url("http://localhost:8080/images/kakao-xs.png") no-repeat;
             background-size: 100% 100%;
         }
     </style>
@@ -43,8 +43,8 @@
             </div>
             <div class="content">
                 <h2 class="align-center title">Sign In</h2>
-                <input id="oauthMsg" hidden="hidden" th:if="${not #strings.isEmpty(oauth_message)}"
-                       th:value="${oauth_message}">
+                <input id="oauthMsg" hidden="hidden" th:if="${not #strings.isEmpty(oauthMsg)}"
+                       th:value="${oauthMsg}">
                 <div class="container align-center">
                     <form id="sign-up-form" th:action="@{/sign-in/sign-in-processor}" method="post">
                         <!-- th:action을 사용할 경우, CSRF 토큰이 필요할 경우 자동으로 포함해 전송 -->
