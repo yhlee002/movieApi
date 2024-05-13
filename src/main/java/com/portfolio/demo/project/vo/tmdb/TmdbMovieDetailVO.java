@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Builder
 @Setter
-public class MovieDetailVO {
+public class TmdbMovieDetailVO {
     private boolean adult; // 관람 등급 성인 여부
     private String backdropPath; // backdrop_path
     private String belongsToCollection; // belongs_to_collection // 확실하지 않음!
