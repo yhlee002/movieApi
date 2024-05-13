@@ -14,8 +14,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,21 +35,16 @@ public class MemberApiTest {
         return objectMapper.writeValueAsString(object);
     }
 
-    private Object fromJsonString(String jsonString, Class type) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.readValue(jsonString, type);
-    }
-
-    @Test
+    @Test @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 관리자_등록() throws Exception {
-        Member admin = MemberTestDataBuilder.admin().password("1234").build();
+        Member admin = MemberTestDataBuilder.admin().build();
         // `mockMvc.perform()` return type : ResultActions
         mockMvc.perform(
                         MockMvcRequestBuilders.post("/api/member")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(asJsonString(admin))
                                 .accept(MediaType.APPLICATION_JSON))
-//                .andDo(print())
+                .andDo(print())
                 .andExpect(status().isCreated())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.memNo").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.regDate").exists());
@@ -94,7 +91,10 @@ public class MemberApiTest {
                                 .accept(MediaType.APPLICATION_JSON))
                 .andReturn();
         String resultStr = result.getResponse().getContentAsString();
-        Member createdMember = (Member) fromJsonString(resultStr, Member.class);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Member createdMember = objectMapper.readValue(resultStr, Member.class);;
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/api/member/" + createdMember.getMemNo())

@@ -129,7 +129,7 @@ public class FindAccountApi {
         return result.get("resultCode");
     }
 
-    @RequestMapping("/findPwd/certificationEmail") // 메일 속 인증 링크가 연결되는 페이지
+    @RequestMapping("/findPwd/cert-mail") // 메일 속 인증 링크가 연결되는 페이지
     public String certificationEmail(HttpSession session, @RequestParam Long memNo, @RequestParam String certKey) {
         Member member = memberService.findByMemNo(memNo);
         if (passwordEncoder.matches(certKey, member.getCertKey())) {
