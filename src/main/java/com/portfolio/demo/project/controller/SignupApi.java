@@ -3,12 +3,14 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.util.CertUtil;
+import com.portfolio.demo.project.util.TempKey;
 import com.portfolio.demo.project.vo.MemberVO;
 import com.portfolio.demo.project.vo.SocialProfile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,37 +27,11 @@ public class SignupApi {
 
     private final MemberService memberService;
 
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final CertUtil certUtil;
+    private final TempKey tempKey = new TempKey();
 
-    @GetMapping("/emailCk")
-    public ResponseEntity<MemberVO> findMemberByEmail(@RequestParam String email) {
-        Member member = memberService.findByIdentifier(email);
-
-        if (member != null) {
-            log.info("[이메일 조회] 회원 식별번호 : {}, 이메일 : {}", member.getMemNo(), email);
-            return new ResponseEntity<>(MemberVO.create(member), HttpStatus.OK);
-        } else {
-            log.info("[이메일 조회] 조회된 회원 정보가 없습니다. (조회 이메일 : {})", email);
-            return new ResponseEntity<>(null, HttpStatus.OK);
-        }
-    }
-
-    @GetMapping("/nameCk")
-    public Integer validateName(@RequestParam String name) {
-        Boolean exists = memberService.validateDuplicationName(name);
-        if (!exists) log.info("[name 사용 가능 여부 확인] member 정보 존재하지 않음(확인한 name : {})", name);
-        else log.info("[name 사용 가능 여부 확인] member 정보 존재(확인한 name : {})", name);
-        return exists ? 1 : 0;
-    }
-
-    @GetMapping("/phoneCk") // /{memType}
-    public Member findMemberByPhone(@RequestParam String phone) { // , @PathVariable String memType
-        log.info("들어온 phone number : {}", phone);
-
-        return memberService.findByPhone(phone);
-    }
+    private final CertUtil certUtil =  new CertUtil(passwordEncoder, tempKey);
 
 //    @RequestMapping(value = "/phoneCkProc", method = RequestMethod.GET) // 인증키를 받을 핸드폰 번호 입력 페이지
 //    public String phoneCkPage(HttpSession session, @RequestParam String phone, @RequestParam(required = false) String provider) {
@@ -126,7 +102,7 @@ public class SignupApi {
     /* 네아로 api, 카카오로그인 api로 접근한 회원가입 */
 //    @RequestMapping(value = "/oauthMem", method = RequestMethod.GET)
 //    public String oauthMem(HttpSession session, Model model) {
-//        session.removeAttribute("oauth_message");
+//        session.removeAttribute("oauthMsg");
 //
 //        Map<String, String> profile = (Map<String, String>) session.getAttribute("profile");
 //        String id = (String) profile.get("id");
@@ -140,7 +116,7 @@ public class SignupApi {
 
     @GetMapping("/oauthMem")
     public ResponseEntity<SocialProfile> getOauthProfile(HttpSession session) {
-        session.removeAttribute("oauth_message");
+        session.removeAttribute("oauthMsg");
 
         SocialProfile profile = (SocialProfile) session.getAttribute("profile");
         return new ResponseEntity<>(profile, HttpStatus.OK);

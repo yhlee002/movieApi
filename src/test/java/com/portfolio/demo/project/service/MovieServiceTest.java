@@ -1,8 +1,11 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.vo.kobis.movie.KobisMovieDetailVO;
+import com.portfolio.demo.project.vo.kobis.movie.KobisMovieVO;
 import com.portfolio.demo.project.vo.tmdb.ImageVO;
-import com.portfolio.demo.project.vo.tmdb.MovieDetailVO;
-import com.portfolio.demo.project.vo.tmdb.MovieVO;
+import com.portfolio.demo.project.vo.tmdb.TmdbMovieDetailVO;
+import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,9 +27,9 @@ class MovieServiceTest {
     @Test
     void kobis_일간_박스오피스_영화_목록_조회() {
         // given & when
-        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> movieList = movieService.getDailyBoxOfficeList();
+        List<KobisMovieVO> movieList = movieService.getDailyBoxOfficeList();
 
-        for (com.portfolio.demo.project.vo.kobis.movie.MovieVO movieVO : movieList) {
+        for (KobisMovieVO movieVO : movieList) {
             System.out.println(movieVO);
         }
 
@@ -37,9 +40,9 @@ class MovieServiceTest {
 
     @Test
     void kobis_주간_박스오피스_영화_목록_조회() {
-        List<com.portfolio.demo.project.vo.kobis.movie.MovieVO> movieList = movieService.getWeeklyBoxOfficeList();
+        List<KobisMovieVO> movieList = movieService.getWeeklyBoxOfficeList();
 
-        for (com.portfolio.demo.project.vo.kobis.movie.MovieVO movieVO : movieList) {
+        for (KobisMovieVO movieVO : movieList) {
             System.out.println(movieVO);
         }
 
@@ -55,18 +58,35 @@ class MovieServiceTest {
 
         // when
         Map<String, Object> result = movieService.getMovieInfo(movieId);
-        com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO movieDetailVO = (com.portfolio.demo.project.vo.kobis.movie.MovieDetailVO) result.get("movie");
+        KobisMovieDetailVO kobisMovieDetailVO = (KobisMovieDetailVO) result.get("movie");
 
         // then
-        assertEquals("파묘", movieDetailVO.getMovieNm());
-        assertEquals("Exhuma", movieDetailVO.getMovieNmEn());
-        assertFalse(movieDetailVO.getActors().isEmpty());
+        assertEquals("파묘", kobisMovieDetailVO.getMovieNm());
+        assertEquals("Exhuma", kobisMovieDetailVO.getMovieNmEn());
+        assertFalse(kobisMovieDetailVO.getActors().isEmpty());
+    }
+
+    @Test
+    void kmdb_영화_조회() {
+        // given
+        String title = "파묘";
+        String director = "장재현";
+        String year = "2024";
+
+        // when
+        KmdbMovieDetailVO movie = movieService.getMovieDetail(title, director, year);
+
+        // then
+        Assertions.assertNotNull(movie);
+        Assertions.assertEquals("파묘", movie.getTitle());
+        Assertions.assertEquals("장재현", movie.getDirectors().getDirector().get(0).getDirectorNm());
+        Assertions.assertEquals("2024", movie.getProdYear());
     }
 
     @Test
     void tmdb_현재_상영중인_영화_조회() {
         // given * when
-        List<MovieVO> nowPlayingMovies = movieService.getNowPlayingMovies(1);
+        List<TmdbMovieVO> nowPlayingMovies = movieService.getNowPlayingMovies(1);
 
         // then
         Assertions.assertNotNull(nowPlayingMovies);
@@ -75,7 +95,7 @@ class MovieServiceTest {
     @Test
     void tmdb_최고_평점의_영화_조회() {
         // given & when
-        List<MovieVO> topRatedMovies = movieService.getTopRatedMovies(1);
+        List<TmdbMovieVO> topRatedMovies = movieService.getTopRatedMovies(1);
 
         // then
         Assertions.assertNotNull(topRatedMovies);
@@ -84,7 +104,7 @@ class MovieServiceTest {
     @Test
     void tmdb_인기_영화_조회() {
         // given & when
-        List<MovieVO> popularMovies = movieService.getPopularMovies(1);
+        List<TmdbMovieVO> popularMovies = movieService.getPopularMovies(1);
 
         // then
         Assertions.assertNotNull(popularMovies);
@@ -93,7 +113,7 @@ class MovieServiceTest {
     @Test
     void tmdb_개봉_예정인_영화_조회() {
         // given & when
-        List<MovieVO> upComingMovies = movieService.getUpComingMovies(1);
+        List<TmdbMovieVO> upComingMovies = movieService.getUpComingMovies(1);
 
         // then
         Assertions.assertNotNull(upComingMovies);
@@ -103,7 +123,7 @@ class MovieServiceTest {
     void tmdb_영화_id를_이용한_단건_조회() {
         // given & when
         String movieId = "1096197"; // sample id(영화제목 : No Way Up)
-        MovieDetailVO movieDetail = movieService.getMovieDetail(movieId);
+        TmdbMovieDetailVO movieDetail = movieService.getMovieDetail(movieId);
 
         // then
         Assertions.assertNotNull(movieDetail);
@@ -135,7 +155,7 @@ class MovieServiceTest {
         final String keyword = "파이트" .toLowerCase();
 
         // when
-        List<MovieVO> result = movieService.getMovieListByTitle(keyword, true, 1, null);
+        List<TmdbMovieVO> result = movieService.getMovieListByTitle(keyword, true, 1, null);
 
         // then
         Assertions.assertNotNull(result);

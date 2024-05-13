@@ -9,7 +9,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-public class MovieVO {
+public class KobisMovieVO {
     private Integer rnum; // 순번을 출력
     private Integer rank; // 해당일자의 박스오피스 순위
     private Integer rankInten; // 전일대비 순위의 증감분
