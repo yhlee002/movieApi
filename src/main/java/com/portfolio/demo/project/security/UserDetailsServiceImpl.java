@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
-        log.info("loadUserByUserName user id {}", identifier);
+        log.info("loadUserByUserName user id: {}", identifier);
 
         Member member = memberRepository.findByIdentifier(identifier);
         if (member == null) {

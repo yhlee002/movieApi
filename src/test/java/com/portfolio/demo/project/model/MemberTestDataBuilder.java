@@ -12,8 +12,8 @@ public class MemberTestDataBuilder {
     public static Member.MemberBuilder admin() {
         return Member.builder()
                 .identifier("dldudgus214@naver.com")
-                .password("")
-                .name("이영현")
+                .password("1234")
+                .name("yhlee")
                 .phone("000-000-0000")
                 .role("ROLE_ADMIN")
                 .provider("none")
@@ -23,10 +23,19 @@ public class MemberTestDataBuilder {
     public static Member.MemberBuilder user() {
         return Member.builder()
                 .identifier("xxxoxxo002@gmail.com")
-                .password("")
+                .password("1234")
                 .name("이영현")
                 .phone("000-111-0000")
-//                .role("ROLE_USER")
+                .provider("none")
+                .certification("N");
+    }
+
+    public static Member.MemberBuilder noPasswordUser() {
+        return Member.builder()
+                .identifier("xxxoxxo002@gmail.com")
+                .password(null)
+                .name("이영현")
+                .phone("000-111-0000")
                 .provider("none")
                 .certification("N");
     }
@@ -36,7 +45,6 @@ public class MemberTestDataBuilder {
                 .identifier("353896214578115")
                 .name("이영현")
                 .phone("000-1212-3434")
-                .role("ROLE_USER")
                 .provider("naver")
                 .certification("Y");
     }
@@ -50,10 +58,9 @@ public class MemberTestDataBuilder {
 
         return Member.builder()
                 .identifier("test" + new Random().nextInt(10000) + "@gmail.com")
-                .password("")
+                .password("1234")
                 .name(randomString)
-                .phone("010-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
-                .role("ROLE_USER")
+                .phone("000-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
                 .provider("none")
                 .certification("N");
     }

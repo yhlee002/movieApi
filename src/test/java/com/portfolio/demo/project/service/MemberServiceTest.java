@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -140,7 +141,7 @@ class MemberServiceTest {
     @Test
     void 회원가입_패스워드_미기입시_오류_발생() {
         // when
-        Member member = MemberTestDataBuilder.user().password(null).build();
+        Member member = MemberTestDataBuilder.noPasswordUser().build();
 
         // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {

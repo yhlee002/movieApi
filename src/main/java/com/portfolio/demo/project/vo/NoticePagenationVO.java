@@ -13,5 +13,5 @@ import java.util.List;
 @AllArgsConstructor
 public class NoticePagenationVO {
     private int totalPageCnt; // 총 페이지 개수
-    private List<BoardNotice> boardNoticeList; // 한 화면에 보여줄 게시글 개수
+    private List<BoardNoticeVO> boardNoticeList; // 한 화면에 보여줄 게시글 개수
 }

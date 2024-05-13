@@ -42,17 +42,20 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .requestMatchers("/", "/sign-up/**", "/notices", "/imps").permitAll()
-                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
-                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN");
+                .requestMatchers("/**").permitAll();
+//                .requestMatchers("/", "/sign-in/**", "/sign-up/**", "/api/**", "/error/**").permitAll()
+//                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
+//                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN");
         http.cors().configurationSource(corsConfigurationSource());
+        http.csrf().disable();
         http.httpBasic();
 
         http.formLogin()
                 .loginPage("/sign-in")
-                .usernameParameter("email")
+                .usernameParameter("identifier")
                 .passwordParameter("password")
-                .loginProcessingUrl("/sign-in/sign-in-processor")
+                .loginProcessingUrl("/sign-in")
+                .defaultSuccessUrl("/")
                 .successHandler(signInSuccessHandler())
                 .permitAll();
 
@@ -82,9 +85,12 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> allowOrigins = new ArrayList<String>();
-        allowOrigins.add("http://localhost:8077");
-        configuration.setAllowedOrigins(allowOrigins);
+//        List<String> allowOrigins = new ArrayList<String>();
+//        allowOrigins.add("http://localhost:8077");
+//        configuration.setAllowedOrigins(allowOrigins);
+        List<String> allowOriginPatterns = new ArrayList<>();
+        allowOriginPatterns.add("*");
+        configuration.setAllowedOriginPatterns(allowOriginPatterns);
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
@@ -94,7 +100,7 @@ public class WebSecurityConfig {
         return source;
     }
     @Bean // 제거 임시 보류
-    protected BCryptPasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
