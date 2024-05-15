@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
 
-    Page<CommentImp> findByBoard(BoardImp board, Pageable pageable);
+    Page<CommentImp> findAllByBoard(BoardImp board, Pageable pageable);
 
     Page<CommentImp> findAllByWriter(Member member, Pageable pageable);
 
