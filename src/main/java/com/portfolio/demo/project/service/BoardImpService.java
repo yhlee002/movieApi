@@ -1,12 +1,15 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.vo.BoardImpVO;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +18,9 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -34,22 +39,47 @@ public class BoardImpService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
-        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+        List<BoardImp> list = pages.getContent();
+
+        log.info("조회된 게시글 수 : {}", list.size());
+
+        List<BoardImpVO> vos = new ArrayList<>();
+        list.forEach(boardImp -> {
+            Member writer = (Member) Hibernate.unproxy(boardImp.getWriter());
+//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+//            comments.forEach(comm -> {
+//                Member commentWriter = (Member) Hibernate.unproxy(comm.getWriter());
+//                comm.updateWriter(commentWriter);
+//            });
+            boardImp.updateWriter(writer);
+//            boardImp.updateComments(comments);
+            boardImp.updateComments(new ArrayList<>());
+            vos.add(BoardImpVO.create(boardImp));
+        });
+
 
         return ImpressionPagenationVO.builder()
-                .boardImpList(pages.getContent())
+//                .boardImpList(list.stream().map(BoardImpVO::create).toList())
+                .boardImpList(vos)
                 .totalPageCnt(pages.getTotalPages())
                 .build();
     }
 
     /**
-     * 감상평 게시글 식별번호로 게시글 조회
+     * 감상평 게시글 식별번호로 단건 조회
      *
      * @param id
      * @return
      */
     public BoardImp findById(Long id) {
-        return boardImpRepository.findBoardImpById(id);
+        BoardImp boardImp = boardImpRepository.findBoardImpById(id);
+        if (boardImp != null) {
+            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
+//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            boardImp.updateWriter(writer);
+            boardImp.updateComments(null);
+        }
+        return boardImp;
     }
 
     /**
@@ -59,7 +89,14 @@ public class BoardImpService {
      * @return
      */
     public BoardImp findPrevById(Long id) {
-        return boardImpRepository.findPrevBoardImpById(id);
+        BoardImp boardImp = boardImpRepository.findPrevBoardImpById(id);
+        if (boardImp != null) {
+            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
+//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            boardImp.updateWriter(writer);
+            boardImp.updateComments(null);
+        }
+        return boardImp;
     }
 
     /**
@@ -69,7 +106,15 @@ public class BoardImpService {
      * @return
      */
     public BoardImp findNextById(Long id) {
-        return boardImpRepository.findNextBoardImpById(id);
+        BoardImp boardImp = boardImpRepository.findNextBoardImpById(id);
+        if (boardImp != null) {
+            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
+//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            boardImp.updateWriter(writer);
+            boardImp.updateComments(null);
+        }
+
+        return boardImp;
     }
 
     /**
@@ -145,6 +190,7 @@ public class BoardImpService {
      * @param page
      * @return
      */
+    @Deprecated
     @Transactional
     public ImpressionPagenationVO getImpPagenation(int page) {
         Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("id").descending());
@@ -154,7 +200,7 @@ public class BoardImpService {
 
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent())
+                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
                 .build();
     }
 
@@ -167,13 +213,13 @@ public class BoardImpService {
     @Transactional
     public ImpressionPagenationVO getImpPagenationByWriterName(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<BoardImp> pages = boardImpRepository.findByWriterNameOrderByRegDateDesc(keyword, pageable);
+        Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
 
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent())
+                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
                 .build();
     }
 
@@ -189,7 +235,7 @@ public class BoardImpService {
         Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
         return ImpressionPagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent())
+                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
                 .build();
 
     }
