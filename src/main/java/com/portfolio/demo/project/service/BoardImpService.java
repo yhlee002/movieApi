@@ -6,6 +6,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.vo.BoardImpVO;
+import com.portfolio.demo.project.vo.BoardNoticeVO;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,20 +47,19 @@ public class BoardImpService {
         List<BoardImpVO> vos = new ArrayList<>();
         list.forEach(boardImp -> {
             Member writer = (Member) Hibernate.unproxy(boardImp.getWriter());
-//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
-//            comments.forEach(comm -> {
-//                Member commentWriter = (Member) Hibernate.unproxy(comm.getWriter());
-//                comm.updateWriter(commentWriter);
-//            });
+            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            comments.forEach(comm -> {
+                comm.updateBoard(null);
+                comm.updateWriter(null);
+            });
             boardImp.updateWriter(writer);
-//            boardImp.updateComments(comments);
+            boardImp.updateComments(comments);
             boardImp.updateComments(new ArrayList<>());
             vos.add(BoardImpVO.create(boardImp));
         });
 
 
         return ImpressionPagenationVO.builder()
-//                .boardImpList(list.stream().map(BoardImpVO::create).toList())
                 .boardImpList(vos)
                 .totalPageCnt(pages.getTotalPages())
                 .build();
@@ -75,9 +75,13 @@ public class BoardImpService {
         BoardImp boardImp = boardImpRepository.findBoardImpById(id);
         if (boardImp != null) {
             Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            comments.forEach(comm -> {
+                comm.updateBoard(null);
+                comm.updateWriter(null);
+            });
             boardImp.updateWriter(writer);
-            boardImp.updateComments(null);
+            boardImp.updateComments(comments);
         }
         return boardImp;
     }
@@ -92,9 +96,13 @@ public class BoardImpService {
         BoardImp boardImp = boardImpRepository.findPrevBoardImpById(id);
         if (boardImp != null) {
             Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            comments.forEach(comm -> {
+                comm.updateBoard(null);
+                comm.updateWriter(null);
+            });
             boardImp.updateWriter(writer);
-            boardImp.updateComments(null);
+            boardImp.updateComments(comments);
         }
         return boardImp;
     }
@@ -109,9 +117,13 @@ public class BoardImpService {
         BoardImp boardImp = boardImpRepository.findNextBoardImpById(id);
         if (boardImp != null) {
             Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-//            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
+            comments.forEach(comm -> {
+                comm.updateBoard(null);
+                comm.updateWriter(null);
+            });
             boardImp.updateWriter(writer);
-            boardImp.updateComments(null);
+            boardImp.updateComments(comments);
         }
 
         return boardImp;

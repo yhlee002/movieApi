@@ -84,12 +84,14 @@ class BoardNoticeServiceTest {
         boardNoticeService.updateBoard(nextBoard);
 
         // when
-        Map<String, BoardNotice> result = boardNoticeService.getBoardsByBoardId(board.getId());
+        BoardNotice prevBoardNotice = boardNoticeService.findPrevById(board.getId());
+        BoardNotice boardNotice = boardNoticeService.findById(board.getId());
+        BoardNotice nextBoardNotice = boardNoticeService.findNextById(board.getId());
 
         // then
-        Assertions.assertEquals(prevBoard.getId(), result.get("prevBoard").getId());
-        Assertions.assertEquals(board.getId(), result.get("board").getId());
-        Assertions.assertEquals(nextBoard.getId(), result.get("nextBoard").getId());
+        Assertions.assertEquals(prevBoard.getId(), prevBoardNotice.getId());
+        Assertions.assertEquals(board.getId(), boardNotice.getId());
+        Assertions.assertEquals(nextBoard.getId(), nextBoardNotice.getId());
     }
 
     @Test
