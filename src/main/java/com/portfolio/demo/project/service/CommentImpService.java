@@ -6,9 +6,11 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -57,11 +59,25 @@ public class CommentImpService {
         comm.ifPresent(commentImpRepository::delete);
     }
 
-    public List<CommentImp> getCommentsByBoard(BoardImp board, int page) {
+    public CommentImpPagenationVO getCommentsByBoard(BoardImp board, int page) {
         Pageable pageable = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<CommentImp> result = commentImpRepository.findByBoard(board, pageable);
+        Page<CommentImp> pages = commentImpRepository.findAllByBoard(board, pageable);
 
-        return result.getContent();
+        List<CommentImp> list = pages.getContent();
+
+        log.info("조회된 댓글 수 : {}", list.size());
+
+        List<CommentImpVO> vos = new ArrayList<>();
+        list.forEach(imp -> {
+            Member writer = Hibernate.unproxy(imp.getWriter(), Member.class);
+            imp.updateWriter(writer);
+            imp.updateBoard(null);
+            vos.add(CommentImpVO.create(imp));
+        });
+        return CommentImpPagenationVO.builder()
+                .commentImpsList(vos)
+                .totalPageCnt(pages.getTotalPages())
+                .build();
     }
 
     public List<CommentImp> getCommentsByMember(Member member, int page) {

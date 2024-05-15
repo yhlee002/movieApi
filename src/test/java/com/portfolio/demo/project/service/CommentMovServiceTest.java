@@ -4,6 +4,8 @@ import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.CommentMovTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.CommentMovPagenationVO;
+import com.portfolio.demo.project.vo.CommentMovVO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -125,10 +127,11 @@ class CommentMovServiceTest {
         commentMovService.saveComment(comment4);
 
         // when
-        List<CommentMov> list = commentMovService.getCommentsByMovie(0, comment.getMovieNo());
-        List<CommentMov> list2 = commentMovService.getCommentsByMovie(0, comment4.getMovieNo());
-
-        // then
+        CommentMovPagenationVO vo = commentMovService.getCommentsByMovie(0, comment.getMovieNo());
+        List<CommentMovVO> list = vo.getCommentMovsList();
+        CommentMovPagenationVO vo2 = commentMovService.getCommentsByMovie(0, comment4.getMovieNo());
+        List<CommentMovVO> list2 = vo2.getCommentMovsList();
+                // then
         Assertions.assertEquals(3, list.size());
         Assertions.assertEquals(1, list2.size());
         list.forEach(c -> Assertions.assertEquals(comment.getMovieNo(), c.getMovieNo()));

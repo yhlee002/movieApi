@@ -40,4 +40,12 @@ public class CommentImp extends BaseEntity {
     public void updateContent(String content) {
         this.content = content;
     }
+
+    public void updateBoard(BoardImp board) {
+        this.board = board;
+    }
+
+    public void updateWriter(Member writer) {
+        this.writer = writer;
+    }
 }

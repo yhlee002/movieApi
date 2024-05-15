@@ -74,8 +74,8 @@ public class CommentImpRepositoryTest {
 
         // when
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
-        Page<CommentImp> comments = commentImpRepository.findByBoard(board, pageable);
-        Page<CommentImp> comments2 = commentImpRepository.findByBoard(board2, pageable);
+        Page<CommentImp> comments = commentImpRepository.findAllByBoard(board, pageable);
+        Page<CommentImp> comments2 = commentImpRepository.findAllByBoard(board2, pageable);
 
         // then
         Assertions.assertEquals(3, comments.getTotalElements());

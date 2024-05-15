@@ -8,10 +8,13 @@ import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.service.MemberService;
+import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
+import com.portfolio.demo.project.vo.CommentMovPagenationVO;
 import com.portfolio.demo.project.vo.CommentMovVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,13 +37,25 @@ public class CommentApi {
     private final BoardImpService boardImpService;
 
     /**
+     * 댓글을 작성일자 내림차순으로 조회(TODO. 페이지네이션 필요)
+     * @param pageNum
+     * @param movieCd
+     * @return
+     */
+    @GetMapping("/comment/movie")
+    public ResponseEntity<CommentMovPagenationVO> getCommentList(@RequestParam(name = "p") int pageNum, Long movieCd) {
+        CommentMovPagenationVO vos = commentMovService.getCommentsByMovie(pageNum, movieCd);
+        return new ResponseEntity<>(vos, HttpStatus.OK);
+    }
+
+    /**
      * 댓글 작성
      * @param commentContent
      * @param memNo
      * @param movieNo
      * @param rating
      */
-    @PostMapping("/movieInfo/comment")
+    @PostMapping("/comment/movie")
     public ResponseEntity<String> writeCommentMovieInfo(String commentContent, Long memNo, Long movieNo, int rating) {
         Member user = memberService.findByMemNo(memNo);
         try {
@@ -60,44 +75,11 @@ public class CommentApi {
     }
 
     /**
-     * 댓글을 작성일자 내림차순으로 조회(TODO. 페이지네이션 필요)
-     * @param pageNum
-     * @param movieCd
-     * @return
-     */
-    @GetMapping("/movieInfo/comment")
-    public Map<String, Object> getCommentList(@RequestParam(name = "p") int pageNum, Long movieCd) {
-        List<CommentMovVO> list = commentMovService.getCommentsByMovie(pageNum, movieCd).stream().map(CommentMovVO::create).toList();
-        int totalPage = commentMovService.getTotalPageCountByMovieNo(movieCd);
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", list);
-        result.put("totalPageCnt", totalPage);
-        result.put("totalCommentCnt", list.size());
-
-        return result;
-    }
-
-    /**
-     * @deprecated 추후 Vue.js 등으로 변경시 프론트에서 모두 처리하도록 변경시 삭제 예정
-     * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
-     * @param memNo
-     */
-    @GetMapping("/movieInfo/comment/checkMemNo")
-    public ResponseEntity<List<CommentMovVO>> getMovieCommentListByMemNo(Long memNo, int page) {
-        log.info("들어온 사용자 식별번호 : " + memNo);
-        Member member = memberService.findByMemNo(memNo);
-        List<CommentMovVO> commList = commentMovService.getCommentsByMember(member, page).stream().map(CommentMovVO::create).toList();
-        log.info("반환될 댓글 리스트 : " + commList);
-
-        return new ResponseEntity<>(commList, HttpStatus.OK);
-    }
-
-    /**
      * 댓글 수정
      * @param content
      * @param commentId
      */
-    @PatchMapping("/movieInfo/comment")
+    @PatchMapping("/comment/movie")
     public ResponseEntity<String> updateCommentMov(String content, Long commentId) {
         if (commentMovService.updateMovComment(commentId, content) != null) {
             return new ResponseEntity<>("success", HttpStatus.OK);
@@ -111,14 +93,41 @@ public class CommentApi {
      * @param commentId
      * @return
      */
-    @DeleteMapping("/movieInfo/comment")
+    @DeleteMapping("/comment/movie")
     public String deleteCommentMov(Long commentId) {
         commentMovService.deleteCommentById(commentId);
 
         return "success";
     }
 
+    /**
+     * @deprecated 추후 Vue.js 등으로 변경시 프론트에서 모두 처리하도록 변경시 삭제 예정
+     * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
+     * @param memNo
+     */
+    @GetMapping("/comment/movie/checkMemNo")
+    public ResponseEntity<List<CommentMovVO>> getMovieCommentListByMemNo(Long memNo, int page) {
+        log.info("들어온 사용자 식별번호 : " + memNo);
+        Member member = memberService.findByMemNo(memNo);
+        List<CommentMovVO> commList = commentMovService.getCommentsByMember(member, page).stream().map(CommentMovVO::create).toList();
+        log.info("반환될 댓글 리스트 : " + commList);
+
+        return new ResponseEntity<>(commList, HttpStatus.OK);
+    }
+
     // ------------ 영화 감상 후기 게시판 댓글 ------------ //
+
+    /**
+     * 해당 글에 대한 전체 댓글 조회
+     * @param boardId
+     * @param page
+     */
+    @GetMapping("/comments/imp")
+    public ResponseEntity<CommentImpPagenationVO> getCommentList(@RequestParam(name = "boardId") Long boardId, @RequestParam(name = "page", required = false, defaultValue = "0") int page) {
+        BoardImp board = boardImpService.findById(boardId);
+        CommentImpPagenationVO vo = commentImpService.getCommentsByBoard(board, page);
+        return new ResponseEntity<>(vo, HttpStatus.OK);
+    }
 
     /**
      * 댓글 작성
@@ -126,7 +135,7 @@ public class CommentApi {
      * @param boardId
      * @param memNo
      */
-    @PostMapping("/imp/comment")
+    @PostMapping("/comment/imp")
     public void writeCommentImp(String content, Long boardId, Long memNo) {
         BoardImp board = boardImpService.findById(boardId);
         Member user = memberService.findByMemNo(memNo);
@@ -142,7 +151,7 @@ public class CommentApi {
      * 댓글 수정
      * @param comment
      */
-    @PatchMapping("/imp/comment")
+    @PatchMapping("/comment/imp")
     public String updateCommentImp(@RequestBody CommentImp comment) {
         CommentImp original = commentImpService.getCommentById(comment.getId());
 
@@ -159,28 +168,14 @@ public class CommentApi {
      * 댓글 삭제
      * @param commentId
      */
-    @DeleteMapping("/imp/comment")
+    @DeleteMapping("/comment/imp")
     public String deleteCommentImp(Long commentId) {
         commentImpService.deleteCommentById(commentId);
 
         return "success";
     }
 
-
-    /**
-     * 해당 글에 대한 전체 댓글 조회
-     * @param boardId
-     * @param page
-     */
-    @GetMapping("/imp/comments")
-    public List<CommentImpVO> getCommentList(Long boardId, int page) {
-        BoardImp board = boardImpService.findById(boardId);
-        return commentImpService.getCommentsByBoard(board, page)
-                .stream().map(CommentImpVO::create).toList();
-
-    }
-
-    @GetMapping("/imp/comment/checkMemNo")
+    @GetMapping("/comment/imp/checkMemNo")
     public List<CommentImpVO> getCommentListByMemNo(Long memNo, int page) {
         Member member = memberService.findByMemNo(memNo);
         return commentImpService.getCommentsByMember(member, page)
