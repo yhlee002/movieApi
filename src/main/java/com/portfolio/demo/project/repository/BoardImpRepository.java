@@ -53,7 +53,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 //    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
 //            "where m.name like %:name% order by b.id desc limit :size offset :offset")
 //    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
-    Page<BoardImp> findByWriterNameOrderByRegDateDesc(String name, Pageable pageable);
+    Page<BoardImp> findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(String name, Pageable pageable);
 
     @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
             "where m.name like %:name%")

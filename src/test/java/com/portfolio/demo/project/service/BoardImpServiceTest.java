@@ -4,12 +4,14 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.BoardImpVO;
 import com.portfolio.demo.project.vo.ImpressionPagenationVO;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -40,7 +42,7 @@ class BoardImpServiceTest {
         }
 
         // when
-        List<BoardImp> list = boardImpService.getAllBoards(0, 10).getBoardImpList();
+        List<BoardImpVO> list = boardImpService.getAllBoards(0, 10).getBoardImpList();
 
         // then
         Assertions.assertEquals(3, list.size());
