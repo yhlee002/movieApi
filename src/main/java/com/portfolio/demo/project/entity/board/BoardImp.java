@@ -34,6 +34,9 @@ public class BoardImp extends BaseEntity {
     @Column(name = "views")
     private int views; // 조회수
 
+    @Column(name = "recommended")
+    private int recommended;
+
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "board_id")
@@ -45,6 +48,7 @@ public class BoardImp extends BaseEntity {
         this.content = content;
         this.writer = writer;
         this.views = 0;
+        this.recommended = 0;
     }
 
     public void updateTitle(String title) {

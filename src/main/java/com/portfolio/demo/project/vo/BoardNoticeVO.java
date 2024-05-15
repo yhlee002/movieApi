@@ -15,7 +15,7 @@ public class BoardNoticeVO {
     private Long id;
     private String title;
     private String content;
-    private Member writer;
+    private MemberVO writer;
     private String regDate;
     private String modDate;
     private int views;
@@ -25,7 +25,7 @@ public class BoardNoticeVO {
                 .id(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writer(board.getWriter())
+                .writer(MemberVO.create(board.getWriter()))
                 .regDate(board.getRegDate())
                 .modDate(board.getModDate())
                 .views(board.getViews())
