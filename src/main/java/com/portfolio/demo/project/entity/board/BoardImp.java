@@ -58,4 +58,12 @@ public class BoardImp extends BaseEntity {
     public void updateViewCount() {
         this.views++;
     }
+
+    public void updateWriter(Member writer) {
+        this.writer = writer;
+    }
+
+    public void updateComments(List<CommentImp> comments) {
+        this.comments = comments;
+    }
 }

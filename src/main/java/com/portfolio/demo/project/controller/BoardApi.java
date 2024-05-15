@@ -29,64 +29,53 @@ public class BoardApi {
 
     private final BoardImpService boardImpService;
 
-//    /**
-//     * 전체 공지사항 게시글 조회 및 검색
-//     *
-//     * @param size
-//     * @param pageNum
-//     * @param query
-//     */
-//    @GetMapping("/notices")
-//    public ResponseEntity<NoticePagenationVO> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-//                                                      @RequestParam(name = "p", required = false, defaultValue = "0") int pageNum,
-//                                                      @RequestParam(name = "query", required = false) String query) {
-//
-//        NoticePagenationVO pagenationVO = null;
-//        if (query != null) {
-//            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
-//        } else {
-//            pagenationVO = boardNoticeService.getBoardNoticePagenation(pageNum, size);
-//        }
-//
-//        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
-//    }
-
+    /**
+     * 전체 공지사항 게시글 조회 및 검색
+     *
+     * @param size
+     * @param pageNum
+     * @param query
+     */
     @GetMapping("/notices")
-    public List<BoardNoticeVO> notices() {
-        List<BoardNotice> list = boardNoticeService.getAllBoards(0, 10);
-        return list.stream().map(BoardNoticeVO::create).toList();
+    public ResponseEntity<NoticePagenationVO> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                      @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+                                                      @RequestParam(name = "query", required = false) String query) {
+
+        NoticePagenationVO pagenationVO = null;
+        if (query != null) {
+            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
+        } else {
+            pagenationVO = boardNoticeService.getAllBoards(pageNum, size);
+        }
+
+        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
     }
 
     /**
      * 공지사항 게시글 단건 조회
      *
-     * @param boardNo
-     * @param model
+     * @param id
      */
-//    @RequestMapping("/notice/{boardNo}")
-//    public String notice(@PathVariable Long boardNo, Model model) {
-//        Map<String, BoardNotice> boards = boardNoticeService.getBoardsByBoardId(boardNo);
-//        model.addAttribute("board", boards.get("board"));
-//        model.addAttribute("prevBoard", boards.get("prevBoard"));
-//        model.addAttribute("nextBoard", boards.get("nextBoard"));
-//
-//        boardNoticeService.upViewCntById(boardNo);
-//        return "board_notice/detail";
-//    }
+    @GetMapping("/notice/{id}")
+    public ResponseEntity<Map<String, BoardNoticeVO>> notice(@PathVariable Long id) {
+        Map<String, BoardNoticeVO> map = new HashMap<>();
+        BoardNotice board = boardNoticeService.findById(id);
+        BoardNotice prev = boardNoticeService.findPrevById(id);
+        BoardNotice next = boardNoticeService.findNextById(id);
+        map.put("board", board != null ? BoardNoticeVO.create(board) : null);
+        map.put("prevBoard", prev != null ? BoardNoticeVO.create(prev) : null);
+        map.put("nextBoard", next != null ? BoardNoticeVO.create(next) : null);
 
-    /**
-     * 공지사항 게시글 작성 페이지 접근
-     *
-     * @param boardId
-     * @param model
-     */
-//    @GetMapping("/notice/new")
-//    public String noticeBoardUpdateForm(Long boardId, Model model) {
-//        if (boardId != null) {
-//            model.addAttribute("board", boardNoticeService.getById(boardId));
-//        }
-//        return "board_notice/writeForm";
-//    }
+        return new ResponseEntity<>(map, HttpStatus.OK);
+    }
+
+    @PatchMapping("/notice/view")
+    public ResponseEntity<BoardNoticeVO> updateViews(@RequestBody BoardNotice boardNotice) {
+        boardNoticeService.upViewCntById(boardNotice.getId());
+        BoardNotice notice = boardNoticeService.findById(boardNotice.getId());
+
+        return new ResponseEntity<>(BoardNoticeVO.create(notice), HttpStatus.OK);
+    }
 
     /**
      * 공지사항 게시글 작성
@@ -94,7 +83,7 @@ public class BoardApi {
      * @param notice
      */
     @ResponseBody
-    @PostMapping(value = "/notice")
+    @PostMapping("/notice")
     public ResponseEntity<BoardNotice> updateNotice(@RequestBody BoardNotice notice) {
         return new ResponseEntity<>(boardNoticeService.updateBoard(notice), HttpStatus.OK);
     }
@@ -105,10 +94,10 @@ public class BoardApi {
      * @param boardId
      */
     @DeleteMapping("/notice")
-    public String deleteNotice(Long boardId) {
+    public ResponseEntity<Boolean> deleteNotice(Long boardId) {
         boardNoticeService.deleteBoardByBoardId(boardId);
 
-        return "redirect:/notices";
+        return new ResponseEntity<>(true, HttpStatus.OK);
     }
 
     /**
@@ -120,10 +109,10 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/imps")
-    public ResponseEntity<List<BoardImpVO>> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-                                                            @RequestParam(name = "p", required = false, defaultValue = "0") int pageNum,
-                                                            @RequestParam(name = "con", required = false) String condition,
-                                                            @RequestParam(name = "query", required = false) String query) {
+    public ResponseEntity<ImpressionPagenationVO> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                       @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+                                                       @RequestParam(name = "con", required = false) String condition,
+                                                       @RequestParam(name = "query", required = false) String query) {
 
         ImpressionPagenationVO pagenationVO = null;
         if (query != null) {
@@ -137,8 +126,7 @@ public class BoardApi {
             pagenationVO = boardImpService.getAllBoards(pageNum, size);
         }
 
-        List<BoardImpVO> list = pagenationVO.getBoardImpList().stream().map(BoardImpVO::create).toList();
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
     }
 
     /**
@@ -156,20 +144,8 @@ public class BoardApi {
         map.put("board", board != null ? BoardImpVO.create(board) : null);
         map.put("prevBoard", prev != null ? BoardImpVO.create(prev) : null);
         map.put("nextBoard", next != null ? BoardImpVO.create(next) : null);
+
         return new ResponseEntity<>(map, HttpStatus.OK);
-    }
-
-    /**
-     * 후기 게시글 수정 페이지 접근
-     *
-     * @param boardId
-     * @param model
-     */
-    @GetMapping("/imp/new")
-    public String impBoardUpdateForm(Long boardId, Model model) {
-        model.addAttribute("board", boardImpService.findById(boardId));
-
-        return "board_imp/updateForm";
     }
 
     /**

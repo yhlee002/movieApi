@@ -4,6 +4,7 @@ import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardNoticeTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.BoardNoticeVO;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -46,9 +47,10 @@ class BoardNoticeServiceTest {
         );
 
         // when
-        List<BoardNotice> list = boardNoticeService.getAllBoards(0, 5);
+        NoticePagenationVO vo = boardNoticeService.getAllBoards(0, 5);
+        List<BoardNoticeVO> list = vo.getBoardNoticeList();
 
-        // then
+                // then
         assertEquals(2, list.size());
     }
 
@@ -61,7 +63,7 @@ class BoardNoticeServiceTest {
         boardNoticeService.updateBoard(board);
 
         // when
-        BoardNotice foundBoard = boardNoticeService.getById(board.getId());
+        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
 
         // then
         Assertions.assertNotNull(foundBoard);
@@ -124,7 +126,7 @@ class BoardNoticeServiceTest {
         board.updateContent("Modified content.");
         boardNoticeService.updateBoard(board);
 
-        BoardNotice foundBoard = boardNoticeService.getById(board.getId());
+        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
 
         // then
         Assertions.assertEquals("Modified content.", foundBoard.getContent());
@@ -141,7 +143,7 @@ class BoardNoticeServiceTest {
 
         // when
         boardNoticeService.deleteBoardByBoardId(board.getId());
-        BoardNotice foundBoard = boardNoticeService.getById(board.getId());
+        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
 
         // then
         Assertions.assertNull(foundBoard);
@@ -167,7 +169,8 @@ class BoardNoticeServiceTest {
                 Arrays.asList(board, board2, board3)
         );
 
-        List<BoardNotice> list = boardNoticeService.getAllBoards(0, 10);
+        NoticePagenationVO vo = boardNoticeService.getAllBoards(0, 10);
+        List<BoardNoticeVO> list = vo.getBoardNoticeList();
 
         // then
         Assertions.assertEquals(0, list.size());
@@ -204,7 +207,7 @@ class BoardNoticeServiceTest {
         boardNoticeService.updateBoard(board2);
 
         // when
-        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenation(0, null);
+        NoticePagenationVO pagenation = boardNoticeService.getAllBoards(0, null);
 
         // then
         Assertions.assertEquals(2, pagenation.getBoardNoticeList().size());

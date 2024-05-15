@@ -59,4 +59,8 @@ public class BoardNotice extends BaseEntity {
     public void updateViewCount() {
         this.views++;
     }
+
+    public void updateWriter(Member writer) {
+        this.writer = writer;
+    }
 }

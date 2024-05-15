@@ -1,13 +1,14 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.vo.BoardNoticeVO;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,46 +31,62 @@ public class BoardNoticeService {
     private final MemberRepository memberRepository;
 
     /**
-     * @deprecated 페이지네이션되는 api 사용으로 사용되지 않음
      * 전체 공지사항 게시글 조회
+     *
+     * @param page
+     * @param size
      */
-    public List<BoardNotice> getAllBoards(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        return boardNoticeRepository.findAll(pageable).getContent();
+    @Transactional
+    public NoticePagenationVO getAllBoards(int page, Integer size) {
+        if (size == null) size = BOARD_COUNT_PER_PAGE;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"));
+        Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
+
+        List<BoardNotice> list = pages.getContent();
+
+        log.info("조회된 게시글 수 : {}", list.size());
+
+        List<BoardNoticeVO> vos = new ArrayList<>();
+        list.forEach(boardNotice -> {
+            Member writer = (Member) Hibernate.unproxy(boardNotice.getWriter());
+            boardNotice.updateWriter(writer);
+            vos.add(BoardNoticeVO.create(boardNotice));
+        });
+
+        return NoticePagenationVO.builder()
+                .boardNoticeList(vos)
+                .totalPageCnt(pages.getTotalPages())
+                .build();
     }
 
     /**
-     * 공지사항 게시글 단건 조회
+     * 공지사항 게시글 식별번호로 단건 조회
      *
      * @param boardId
      * @return 단건 공지 게시글
      */
-    public BoardNotice getById(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findBoardNoticeById(boardId);
-        return board;
+    public BoardNotice findById(Long boardId) {
+        return boardNoticeRepository.findBoardNoticeById(boardId);
     }
 
     /**
-     * 공지사항 게시글 단건 조회 + 이전글, 다음글
+     * 공지사항 게시글 식별번호로 이전글 조회
      *
-     * @param boardId
+     * @param id
+     * @return
      */
-    @Transactional
-    public HashMap<String, BoardNotice> getBoardsByBoardId(Long boardId) {
-        BoardNotice board = null;
-        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
-        if (boardOpt.isPresent()) {
-            board = boardOpt.get();
-        }
+    public BoardNotice findPrevById(Long id) {
+        return boardNoticeRepository.findPrevBoardNoticeById(id);
+    }
 
-        BoardNotice prevBoard = boardNoticeRepository.findPrevBoardNoticeById(boardId);
-        BoardNotice nextBoard = boardNoticeRepository.findNextBoardNoticeById(boardId);
-        HashMap<String, BoardNotice> boardNoticeMap = new HashMap<>();
-        boardNoticeMap.put("board", board);
-        boardNoticeMap.put("prevBoard", prevBoard);
-        boardNoticeMap.put("nextBoard", nextBoard);
-
-        return boardNoticeMap;
+    /**
+     * 공지사항 게시글 식별번호로 다음글 조회
+     *
+     * @param id
+     * @return
+     */
+    public BoardNotice findNextById(Long id) {
+        return boardNoticeRepository.findNextBoardNoticeById(id);
     }
 
     /**
@@ -144,25 +161,6 @@ public class BoardNoticeService {
     }
 
     /**
-     * 공지사항 게시글 조회(10page씩)
-     *
-     * @param page
-     */
-    @Transactional
-    public NoticePagenationVO getBoardNoticePagenation(int page, Integer size) {
-        if (size == null) size = BOARD_COUNT_PER_PAGE;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"));
-        Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
-
-        log.info("조회된 게시글 수 : {}", pages.getContent().size());
-
-        return NoticePagenationVO.builder()
-                .totalPageCnt(pages.getTotalPages())
-                .boardNoticeList(pages.getContent())
-                .build();
-    }
-
-    /**
      * 공지사항 게시글 조회(검색어가 존재)
      *
      * @param page
@@ -173,10 +171,18 @@ public class BoardNoticeService {
         if (size == null) size = BOARD_COUNT_PER_PAGE;
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        List<BoardNotice> list = pages.getContent();
+
+        List<BoardNoticeVO> vos = new ArrayList<>();
+        list.forEach(boardNotice -> {
+            Member writer = (Member) Hibernate.unproxy(boardNotice.getWriter());
+            boardNotice.updateWriter(writer);
+            vos.add(BoardNoticeVO.create(boardNotice));
+        });
 
         return NoticePagenationVO.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardNoticeList(pages.getContent())
+                .boardNoticeList(vos)
                 .build();
     }
 }
