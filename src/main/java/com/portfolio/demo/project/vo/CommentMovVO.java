@@ -10,8 +10,9 @@ import lombok.ToString;
 @ToString
 public class CommentMovVO {
     private Long id;
-    private Long writerId;
-    private String writerName;
+//    private Long writerId;
+//    private String writerName;
+    private MemberVO writer;
     private Long movieNo;
     private String content;
     private String regDate;
@@ -20,8 +21,9 @@ public class CommentMovVO {
     public static CommentMovVO create(CommentMov mov) {
         return CommentMovVO.builder()
                 .id(mov.getId())
-                .writerId(mov.getWriter().getMemNo())
-                .writerName(mov.getWriter().getName())
+//                .writerId(mov.getWriter().getMemNo())
+//                .writerName(mov.getWriter().getName())
+                .writer(MemberVO.create(mov.getWriter()))
                 .movieNo(mov.getMovieNo())
                 .content(mov.getContent())
                 .regDate(mov.getRegDate())

@@ -53,4 +53,8 @@ public class CommentMov extends BaseEntity {
     public void updateRating(int rating) {
         this.rating = rating;
     }
+
+    public void updateWriter(Member writer) {
+        this.writer = writer;
+    }
 }

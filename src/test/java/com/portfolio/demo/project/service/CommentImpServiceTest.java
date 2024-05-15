@@ -6,31 +6,54 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Test;
+import com.portfolio.demo.project.repository.BoardImpRepository;
+import com.portfolio.demo.project.repository.CommentImpRepository;
+import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.util.TempKey;
+import com.portfolio.demo.project.vo.CommentImpPagenationVO;
+import com.portfolio.demo.project.vo.CommentImpVO;
+import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-
-@SpringBootTest
-@Transactional
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+//@SpringBootTest
+//@Transactional
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class CommentImpServiceTest {
 
-    @Autowired
+//    @Autowired
     private CommentImpService commentImpService;
 
-    @Autowired
+//    @Autowired
     private MemberService memberService;
 
-    @Autowired
+//    @Autowired
     private BoardImpService boardImpService;
+
+    @BeforeEach
+    void setUp() {
+        CommentImpRepository commentImpRepository = Mockito.mock(CommentImpRepository.class);
+        commentImpService = new CommentImpService(commentImpRepository);
+
+        MemberRepository memberRepository = Mockito.mock(MemberRepository.class);
+        PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
+        TempKey tempKey = new TempKey();
+        memberService = new MemberService(memberRepository, passwordEncoder, tempKey);
+
+        BoardImpRepository boardImpRepository = Mockito.mock(BoardImpRepository.class);
+        boardImpService = new BoardImpService(boardImpRepository, memberRepository);
+    }
 
     @Test
     void 댓글_작성() {
@@ -94,7 +117,7 @@ class CommentImpServiceTest {
     @Test
     void 특정_게시글의_댓글_조회() {
         // given
-        Member user = MemberTestDataBuilder.user().build();
+        Member user = MemberTestDataBuilder.randomIdentifierUser().build();
         memberService.saveMember(user);
 
         Member user2 = MemberTestDataBuilder.randomIdentifierUser().build();
@@ -113,9 +136,10 @@ class CommentImpServiceTest {
         commentImpService.saveComment(comment3);
 
         // when
-        List<CommentImp> list = commentImpService.getCommentsByBoard(board, 0);
+        CommentImpPagenationVO vo = commentImpService.getCommentsByBoard(board, 0);
+        List<CommentImpVO> list = vo.getCommentImpsList();
 
-        // then
+                // then
         Assertions.assertEquals(3, list.size());
     }
 
