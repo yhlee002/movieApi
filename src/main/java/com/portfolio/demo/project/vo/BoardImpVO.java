@@ -17,20 +17,28 @@ public class BoardImpVO {
     private Long id;
     private String title;
     private String content;
-    private Member writer;
+    private MemberVO writer;
     private String regDate;
-    private int views; // 조회수
+    private int views;
+    private int recommended;
     private List<CommentImp> comments;
+    private int commentSize;
 
     public static BoardImpVO create(BoardImp board) {
         return BoardImpVO.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writer(board.getWriter())
+                .writer(MemberVO.create(board.getWriter()))
                 .regDate(board.getRegDate())
                 .views(board.getViews())
+                .recommended(board.getRecommended())
                 .comments(board.getComments())
+                .commentSize(board.getComments().size())
                 .build();
+    }
+
+    public void updateCommentSize(int commentSize) {
+        this.commentSize = commentSize;
     }
 }
