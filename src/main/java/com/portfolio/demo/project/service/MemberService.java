@@ -4,7 +4,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.MemberParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -28,12 +28,12 @@ public class MemberService {
 
     private final TempKey tempKey;
 
-    public MemberVO findByMemNo(Long memNo) {
+    public MemberParam findByMemNo(Long memNo) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
-        MemberVO result = null;
+        MemberParam result = null;
         if (member != null) {
-            result = MemberVO.create(member);
+            result = MemberParam.create(member);
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
         }
@@ -41,12 +41,12 @@ public class MemberService {
         return result;
     }
 
-    public MemberVO findByIdentifier(String identifier) {
+    public MemberParam findByIdentifier(String identifier) {
         Member member = memberRepository.findByIdentifier(identifier);
 
-        MemberVO result = null;
+        MemberParam result = null;
         if (member != null) {
-            result = MemberVO.create(member);
+            result = MemberParam.create(member);
         } else {
             log.error("해당 식별자의 회원 정보가 존재하지 않습니다. (memNo = {})", identifier);
         }
@@ -54,31 +54,31 @@ public class MemberService {
         return result;
     }
 
-    public MemberVO findByName(String name) {
+    public MemberParam findByName(String name) {
         Member member = memberRepository.findByNameIgnoreCase(name);
 
-        MemberVO result = null;
+        MemberParam result = null;
         if (member != null) {
-            result = MemberVO.create(member);
+            result = MemberParam.create(member);
         } else {
             log.error("해당 이름의 회원 정보가 존재하지 않습니다. (memNo = {})", name);
         }
         return result;
     }
 
-    public List<MemberVO> findAllByNameContaining(String name, int page, int size) {
+    public List<MemberParam> findAllByNameContaining(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         List<Member> list = memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
 
-        return list.stream().map(MemberVO::create).toList();
+        return list.stream().map(MemberParam::create).toList();
     }
 
-    public MemberVO findByPhone(String phone) {
+    public MemberParam findByPhone(String phone) {
         Member member = memberRepository.findByPhone(phone);
 
-        MemberVO result = null;
+        MemberParam result = null;
         if (member != null) {
-            result = MemberVO.create(member);
+            result = MemberParam.create(member);
         } else {
             log.error("해당 휴대번호의 회원 정보가 존재하지 않습니다. (phone = {})", phone);
         }
@@ -90,12 +90,12 @@ public class MemberService {
         return memberRepository.existsByPhone(phone);
     }
 
-    public MemberVO findByIdentifierAndProvider(String identifier, String provider) {
+    public MemberParam findByIdentifierAndProvider(String identifier, String provider) {
         Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
-        return MemberVO.create(mem);
+        return MemberParam.create(mem);
     }
 
-    public MemberVO updateMember(MemberVO member) {
+    public MemberParam updateMember(MemberParam member) {
         if (member.getMemNo() == null) {
             if (member.getProvider().equals("none")) {
                 member.setPassword(passwordEncoder.encode(member.getPassword()));
@@ -122,10 +122,10 @@ public class MemberService {
                         .build()
         );
 
-        return MemberVO.create(created);
+        return MemberParam.create(created);
     }
 
-    public MemberVO saveOauthMember(MemberVO member) {
+    public MemberParam saveOauthMember(MemberParam member) {
         Member created = memberRepository.save(
                 Member.builder()
                         .memNo(member.getMemNo())
@@ -140,7 +140,7 @@ public class MemberService {
                         .build()
         );
 
-        return MemberVO.create(created);
+        return MemberParam.create(created);
     }
 
     public void updatePwd(Long memNo, String pwd) {
@@ -179,7 +179,7 @@ public class MemberService {
     }
 
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
-    public Authentication getAuthentication(MemberVO member) {
+    public Authentication getAuthentication(MemberParam member) {
         Member user = memberRepository.findByIdentifier(member.getIdentifier());
         UserDetail userDetail = new UserDetail(user);
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());

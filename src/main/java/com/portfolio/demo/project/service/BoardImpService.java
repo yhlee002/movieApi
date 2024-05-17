@@ -1,16 +1,13 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.BoardImpVO;
-import com.portfolio.demo.project.vo.BoardNoticeVO;
-import com.portfolio.demo.project.vo.ImpressionPagenationVO;
+import com.portfolio.demo.project.dto.BoardImpParam;
+import com.portfolio.demo.project.dto.ImpressionPagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -35,7 +31,7 @@ public class BoardImpService {
     /**
      * 전체 감상평 게시글 조회
      */
-    public ImpressionPagenationVO getAllBoards(int page, int size) {
+    public ImpressionPagenationParam getAllBoards(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
@@ -43,14 +39,14 @@ public class BoardImpService {
 
         log.info("조회된 게시글 수 : {}", list.size());
 
-        List<BoardImpVO> vos = new ArrayList<>();
+        List<BoardImpParam> vos = new ArrayList<>();
         list.forEach(boardImp -> {
-            BoardImpVO vo = BoardImpVO.create(boardImp);
+            BoardImpParam vo = BoardImpParam.create(boardImp);
 
             vos.add(vo);
         });
 
-        return ImpressionPagenationVO.builder()
+        return ImpressionPagenationParam.builder()
                 .boardImpList(vos)
                 .totalPageCnt(pages.getTotalPages())
                 .build();
@@ -62,13 +58,13 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImpVO findById(Long id) {
+    public BoardImpParam findById(Long id) {
         BoardImp boardImp = boardImpRepository.findById(id).orElse(null);
 
-        BoardImpVO vo = null;
+        BoardImpParam vo = null;
 
         if (boardImp != null) {
-            vo = BoardImpVO.create(boardImp);
+            vo = BoardImpParam.create(boardImp);
         }
 
         return vo;
@@ -80,13 +76,13 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImpVO findPrevById(Long id) {
+    public BoardImpParam findPrevById(Long id) {
         BoardImp boardImp = boardImpRepository.findPrevBoardImpById(id);
 
-        BoardImpVO vo = null;
+        BoardImpParam vo = null;
 
         if (boardImp != null) {
-            vo = BoardImpVO.create(boardImp);
+            vo = BoardImpParam.create(boardImp);
         }
         return vo;
     }
@@ -97,13 +93,13 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImpVO findNextById(Long id) {
+    public BoardImpParam findNextById(Long id) {
         BoardImp boardImp = boardImpRepository.findNextBoardImpById(id);
 
-        BoardImpVO vo = null;
+        BoardImpParam vo = null;
 
         if (boardImp != null) {
-            vo = BoardImpVO.create(boardImp);
+            vo = BoardImpParam.create(boardImp);
         }
 
         return vo;
@@ -122,11 +118,11 @@ public class BoardImpService {
      * @param imp
      */
     @Transactional
-    public BoardImpVO updateBoard(BoardImpVO imp) {
+    public BoardImpParam updateBoard(BoardImpParam imp) {
         // 작성자 정보 검증
         Member writer = memberRepository.findById(imp.getWriterId()).orElse(null);
 
-        BoardImpVO result = null;
+        BoardImpParam result = null;
 
         if (writer != null) {
             log.info("작성자 정보(memNo : {}) : valid", writer.getMemNo());
@@ -141,7 +137,7 @@ public class BoardImpService {
                             .build()
             );
 
-            result = BoardImpVO.create(created);
+            result = BoardImpParam.create(created);
         } else {
 //            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
@@ -193,7 +189,7 @@ public class BoardImpService {
      *
      * @param boards
      */
-    public void deleteBoards(List<BoardImpVO> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+    public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
         List<BoardImp> list = boards.stream().map(b ->  {
             Member member = memberRepository.findById(b.getWriterId()).orElse(null);
 
@@ -218,15 +214,15 @@ public class BoardImpService {
      */
     @Deprecated
     @Transactional
-    public ImpressionPagenationVO getImpPagenation(int page, int size) {
+    public ImpressionPagenationParam getImpPagenation(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
-        return ImpressionPagenationVO.builder()
+        return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
+                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
                 .build();
     }
 
@@ -237,15 +233,15 @@ public class BoardImpService {
      * @param keyword
      */
     @Transactional
-    public ImpressionPagenationVO getImpPagenationByWriterName(int page, Integer size, String keyword) {
+    public ImpressionPagenationParam getImpPagenationByWriterName(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
 
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
-        return ImpressionPagenationVO.builder()
+        return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
+                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
                 .build();
     }
 
@@ -256,12 +252,12 @@ public class BoardImpService {
      * @param keyword
      */
     @Transactional
-    public ImpressionPagenationVO getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
+    public ImpressionPagenationParam getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
-        return ImpressionPagenationVO.builder()
+        return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpVO::create).toList())
+                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
                 .build();
 
     }
@@ -274,17 +270,17 @@ public class BoardImpService {
      * @param size
      */
     @Transactional
-    public List<BoardImpVO> getImpsByMember(Long memNo, int page, int size) {
+    public List<BoardImpParam> getImpsByMember(Long memNo, int page, int size) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
-        List<BoardImpVO> result = new ArrayList<>();
+        List<BoardImpParam> result = new ArrayList<>();
 
         if (member != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
             Page<BoardImp> pages = boardImpRepository.findAllByWriter(member, pageable);
             List<BoardImp> list = pages.getContent();
 
-            result = list.stream().map(BoardImpVO::create).toList();
+            result = list.stream().map(BoardImpParam::create).toList();
         }
 
         return result;

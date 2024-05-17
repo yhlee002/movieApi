@@ -2,7 +2,7 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.CommentMovService;
-import com.portfolio.demo.project.vo.*;
+import com.portfolio.demo.project.dto.*;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,11 +29,11 @@ public class CommentApi {
      * @return
      */
     @GetMapping("/comment/movie")
-    public ResponseEntity<CommentMovPagenationVO> getMovieComments(@RequestParam("movieNo") Long movieNo,
-                                                                   @RequestParam(name = "page") int page,
-                                                                   @RequestParam(name = "size") int size
+    public ResponseEntity<CommentMovPagenationParam> getMovieComments(@RequestParam("movieNo") Long movieNo,
+                                                                      @RequestParam(name = "page") int page,
+                                                                      @RequestParam(name = "size") int size
     ) {
-        CommentMovPagenationVO vos = commentMovService.getCommentsByMovie(movieNo, page, size);
+        CommentMovPagenationParam vos = commentMovService.getCommentsByMovie(movieNo, page, size);
         return new ResponseEntity<>(vos, HttpStatus.OK);
     }
 
@@ -45,7 +45,7 @@ public class CommentApi {
     @PostMapping("/comment/movie")
     public ResponseEntity<String> writeCommentMovieInfo(UpdateCommentMovRequest request) {
         commentMovService.updateComment(
-                CommentMovVO.builder()
+                CommentMovParam.builder()
                         .id(request.getCommentId())
                         .movieNo(request.getMovieNo())
                         .content(request.getContent())
@@ -91,8 +91,8 @@ public class CommentApi {
      * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
      */
     @GetMapping("/comment/movie/checkMemNo")
-    public ResponseEntity<List<CommentMovVO>> getMovieCommentListByMemNo(Long memNo, int page, int size) {
-        List<CommentMovVO> commList = commentMovService.getCommentsByMember(memNo, page, size);
+    public ResponseEntity<List<CommentMovParam>> getMovieCommentListByMemNo(Long memNo, int page, int size) {
+        List<CommentMovParam> commList = commentMovService.getCommentsByMember(memNo, page, size);
 
         log.info("조회된 댓글 리스트 : " + commList);
 
@@ -108,12 +108,12 @@ public class CommentApi {
      * @param page
      */
     @GetMapping("/comments/imp")
-    public ResponseEntity<CommentImpPagenationVO> getCommentList(
+    public ResponseEntity<CommentImpPagenationParam> getCommentList(
             @RequestParam(name = "boardId") Long boardId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
-        CommentImpPagenationVO vo = commentImpService.getCommentsByBoard(boardId, page, size);
+        CommentImpPagenationParam vo = commentImpService.getCommentsByBoard(boardId, page, size);
         return new ResponseEntity<>(vo, HttpStatus.OK);
     }
 
@@ -127,7 +127,7 @@ public class CommentApi {
     @PostMapping("/comment/imp")
     public void writeCommentImp(String content, Long boardId, Long memNo) {
         commentImpService.updateComment(
-                CommentImpVO.builder()
+                CommentImpParam.builder()
                         .content(content)
                         .boardId(boardId)
                         .writerId(memNo)
@@ -141,7 +141,7 @@ public class CommentApi {
      */
     @PatchMapping("/comment/imp")
     public void updateCommentImp(@RequestBody UpdateCommentImpRequest request) {
-        CommentImpVO comm = CommentImpVO.builder()
+        CommentImpParam comm = CommentImpParam.builder()
                 .id(request.getCommentId())
                 .writerId(request.getMemNo())
                 .content(request.getContent())
@@ -163,7 +163,7 @@ public class CommentApi {
     }
 
     @GetMapping("/comment/imp/checkMemNo")
-    public List<CommentImpVO> getCommentListByMemNo(Long memNo, int page, int size) {
+    public List<CommentImpParam> getCommentListByMemNo(Long memNo, int page, int size) {
         return commentImpService.getCommentsByMember(memNo, page, size);
     }
 

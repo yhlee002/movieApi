@@ -4,8 +4,8 @@ import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.BoardNoticeVO;
-import com.portfolio.demo.project.vo.NoticePagenationVO;
+import com.portfolio.demo.project.dto.BoardNoticeParam;
+import com.portfolio.demo.project.dto.NoticePagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,7 @@ public class BoardNoticeService {
      * @param size
      */
     @Transactional
-    public NoticePagenationVO getAllBoards(int page, Integer size) {
+    public NoticePagenationParam getAllBoards(int page, Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"));
         Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
 
@@ -42,9 +42,9 @@ public class BoardNoticeService {
 
         log.info("조회된 게시글 수 : {}", list.size());
 
-        List<BoardNoticeVO> vos = list.stream().map(BoardNoticeVO::create).toList();
+        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
 
-        return NoticePagenationVO.builder()
+        return NoticePagenationParam.builder()
                 .boardNoticeList(vos)
                 .totalPageCnt(pages.getTotalPages())
                 .build();
@@ -56,13 +56,13 @@ public class BoardNoticeService {
      * @param boardId
      * @return 단건 공지 게시글
      */
-    public BoardNoticeVO findById(Long boardId) {
+    public BoardNoticeParam findById(Long boardId) {
         BoardNotice board = boardNoticeRepository.findById(boardId).orElse(null);
 
-        BoardNoticeVO vo = null;
+        BoardNoticeParam vo = null;
 
         if (board != null) {
-            vo = BoardNoticeVO.create(board);
+            vo = BoardNoticeParam.create(board);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
@@ -76,13 +76,13 @@ public class BoardNoticeService {
      * @param id
      * @return
      */
-    public BoardNoticeVO findPrevById(Long id) {
+    public BoardNoticeParam findPrevById(Long id) {
         BoardNotice board = boardNoticeRepository.findPrevBoardNoticeById(id);
 
-        BoardNoticeVO vo = null;
+        BoardNoticeParam vo = null;
 
         if (board != null) {
-            vo = BoardNoticeVO.create(board);
+            vo = BoardNoticeParam.create(board);
         }
 
         return vo;
@@ -94,13 +94,13 @@ public class BoardNoticeService {
      * @param id
      * @return
      */
-    public BoardNoticeVO findNextById(Long id) {
+    public BoardNoticeParam findNextById(Long id) {
         BoardNotice board = boardNoticeRepository.findNextBoardNoticeById(id);
 
-        BoardNoticeVO vo = null;
+        BoardNoticeParam vo = null;
 
         if (board != null) {
-            vo = BoardNoticeVO.create(board);
+            vo = BoardNoticeParam.create(board);
         }
 
         return vo;
@@ -109,9 +109,9 @@ public class BoardNoticeService {
     /**
      * 최근 공지사항 게시글 top {size}
      */
-    public List<BoardNoticeVO> getRecentNoticeBoard(int size) {
+    public List<BoardNoticeParam> getRecentNoticeBoard(int size) {
         List<BoardNotice> result = boardNoticeRepository.findRecentBoardNoticesOrderByRegDate(size);
-        return result.stream().map(BoardNoticeVO::create).toList();
+        return result.stream().map(BoardNoticeParam::create).toList();
     }
 
     /**
@@ -120,10 +120,10 @@ public class BoardNoticeService {
      * @param notice
      */
     @Transactional
-    public BoardNoticeVO updateBoard(BoardNoticeVO notice) {
+    public BoardNoticeParam updateBoard(BoardNoticeParam notice) {
         Member member = memberRepository.findById(notice.getWriterId()).orElse(null);
 
-        BoardNoticeVO vo = null;
+        BoardNoticeParam vo = null;
 
         if (member != null) {
             BoardNotice modified = boardNoticeRepository.save(
@@ -136,7 +136,7 @@ public class BoardNoticeService {
                             .build()
             );
 
-            vo = BoardNoticeVO.create(modified);
+            vo = BoardNoticeParam.create(modified);
         } else {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }
@@ -162,7 +162,7 @@ public class BoardNoticeService {
      *
      * @param boards
      */
-    public void deleteBoards(List<BoardNoticeVO> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+    public void deleteBoards(List<BoardNoticeParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
         List<BoardNotice> list = boards.stream().map(b -> BoardNotice.builder()
                 .id(b.getId())
                 .title(b.getTitle())
@@ -200,14 +200,14 @@ public class BoardNoticeService {
      * @param keyword
      */
     @Transactional
-    public NoticePagenationVO getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
+    public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
         List<BoardNotice> list = pages.getContent();
 
-        List<BoardNoticeVO> vos = list.stream().map(BoardNoticeVO::create).toList();
+        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
 
-        return NoticePagenationVO.builder()
+        return NoticePagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
                 .boardNoticeList(vos)
                 .build();

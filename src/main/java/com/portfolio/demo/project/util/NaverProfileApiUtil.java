@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.util;
 
-import com.portfolio.demo.project.vo.SocialProfile;
+import com.portfolio.demo.project.dto.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
@@ -21,7 +21,7 @@ public class NaverProfileApiUtil {
     private static String apiURL = "https://openapi.naver.com/v1/nid/me";
     private Map<String, String> profiles = new HashMap<>();
 
-    public SocialProfile getProfile(String token) throws ParseException { // 네이버 로그인 접근 토큰
+    public SocialProfileParam getProfile(String token) throws ParseException { // 네이버 로그인 접근 토큰
         String header = "Bearer " + token; // Bearer 다음에 공백 추가
 
         Map<String, String> requestHeaders = new HashMap<>();
@@ -34,9 +34,9 @@ public class NaverProfileApiUtil {
         String message = (String)parsedJson.get("message");
 
         /* responseBody로부터 데이터 뽑아내기*/
-        SocialProfile profile = null;
+        SocialProfileParam profile = null;
         if(resultCode.equals("00") && message.equals("success")){
-            profile = (SocialProfile) parsedJson.get("response");
+            profile = (SocialProfileParam) parsedJson.get("response");
         }
 
         return profile;

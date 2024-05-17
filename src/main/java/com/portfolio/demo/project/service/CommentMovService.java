@@ -4,7 +4,7 @@ import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CommentMovRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.*;
+import com.portfolio.demo.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,10 +30,10 @@ public class CommentMovService {
      *
      * @param comment
      */
-    public CommentMovVO updateComment(CommentMovVO comment) {
+    public CommentMovParam updateComment(CommentMovParam comment) {
         Member user = memberRepository.findById(comment.getWriterId()).orElse(null);
 
-        CommentMovVO result = null;
+        CommentMovParam result = null;
 
         if (user != null) {
             CommentMov comm = commentMovRepository.save(
@@ -45,7 +45,7 @@ public class CommentMovService {
                             .rating(comment.getRating())
                             .build()
             );
-            result = CommentMovVO.create(comm);
+            result = CommentMovParam.create(comm);
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", comment.getWriterId());
         }
@@ -62,10 +62,10 @@ public class CommentMovService {
     public Map<String, Object> getCommentsOrderByRecommended(Long movieId, int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by(Sort.Direction.DESC, "recommended"));
         Page<CommentMov> page = commentMovRepository.findAllByMovieNo(movieId, pageable);
-        List<CommentMovVO> commentMovVOList = page.getContent().stream().map(CommentMovVO::create).collect(Collectors.toList());
+        List<CommentMovParam> commentMovParamList = page.getContent().stream().map(CommentMovParam::create).collect(Collectors.toList());
 
         Map<String, Object> result = new HashMap<>();
-        result.put("list", commentMovVOList);
+        result.put("list", commentMovParamList);
         result.put("totalPageCnt", page.getTotalPages());
         result.put("totalCommentCnt", page.getTotalElements());
         return result;
@@ -74,7 +74,7 @@ public class CommentMovService {
     /**
      * 해당 영화에 대한 모든 리뷰 가져오기
      */
-    public CommentMovPagenationVO getCommentsByMovie(Long movieNo, int pageNum, int size) {
+    public CommentMovPagenationParam getCommentsByMovie(Long movieNo, int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by("regDate").descending());
         Page<CommentMov> pages = commentMovRepository.findAllByMovieNo(movieNo, pageable);
 
@@ -82,9 +82,9 @@ public class CommentMovService {
 
         log.info("조회된 댓글 수 : {}", list.size());
 
-        List<CommentMovVO> vos = list.stream().map(CommentMovVO::create).toList();
+        List<CommentMovParam> vos = list.stream().map(CommentMovParam::create).toList();
 
-        return CommentMovPagenationVO.builder()
+        return CommentMovPagenationParam.builder()
                 .commentMovsList(vos)
                 .totalPageCnt(pages.getTotalPages())
                 .build();
@@ -117,17 +117,17 @@ public class CommentMovService {
      * @param memNo
      * @param page
      */
-    public List<CommentMovVO> getCommentsByMember(Long memNo, int page, int size) {
+    public List<CommentMovParam> getCommentsByMember(Long memNo, int page, int size) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
-        List<CommentMovVO> result = new ArrayList<>();
+        List<CommentMovParam> result = new ArrayList<>();
 
         if (member != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentMov> pages = commentMovRepository.findByWriter(member, pageable);
             List<CommentMov> list = pages.getContent();
 
-            result = list.stream().map(CommentMovVO::create).toList();
+            result = list.stream().map(CommentMovParam::create).toList();
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", memNo);
         }
@@ -164,12 +164,12 @@ public class CommentMovService {
      *
      * @param commentId
      */
-    public CommentMovVO getCommentById(Long commentId) {
+    public CommentMovParam getCommentById(Long commentId) {
         CommentMov comm = commentMovRepository.findById(commentId).orElse(null);
 
-        CommentMovVO result = null;
+        CommentMovParam result = null;
         if (comm != null) {
-            result = CommentMovVO.create(comm);
+            result = CommentMovParam.create(comm);
         } else {
             log.error("해당 아이디의 댓글 정보가 존재하지 않습니다. (commentId: {})", commentId);
         }

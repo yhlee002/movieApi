@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.kobis.movie.*;
-import com.portfolio.demo.project.vo.tmdb.ImageConfigurationVO;
-import com.portfolio.demo.project.vo.tmdb.ImageVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
+import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.kobis.movie.*;
+import com.portfolio.demo.project.dto.tmdb.ImageConfigurationVO;
+import com.portfolio.demo.project.dto.tmdb.ImageVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;

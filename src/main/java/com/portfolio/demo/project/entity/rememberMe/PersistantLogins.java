@@ -6,10 +6,10 @@ import jakarta.persistence.*;
 
 @Table(name = "persistant_logins")
 @Entity
-@Setter
+@Builder
 @Getter
 @ToString
-@EqualsAndHashCode
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
 public class PersistantLogins {
 
@@ -25,12 +25,4 @@ public class PersistantLogins {
 
     @Column(name = "LAST_USED")
     private String lastUsed;
-
-    @Builder
-    public PersistantLogins(String series, String username, String token, String lastUsed) {
-        this.series = series;
-        this.username = username;
-        this.token = token;
-        this.lastUsed = lastUsed;
-    }
 }

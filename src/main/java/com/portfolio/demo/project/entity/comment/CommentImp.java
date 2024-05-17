@@ -12,7 +12,7 @@ import jakarta.persistence.*;
 @Entity
 @Builder
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentImp extends BaseEntity {
 

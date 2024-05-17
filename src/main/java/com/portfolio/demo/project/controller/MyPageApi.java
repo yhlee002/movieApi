@@ -1,27 +1,16 @@
 package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.*;
-import com.portfolio.demo.project.vo.BoardImpVO;
-import com.portfolio.demo.project.vo.CommentImpVO;
-import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.File;

@@ -2,11 +2,11 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.service.MovieService;
 import com.portfolio.demo.project.service.CommentMovService;
-import com.portfolio.demo.project.vo.BoxOfficeVO;
-import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.kobis.movie.KobisMovieVO;
-import com.portfolio.demo.project.vo.tmdb.ImageConfigurationVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
+import com.portfolio.demo.project.dto.BoxOfficeParam;
+import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.kobis.movie.KobisMovieVO;
+import com.portfolio.demo.project.dto.tmdb.ImageConfigurationVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -70,13 +70,13 @@ public class MovieInfoApi {
     }
 
     @GetMapping("/movie/boxoffice/daily")
-    public ResponseEntity<List<BoxOfficeVO>> dailyBoxOffice() {
+    public ResponseEntity<List<BoxOfficeParam>> dailyBoxOffice() {
         List<KobisMovieVO> list = movieService.getDailyBoxOfficeList();
 
-        List<BoxOfficeVO> result = new ArrayList<>();
+        List<BoxOfficeParam> result = new ArrayList<>();
         for (KobisMovieVO movieVO : list) {
             KmdbMovieDetailVO detail = movieService.getMovieDetail(movieVO.getMovieNm(), null, movieVO.getOpenDt());
-            result.add(BoxOfficeVO.builder()
+            result.add(BoxOfficeParam.builder()
                     .movie(movieVO)
                     .detail(detail)
                     .build());
@@ -86,14 +86,14 @@ public class MovieInfoApi {
     }
 
     @GetMapping("/movie/boxoffice/weekly")
-    public ResponseEntity<List<BoxOfficeVO>> weeklyBoxOffice() {
+    public ResponseEntity<List<BoxOfficeParam>> weeklyBoxOffice() {
         List<KobisMovieVO> list = movieService.getWeeklyBoxOfficeList();
 
-        List<BoxOfficeVO> result = new ArrayList<>();
+        List<BoxOfficeParam> result = new ArrayList<>();
 
         for (KobisMovieVO movieVO : list) {
             KmdbMovieDetailVO detail = movieService.getMovieDetail(movieVO.getMovieNm(), null, movieVO.getOpenDt());
-            result.add(BoxOfficeVO.builder()
+            result.add(BoxOfficeParam.builder()
                     .movie(movieVO)
                     .detail(detail)
                     .build());

@@ -4,18 +4,16 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.vo.BoardImpVO;
-import com.portfolio.demo.project.vo.ImpressionPagenationVO;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.BoardImpParam;
+import com.portfolio.demo.project.dto.ImpressionPagenationParam;
+import com.portfolio.demo.project.dto.MemberParam;
 import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -29,20 +27,20 @@ class BoardImpServiceTest {
     @Autowired
     private MemberService memberService;
 
-    MemberVO createUser() {
+    MemberParam createUser() {
         Member user = MemberTestDataBuilder.user().build();
-        MemberVO member = MemberVO.create(user);
+        MemberParam member = MemberParam.create(user);
         return memberService.updateMember(member);
     }
 
-    MemberVO createRandomUser() {
+    MemberParam createRandomUser() {
         Member user = MemberTestDataBuilder.randomIdentifierUser().build();
-        MemberVO member = MemberVO.create(user);
+        MemberParam member = MemberParam.create(user);
         return memberService.updateMember(member);
     }
 
-    BoardImpVO createBoard(BoardImp board, MemberVO member) {
-        BoardImpVO imp = BoardImpVO.create(board);
+    BoardImpParam createBoard(BoardImp board, MemberParam member) {
+        BoardImpParam imp = BoardImpParam.create(board);
         imp.setWriterId(member.getMemNo());
         return boardImpService.updateBoard(imp);
     }
@@ -50,10 +48,10 @@ class BoardImpServiceTest {
     @Test
     void 모든_감상평_게시글_조회() {
         // then
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         for (int n = 0; n < 3; n++) {
-            BoardImpVO created = BoardImpVO.create(
+            BoardImpParam created = BoardImpParam.create(
                     BoardImpTestDataBuilder.board()
                             .title("test-board-" + n)
                             .build()
@@ -64,7 +62,7 @@ class BoardImpServiceTest {
         }
 
         // when
-        List<BoardImpVO> list = boardImpService.getAllBoards(0, 10).getBoardImpList();
+        List<BoardImpParam> list = boardImpService.getAllBoards(0, 10).getBoardImpList();
 
         // then
         Assertions.assertEquals(3, list.size());
@@ -73,12 +71,12 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_식별번호를_이용한_단건_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO created = createBoard(board, user);
+        BoardImpParam created = createBoard(board, user);
 
         // when
-        BoardImpVO foundBoard = boardImpService.findById(created.getId());
+        BoardImpParam foundBoard = boardImpService.findById(created.getId());
 
         // then
         Assertions.assertNotNull(foundBoard);
@@ -88,15 +86,15 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_식별번호를_이용해_이전글_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp prevBoard = BoardImpTestDataBuilder.board().title("Previous Board").build();
-        BoardImpVO createdPrev = createBoard(prevBoard, user);
+        BoardImpParam createdPrev = createBoard(prevBoard, user);
         BoardImp nextBoard = BoardImpTestDataBuilder.board().title("Next board").build();
-        BoardImpVO createdNext = createBoard(nextBoard, user);
+        BoardImpParam createdNext = createBoard(nextBoard, user);
 
         // when
-        BoardImpVO foundBoard = boardImpService.findPrevById(createdNext.getId());
+        BoardImpParam foundBoard = boardImpService.findPrevById(createdNext.getId());
 
         // then
         Assertions.assertNotNull(foundBoard);
@@ -106,15 +104,15 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_식별번호를_이용해_다음글_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp prevBoard = BoardImpTestDataBuilder.board().title("Previous Board").build();
-        BoardImpVO createdPrev = createBoard(prevBoard, user);
+        BoardImpParam createdPrev = createBoard(prevBoard, user);
         BoardImp nextBoard = BoardImpTestDataBuilder.board().title("Next board").build();
-        BoardImpVO createdNext = createBoard(nextBoard, user);
+        BoardImpParam createdNext = createBoard(nextBoard, user);
 
         // when
-        BoardImpVO foundBoard = boardImpService.findNextById(createdPrev.getId());
+        BoardImpParam foundBoard = boardImpService.findNextById(createdPrev.getId());
 
         // then
         Assertions.assertNotNull(foundBoard);
@@ -124,28 +122,28 @@ class BoardImpServiceTest {
     @Test
     void 사용자의_감상평_게시글_조회_최신순() throws InterruptedException {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
-        BoardImpVO board1 = BoardImpVO.create(
+        BoardImpParam board1 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-1").build()
         );
         boardImpService.updateBoard(board1);
 
         Thread.sleep(500);
 
-        BoardImpVO board2 = BoardImpVO.create(
+        BoardImpParam board2 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-2").build()
         );
         boardImpService.updateBoard(board2);
 
         Thread.sleep(500);
 
-        BoardImpVO board3 = BoardImpVO.create(
+        BoardImpParam board3 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-3").build()
         );
         boardImpService.updateBoard(board3);
 
-        List<BoardImpVO> list = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
+        List<BoardImpParam> list = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
 
         // then
         Assertions.assertEquals(3, list.size());
@@ -161,21 +159,21 @@ class BoardImpServiceTest {
     @Test
     void 인기_감상평_게시글_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().title("board-1").build();
         for (int n = 0; n < 3; n++) b1.updateViewCount();
-        BoardImpVO board = createBoard(b1, user);
+        BoardImpParam board = createBoard(b1, user);
         boardImpService.updateBoard(board);
 
         BoardImp b2 = BoardImpTestDataBuilder.board().title("board-2").build();
         for (int n = 0; n < 10; n++) b2.updateViewCount();
-        BoardImpVO board2 = createBoard(b2, user);
+        BoardImpParam board2 = createBoard(b2, user);
         boardImpService.updateBoard(board2);
 
         BoardImp b3 = BoardImpTestDataBuilder.board().title("board-3").build();
         for (int n = 0; n < 7; n++) b3.updateViewCount();
-        BoardImpVO board3 = createBoard(b3, user);
+        BoardImpParam board3 = createBoard(b3, user);
         boardImpService.updateBoard(board3);
 
         // when
@@ -202,9 +200,9 @@ class BoardImpServiceTest {
                         .build()
         ).when(memberServiceMock).findByMemNo(100L);
 
-        MemberVO user = memberService.findByMemNo(100L);
+        MemberParam user = memberService.findByMemNo(100L);
         BoardImp imp = BoardImpTestDataBuilder.board().build();
-        BoardImpVO board = createBoard(imp, user);
+        BoardImpParam board = createBoard(imp, user);
 
         // when & then
         Assertions.assertThrows(IllegalStateException.class, () -> {
@@ -215,12 +213,12 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_작성_저장된_회원_참조() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp imp = BoardImpTestDataBuilder.board().build();
 
         // when
-        BoardImpVO board = createBoard(imp, user);
+        BoardImpParam board = createBoard(imp, user);
 
         // then
         Assertions.assertNotNull(imp.getId());
@@ -229,20 +227,20 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_조회수_증가() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
-        BoardImpVO board = createBoard(b1, user);
+        BoardImpParam board = createBoard(b1, user);
         boardImpService.updateBoard(board);
 
         int views0 = board.getViews();
 
         boardImpService.upViewCntById(board.getId());
-        BoardImpVO foundBoard = boardImpService.findById(board.getId());
+        BoardImpParam foundBoard = boardImpService.findById(board.getId());
         int views1 = foundBoard.getViews();
 
         boardImpService.upViewCntById(board.getId());
-        BoardImpVO foundBoard2 = boardImpService.findById(board.getId());
+        BoardImpParam foundBoard2 = boardImpService.findById(board.getId());
         int views2 = foundBoard2.getViews();
 
         Assertions.assertEquals(0, views0);
@@ -253,14 +251,14 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글의_식별번호로_삭제() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
-        BoardImpVO board = createBoard(b1, user);
+        BoardImpParam board = createBoard(b1, user);
 
         boardImpService.deleteById(board.getId());
-        BoardImpVO foundBoard = boardImpService.findById(board.getId());
+        BoardImpParam foundBoard = boardImpService.findById(board.getId());
 
         // then
         Assertions.assertNull(foundBoard);
@@ -269,16 +267,16 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_다수_삭제() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
-        BoardImpVO board = createBoard(b1, user);
+        BoardImpParam board = createBoard(b1, user);
 
         BoardImp b2 = BoardImpTestDataBuilder.board().build();
-        BoardImpVO board2 = createBoard(b2, user);
+        BoardImpParam board2 = createBoard(b2, user);
 
-        List<BoardImpVO> list = Arrays.asList(new BoardImpVO[]{board, board2});
+        List<BoardImpParam> list = Arrays.asList(new BoardImpParam[]{board, board2});
 
         int exists = boardImpService.getAllBoards(0, 10).getBoardImpList().size();
         boardImpService.deleteBoards(list);
@@ -292,7 +290,7 @@ class BoardImpServiceTest {
     @Test
     void 감상평_게시글_조회_페이지네이션vo() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
         createBoard(b1, user);
@@ -304,7 +302,7 @@ class BoardImpServiceTest {
         createBoard(b3, user);
 
         // when
-        ImpressionPagenationVO pagenationVO = boardImpService.getImpPagenation(0, 10);
+        ImpressionPagenationParam pagenationVO = boardImpService.getImpPagenation(0, 10);
 
         // then
         Assertions.assertEquals(3, pagenationVO.getBoardImpList().size());
@@ -314,14 +312,14 @@ class BoardImpServiceTest {
     @Test
     void 작성자명으로_감상평_게시글_조회_페이지네이션vo() {
         // given
-        MemberVO user = memberService.updateMember(
-                MemberVO.create(
+        MemberParam user = memberService.updateMember(
+                MemberParam.create(
                         MemberTestDataBuilder.user().name("test-user").build()
                 )
         );
 
-        MemberVO user2 = memberService.updateMember(
-                MemberVO.create(
+        MemberParam user2 = memberService.updateMember(
+                MemberParam.create(
                         MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
                 )
         );
@@ -336,10 +334,10 @@ class BoardImpServiceTest {
         createBoard(b3, user2);
 
         // when
-        ImpressionPagenationVO pagenationVO = boardImpService.getImpPagenationByWriterName(0, 10, user.getName());
-        ImpressionPagenationVO pagenationVO2 = boardImpService.getImpPagenationByWriterName(0, 10, "test-user-name");
-        ImpressionPagenationVO pagenationVO3 = boardImpService.getImpPagenationByWriterName(0, 10, user2.getName());
-        ImpressionPagenationVO pagenationVO4 = boardImpService.getImpPagenationByWriterName(0, 10, "test");
+        ImpressionPagenationParam pagenationVO = boardImpService.getImpPagenationByWriterName(0, 10, user.getName());
+        ImpressionPagenationParam pagenationVO2 = boardImpService.getImpPagenationByWriterName(0, 10, "test-user-name");
+        ImpressionPagenationParam pagenationVO3 = boardImpService.getImpPagenationByWriterName(0, 10, user2.getName());
+        ImpressionPagenationParam pagenationVO4 = boardImpService.getImpPagenationByWriterName(0, 10, "test");
 
         // then
         Assertions.assertEquals(2, pagenationVO.getBoardImpList().size());
@@ -351,14 +349,14 @@ class BoardImpServiceTest {
     @Test
     void 제목_또는_내용으로_감상평_게시글_조회_페이지네이션vo() {
         // given
-        MemberVO user = memberService.updateMember(
-                MemberVO.create(
+        MemberParam user = memberService.updateMember(
+                MemberParam.create(
                         MemberTestDataBuilder.user().name("test-user").build()
                 )
         );
 
-        MemberVO user2 = memberService.updateMember(
-                MemberVO.create(
+        MemberParam user2 = memberService.updateMember(
+                MemberParam.create(
                         MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
                 )
         );
@@ -373,10 +371,10 @@ class BoardImpServiceTest {
         createBoard(b3, user);
 
         // when
-        ImpressionPagenationVO pagenation1 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "테스트");
-        ImpressionPagenationVO pagenation2 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "감상 후기");
-        ImpressionPagenationVO pagenation3 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "test");
-        ImpressionPagenationVO pagenation4 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "Test");
+        ImpressionPagenationParam pagenation1 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "테스트");
+        ImpressionPagenationParam pagenation2 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "감상 후기");
+        ImpressionPagenationParam pagenation3 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "test");
+        ImpressionPagenationParam pagenation4 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "Test");
 
         // then
         Assertions.assertEquals(3, pagenation1.getBoardImpList().size());
@@ -388,9 +386,9 @@ class BoardImpServiceTest {
     @Test
     void 사용자의_감상평_게시글_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
-        MemberVO user2 = createRandomUser();
+        MemberParam user2 = createRandomUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
         createBoard(b1, user);
@@ -405,8 +403,8 @@ class BoardImpServiceTest {
         createBoard(b4, user2);
 
         // when
-        List<BoardImpVO> boards = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
-        List<BoardImpVO> boards2 = boardImpService.getImpsByMember(user2.getMemNo(), 0, 10);
+        List<BoardImpParam> boards = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
+        List<BoardImpParam> boards2 = boardImpService.getImpsByMember(user2.getMemNo(), 0, 10);
 
         // then
         Assertions.assertEquals(3, boards.size());

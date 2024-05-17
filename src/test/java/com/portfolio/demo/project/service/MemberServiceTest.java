@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.MemberParam;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,25 +17,25 @@ class MemberServiceTest {
     @Autowired
     private MemberService memberService;
 
-    MemberVO createAdmin() {
+    MemberParam createAdmin() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.admin().build()
                 )
         );
     }
 
-    MemberVO createUser() {
+    MemberParam createUser() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.user().build()
                 )
         );
     }
 
-    MemberVO createRandomUser() {
+    MemberParam createRandomUser() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.randomIdentifierUser().build()
                 )
         );
@@ -44,10 +44,10 @@ class MemberServiceTest {
     @Test
     void 회원_식별번호를_이용한_단건_조회() {
         // given
-        MemberVO admin = createAdmin();
+        MemberParam admin = createAdmin();
 
         // when
-        MemberVO foundUser = memberService.findByMemNo(admin.getMemNo());
+        MemberParam foundUser = memberService.findByMemNo(admin.getMemNo());
 
         // then
         Assertions.assertEquals(admin.getMemNo(), foundUser.getMemNo());
@@ -56,10 +56,10 @@ class MemberServiceTest {
     @Test
     void unique_key인_identifier를_이용한_단건_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
-        MemberVO foundUser = memberService.findByIdentifier(user.getIdentifier());
+        MemberParam foundUser = memberService.findByIdentifier(user.getIdentifier());
 
         // then
         Assertions.assertEquals(user.getMemNo(), foundUser.getMemNo());
@@ -70,7 +70,7 @@ class MemberServiceTest {
         // given
         for (int i = 0; i < 5; i++) {
             memberService.updateMember(
-                    MemberVO.create(
+                    MemberParam.create(
                             MemberTestDataBuilder
                                     .randomIdentifierUser()
                                     .name("abc" + i)
@@ -79,7 +79,7 @@ class MemberServiceTest {
             );
         }
         memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder
                                 .randomIdentifierUser()
                                 .name("efg")
@@ -88,8 +88,8 @@ class MemberServiceTest {
         );
 
         // when
-        List<MemberVO> foundMembers = memberService.findAllByNameContaining("abc", 0, 10);
-        List<MemberVO> foundMembers2 = memberService.findAllByNameContaining("e", 0, 10);
+        List<MemberParam> foundMembers = memberService.findAllByNameContaining("abc", 0, 10);
+        List<MemberParam> foundMembers2 = memberService.findAllByNameContaining("e", 0, 10);
 
         // then
         Assertions.assertEquals(5, foundMembers.size());
@@ -100,11 +100,11 @@ class MemberServiceTest {
     void 휴대폰_번호로_회원정보_조회() {
         // given
         String phone = "010-1111-2222";
-        MemberVO user = MemberVO.create(MemberTestDataBuilder.user().phone(phone).build());
+        MemberParam user = MemberParam.create(MemberTestDataBuilder.user().phone(phone).build());
         memberService.updateMember(user);
 
         // when
-        MemberVO foundMember = memberService.findByPhone(phone);
+        MemberParam foundMember = memberService.findByPhone(phone);
 
         // then
         Assertions.assertNotNull(foundMember);
@@ -115,7 +115,7 @@ class MemberServiceTest {
     void 휴대폰_번호로_회원_존재여부_확인() {
         // given
         String phone = "010-1111-2222";
-        MemberVO user = MemberVO.create(MemberTestDataBuilder.user().phone(phone).build());
+        MemberParam user = MemberParam.create(MemberTestDataBuilder.user().phone(phone).build());
         memberService.updateMember(user);
 
         // when
@@ -128,11 +128,11 @@ class MemberServiceTest {
     @Test
     void identifier와_provider를_이용한_회원정보_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
-        MemberVO foundMember = memberService.findByIdentifierAndProvider(user.getIdentifier(), user.getProvider());
-        MemberVO foundMember2 = memberService.findByIdentifierAndProvider("test@example.com", user.getProvider());
+        MemberParam foundMember = memberService.findByIdentifierAndProvider(user.getIdentifier(), user.getProvider());
+        MemberParam foundMember2 = memberService.findByIdentifierAndProvider("test@example.com", user.getProvider());
 
         // then
         Assertions.assertNotNull(foundMember);
@@ -142,8 +142,8 @@ class MemberServiceTest {
     @Test
     void 회원가입() {
         // given
-        MemberVO admin = createAdmin();
-        MemberVO user = createUser();
+        MemberParam admin = createAdmin();
+        MemberParam user = createUser();
 
         // when
         memberService.updateMember(admin);
@@ -159,7 +159,7 @@ class MemberServiceTest {
     @Test
     void 회원가입_패스워드_미기입시_오류_발생() {
         // when
-        MemberVO user = MemberVO.create(MemberTestDataBuilder.noPasswordUser().build());
+        MemberParam user = MemberParam.create(MemberTestDataBuilder.noPasswordUser().build());
 
         // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -170,7 +170,7 @@ class MemberServiceTest {
     @Test
     void 소셜_로그인을_이용한_회원가입() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         memberService.updateMember(user);
@@ -182,7 +182,7 @@ class MemberServiceTest {
     @Test
     void 비밀번호_변경() {
         // given
-        MemberVO user = MemberVO.create(
+        MemberParam user = MemberParam.create(
                 MemberTestDataBuilder.user().password("1234").build()
         );
         memberService.updateMember(user);
@@ -191,7 +191,7 @@ class MemberServiceTest {
         memberService.updateMember(user);
 
         // when
-        MemberVO foundMember = memberService.findByMemNo(user.getMemNo());
+        MemberParam foundMember = memberService.findByMemNo(user.getMemNo());
 
         // then
         Assertions.assertNotEquals("1234", user.getPassword());
@@ -201,7 +201,7 @@ class MemberServiceTest {
     @Test
     void 인증키_수정() {
         // given
-        MemberVO user = createUser(); // 현재 member.certKey == null
+        MemberParam user = createUser(); // 현재 member.certKey == null
 
         // when
         memberService.updateCertKey(user.getMemNo());
@@ -213,8 +213,8 @@ class MemberServiceTest {
     @Test
     void 회원_정보를_기반으로_Authentication_조회() {
         // given
-        MemberVO admin = createAdmin();
-        MemberVO user = createUser();
+        MemberParam admin = createAdmin();
+        MemberParam user = createUser();
         memberService.updateMember(admin);
 
         // when
@@ -228,7 +228,7 @@ class MemberServiceTest {
     @Test
     void 회원정보_수정() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         user.setName("ModifiedName");
@@ -241,12 +241,12 @@ class MemberServiceTest {
     @Test
     void 회원_탈퇴() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         memberService.deleteMember(user.getMemNo());
 
-        MemberVO foundMember = memberService.findByMemNo(user.getMemNo());
+        MemberParam foundMember = memberService.findByMemNo(user.getMemNo());
 
         // then
         Assertions.assertNull(foundMember);
