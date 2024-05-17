@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.MemberParam;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -19,9 +19,9 @@ public class MailServiceTest {
     @Autowired
     private MemberService memberService;
 
-    MemberVO createUser() {
+    MemberParam createUser() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.user().identifier("xxxoxxo00201@gmail.com").build()
                 )
         );
@@ -35,7 +35,7 @@ public class MailServiceTest {
     @Test
     void 인증_메일_발송() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         mailService.sendCertMail(user.getIdentifier());
@@ -44,7 +44,7 @@ public class MailServiceTest {
     @Test
     void 가입_축하_메일() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         // when
         mailService.sendGreetingMail(user.getIdentifier());

@@ -6,8 +6,8 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.CommentImpPagenationVO;
-import com.portfolio.demo.project.vo.CommentImpVO;
+import com.portfolio.demo.project.dto.CommentImpPagenationParam;
+import com.portfolio.demo.project.dto.CommentImpParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,13 +33,13 @@ public class CommentImpService {
 
     private final MemberRepository memberRepository;
 
-    public CommentImpVO getCommentById(Long id) {
+    public CommentImpParam getCommentById(Long id) {
         CommentImp com = commentImpRepository.findById(id).orElse(null);
 
-        CommentImpVO vo = null;
+        CommentImpParam vo = null;
 
         if (com != null) {
-            vo = CommentImpVO.create(com);
+            vo = CommentImpParam.create(com);
 
         } else {
             log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
@@ -49,7 +49,7 @@ public class CommentImpService {
         return vo;
     }
 
-    public CommentImpVO updateComment(CommentImpVO comment) {
+    public CommentImpParam updateComment(CommentImpParam comment) {
         Member writer = memberRepository.findById(comment.getWriterId()).orElse(null);
         BoardImp board = boardImpRepository.findById(comment.getBoardId()).orElse(null);
 
@@ -62,7 +62,7 @@ public class CommentImpService {
                         .build()
         );
 
-        return CommentImpVO.create(result);
+        return CommentImpParam.create(result);
     }
 
     public void deleteCommentById(Long commentId) {
@@ -70,11 +70,11 @@ public class CommentImpService {
         comm.ifPresent(commentImpRepository::delete);
     }
 
-    public CommentImpPagenationVO getCommentsByBoard(Long boardId, int page, int size) {
+    public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
         BoardImp b = boardImpRepository.findById(boardId).orElse(null);
 
-        List<CommentImpVO> vos = null;
-        CommentImpPagenationVO result = null;
+        List<CommentImpParam> vos = null;
+        CommentImpPagenationParam result = null;
         if (b != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentImp> pages = commentImpRepository.findAllByBoard(b, pageable);
@@ -82,14 +82,14 @@ public class CommentImpService {
 
             log.info("조회된 댓글 수 : {}", list.size());
 
-            vos = list.stream().map(CommentImpVO::create).toList();
+            vos = list.stream().map(CommentImpParam::create).toList();
 
-            result = CommentImpPagenationVO.builder()
+            result = CommentImpPagenationParam.builder()
                     .commentImpsList(vos)
                     .totalPageCnt(pages.getTotalPages())
                     .build();
         } else {
-            result = CommentImpPagenationVO.builder()
+            result = CommentImpPagenationParam.builder()
                     .commentImpsList(new ArrayList<>())
                     .totalPageCnt(0)
                     .build();
@@ -101,16 +101,16 @@ public class CommentImpService {
         return result;
     }
 
-    public List<CommentImpVO> getCommentsByMember(Long memNo, int page, int size) {
+    public List<CommentImpParam> getCommentsByMember(Long memNo, int page, int size) {
         Member mem = memberRepository.findById(memNo).orElse(null);
 
-        List<CommentImpVO> vos = new ArrayList<>();
+        List<CommentImpParam> vos = new ArrayList<>();
         if (mem != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentImp> result = commentImpRepository.findAllByWriter(mem, pageable);
             List<CommentImp> list = result.getContent();
 
-            vos = list.stream().map(CommentImpVO::create).toList();
+            vos = list.stream().map(CommentImpParam::create).toList();
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다.");
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");

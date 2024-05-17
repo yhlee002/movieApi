@@ -4,9 +4,9 @@ import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
-import com.portfolio.demo.project.vo.MemberVO;
-import com.portfolio.demo.project.vo.SocialLoginVO;
-import com.portfolio.demo.project.vo.SocialProfile;
+import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.SocialLoginParam;
+import com.portfolio.demo.project.dto.SocialProfileParam;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -60,8 +60,8 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/auth")
-    public ResponseEntity<MemberVO> getCurrentMember(HttpSession session) {
-        MemberVO member = (MemberVO) session.getAttribute("member");
+    public ResponseEntity<MemberParam> getCurrentMember(HttpSession session) {
+        MemberParam member = (MemberParam) session.getAttribute("member");
         return new ResponseEntity<>(member, HttpStatus.OK);
     }
 
@@ -72,8 +72,8 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/{id}")
-    public ResponseEntity<MemberVO> getMember(@PathVariable Long id) {
-        MemberVO user = memberService.findByMemNo(id);
+    public ResponseEntity<MemberParam> getMember(@PathVariable Long id) {
+        MemberParam user = memberService.findByMemNo(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -85,12 +85,12 @@ public class MemberApi {
      * @return
      */
     @PostMapping("/member")
-    public ResponseEntity<MemberVO> signUp(HttpSession session, @RequestBody CreateMemberRequest request) {
+    public ResponseEntity<MemberParam> signUp(HttpSession session, @RequestBody CreateMemberRequest request) {
         if ("none".equals(request.getProvider())) {
             // 이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용
             log.info("전송된 유저 정보 : {}", request);
-            MemberVO created = memberService.updateMember(
-                    MemberVO.builder()
+            MemberParam created = memberService.updateMember(
+                    MemberParam.builder()
                             .identifier(request.getIdentifier())
                             .name(request.getName())
                             .password(request.getPassword())
@@ -108,7 +108,7 @@ public class MemberApi {
                 throw new IllegalStateException();
             }
         } else {
-            SocialProfile profile = (SocialProfile) session.getAttribute("profile");
+            SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
             log.info("조횐 프로필 : {}", profile);
 
             String profileImage = profile.getProfileImageUrl();
@@ -117,7 +117,7 @@ public class MemberApi {
             }
 
             // id, name, phone, provider, profileImage
-            MemberVO member = MemberVO.builder()
+            MemberParam member = MemberParam.builder()
                     .identifier(request.getIdentifier())
                     .name(request.getName())
                     .password("")
@@ -128,7 +128,7 @@ public class MemberApi {
                     .certification("Y")
                     .build();
 
-            MemberVO created = memberService.saveOauthMember(member);
+            MemberParam created = memberService.saveOauthMember(member);
 
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
@@ -145,12 +145,12 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member")
-    public ResponseEntity<MemberVO> findMember(@RequestParam(name = "identifier", required = false) String identifier,
-                                             @RequestParam(name = "name", required = false) String name,
-                                             @RequestParam(name = "phone", required = false) String phone
+    public ResponseEntity<MemberParam> findMember(@RequestParam(name = "identifier", required = false) String identifier,
+                                                  @RequestParam(name = "name", required = false) String name,
+                                                  @RequestParam(name = "phone", required = false) String phone
     ) {
 
-        MemberVO member = null;
+        MemberParam member = null;
         if (identifier != null && !identifier.isEmpty()) {
             member = memberService.findByIdentifier(identifier);
             log.info("이메일({})을 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
@@ -173,8 +173,8 @@ public class MemberApi {
     @GetMapping("/member/oauth2-url")
     public ResponseEntity<Map<String, String>> getOauthAuthorizationURL(HttpSession session) throws UnsupportedEncodingException {
 
-        SocialLoginVO naverLoginData = naverLoginApiUtil.getAuthorizeData();
-        SocialLoginVO kakaoLoginData = kakaoLoginApiUtil.getAuthorizeData();
+        SocialLoginParam naverLoginData = naverLoginApiUtil.getAuthorizeData();
+        SocialLoginParam kakaoLoginData = kakaoLoginApiUtil.getAuthorizeData();
 
         session.setAttribute("stateNaver", naverLoginData.getProvider());
         session.setAttribute("stateKakao", kakaoLoginData.getState());
@@ -206,11 +206,11 @@ public class MemberApi {
         session.setAttribute("naverCurrentRT", refresh_token);
 
         /* access token을 사용해 사용자 프로필 조회 api 호출 */
-        SocialProfile profile = naverProfileApiUtil.getProfile(access_token); // Map으로 사용자 데이터 받기
+        SocialProfileParam profile = naverProfileApiUtil.getProfile(access_token); // Map으로 사용자 데이터 받기
         log.info("profile : {}", profile);
 
         /* 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환 */
-        MemberVO member = memberService.findByIdentifierAndProvider(profile.getId(), "naver");
+        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), "naver");
 
         if (member != null) { // info.getRole().equals("ROLE_USER")
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
@@ -260,10 +260,10 @@ public class MemberApi {
         session.setAttribute("kakaoCurrentAT", access_token);
         session.setAttribute("kakaoCurrentRT", refresh_token);
 
-        SocialProfile profile = kakaoProfileApiUtil.getProfile(access_token);
+        SocialProfileParam profile = kakaoProfileApiUtil.getProfile(access_token);
         log.info("profile : {}", profile);
 
-        MemberVO member = memberService.findByIdentifierAndProvider(profile.getId(), "kakao");
+        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), "kakao");
         if (member != null) {
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
@@ -271,8 +271,8 @@ public class MemberApi {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberVO memberVO = member;
-                session.setAttribute("member", memberVO);
+                MemberParam memberParam = member;
+                session.setAttribute("member", memberParam);
 
                 return "redirect:/";
             } else { // none
@@ -300,7 +300,7 @@ public class MemberApi {
     @PostMapping("/sign-in/check")
     @ResponseBody
     public ResponseEntity<String> checkInputParams(@RequestBody SigninRequest request) {
-        MemberVO foundMember = memberService.findByIdentifier(request.getIdentifier());
+        MemberParam foundMember = memberService.findByIdentifier(request.getIdentifier());
 
         String msg = "";
         if (foundMember != null) { // 해당 이메일의 회원이 존재할 경우
@@ -345,8 +345,8 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/oauth-profile")
-    public ResponseEntity<SocialProfile> getOauthProfile(HttpSession session) {
-        SocialProfile profile = (SocialProfile) session.getAttribute("profile");
+    public ResponseEntity<SocialProfileParam> getOauthProfile(HttpSession session) {
+        SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
 
@@ -371,10 +371,10 @@ public class MemberApi {
      * @return
      */
     @PostMapping("/cert-mail")
-    public ResponseEntity<MemberVO> validateEmailByCertKey(@RequestBody CertMailValidationRequest request) {
+    public ResponseEntity<MemberParam> validateEmailByCertKey(@RequestBody CertMailValidationRequest request) {
         // authKey는 해싱된 상태로 링크에 파라미터로 추가되어 이메일 전송됨
         // DB에 저장된 해당 회원의 certKey와 일치하는지 확인하고 정보 수정
-        MemberVO member = memberService.findByMemNo(request.getMemNo());
+        MemberParam member = memberService.findByMemNo(request.getMemNo());
         Boolean validated = certUtil.validateCertKey(member, request.getCertKey());
 
         if (validated) {

@@ -4,7 +4,6 @@ import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.CommentMovTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.vo.MemberVO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;

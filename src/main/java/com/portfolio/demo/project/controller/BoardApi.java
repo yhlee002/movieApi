@@ -3,8 +3,7 @@ package com.portfolio.demo.project.controller;
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
-import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.vo.*;
+import com.portfolio.demo.project.dto.*;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -37,11 +36,11 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/notices")
-    public ResponseEntity<NoticePagenationVO> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-                                                      @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-                                                      @RequestParam(name = "query", required = false) String query) {
+    public ResponseEntity<NoticePagenationParam> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                         @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+                                                         @RequestParam(name = "query", required = false) String query) {
 
-        NoticePagenationVO pagenationVO = null;
+        NoticePagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
         } else {
@@ -59,9 +58,9 @@ public class BoardApi {
     @GetMapping("/notice/{id}")
     public ResponseEntity<MultiBoardNoticeResponse> notice(@PathVariable Long id) {
         MultiBoardNoticeResponse response = new MultiBoardNoticeResponse();
-        BoardNoticeVO board = boardNoticeService.findById(id);
-        BoardNoticeVO prev = boardNoticeService.findPrevById(id);
-        BoardNoticeVO next = boardNoticeService.findNextById(id);
+        BoardNoticeParam board = boardNoticeService.findById(id);
+        BoardNoticeParam prev = boardNoticeService.findPrevById(id);
+        BoardNoticeParam next = boardNoticeService.findNextById(id);
 
         response.setBoard(board);
         response.setPrevBoard(prev);
@@ -77,9 +76,9 @@ public class BoardApi {
      * @return
      */
     @PatchMapping("/notice/view")
-    public ResponseEntity<BoardNoticeVO> updateViews(@RequestBody UpdateBoardRequest request) {
+    public ResponseEntity<BoardNoticeParam> updateViews(@RequestBody UpdateBoardRequest request) {
         boardNoticeService.upViewCntById(request.getId());
-        BoardNoticeVO notice = boardNoticeService.findById(request.getId());
+        BoardNoticeParam notice = boardNoticeService.findById(request.getId());
 
         return new ResponseEntity<>(notice, HttpStatus.OK);
     }
@@ -90,14 +89,14 @@ public class BoardApi {
      * @param request
      */
     @PostMapping("/notice")
-    public ResponseEntity<BoardNoticeVO> createNotice(@RequestBody CreateBoardRequest request) {
-        BoardNoticeVO notice = BoardNoticeVO.builder()
+    public ResponseEntity<BoardNoticeParam> createNotice(@RequestBody CreateBoardRequest request) {
+        BoardNoticeParam notice = BoardNoticeParam.builder()
                 .id(request.getId())
                 .title(request.getTitle())
                 .content(request.getContent())
                 .writerId(request.getWriterId())
                 .build();
-        BoardNoticeVO created = boardNoticeService.updateBoard(notice);
+        BoardNoticeParam created = boardNoticeService.updateBoard(notice);
 
         return new ResponseEntity<>(created, HttpStatus.OK);
     }
@@ -108,12 +107,12 @@ public class BoardApi {
      * @param request
      */
     @PatchMapping("/notice")
-    public ResponseEntity<BoardNoticeVO> updateNotice(@RequestBody UpdateBoardRequest request) {
-        BoardNoticeVO notice = boardNoticeService.findById(request.getId());
+    public ResponseEntity<BoardNoticeParam> updateNotice(@RequestBody UpdateBoardRequest request) {
+        BoardNoticeParam notice = boardNoticeService.findById(request.getId());
 
         notice.setTitle(request.getTitle());
         notice.setContent(request.getContent());
-        BoardNoticeVO board = boardNoticeService.updateBoard(notice);
+        BoardNoticeParam board = boardNoticeService.updateBoard(notice);
 
         return new ResponseEntity<>(board, HttpStatus.OK);
     }
@@ -139,12 +138,12 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/imps")
-    public ResponseEntity<ImpressionPagenationVO> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-                                                       @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-                                                       @RequestParam(name = "con", required = false) String condition,
-                                                       @RequestParam(name = "query", required = false) String query) {
+    public ResponseEntity<ImpressionPagenationParam> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+                                                          @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+                                                          @RequestParam(name = "con", required = false) String condition,
+                                                          @RequestParam(name = "query", required = false) String query) {
 
-        ImpressionPagenationVO pagenationVO = null;
+        ImpressionPagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = switch (condition) {
                 case "writerName" -> boardImpService.getImpPagenationByWriterName(pageNum, size, query);
@@ -167,9 +166,9 @@ public class BoardApi {
      */
     @GetMapping("/imp/{id}")
     public ResponseEntity<MultiBoardImpResponse> impDetail(@PathVariable Long id) {
-        BoardImpVO board = boardImpService.findById(id);
-        BoardImpVO prev = boardImpService.findPrevById(id);
-        BoardImpVO next = boardImpService.findNextById(id);
+        BoardImpParam board = boardImpService.findById(id);
+        BoardImpParam prev = boardImpService.findPrevById(id);
+        BoardImpParam next = boardImpService.findNextById(id);
 
         MultiBoardImpResponse response = new MultiBoardImpResponse();
         response.setBoard(board);
@@ -186,12 +185,12 @@ public class BoardApi {
      */
     @ResponseBody
     @PatchMapping("/imp")
-    public ResponseEntity<BoardImpVO> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
-        BoardImpVO boardImp = boardImpService.findById(request.getId());
+    public ResponseEntity<BoardImpParam> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
+        BoardImpParam boardImp = boardImpService.findById(request.getId());
 
         boardImpService.updateBoard(boardImp);
 
-        BoardImpVO result = boardImpService.findById(boardImp.getId());
+        BoardImpParam result = boardImpService.findById(boardImp.getId());
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -261,15 +260,15 @@ public class BoardApi {
 
     @Data
     private static class MultiBoardNoticeResponse {
-        private BoardNoticeVO board;
-        private BoardNoticeVO prevBoard;
-        private BoardNoticeVO nextBoard;
+        private BoardNoticeParam board;
+        private BoardNoticeParam prevBoard;
+        private BoardNoticeParam nextBoard;
     }
 
     @Data
     private static class MultiBoardImpResponse {
-        private BoardImpVO board;
-        private BoardImpVO prevBoard;
-        private BoardImpVO nextBoard;
+        private BoardImpParam board;
+        private BoardImpParam prevBoard;
+        private BoardImpParam nextBoard;
     }
 }

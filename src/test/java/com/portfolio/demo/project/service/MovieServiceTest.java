@@ -1,11 +1,11 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.kobis.movie.KobisMovieDetailVO;
-import com.portfolio.demo.project.vo.kobis.movie.KobisMovieVO;
-import com.portfolio.demo.project.vo.tmdb.ImageVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
+import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.kobis.movie.KobisMovieDetailVO;
+import com.portfolio.demo.project.dto.kobis.movie.KobisMovieVO;
+import com.portfolio.demo.project.dto.tmdb.ImageVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

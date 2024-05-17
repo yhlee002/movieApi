@@ -1,9 +1,7 @@
 package com.portfolio.demo.project.intercepter;
 
-import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.MemberParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -30,10 +28,12 @@ public class RememberMeIntercepter implements HandlerInterceptor {
 
             if (auth != null && auth.getName() != "anonymousUser") {
                 log.info("현재 auth : " + auth);
-                UserDetail userDetail = (UserDetail) auth.getPrincipal();
-                Member member = memberService.findByIdentifier(userDetail.getUsername());
+
+                MemberParam member = memberService.findByIdentifier((String) auth.getPrincipal());
+//                UserDetail userDetail = new UserDetail(member);
+
                 log.info("찾아온 member : " + member.toString());
-                session.setAttribute("member", MemberVO.create(member));
+                session.setAttribute("member", member);
             }
         }
 

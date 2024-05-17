@@ -1,11 +1,11 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.util.MovieUtil;
-import com.portfolio.demo.project.vo.kmdb.KmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.kobis.movie.KobisMovieVO;
-import com.portfolio.demo.project.vo.tmdb.ImageConfigurationVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieDetailVO;
-import com.portfolio.demo.project.vo.tmdb.TmdbMovieVO;
+import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.kobis.movie.KobisMovieVO;
+import com.portfolio.demo.project.dto.tmdb.ImageConfigurationVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieDetailVO;
+import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

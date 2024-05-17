@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.util;
 
-import com.portfolio.demo.project.vo.SocialProfile;
+import com.portfolio.demo.project.dto.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
@@ -18,9 +18,9 @@ import java.util.Map;
 @Slf4j
 public class KakaoProfileApiUtil {
     private static String URL = "https://kapi.kakao.com/v2/user/me";
-    private SocialProfile profiles;
+    private SocialProfileParam profile;
 
-    public SocialProfile getProfile(String token) throws ParseException {
+    public SocialProfileParam getProfile(String token) throws ParseException {
         String header = "Bearer " + token;
 
         Map<String, String> requestHeader = new HashMap<>();
@@ -30,7 +30,7 @@ public class KakaoProfileApiUtil {
         Map<String, Object> parsedJson = new JSONParser(res).parseObject();
         String id = String.valueOf(parsedJson.get("id"));
         Map<String, Object> kakao_account = (Map<String, Object>) parsedJson.get("kakao_account");
-        SocialProfile profile = (SocialProfile) kakao_account.get("profile");
+        profile = (SocialProfileParam) kakao_account.get("profile");
 
         return profile;
     }
@@ -50,7 +50,7 @@ public class KakaoProfileApiUtil {
                 return readBody(con.getErrorStream());
             }
         } catch (IOException e) {
-            throw new RuntimeException("API 요청과 응답 실패", e);
+            throw new RuntimeException("Kakao 프로필 API 요청에 실패하였습니다.", e);
         } finally {
             con.disconnect();
         }
@@ -66,7 +66,7 @@ public class KakaoProfileApiUtil {
             }
             return sb.toString();
         } catch (IOException e) {
-            throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
+            throw new RuntimeException("KaKao 프로필 API의 응답을 읽는데 실패했습니다.", e);
         }
     }
 
@@ -75,9 +75,9 @@ public class KakaoProfileApiUtil {
             URL url = new URL(urlStr);
             return (HttpURLConnection) url.openConnection();
         } catch (MalformedURLException e) {
-            throw new RuntimeException("API URL이 잘못되었습니다. : " + urlStr, e);
+            throw new RuntimeException("Kakao 프로필 API의 URL이 잘못되었습니다. : " + urlStr, e);
         } catch (IOException e) {
-            throw new RuntimeException("연결이 실패했습니다. : " + urlStr, e);
+            throw new RuntimeException("Kakao 프로필 API와의 연결이 실패했습니다. : " + urlStr, e);
         }
     }
 }

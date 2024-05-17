@@ -2,22 +2,19 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.comment.CommentImp;
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.vo.BoardImpVO;
-import com.portfolio.demo.project.vo.CommentImpPagenationVO;
-import com.portfolio.demo.project.vo.CommentImpVO;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.BoardImpParam;
+import com.portfolio.demo.project.dto.CommentImpPagenationParam;
+import com.portfolio.demo.project.dto.CommentImpParam;
+import com.portfolio.demo.project.dto.MemberParam;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -33,30 +30,30 @@ class CommentImpServiceTest {
     @Autowired
     private BoardImpService boardImpService;
 
-    MemberVO createUser() {
+    MemberParam createUser() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.user().build()
                 )
         );
     }
 
-    MemberVO createRandomUser() {
+    MemberParam createRandomUser() {
         return memberService.updateMember(
-                MemberVO.create(
+                MemberParam.create(
                         MemberTestDataBuilder.randomIdentifierUser().build()
                 )
         );
     }
 
-    BoardImpVO createBoard(BoardImp board, MemberVO member) {
-        BoardImpVO imp = BoardImpVO.create(board);
+    BoardImpParam createBoard(BoardImp board, MemberParam member) {
+        BoardImpParam imp = BoardImpParam.create(board);
         imp.setWriterId(member.getMemNo());
         return boardImpService.updateBoard(imp);
     }
 
-    CommentImpVO createComment(CommentImp comment, BoardImpVO board, MemberVO member) {
-        CommentImpVO comm = CommentImpVO.create(comment);
+    CommentImpParam createComment(CommentImp comment, BoardImpParam board, MemberParam member) {
+        CommentImpParam comm = CommentImpParam.create(comment);
         comm.setBoardId(board.getId());
         comm.setWriterId(member.getMemNo());
         return commentImpService.updateComment(comm);
@@ -80,15 +77,15 @@ class CommentImpServiceTest {
     @Test
     void 댓글_작성() {
         // given
-        MemberVO user = createRandomUser();
+        MemberParam user = createRandomUser();
 
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO b = createBoard(board, user);
+        BoardImpParam b = createBoard(board, user);
 
 
         // when
         CommentImp comment = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm = createComment(comment, b, user);
+        CommentImpParam comm = createComment(comment, b, user);
 
         // then
         Assertions.assertNotNull(comm.getId());
@@ -97,19 +94,19 @@ class CommentImpServiceTest {
     @Test
     void 댓글_수정() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO b = createBoard(board, user);
+        BoardImpParam b = createBoard(board, user);
 
         CommentImp comment = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm = createComment(comment, b, user);
+        CommentImpParam comm = createComment(comment, b, user);
 
         // when
         comm.setContent("Modified content.");
         commentImpService.updateComment(comm);
 
-        CommentImpVO foundComment = commentImpService.getCommentById(comm.getId());
+        CommentImpParam foundComment = commentImpService.getCommentById(comm.getId());
 
         // then
         Assertions.assertEquals("Modified content.", foundComment.getContent());
@@ -118,17 +115,17 @@ class CommentImpServiceTest {
     @Test
     void id를_이용한_댓글_삭제() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO b = createBoard(board, user);
+        BoardImpParam b = createBoard(board, user);
 
         CommentImp comment = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm = createComment(comment, b, user);
+        CommentImpParam comm = createComment(comment, b, user);
 
         // when
         commentImpService.deleteCommentById(comm.getId());
-        CommentImpVO foundComment = commentImpService.getCommentById(comm.getId());
+        CommentImpParam foundComment = commentImpService.getCommentById(comm.getId());
 
         // then
         Assertions.assertNull(foundComment);
@@ -137,25 +134,25 @@ class CommentImpServiceTest {
     @Test
     void 특정_게시글의_댓글_조회() {
         // given
-        MemberVO user = createRandomUser();
+        MemberParam user = createRandomUser();
 
-        MemberVO user2 = createRandomUser();
+        MemberParam user2 = createRandomUser();
 
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO b = createBoard(board, user);
+        BoardImpParam b = createBoard(board, user);
 
         CommentImp comment = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm = createComment(comment, b, user);
+        CommentImpParam comm = createComment(comment, b, user);
 
         CommentImp comment2 = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm2 = createComment(comment2, b, user);
+        CommentImpParam comm2 = createComment(comment2, b, user);
 
         CommentImp comment3 = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm3 = createComment(comment3, b, user2);
+        CommentImpParam comm3 = createComment(comment3, b, user2);
 
         // when
-        CommentImpPagenationVO vo = commentImpService.getCommentsByBoard(b.getId(), 0, 20);
-        List<CommentImpVO> list = vo.getCommentImpsList();
+        CommentImpPagenationParam vo = commentImpService.getCommentsByBoard(b.getId(), 0, 20);
+        List<CommentImpParam> list = vo.getCommentImpsList();
 
                 // then
         Assertions.assertEquals(3, list.size());
@@ -164,25 +161,25 @@ class CommentImpServiceTest {
     @Test
     void 특정_회원의_댓글_조회() {
         // given
-        MemberVO user = createUser();
+        MemberParam user = createUser();
 
-        MemberVO user2 = createRandomUser();
+        MemberParam user2 = createRandomUser();
 
         BoardImp board = BoardImpTestDataBuilder.board().build();
-        BoardImpVO b = createBoard(board, user);
+        BoardImpParam b = createBoard(board, user);
 
         CommentImp comment = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm = createComment(comment, b, user);
+        CommentImpParam comm = createComment(comment, b, user);
 
         CommentImp comment2 = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO comm2 = createComment(comment2, b, user);
+        CommentImpParam comm2 = createComment(comment2, b, user);
 
         CommentImp comment3 = CommentImpTestDataBuilder.randomComment().build();
-        CommentImpVO com3m = createComment(comment3, b, user2);
+        CommentImpParam com3m = createComment(comment3, b, user2);
 
         // when
-        List<CommentImpVO> list = commentImpService.getCommentsByMember(user.getMemNo(), 0, 20);
-        List<CommentImpVO> list2 = commentImpService.getCommentsByMember(user2.getMemNo(), 0, 20);
+        List<CommentImpParam> list = commentImpService.getCommentsByMember(user.getMemNo(), 0, 20);
+        List<CommentImpParam> list2 = commentImpService.getCommentsByMember(user2.getMemNo(), 0, 20);
 
         // then
         Assertions.assertEquals(2, list.size());
