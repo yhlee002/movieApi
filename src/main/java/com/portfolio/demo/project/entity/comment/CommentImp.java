@@ -10,7 +10,9 @@ import jakarta.persistence.*;
 
 @Table(name = "comment_imp")
 @Entity
+@Builder
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentImp extends BaseEntity {
 
@@ -24,22 +26,11 @@ public class CommentImp extends BaseEntity {
     private BoardImp board;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_no")
+    @JoinColumn(name = "writer_mem_no")
     private Member writer;
 
     @Column(name = "content")
     private String content;
-
-    @Builder
-    public CommentImp(BoardImp board, Member writer, String content) {
-        this.board = board;
-        this.writer = writer;
-        this.content = content;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
 
     public void updateBoard(BoardImp board) {
         this.board = board;
@@ -47,5 +38,9 @@ public class CommentImp extends BaseEntity {
 
     public void updateWriter(Member writer) {
         this.writer = writer;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

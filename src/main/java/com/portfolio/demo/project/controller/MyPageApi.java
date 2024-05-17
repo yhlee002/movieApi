@@ -44,87 +44,87 @@ public class MyPageApi {
 
     private final RememberMeTokenService rememberMeTokenService;
 
-    @GetMapping("/mypage")
-    public String mypage(Model model, HttpSession session) {
-        MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        Member member = memberService.findByMemNo(memberVO.getMemNo());
-        model.addAttribute("boardList",
-                boardImpService.getImpsByMember(member, 5)
-                        .stream().map(BoardImpVO::create).toList()
-        );
-        model.addAttribute("commList",
-                commentImpService.getCommentsByMember(member, 5)
-                        .stream().map(CommentImpVO::create).toList()
-        );
-
-        return "mypage/memberInfo";
-    }
-
-    @GetMapping("/mypage/imp-board")
-    public String myImpBoard(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
-        MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        Member member = memberService.findByMemNo(memberVO.getMemNo());
-        model.addAttribute("pagenation", boardImpService.getImpsByMember(member, pageNum));
-
-        return "mypage/impBoards";
-    }
-
-    @GetMapping("/mypage/imp-comment")
-    public String myImpComment(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
-        MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        Member member = memberService.findByMemNo(memberVO.getMemNo());
-
-        List<CommentImpVO> list = commentImpService.getCommentsByMember(member, pageNum).stream().map(CommentImpVO::create).toList();
-        model.addAttribute("list", list);
-        return "mypage/impComments";
-    }
-
-    @GetMapping("/mypage/modify_info")
-    public String modifyUserInfo() {
-        return "mypage/modifyInfo";
-    }
-
-    @PatchMapping("/mypage/modify_info")
-    public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name,
-                                     @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
-                                     @RequestParam(name = "profileImage", required = false) String profileImage) {
-
-        Member inputMember = Member.builder()
-                .memNo(memNo)
-                .name(name)
-                .password(pwd)
-                .phone(phone)
-                .profileImage(profileImage)
-                .build();
-
-        Member createdMember = memberService.updateMember(inputMember); // 비밀번호 체크는 서비스단에서 실시
-
-        session.setAttribute("member", MemberVO.create(createdMember));
-
-        return "redirect:/mypage";
-    }
-
-    @DeleteMapping("/mypage/info")
-    public String deleteMember(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
-        MemberVO memberVO = (MemberVO) session.getAttribute("member");
-        log.info("delete user info: {}", memberVO.toString());
-
-        memberService.deleteMember(memberVO.getMemNo());
-        rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null) {
-            new SecurityContextLogoutHandler().logout(request, response, auth);
-        }
-
-        return "redirect:/";
-    }
-
-    @GetMapping("/mypage/uploadProfileImage")
-    public String uploadProfileImageForm() {
-        /* 프로필 이미지 변경시 업로드 페이지로 감 */
-        return "mypage/uploadProfileImageForm";
-    }
+//    @GetMapping("/mypage")
+//    public String mypage(Model model, HttpSession session) {
+//        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+//        Member member = memberService.findByMemNo(memberVO.getMemNo());
+//        model.addAttribute("boardList",
+//                boardImpService.getImpsByMember(member, 5)
+//                        .stream().map(BoardImpVO::create).toList()
+//        );
+//        model.addAttribute("commList",
+//                commentImpService.getCommentsByMember(member, 5, 20)
+//                        .stream().map(CommentImpVO::create).toList()
+//        );
+//
+//        return "mypage/memberInfo";
+//    }
+//
+//    @GetMapping("/mypage/imp-board")
+//    public String myImpBoard(Model model, HttpSession session, @RequestParam(name = "p", defaultValue = "1") int pageNum) {
+//        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+//        Member member = memberService.findByMemNo(memberVO.getMemNo());
+//        model.addAttribute("pagenation", boardImpService.getImpsByMember(member, pageNum));
+//
+//        return "mypage/impBoards";
+//    }
+//
+//    @GetMapping("/mypage/imp-comment")
+//    public String myImpComment(Model model, HttpSession session, @RequestParam(name = "page", defaultValue = "1") int page, @RequestParam(name = "size", defaultValue = "20") int size) {
+//        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+//        Member member = memberService.findByMemNo(memberVO.getMemNo());
+//
+//        List<CommentImpVO> list = commentImpService.getCommentsByMember(member, page, size).stream().map(CommentImpVO::create).toList();
+//        model.addAttribute("list", list);
+//        return "mypage/impComments";
+//    }
+//
+//    @GetMapping("/mypage/modify_info")
+//    public String modifyUserInfo() {
+//        return "mypage/modifyInfo";
+//    }
+//
+//    @PatchMapping("/mypage/modify_info")
+//    public String modifyUserInfoProc(HttpSession session, @RequestParam("memNo") Long memNo, @RequestParam("nickname") String name,
+//                                     @RequestParam(name = "pwd", required = false) String pwd, @RequestParam("phone") String phone,
+//                                     @RequestParam(name = "profileImage", required = false) String profileImage) {
+//
+//        Member inputMember = Member.builder()
+//                .memNo(memNo)
+//                .name(name)
+//                .password(pwd)
+//                .phone(phone)
+//                .profileImage(profileImage)
+//                .build();
+//
+//        Member createdMember = memberService.updateMember(inputMember); // 비밀번호 체크는 서비스단에서 실시
+//
+//        session.setAttribute("member", MemberVO.create(createdMember));
+//
+//        return "redirect:/mypage";
+//    }
+//
+//    @DeleteMapping("/mypage/info")
+//    public String deleteMember(HttpSession session, HttpServletRequest request, HttpServletResponse response) throws BadRequestException {
+//        MemberVO memberVO = (MemberVO) session.getAttribute("member");
+//        log.info("delete user info: {}", memberVO.toString());
+//
+//        memberService.deleteMember(memberVO.getMemNo());
+//        rememberMeTokenService.removeUserTokens(memberVO.getIdentifier()); // DB의 persistent_logins 토큰 제거 (쿠키는 로그아웃 로직에서 자동 제거)
+//
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth != null) {
+//            new SecurityContextLogoutHandler().logout(request, response, auth);
+//        }
+//
+//        return "redirect:/";
+//    }
+//
+//    @GetMapping("/mypage/uploadProfileImage")
+//    public String uploadProfileImageForm() {
+//        /* 프로필 이미지 변경시 업로드 페이지로 감 */
+//        return "mypage/uploadProfileImageForm";
+//    }
 
     @ResponseBody
     @RequestMapping(value = "/mypage/uploadProfileImage_proc")
@@ -157,10 +157,10 @@ public class MyPageApi {
     /**
      * 새로운 핸드폰 번호 입력 페이지
      */
-    @GetMapping("/mypage/modify_info/phone")
-    public String phoneCkForm() {
-        return "mypage/modifyInfo_phoneUpdate1";
-    }
+//    @GetMapping("/mypage/modify_info/phone")
+//    public String phoneCkForm() {
+//        return "mypage/modifyInfo_phoneUpdate1";
+//    }
 
     /**
      * 새로운 핸드폰 번호 유효성 검사(존재 여부 확인)
@@ -192,14 +192,13 @@ public class MyPageApi {
             return new ResponseEntity<>(result, HttpStatus.OK);
         }
 
-        // Todo. Error Status 수정
-        return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
     }
 
-    @GetMapping("/mypage/modify_info/phone2")
-    public String updatePhoneForm() {
-        return "mypage/modifyInfo_phoneUpdate2";
-    }
+//    @GetMapping("/mypage/modify_info/phone2")
+//    public String updatePhoneForm() {
+//        return "mypage/modifyInfo_phoneUpdate2";
+//    }
 
     /**
      * 인증번호 일치 여부 검증

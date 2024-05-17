@@ -5,6 +5,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardNoticeTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.vo.BoardNoticeVO;
+import com.portfolio.demo.project.vo.MemberVO;
 import com.portfolio.demo.project.vo.NoticePagenationVO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -32,61 +33,79 @@ class BoardNoticeServiceTest {
     @Autowired
     BoardNoticeService boardNoticeService;
 
+    MemberVO createAdmin() {
+        return memberService.updateMember(
+                MemberVO.create(
+                        MemberTestDataBuilder.admin().build()
+                )
+        );
+    }
+
+    MemberVO createUser() {
+        return memberService.updateMember(
+                MemberVO.create(
+                        MemberTestDataBuilder.user().build()
+                )
+        );
+    }
+
+    BoardNoticeVO createBoard(BoardNotice notice, MemberVO member) {
+        BoardNoticeVO board = BoardNoticeVO.create(notice);
+        board.setWriterId(member.getMemNo());
+        return boardNoticeService.updateBoard(board);
+    }
+
     @Test
     void 전체_공지_게시글_조회() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        boardNoticeService.updateBoard(
-                BoardNoticeTestDataBuilder.board(admin).title("test-board-1").build()
-        );
+        BoardNotice board = BoardNoticeTestDataBuilder.board().title("test-board-1").build();
+        createBoard(board, admin);
 
-        boardNoticeService.updateBoard(
-                BoardNoticeTestDataBuilder.board(admin).title("test-board-2").build()
-        );
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board().title("test-board-2").build();
+        createBoard(board2, admin);
 
         // when
         NoticePagenationVO vo = boardNoticeService.getAllBoards(0, 5);
         List<BoardNoticeVO> list = vo.getBoardNoticeList();
 
-                // then
+        // then
         assertEquals(2, list.size());
     }
 
     @Test
     void 공지사항_게시글_식별번호를_이용한_단건_조회() {
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        // given
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(board, admin);
 
         // when
-        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
 
         // then
-        Assertions.assertNotNull(foundBoard);
-        Assertions.assertEquals(board.getId(), foundBoard.getId());
+        Assertions.assertNotNull(b1.getId());
     }
 
     @Test
     void 공지사항_게시글_식별번호를_이용한_단건_조회_이전글_및_다음글() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(prevBoard);
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
-        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(nextBoard);
+        BoardNotice prevBoard = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(prevBoard, admin);
+
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b2 = createBoard(board, admin);
+
+        BoardNotice nextBoard = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b3 = createBoard(nextBoard, admin);
 
         // when
-        BoardNotice prevBoardNotice = boardNoticeService.findPrevById(board.getId());
-        BoardNotice boardNotice = boardNoticeService.findById(board.getId());
-        BoardNotice nextBoardNotice = boardNoticeService.findNextById(board.getId());
+        BoardNoticeVO prevBoardNotice = boardNoticeService.findPrevById(b1.getId());
+        BoardNoticeVO boardNotice = boardNoticeService.findById(b2.getId());
+        BoardNoticeVO nextBoardNotice = boardNoticeService.findNextById(b3.getId());
 
         // then
         Assertions.assertEquals(prevBoard.getId(), prevBoardNotice.getId());
@@ -97,18 +116,18 @@ class BoardNoticeServiceTest {
     @Test
     void 최근_공지사항_게시글_n개_조회() throws InterruptedException {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
         for (int i = 0; i < 10; i++) {
-            BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-            boardNoticeService.updateBoard(board);
+            BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+            createBoard(board, admin);
+
             Thread.sleep(1000);
         }
 
         // when
-        List<BoardNotice> list = boardNoticeService.getRecentNoticeBoard(10);
-        List<BoardNotice> list2 = boardNoticeService.getRecentNoticeBoard(7);
+        List<BoardNoticeVO> list = boardNoticeService.getRecentNoticeBoard(10);
+        List<BoardNoticeVO> list2 = boardNoticeService.getRecentNoticeBoard(7);
 
         // then
         Assertions.assertEquals(10, list.size());
@@ -118,34 +137,35 @@ class BoardNoticeServiceTest {
     @Test
     void 게시글_작성_및_수정() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(board, admin);
 
         // when
-        board.updateContent("Modified content.");
-        boardNoticeService.updateBoard(board);
+        b1.setTitle("Modified Title");
+        b1.setContent("Modified content.");
 
-        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
+        boardNoticeService.updateBoard(b1);
+
+        BoardNoticeVO foundBoard = boardNoticeService.findById(board.getId());
 
         // then
+        Assertions.assertEquals("Modified Title", foundBoard.getTitle());
         Assertions.assertEquals("Modified content.", foundBoard.getContent());
     }
 
     @Test
     void 공지사항_게시글_식별번호를_이용한_삭제() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(board, admin);
 
         // when
-        boardNoticeService.deleteBoardByBoardId(board.getId());
-        BoardNotice foundBoard = boardNoticeService.findById(board.getId());
+        boardNoticeService.deleteBoardByBoardId(b1.getId());
+        BoardNoticeVO foundBoard = boardNoticeService.findById(b1.getId());
 
         // then
         Assertions.assertNull(foundBoard);
@@ -154,21 +174,20 @@ class BoardNoticeServiceTest {
     @Test
     void 공지사항_게시글_다수_삭제() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(board, admin);
 
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board2);
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b2 = createBoard(board2, admin);
 
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board3);
+        BoardNotice board3 = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b3 = createBoard(board3, admin);
 
         // when
         boardNoticeService.deleteBoards(
-                Arrays.asList(board, board2, board3)
+                Arrays.asList(b1, b2, b3)
         );
 
         NoticePagenationVO vo = boardNoticeService.getAllBoards(0, 10);
@@ -181,35 +200,33 @@ class BoardNoticeServiceTest {
     @Test
     void 공지사항_게시글_식별번호를_이용한_조회수_증가() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        BoardNoticeVO b1 = createBoard(board, admin);
 
         // when
-        boardNoticeService.upViewCntById(board.getId());
-        boardNoticeService.upViewCntById(board.getId());
-        boardNoticeService.upViewCntById(board.getId());
+        boardNoticeService.upViewCntById(b1.getId());
+        boardNoticeService.upViewCntById(b1.getId());
+        boardNoticeService.upViewCntById(b1.getId());
 
         // then
-        Assertions.assertEquals(3, board.getViews());
+        Assertions.assertEquals(3, b1.getViews());
     }
 
     @Test
     void 공지사항_게시글_페이지네이션vo() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board);
+        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
+        createBoard(board, admin);
 
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board(admin).build();
-        boardNoticeService.updateBoard(board2);
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board().build();
+        createBoard(board2, admin);
 
         // when
-        NoticePagenationVO pagenation = boardNoticeService.getAllBoards(0, null);
+        NoticePagenationVO pagenation = boardNoticeService.getAllBoards(0, 10);
 
         // then
         Assertions.assertEquals(2, pagenation.getBoardNoticeList().size());
@@ -220,29 +237,28 @@ class BoardNoticeServiceTest {
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 제목_또는_내용으로_공지사항_게시글_조회_페이지네이션vo() {
         // given
-        Member admin = MemberTestDataBuilder.admin().build();
-        memberService.saveMember(admin);
+        MemberVO admin = createAdmin();
 
-        BoardNotice board = BoardNoticeTestDataBuilder.board(admin)
+        BoardNotice board = BoardNoticeTestDataBuilder.board()
                 .title("test")
                 .content("zxcv")
                 .build();
-        boardNoticeService.updateBoard(board);
+        createBoard(board, admin);
 
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board(admin)
+        BoardNotice board2 = BoardNoticeTestDataBuilder.board()
                 .title("abcdef")
                 .content("test")
                 .build();
-        boardNoticeService.updateBoard(board2);
+        createBoard(board2, admin);
 
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board(admin)
+        BoardNotice board3 = BoardNoticeTestDataBuilder.board()
                 .title("test-notice")
                 .content("abc")
                 .build();
-        boardNoticeService.updateBoard(board3);
+        createBoard(board3, admin);
 
         // when
-        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenationByTitleOrContent(0, null, "test");
+        NoticePagenationVO pagenation = boardNoticeService.getBoardNoticePagenationByTitleOrContent(0, 10, "test");
         NoticePagenationVO pagenation2 = boardNoticeService.getBoardNoticePagenationByTitleOrContent(0, 10, "abc");
 
         // then

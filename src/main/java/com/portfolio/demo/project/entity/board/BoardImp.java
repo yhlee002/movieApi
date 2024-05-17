@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Table(name = "board_imp")
+@Builder
 @Entity
 @Getter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class BoardImp extends BaseEntity {
 
@@ -21,53 +23,23 @@ public class BoardImp extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content") // , nullable = false
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_no")
     private Member writer;
 
-    @Column(name = "views")
     private int views; // 조회수
 
-    @Column(name = "recommended")
     private int recommended;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "board_id")
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
-
-    @Builder
-    public BoardImp(String title, String content, Member writer) {
-        this.title = title;
-        this.content = content;
-        this.writer = writer;
-        this.views = 0;
-        this.recommended = 0;
-    }
-
-    public void updateTitle(String title) {
-        this.title = title;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
 
     public void updateViewCount() {
         this.views++;
-    }
-
-    public void updateWriter(Member writer) {
-        this.writer = writer;
-    }
-
-    public void updateComments(List<CommentImp> comments) {
-        this.comments = comments;
     }
 }

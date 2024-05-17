@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.controller;
 
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
@@ -11,6 +10,7 @@ import com.portfolio.demo.project.vo.SocialProfile;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
@@ -73,30 +73,37 @@ public class MemberApi {
      */
     @GetMapping("/member/{id}")
     public ResponseEntity<MemberVO> getMember(@PathVariable Long id) {
-        Member user = memberService.findByMemNo(id);
-        return new ResponseEntity<>(MemberVO.create(user), HttpStatus.OK);
+        MemberVO user = memberService.findByMemNo(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     /**
      * 회원가입
      *
      * @param session
-     * @param member
+     * @param request
      * @return
      */
     @PostMapping("/member")
-    public ResponseEntity<MemberVO> signUp(HttpSession session, @RequestBody Member member) { // , @RequestParam(name = "type", required = false, defaultValue = "d") String type
-        if ("none".equals(member.getProvider())) {
+    public ResponseEntity<MemberVO> signUp(HttpSession session, @RequestBody CreateMemberRequest request) {
+        if ("none".equals(request.getProvider())) {
             // 이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용
-            log.info("전송된 유저 정보 : {}", member);
-            memberService.saveMember(member);
-            Map<String, String> result = mailService.sendGreetingMail(member.getIdentifier());
+            log.info("전송된 유저 정보 : {}", request);
+            MemberVO created = memberService.updateMember(
+                    MemberVO.builder()
+                            .identifier(request.getIdentifier())
+                            .name(request.getName())
+                            .password(request.getPassword())
+                            .provider(request.getProvider())
+                            .phone(request.getPhone())
+                            .build()
+            );
+            Map<String, String> result = mailService.sendGreetingMail(request.getIdentifier());
 
-            Member createdMember = memberService.findByIdentifier(member.getIdentifier());
-            log.info("생성된 유저 식별번호 : {}", createdMember.getMemNo());
+            log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
             if (result.get("resultCode").equals("success")) {
-                return new ResponseEntity<>(MemberVO.create(createdMember), HttpStatus.CREATED);
+                return new ResponseEntity<>(created, HttpStatus.CREATED);
             } else {
                 throw new IllegalStateException();
             }
@@ -110,25 +117,22 @@ public class MemberApi {
             }
 
             // id, name, phone, provider, profileImage
-            memberService.saveOauthMember(
-                    Member.builder()
-                            .identifier(member.getIdentifier())
-                            .password("")
-                            .name(member.getName())
-                            .phone(member.getPhone())
-                            .provider(member.getProvider())
-                            .profileImage(profileImage)
-                            .role("ROLE_USER")
-                            .certKey(null)
-                            .certification("Y")
-                            .build()
-            );
+            MemberVO member = MemberVO.builder()
+                    .identifier(request.getIdentifier())
+                    .name(request.getName())
+                    .password("")
+                    .phone(request.getPhone())
+                    .provider(request.getProvider())
+                    .role("RULE_USER")
+                    .profileImage(profileImage)
+                    .certification("Y")
+                    .build();
 
-            /* DB에 저장된 데이터 로드 */
-            Member createdMember = memberService.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
-            log.info("생성된 유저 식별번호 : {}", createdMember.getMemNo());
+            MemberVO created = memberService.saveOauthMember(member);
 
-            return new ResponseEntity<>(MemberVO.create(createdMember), HttpStatus.CREATED);
+            log.info("생성된 유저 식별번호 : {}", created.getMemNo());
+
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
         }
     }
 
@@ -141,12 +145,12 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member")
-    public ResponseEntity<Member> findMember(@RequestParam(name = "identifier", required = false) String identifier,
+    public ResponseEntity<MemberVO> findMember(@RequestParam(name = "identifier", required = false) String identifier,
                                              @RequestParam(name = "name", required = false) String name,
                                              @RequestParam(name = "phone", required = false) String phone
     ) {
 
-        Member member = null;
+        MemberVO member = null;
         if (identifier != null && !identifier.isEmpty()) {
             member = memberService.findByIdentifier(identifier);
             log.info("이메일({})을 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
@@ -206,7 +210,7 @@ public class MemberApi {
         log.info("profile : {}", profile);
 
         /* 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환 */
-        Member member = memberService.findByIdentifierAndProvider(profile.getId(), "naver");
+        MemberVO member = memberService.findByIdentifierAndProvider(profile.getId(), "naver");
 
         if (member != null) { // info.getRole().equals("ROLE_USER")
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
@@ -215,8 +219,7 @@ public class MemberApi {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberVO memberVO = MemberVO.create(member);
-                session.setAttribute("member", memberVO);
+                session.setAttribute("member", member);
 
                 return "redirect:/";
             } else { // none
@@ -260,7 +263,7 @@ public class MemberApi {
         SocialProfile profile = kakaoProfileApiUtil.getProfile(access_token);
         log.info("profile : {}", profile);
 
-        Member member = memberService.findByIdentifierAndProvider(profile.getId(), "kakao");
+        MemberVO member = memberService.findByIdentifierAndProvider(profile.getId(), "kakao");
         if (member != null) {
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
@@ -268,7 +271,7 @@ public class MemberApi {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberVO memberVO = MemberVO.create(member);
+                MemberVO memberVO = member;
                 session.setAttribute("member", memberVO);
 
                 return "redirect:/";
@@ -291,17 +294,17 @@ public class MemberApi {
     /**
      * 로그인 전 입력 정보 유효성 확인
      *
-     * @param member
+     * @param request
      * @return
      */
     @PostMapping("/sign-in/check")
     @ResponseBody
-    public ResponseEntity<String> checkInputParams(@RequestBody Member member) {
-        Member foundMember = memberService.findByIdentifier(member.getIdentifier());
+    public ResponseEntity<String> checkInputParams(@RequestBody SigninRequest request) {
+        MemberVO foundMember = memberService.findByIdentifier(request.getIdentifier());
 
         String msg = "";
         if (foundMember != null) { // 해당 이메일의 회원이 존재할 경우
-            boolean matched = passwordEncoder.matches(member.getPassword(), foundMember.getPassword());
+            boolean matched = passwordEncoder.matches(request.getPassword(), foundMember.getPassword());
 
             log.info("회원이 입력한 값과의 일치 관계 : {}", matched);
 
@@ -337,6 +340,7 @@ public class MemberApi {
 
     /**
      * 회원가입시 소셜 API로 접근한 경우 소셜 프로필 정보 조회
+     *
      * @param session
      * @return
      */
@@ -362,20 +366,23 @@ public class MemberApi {
      * 이메일 인증 검증
      * Get으로 전달된 http://[host]:[post]/sign-up/cert-mail?memNo=[]&certKey=[]으로
      * 빈 페이지에 도달하면 해당 페이지에서 Post 요청 후 결과를 받아 결과에 따라 리다이렉트)
-     * @param mem
+     *
+     * @param request
      * @return
      */
     @PostMapping("/cert-mail")
-    public ResponseEntity<MemberVO> validateEmailByCertKey(@RequestBody Member mem) {
+    public ResponseEntity<MemberVO> validateEmailByCertKey(@RequestBody CertMailValidationRequest request) {
         // authKey는 해싱된 상태로 링크에 파라미터로 추가되어 이메일 전송됨
         // DB에 저장된 해당 회원의 certKey와 일치하는지 확인하고 정보 수정
-        Member member = memberService.findByMemNo(mem.getMemNo());
-        Boolean validated = certUtil.validateCertKey(member, mem.getCertKey());
+        MemberVO member = memberService.findByMemNo(request.getMemNo());
+        Boolean validated = certUtil.validateCertKey(member, request.getCertKey());
 
         if (validated) {
             member = certUtil.changeCertStatus(member);
-            memberService.saveMember(member);
-            return new ResponseEntity<>(MemberVO.create(member), HttpStatus.OK);
+            memberService.updateMember(member);
+
+            return new ResponseEntity<>(member, HttpStatus.OK);
+
         } else throw new IllegalStateException("인증 정보가 일치하지 않습니다.");
     }
 
@@ -429,5 +436,25 @@ public class MemberApi {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Data
+    static class CreateMemberRequest {
+        private String identifier;
+        private String password;
+        private String name;
+        private String phone;
+        private String provider;
+    }
+
+    @Data
+    static class SigninRequest {
+        private String identifier;
+        private String password;
+    }
+
+    @Data
+    static class CertMailValidationRequest {
+        private Long memNo;
+        private String certKey;
+    }
 }
 

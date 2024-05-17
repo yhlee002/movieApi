@@ -2,6 +2,7 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.MemberVO;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class PhoneMessageServiceTest {
     void sendCertificationMessage() {
         // given
         Member member = MemberTestDataBuilder.user().name("이영현").phone("010-3395-5304").build();
-        memberService.saveMember(member);
+        memberService.updateMember(MemberVO.create(member));
 
         // when
         phoneMessageService.sendCertificationMessage("010-3395-5304");
