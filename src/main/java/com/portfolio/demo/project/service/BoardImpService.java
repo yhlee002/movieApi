@@ -28,9 +28,8 @@ import java.util.Optional;
 @Service
 public class BoardImpService {
 
-    private final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
-
     private final BoardImpRepository boardImpRepository;
+
     private final MemberRepository memberRepository;
 
     /**
@@ -46,18 +45,10 @@ public class BoardImpService {
 
         List<BoardImpVO> vos = new ArrayList<>();
         list.forEach(boardImp -> {
-            Member writer = (Member) Hibernate.unproxy(boardImp.getWriter());
-            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
-            comments.forEach(comm -> {
-                comm.updateBoard(null);
-                comm.updateWriter(null);
-            });
-            boardImp.updateWriter(writer);
-            boardImp.updateComments(comments);
-            boardImp.updateComments(new ArrayList<>());
-            vos.add(BoardImpVO.create(boardImp));
-        });
+            BoardImpVO vo = BoardImpVO.create(boardImp);
 
+            vos.add(vo);
+        });
 
         return ImpressionPagenationVO.builder()
                 .boardImpList(vos)
@@ -71,19 +62,16 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImp findById(Long id) {
-        BoardImp boardImp = boardImpRepository.findBoardImpById(id);
+    public BoardImpVO findById(Long id) {
+        BoardImp boardImp = boardImpRepository.findById(id).orElse(null);
+
+        BoardImpVO vo = null;
+
         if (boardImp != null) {
-            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
-            comments.forEach(comm -> {
-                comm.updateBoard(null);
-                comm.updateWriter(null);
-            });
-            boardImp.updateWriter(writer);
-            boardImp.updateComments(comments);
+            vo = BoardImpVO.create(boardImp);
         }
-        return boardImp;
+
+        return vo;
     }
 
     /**
@@ -92,19 +80,15 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImp findPrevById(Long id) {
+    public BoardImpVO findPrevById(Long id) {
         BoardImp boardImp = boardImpRepository.findPrevBoardImpById(id);
+
+        BoardImpVO vo = null;
+
         if (boardImp != null) {
-            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
-            comments.forEach(comm -> {
-                comm.updateBoard(null);
-                comm.updateWriter(null);
-            });
-            boardImp.updateWriter(writer);
-            boardImp.updateComments(comments);
+            vo = BoardImpVO.create(boardImp);
         }
-        return boardImp;
+        return vo;
     }
 
     /**
@@ -113,20 +97,16 @@ public class BoardImpService {
      * @param id
      * @return
      */
-    public BoardImp findNextById(Long id) {
+    public BoardImpVO findNextById(Long id) {
         BoardImp boardImp = boardImpRepository.findNextBoardImpById(id);
+
+        BoardImpVO vo = null;
+
         if (boardImp != null) {
-            Member writer = Hibernate.unproxy(boardImp.getWriter(), Member.class);
-            List<CommentImp> comments = (List<CommentImp>) Hibernate.unproxy(boardImp.getComments());
-            comments.forEach(comm -> {
-                comm.updateBoard(null);
-                comm.updateWriter(null);
-            });
-            boardImp.updateWriter(writer);
-            boardImp.updateComments(comments);
+            vo = BoardImpVO.create(boardImp);
         }
 
-        return boardImp;
+        return vo;
     }
 
     /**
@@ -142,27 +122,32 @@ public class BoardImpService {
      * @param imp
      */
     @Transactional
-    public void updateBoard(BoardImp imp) { // TODO. 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
+    public BoardImpVO updateBoard(BoardImpVO imp) {
         // 작성자 정보 검증
-        Boolean exist = validateMember(imp.getWriter());
-        if (exist) {
-            log.info("작성자 정보(memNo : {}) : valid", imp.getWriter().getMemNo());
+        Member writer = memberRepository.findById(imp.getWriterId()).orElse(null);
 
-            boardImpRepository.save(imp);
+        BoardImpVO result = null;
+
+        if (writer != null) {
+            log.info("작성자 정보(memNo : {}) : valid", writer.getMemNo());
+            BoardImp created = boardImpRepository.save(
+                    BoardImp.builder()
+                            .id(imp.getId())
+                            .title(imp.getTitle())
+                            .content(imp.getContent())
+                            .writer(writer)
+                            .views(imp.getViews())
+                            .recommended(imp.getRecommended())
+                            .build()
+            );
+
+            result = BoardImpVO.create(created);
         } else {
-            log.error("작성자 정보가 누락되었습니다.");
-            throw new IllegalStateException();
+//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
         }
-    }
 
-    /**
-     * 해당 사용자 정보 확인
-     *
-     * @param member
-     */
-    public Boolean validateMember(Member member) {
-        if (member == null) return false;
-        else return memberRepository.existsById(member.getMemNo());
+        return result;
     }
 
     /**
@@ -172,8 +157,12 @@ public class BoardImpService {
      */
     @Transactional
     public void deleteById(Long id) {
-        BoardImp board = boardImpRepository.findBoardImpById(id);
-        boardImpRepository.delete(board);
+        BoardImp board = boardImpRepository.findById(id).orElse(null);
+        if (board != null) {
+            boardImpRepository.delete(board);
+        } else {
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
     }
 
     /**
@@ -182,9 +171,21 @@ public class BoardImpService {
      * @param id
      */
     public void upViewCntById(Long id) {
-        BoardImp imp = boardImpRepository.findById(id).get();
-        imp.updateViewCount();
-        boardImpRepository.save(imp);
+        BoardImp imp = boardImpRepository.findById(id).orElse(null);
+        if (imp != null) {
+            BoardImp modified = BoardImp.builder()
+                    .id(imp.getId())
+                    .title(imp.getTitle())
+                    .content(imp.getContent())
+                    .writer(imp.getWriter())
+                    .views(imp.getViews() + 1)
+                    .recommended(imp.getRecommended())
+                    .build();
+
+            boardImpRepository.save(modified);
+        } else {
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
     }
 
     /**
@@ -192,8 +193,21 @@ public class BoardImpService {
      *
      * @param boards
      */
-    public void deleteBoards(java.util.List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        boardImpRepository.deleteAll(boards);
+    public void deleteBoards(List<BoardImpVO> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+        List<BoardImp> list = boards.stream().map(b ->  {
+            Member member = memberRepository.findById(b.getWriterId()).orElse(null);
+
+            return BoardImp.builder()
+                    .id(b.getId())
+                    .title(b.getTitle())
+                    .content(b.getContent())
+                    .writer(member)
+                    .views(b.getViews())
+                    .recommended(b.getRecommended())
+                    .build();
+        }).toList();
+
+        boardImpRepository.deleteAll(list);
     }
 
     /**
@@ -204,8 +218,8 @@ public class BoardImpService {
      */
     @Deprecated
     @Transactional
-    public ImpressionPagenationVO getImpPagenation(int page) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by("id").descending());
+    public ImpressionPagenationVO getImpPagenation(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
@@ -255,14 +269,25 @@ public class BoardImpService {
     /**
      * 특정 작성자가 작성한 글(마이페이지에서 조회 가능)
      *
-     * @param member
+     * @param memNo
      * @param page
+     * @param size
      */
     @Transactional
-    public List<BoardImp> getImpsByMember(Member member, int page) {
-        Pageable pageable = PageRequest.of(page, BOARD_COUNT_PER_PAGE, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BoardImp> pages = boardImpRepository.findAllByWriter(member, pageable);
-        return pages.getContent();
+    public List<BoardImpVO> getImpsByMember(Long memNo, int page, int size) {
+        Member member = memberRepository.findById(memNo).orElse(null);
+
+        List<BoardImpVO> result = new ArrayList<>();
+
+        if (member != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+            Page<BoardImp> pages = boardImpRepository.findAllByWriter(member, pageable);
+            List<BoardImp> list = pages.getContent();
+
+            result = list.stream().map(BoardImpVO::create).toList();
+        }
+
+        return result;
     }
 
 }

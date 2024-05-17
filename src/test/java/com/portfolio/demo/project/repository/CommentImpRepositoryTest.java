@@ -8,6 +8,7 @@ import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentMovTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.CommentImpVO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Assertions;
@@ -52,25 +53,32 @@ public class CommentImpRepositoryTest {
     }
 
     BoardImp createBoard(Member writer) {
-        return BoardImpTestDataBuilder.board(writer).build();
+        return BoardImpTestDataBuilder.board().writer(writer).build();
+    }
+
+    CommentImp createComment(Member writer, BoardImp board) {
+        return CommentImpTestDataBuilder.randomComment().writer(writer).board(board).build();
     }
 
     @Test
     void 특정_후기_게시글의_코멘트_조회() {
         // given
-        Member member = createRandomMember();
-        memberRepository.save(member);
+        Member user = createRandomMember();
+        memberRepository.save(user);
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
-        List<CommentImp> list = Arrays.asList(CommentImpTestDataBuilder.randomComment(member, board).build(), CommentImpTestDataBuilder.randomComment(member, board).build(), CommentImpTestDataBuilder.randomComment(member, board).build());
+        CommentImp comment1 = createComment(user, board);
+        CommentImp comment2 = createComment(user, board);
+        CommentImp comment3 = createComment(user, board);
+        List<CommentImp> list = Arrays.asList(comment1, comment2, comment3);
         commentImpRepository.saveAll(list);
 
-        BoardImp board2 = createBoard(member);
+        BoardImp board2 = createBoard(user);
         boardImpRepository.save(board2);
 
-        commentImpRepository.save(CommentImpTestDataBuilder.randomComment(member, board2).build());
+        commentImpRepository.save(createComment(user, board2));
 
         // when
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
@@ -88,27 +96,26 @@ public class CommentImpRepositoryTest {
     @Test
     void 작성자를_이용한_코멘트_조회() {
         // given
-        Member member = createRandomMember();
-        Member member2 = createRandomMember();
-        memberRepository.saveAll(List.of(member, member2));
+        Member user = createRandomMember();
+        Member user2 = createRandomMember();
+        memberRepository.saveAll(List.of(user, user2));
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
         commentImpRepository.saveAll(
                 Arrays.asList(
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member2, board).build() // the other member
-
+                        createComment(user, board),
+                        createComment(user, board),
+                        createComment(user, board),
+                        createComment(user2, board)
                 )
         );
 
         // when
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
-        Page<CommentImp> comments = commentImpRepository.findAllByWriter(member, pageable);
-        Page<CommentImp> comments2 = commentImpRepository.findAllByWriter(member2, pageable);
+        Page<CommentImp> comments = commentImpRepository.findAllByWriter(user, pageable);
+        Page<CommentImp> comments2 = commentImpRepository.findAllByWriter(user2, pageable);
 
         // then
         Assertions.assertEquals(3, comments.getTotalElements());
@@ -118,25 +125,24 @@ public class CommentImpRepositoryTest {
     @Test
     void 작성자를_이용한_코멘트_수_조회() {
         // given
-        Member member = createRandomMember();
-        Member member2 = createRandomMember();
-        memberRepository.saveAll(List.of(member, member2));
+        Member user = createRandomMember();
+        Member user2 = createRandomMember();
+        memberRepository.saveAll(List.of(user, user2));
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
         commentImpRepository.saveAll(Arrays.asList(
-                CommentImpTestDataBuilder.randomComment(member, board).build(),
-                CommentImpTestDataBuilder.randomComment(member, board).build(),
-                CommentImpTestDataBuilder.randomComment(member, board).build(),
-                CommentImpTestDataBuilder.randomComment(member2, board).build(), // the other member
-                CommentImpTestDataBuilder.randomComment(member2, board).build() // the other member
-
+                createComment(user, board),
+                createComment(user, board),
+                createComment(user, board),
+                createComment(user2, board), // the other member
+                createComment(user2, board) // the other member
         ));
 
         // when
-        Integer cnt = commentImpRepository.countCommentImpsByWriter(member);
-        Integer cnt2 = commentImpRepository.countCommentImpsByWriter(member2);
+        Integer cnt = commentImpRepository.countCommentImpsByWriter(user);
+        Integer cnt2 = commentImpRepository.countCommentImpsByWriter(user2);
 
         // then
         Assertions.assertEquals(3, cnt);
@@ -146,21 +152,22 @@ public class CommentImpRepositoryTest {
     @Test
     void 모든_코멘트_조회() {
         // given
-        Member member = createRandomMember();
-        Member member2 = createRandomMember();
-        memberRepository.saveAll(Arrays.asList(member, member2));
-        BoardImp board = createBoard(member);
-        BoardImp board2 = createBoard(member2);
+        Member user = createRandomMember();
+        Member user2 = createRandomMember();
+        memberRepository.saveAll(Arrays.asList(user, user2));
+        BoardImp board = createBoard(user);
+        BoardImp board2 = createBoard(user2);
         boardImpRepository.saveAll(Arrays.asList(board, board2));
         commentImpRepository.saveAll(
                 Arrays.asList(
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member2, board).build(),
-                        CommentImpTestDataBuilder.randomComment(member2, board2).build(),
-                        CommentImpTestDataBuilder.randomComment(member, board2).build(),
-                        CommentImpTestDataBuilder.randomComment(member2, board).build()
+                        createComment(user, board),
+                        createComment(user, board),
+                        createComment(user, board),
+                        createComment(user2, board),
+                        createComment(user2, board2),
+                        createComment(user, board),
+                        createComment(user, board2),
+                        createComment(user2, board)
                 )
         );
 
@@ -175,16 +182,14 @@ public class CommentImpRepositoryTest {
     @Test
     void 영화_코멘트_작성() {
         // given
-        Member member = createUser();
-        memberRepository.save(member);
+        Member user = createUser();
+        memberRepository.save(user);
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
         // when
-        CommentImp comment = CommentImpTestDataBuilder
-                .randomComment(member, board)
-                .build();
+        CommentImp comment = createComment(user, board);
         commentImpRepository.save(comment);
 
         // then
@@ -194,16 +199,14 @@ public class CommentImpRepositoryTest {
     @Test
     void 영화_코멘트_수정() {
         // given
-        Member member = createUser();
-        memberRepository.save(member);
+        Member user = createUser();
+        memberRepository.save(user);
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
         // when
-        CommentImp comment = CommentImpTestDataBuilder
-                .randomComment(member, board)
-                .build();
+        CommentImp comment = createComment(user, board);
         commentImpRepository.save(comment);
 
         comment.updateContent("Modified Content.");
@@ -218,16 +221,14 @@ public class CommentImpRepositoryTest {
     @Test
     void 영화_코멘트_삭제() {
         // given
-        Member member = createUser();
-        memberRepository.save(member);
+        Member user = createUser();
+        memberRepository.save(user);
 
-        BoardImp board = createBoard(member);
+        BoardImp board = createBoard(user);
         boardImpRepository.save(board);
 
         // when
-        CommentImp comment = CommentImpTestDataBuilder
-                .randomComment(member, board)
-                .build();
+        CommentImp comment = createComment(user, board);
 
         commentImpRepository.save(comment);
 

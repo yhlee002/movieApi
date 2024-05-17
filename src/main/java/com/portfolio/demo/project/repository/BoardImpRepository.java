@@ -13,13 +13,6 @@ import java.util.List;
 public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 
     /**
-     * 게시판 식별번호로 조회
-     *
-     * @param id
-     */
-    BoardImp findBoardImpById(Long id);
-
-    /**
      * 이전글
      *
      * @param id

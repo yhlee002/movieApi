@@ -6,10 +6,13 @@ import com.portfolio.demo.project.entity.member.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
 
     Page<CommentImp> findAllByBoard(BoardImp board, Pageable pageable);
+
+    Page<CommentImp> findAllByBoardId(@Param("board_id") Long boardId, Pageable pageable);
 
     Page<CommentImp> findAllByWriter(Member member, Pageable pageable);
 

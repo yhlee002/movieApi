@@ -10,48 +10,59 @@ import com.portfolio.demo.project.vo.CommentImpPagenationVO;
 import com.portfolio.demo.project.vo.CommentImpVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class CommentImpService {
 
-    private final int COMMENT_COUNT_PER_PAGE = 20;
-
     private final CommentImpRepository commentImpRepository;
 
-    public CommentImp getCommentById(Long id) {
-        return commentImpRepository.findById(id).orElse(null);
+    private final BoardImpRepository boardImpRepository;
+
+    private final MemberRepository memberRepository;
+
+    public CommentImpVO getCommentById(Long id) {
+        CommentImp com = commentImpRepository.findById(id).orElse(null);
+
+        CommentImpVO vo = null;
+
+        if (com != null) {
+            vo = CommentImpVO.create(com);
+
+        } else {
+            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+
+        return vo;
     }
 
-    public CommentImp saveComment(CommentImp comment) {
-        return commentImpRepository.save(comment);
-    }
+    public CommentImpVO updateComment(CommentImpVO comment) {
+        Member writer = memberRepository.findById(comment.getWriterId()).orElse(null);
+        BoardImp board = boardImpRepository.findById(comment.getBoardId()).orElse(null);
 
-    public void updateComment(CommentImp comment) {
-        Optional<CommentImp> opt = commentImpRepository.findById(comment.getId());
-        opt.ifPresentOrElse(
-                comm -> {
-                    comm.updateContent(comment.getContent());
-                    commentImpRepository.save(comm);
-                },
-                () -> {
-                    throw new IllegalStateException("존재하지 않는 댓글입니다.");
-                }
+        CommentImp result = commentImpRepository.save(
+                CommentImp.builder()
+                        .id(comment.getId())
+                        .content(comment.getContent())
+                        .board(board)
+                        .writer(writer)
+                        .build()
         );
+
+        return CommentImpVO.create(result);
     }
 
     public void deleteCommentById(Long commentId) {
@@ -59,31 +70,52 @@ public class CommentImpService {
         comm.ifPresent(commentImpRepository::delete);
     }
 
-    public CommentImpPagenationVO getCommentsByBoard(BoardImp board, int page) {
-        Pageable pageable = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<CommentImp> pages = commentImpRepository.findAllByBoard(board, pageable);
+    public CommentImpPagenationVO getCommentsByBoard(Long boardId, int page, int size) {
+        BoardImp b = boardImpRepository.findById(boardId).orElse(null);
 
-        List<CommentImp> list = pages.getContent();
+        List<CommentImpVO> vos = null;
+        CommentImpPagenationVO result = null;
+        if (b != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<CommentImp> pages = commentImpRepository.findAllByBoard(b, pageable);
+            List<CommentImp> list = pages.getContent();
 
-        log.info("조회된 댓글 수 : {}", list.size());
+            log.info("조회된 댓글 수 : {}", list.size());
 
-        List<CommentImpVO> vos = new ArrayList<>();
-        list.forEach(imp -> {
-            Member writer = Hibernate.unproxy(imp.getWriter(), Member.class);
-            imp.updateWriter(writer);
-            imp.updateBoard(null);
-            vos.add(CommentImpVO.create(imp));
-        });
-        return CommentImpPagenationVO.builder()
-                .commentImpsList(vos)
-                .totalPageCnt(pages.getTotalPages())
-                .build();
+            vos = list.stream().map(CommentImpVO::create).toList();
+
+            result = CommentImpPagenationVO.builder()
+                    .commentImpsList(vos)
+                    .totalPageCnt(pages.getTotalPages())
+                    .build();
+        } else {
+            result = CommentImpPagenationVO.builder()
+                    .commentImpsList(new ArrayList<>())
+                    .totalPageCnt(0)
+                    .build();
+
+            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+
+        return result;
     }
 
-    public List<CommentImp> getCommentsByMember(Member member, int page) {
-        Pageable pageable = PageRequest.of(page, COMMENT_COUNT_PER_PAGE, Sort.by("regDate").descending());
-        Page<CommentImp> result = commentImpRepository.findAllByWriter(member, pageable);
+    public List<CommentImpVO> getCommentsByMember(Long memNo, int page, int size) {
+        Member mem = memberRepository.findById(memNo).orElse(null);
 
-        return result.getContent();
+        List<CommentImpVO> vos = new ArrayList<>();
+        if (mem != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<CommentImp> result = commentImpRepository.findAllByWriter(mem, pageable);
+            List<CommentImp> list = result.getContent();
+
+            vos = list.stream().map(CommentImpVO::create).toList();
+        } else {
+            log.error("해당 아이디의 회원 정보가 존재하지 않습니다.");
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return vos;
     }
 }
