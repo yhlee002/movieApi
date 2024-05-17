@@ -96,7 +96,9 @@ public class BoardApi {
                 .content(request.getContent())
                 .writerId(request.getWriterId())
                 .build();
-        BoardNoticeParam created = boardNoticeService.updateBoard(notice);
+        boardNoticeService.updateBoard(notice);
+
+        BoardNoticeParam created = boardNoticeService.findById(notice.getId());
 
         return new ResponseEntity<>(created, HttpStatus.OK);
     }
@@ -108,13 +110,15 @@ public class BoardApi {
      */
     @PatchMapping("/notice")
     public ResponseEntity<BoardNoticeParam> updateNotice(@RequestBody UpdateBoardRequest request) {
-        BoardNoticeParam notice = boardNoticeService.findById(request.getId());
+        BoardNoticeParam board = boardNoticeService.findById(request.getId());
 
-        notice.setTitle(request.getTitle());
-        notice.setContent(request.getContent());
-        BoardNoticeParam board = boardNoticeService.updateBoard(notice);
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        boardNoticeService.updateBoard(board);
 
-        return new ResponseEntity<>(board, HttpStatus.OK);
+        BoardNoticeParam foundBoard = boardNoticeService.findById(board.getId());
+
+        return new ResponseEntity<>(foundBoard, HttpStatus.OK);
     }
 
     /**
@@ -187,7 +191,8 @@ public class BoardApi {
     @PatchMapping("/imp")
     public ResponseEntity<BoardImpParam> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
         BoardImpParam boardImp = boardImpService.findById(request.getId());
-
+        boardImp.setTitle(request.getTitle());
+        boardImp.setContent(request.getContent());
         boardImpService.updateBoard(boardImp);
 
         BoardImpParam result = boardImpService.findById(boardImp.getId());

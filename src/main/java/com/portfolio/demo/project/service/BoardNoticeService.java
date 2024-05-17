@@ -65,6 +65,7 @@ public class BoardNoticeService {
             vo = BoardNoticeParam.create(board);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
 
         return vo;
@@ -115,101 +116,107 @@ public class BoardNoticeService {
     }
 
     /**
-     * 공지사항 게시글 수정
+     * 공지사항 게시글 작성
      *
-     * @param notice
+     * @param boardParam
      */
     @Transactional
-    public BoardNoticeParam updateBoard(BoardNoticeParam notice) {
-        Member member = memberRepository.findById(notice.getWriterId()).orElse(null);
+    public Long saveBoard(BoardNoticeParam boardParam) {
+        Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
 
-        BoardNoticeParam vo = null;
+        BoardNotice board = BoardNotice.builder()
+                .title(boardParam.getTitle())
+                .content(boardParam.getContent())
+                .writer(user)
+                .views(0)
+                .build();
 
-        if (member != null) {
-            BoardNotice modified = boardNoticeRepository.save(
-                    BoardNotice.builder()
-                            .id(notice.getId())
-                            .title(notice.getTitle())
-                            .content(notice.getContent())
-                            .writer(member)
-                            .views(notice.getViews())
-                            .build()
-            );
+        boardNoticeRepository.save(board);
 
-            vo = BoardNoticeParam.create(modified);
-        } else {
-            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-        }
+        return board.getId();
+}
 
-        return vo;
+/**
+ * 공지사항 게시글 수정
+ *
+ * @param notice
+ */
+@Transactional
+public Long updateBoard(BoardNoticeParam notice) {
+    BoardNotice board = boardNoticeRepository.findById(notice.getId()).orElse(null);
+
+    if (board != null) {
+        board.updateTitle(notice.getTitle());
+        board.updateContent(notice.getContent());
+    } else {
+        throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
     }
 
-    /**
-     * 공지사항 게시글 삭제
-     *
-     * @param boardId
-     */
-    @Transactional
-    public void deleteBoardByBoardId(Long boardId) {
-        Optional<BoardNotice> boardOpt = boardNoticeRepository.findById(boardId);
-        if (boardOpt.isPresent()) {
-            boardNoticeRepository.delete(boardOpt.get());
-        }
-    }
+    return board.getId();
+}
 
-    /**
-     * 선택된 공지사항 게시글 삭제
-     *
-     * @param boards
-     */
-    public void deleteBoards(List<BoardNoticeParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        List<BoardNotice> list = boards.stream().map(b -> BoardNotice.builder()
-                .id(b.getId())
-                .title(b.getTitle())
-                .content(b.getContent())
-                .writer(memberRepository.findById(b.getWriterId()).orElse(null))
-                .views(b.getViews())
-                .build()
-        ).toList();
+/**
+ * 공지사항 게시글 삭제
+ *
+ * @param boardId
+ */
+@Transactional
+public void deleteBoardByBoardId(Long boardId) {
+    boardNoticeRepository.findById(boardId).ifPresent(boardNoticeRepository::delete);
+}
 
-        boardNoticeRepository.deleteAll(list);
-    }
+/**
+ * 선택된 공지사항 게시글 삭제
+ *
+ * @param boards
+ */
+@Transactional
+public void deleteBoards(List<BoardNoticeParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+    boards.forEach(board -> {
+        BoardNotice b = boardNoticeRepository.findById(board.getId()).orElse(null);
 
-    /**
-     * 공지사항 게시글 조회수 증가
-     *
-     * @param boardId
-     */
-
-    @Transactional
-    public void upViewCntById(Long boardId) {
-        BoardNotice notice = boardNoticeRepository.findById(boardId).orElse(null);
-
-        if (notice != null) {
-            notice.updateViewCnt();
-            boardNoticeRepository.save(notice);
+        if (b != null) {
+            boardNoticeRepository.delete(b);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
+    });
+}
+
+/**
+ * 공지사항 게시글 조회수 증가
+ *
+ * @param boardId
+ */
+
+@Transactional
+public void upViewCntById(Long boardId) {
+    BoardNotice notice = boardNoticeRepository.findById(boardId).orElse(null);
+
+    if (notice != null) {
+        notice.updateViewCount(notice.getViews() + 1);
+    } else {
+        throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
     }
+}
 
-    /**
-     * 공지사항 게시글 조회(검색어가 존재)
-     *
-     * @param page
-     * @param keyword
-     */
-    @Transactional
-    public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
-        List<BoardNotice> list = pages.getContent();
+/**
+ * 공지사항 게시글 조회(검색어가 존재)
+ *
+ * @param page
+ * @param keyword
+ */
+@Transactional
+public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+    Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+    List<BoardNotice> list = pages.getContent();
 
-        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
+    List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
 
-        return NoticePagenationParam.builder()
-                .totalPageCnt(pages.getTotalPages())
-                .boardNoticeList(vos)
-                .build();
-    }
+    return NoticePagenationParam.builder()
+            .totalPageCnt(pages.getTotalPages())
+            .boardNoticeList(vos)
+            .build();
+}
 }

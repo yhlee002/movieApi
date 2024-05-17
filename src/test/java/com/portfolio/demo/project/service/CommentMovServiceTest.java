@@ -31,26 +31,31 @@ class CommentMovServiceTest {
     MemberParam createUser() {
         Member user = MemberTestDataBuilder.user().build();
         MemberParam member = MemberParam.create(user);
-        return memberService.updateMember(member);
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
     }
 
     MemberParam createRandomUser() {
         Member user = MemberTestDataBuilder.randomIdentifierUser().build();
         MemberParam member = MemberParam.create(user);
-        return memberService.updateMember(member);
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
     }
 
     CommentMovParam createComment(CommentMov comment, MemberParam member) {
         CommentMovParam comm = CommentMovParam.create(comment);
         comm.setWriterId(member.getMemNo());
-        return commentMovService.updateComment(comm);
+        Long id = commentMovService.saveComment(comm);
+
+        return commentMovService.findById(id);
     }
 
     @Test
     void 리뷰_작성() {
         // given
         MemberParam user = createUser();
-        memberService.updateMember(user);
 
         // when
         CommentMov c = CommentMovTestDataBuilder.noWayUpComment().build();
@@ -73,7 +78,7 @@ class CommentMovServiceTest {
         comment.setContent("Modified content.");
         commentMovService.updateComment(comment);
 
-        CommentMovParam foundComment = commentMovService.getCommentById(comment.getId());
+        CommentMovParam foundComment = commentMovService.findById(comment.getId());
 
         // then
         Assertions.assertEquals(1, foundComment.getRating());
@@ -90,7 +95,7 @@ class CommentMovServiceTest {
 
         // when
         commentMovService.deleteCommentById(comment.getId());
-        CommentMovParam foundComment = commentMovService.getCommentById(comment.getId());
+        CommentMovParam foundComment = commentMovService.findById(comment.getId());
 
         // then
         Assertions.assertNull(foundComment);

@@ -30,19 +30,24 @@ class BoardImpServiceTest {
     MemberParam createUser() {
         Member user = MemberTestDataBuilder.user().build();
         MemberParam member = MemberParam.create(user);
-        return memberService.updateMember(member);
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
     }
 
     MemberParam createRandomUser() {
         Member user = MemberTestDataBuilder.randomIdentifierUser().build();
         MemberParam member = MemberParam.create(user);
-        return memberService.updateMember(member);
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
     }
 
     BoardImpParam createBoard(BoardImp board, MemberParam member) {
         BoardImpParam imp = BoardImpParam.create(board);
         imp.setWriterId(member.getMemNo());
-        return boardImpService.updateBoard(imp);
+        Long id = boardImpService.saveBoard(imp);
+        return boardImpService.findById(id);
     }
 
     @Test
@@ -58,7 +63,7 @@ class BoardImpServiceTest {
             );
             created.setWriterId(user.getMemNo());
 
-            boardImpService.updateBoard(created);
+            boardImpService.saveBoard(created);
         }
 
         // when
@@ -127,21 +132,21 @@ class BoardImpServiceTest {
         BoardImpParam board1 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-1").build()
         );
-        boardImpService.updateBoard(board1);
+        boardImpService.saveBoard(board1);
 
         Thread.sleep(500);
 
         BoardImpParam board2 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-2").build()
         );
-        boardImpService.updateBoard(board2);
+        boardImpService.saveBoard(board2);
 
         Thread.sleep(500);
 
         BoardImpParam board3 = BoardImpParam.create(
                 BoardImpTestDataBuilder.board().title("test-board-3").build()
         );
-        boardImpService.updateBoard(board3);
+        boardImpService.saveBoard(board3);
 
         List<BoardImpParam> list = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
 
@@ -162,19 +167,19 @@ class BoardImpServiceTest {
         MemberParam user = createUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().title("board-1").build();
-        for (int n = 0; n < 3; n++) b1.updateViewCount();
+        b1.updateViewCount(3);
         BoardImpParam board = createBoard(b1, user);
-        boardImpService.updateBoard(board);
+        boardImpService.saveBoard(board);
 
         BoardImp b2 = BoardImpTestDataBuilder.board().title("board-2").build();
-        for (int n = 0; n < 10; n++) b2.updateViewCount();
+        b2.updateViewCount(10);
         BoardImpParam board2 = createBoard(b2, user);
-        boardImpService.updateBoard(board2);
+        boardImpService.saveBoard(board2);
 
         BoardImp b3 = BoardImpTestDataBuilder.board().title("board-3").build();
-        for (int n = 0; n < 7; n++) b3.updateViewCount();
+        b3.updateViewCount(7);
         BoardImpParam board3 = createBoard(b3, user);
-        boardImpService.updateBoard(board3);
+        boardImpService.saveBoard(board3);
 
         // when
         List<BoardImp> list = boardImpService.getMostFavImpBoard(3);
@@ -202,11 +207,10 @@ class BoardImpServiceTest {
 
         MemberParam user = memberService.findByMemNo(100L);
         BoardImp imp = BoardImpTestDataBuilder.board().build();
-        BoardImpParam board = createBoard(imp, user);
 
         // when & then
         Assertions.assertThrows(IllegalStateException.class, () -> {
-            boardImpService.updateBoard(board);
+            createBoard(imp, user);
         });
     }
 
@@ -221,7 +225,7 @@ class BoardImpServiceTest {
         BoardImpParam board = createBoard(imp, user);
 
         // then
-        Assertions.assertNotNull(imp.getId());
+        Assertions.assertNotNull(board.getId());
     }
 
     @Test
@@ -231,8 +235,6 @@ class BoardImpServiceTest {
 
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
         BoardImpParam board = createBoard(b1, user);
-        boardImpService.updateBoard(board);
-
         int views0 = board.getViews();
 
         boardImpService.upViewCntById(board.getId());
@@ -312,17 +314,17 @@ class BoardImpServiceTest {
     @Test
     void 작성자명으로_감상평_게시글_조회_페이지네이션vo() {
         // given
-        MemberParam user = memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.user().name("test-user").build()
-                )
+        MemberParam userParam = MemberParam.create(
+                MemberTestDataBuilder.user().name("test-user").build()
         );
+        Long memNo = memberService.saveMember(userParam);
+        MemberParam user = memberService.findByMemNo(memNo);
 
-        MemberParam user2 = memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
-                )
+        MemberParam userParam2 = MemberParam.create(
+                MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
         );
+        Long memNo2 = memberService.saveMember(userParam2);
+        MemberParam user2 = memberService.findByMemNo(memNo2);
 
         BoardImp b1 = BoardImpTestDataBuilder.board().build();
         createBoard(b1, user);
@@ -349,17 +351,17 @@ class BoardImpServiceTest {
     @Test
     void 제목_또는_내용으로_감상평_게시글_조회_페이지네이션vo() {
         // given
-        MemberParam user = memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.user().name("test-user").build()
-                )
+        MemberParam userParam = MemberParam.create(
+                MemberTestDataBuilder.user().name("test-user").build()
         );
+        Long memNo = memberService.saveMember(userParam);
+        MemberParam user = memberService.findByMemNo(memNo);
 
-        MemberParam user2 = memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
-                )
+        MemberParam userParam2 = MemberParam.create(
+                MemberTestDataBuilder.randomIdentifierUser().name("test-random-user").build()
         );
+        Long memNo2 = memberService.saveMember(userParam2);
+        MemberParam user2 = memberService.findByMemNo(memNo2);
 
         BoardImp b1 = BoardImpTestDataBuilder.board().title("테스트용 게시글입니다.").content("감상 후기를 작성하는 게시판입니다.").build();
         createBoard(b1, user);
