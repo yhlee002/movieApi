@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Builder
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentMov extends BaseEntity {
 
