@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,34 +25,6 @@ public class CommentMovService {
     private final CommentMovRepository commentMovRepository;
 
     private final MemberRepository memberRepository;
-
-    /**
-     * 댓글 작성
-     *
-     * @param comment
-     */
-    public CommentMovParam updateComment(CommentMovParam comment) {
-        Member user = memberRepository.findById(comment.getWriterId()).orElse(null);
-
-        CommentMovParam result = null;
-
-        if (user != null) {
-            CommentMov comm = commentMovRepository.save(
-                    CommentMov.builder()
-                            .id(comment.getId())
-                            .content(comment.getContent())
-                            .writer(user)
-                            .movieNo(comment.getMovieNo())
-                            .rating(comment.getRating())
-                            .build()
-            );
-            result = CommentMovParam.create(comm);
-        } else {
-            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", comment.getWriterId());
-        }
-
-        return result;
-    }
 
     /**
      * 추천순으로 댓글 조회(미개발)
@@ -136,15 +109,41 @@ public class CommentMovService {
     }
 
     /**
+     * 댓글 작성
+     *
+     * @param commentParam
+     */
+    public Long saveComment(CommentMovParam commentParam) {
+        Member user = memberRepository.findById(commentParam.getWriterId()).orElse(null);
+
+        CommentMov comment = CommentMov.builder()
+                .id(commentParam.getId())
+                .content(commentParam.getContent())
+                .writer(user)
+                .movieNo(commentParam.getMovieNo())
+                .rating(commentParam.getRating())
+                .build();
+
+        commentMovRepository.save(comment);
+
+        return comment.getId();
+    }
+
+    /**
      * 댓글 수정
      *
-     * @param commentId
-     * @param content
+     * @param commentParam
      */
-    public CommentMov updateMovComment(Long commentId, String content) {
-        CommentMov originImp = commentMovRepository.findById(commentId).get();
-        originImp.setContent(content);
-        return commentMovRepository.save(originImp);
+    public Long updateComment(CommentMovParam commentParam) {
+        CommentMov comment = commentMovRepository.findById(commentParam.getId()).orElse(null);
+
+        if (comment != null) {
+            comment.setContent(commentParam.getContent());
+        } else {
+            throw new IllegalStateException("해당 아이디의 댓글 정보가 존재하지 않습니다.");
+        }
+
+        return comment.getId();
     }
 
     /**
@@ -164,7 +163,7 @@ public class CommentMovService {
      *
      * @param commentId
      */
-    public CommentMovParam getCommentById(Long commentId) {
+    public CommentMovParam findById(Long commentId) {
         CommentMov comm = commentMovRepository.findById(commentId).orElse(null);
 
         CommentMovParam result = null;

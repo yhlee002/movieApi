@@ -113,37 +113,45 @@ public class BoardImpService {
     }
 
     /**
-     * 감상평 게시글 수정
+     * 감상평 게시글 작성
      *
-     * @param imp
+     * @param boardParam
      */
     @Transactional
-    public BoardImpParam updateBoard(BoardImpParam imp) {
+    public Long saveBoard(BoardImpParam boardParam) {
+
+        Member user = memberRepository.findById(boardParam.getId()).orElse(null);
+
+        BoardImp board = BoardImp.builder()
+                .title(boardParam.getTitle())
+                .content(boardParam.getContent())
+                .writer(user)
+                .views(0)
+                .recommended(0)
+                .build();
+
+        return board.getId();
+    }
+
+    /**
+     * 감상평 게시글 수정
+     *
+     * @param boardParam
+     */
+    @Transactional
+    public Long updateBoard(BoardImpParam boardParam) {
         // 작성자 정보 검증
-        Member writer = memberRepository.findById(imp.getWriterId()).orElse(null);
+        BoardImp board = boardImpRepository.findById(boardParam.getId()).orElse(null);
 
-        BoardImpParam result = null;
-
-        if (writer != null) {
-            log.info("작성자 정보(memNo : {}) : valid", writer.getMemNo());
-            BoardImp created = boardImpRepository.save(
-                    BoardImp.builder()
-                            .id(imp.getId())
-                            .title(imp.getTitle())
-                            .content(imp.getContent())
-                            .writer(writer)
-                            .views(imp.getViews())
-                            .recommended(imp.getRecommended())
-                            .build()
-            );
-
-            result = BoardImpParam.create(created);
+        if (board != null) {
+            board.updateTitle(boardParam.getTitle());
+            board.updateContent(boardParam.getContent());
         } else {
-//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
         }
 
-        return result;
+        return board.getId();
     }
 
     /**
@@ -169,16 +177,7 @@ public class BoardImpService {
     public void upViewCntById(Long id) {
         BoardImp imp = boardImpRepository.findById(id).orElse(null);
         if (imp != null) {
-            BoardImp modified = BoardImp.builder()
-                    .id(imp.getId())
-                    .title(imp.getTitle())
-                    .content(imp.getContent())
-                    .writer(imp.getWriter())
-                    .views(imp.getViews() + 1)
-                    .recommended(imp.getRecommended())
-                    .build();
-
-            boardImpRepository.save(modified);
+            imp.updateViewCount(imp.getViews() + 1);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }

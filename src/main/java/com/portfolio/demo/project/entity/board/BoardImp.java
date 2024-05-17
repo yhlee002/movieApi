@@ -39,7 +39,19 @@ public class BoardImp extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
 
-    public void updateViewCount() {
-        this.views++;
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateViewCount(int views) {
+        this.views = views;
+    }
+
+    public void updateRecommended(int recommended) {
+        this.recommended = recommended;
     }
 }

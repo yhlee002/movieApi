@@ -236,9 +236,8 @@ class BoardImpRepositoryTest {
             boardImpRepository.saveAndFlush(imp);
 
             int m = random.nextInt(10);
-            for (int i = 0; i < m; i++) {
-                imp.updateViewCount();
-            }
+            imp.updateViewCount(m);
+
             n++;
         }
         boardImpRepository.flush();

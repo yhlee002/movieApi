@@ -60,15 +60,18 @@ public class CommentApi {
     /**
      * 댓글 수정
      *
-     * @param content
-     * @param commentId
+     * @param request
      */
     @PatchMapping("/comment/movie")
-    public ResponseEntity<String> updateCommentMov(String content, Long commentId) {
-        if (commentMovService.updateMovComment(commentId, content) != null) {
-            return new ResponseEntity<>("success", HttpStatus.OK);
-        }
-        return new ResponseEntity<>("false", HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<String> updateCommentMov(UpdateCommentMovRequest request) {
+        CommentMovParam commentParam = CommentMovParam.builder()
+                .id(request.getCommentId())
+                .content(request.getContent())
+                .build();
+
+        commentMovService.updateComment(commentParam);
+
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
 

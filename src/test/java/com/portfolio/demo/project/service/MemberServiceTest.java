@@ -18,27 +18,27 @@ class MemberServiceTest {
     private MemberService memberService;
 
     MemberParam createAdmin() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.admin().build()
-                )
-        );
+        MemberParam admin = MemberParam.create(
+                MemberTestDataBuilder.admin().build());
+        Long memNo = memberService.saveMember(admin);
+
+        return memberService.findByMemNo(memNo);
     }
 
     MemberParam createUser() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.user().build()
-                )
-        );
+        MemberParam user = MemberParam.create(
+                MemberTestDataBuilder.user().build());
+        Long memNo = memberService.saveMember(user);
+
+        return memberService.findByMemNo(memNo);
     }
 
     MemberParam createRandomUser() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.randomIdentifierUser().build()
-                )
-        );
+        MemberParam user = MemberParam.create(
+                MemberTestDataBuilder.randomIdentifierUser().build());
+        Long memNo = memberService.saveMember(user);
+
+        return memberService.findByMemNo(memNo);
     }
 
     @Test
@@ -69,7 +69,7 @@ class MemberServiceTest {
     void name을_이용한_조회() {
         // given
         for (int i = 0; i < 5; i++) {
-            memberService.updateMember(
+            memberService.saveMember(
                     MemberParam.create(
                             MemberTestDataBuilder
                                     .randomIdentifierUser()
@@ -78,7 +78,7 @@ class MemberServiceTest {
                     )
             );
         }
-        memberService.updateMember(
+        memberService.saveMember(
                 MemberParam.create(
                         MemberTestDataBuilder
                                 .randomIdentifierUser()
@@ -101,7 +101,7 @@ class MemberServiceTest {
         // given
         String phone = "010-1111-2222";
         MemberParam user = MemberParam.create(MemberTestDataBuilder.user().phone(phone).build());
-        memberService.updateMember(user);
+        memberService.saveMember(user);
 
         // when
         MemberParam foundMember = memberService.findByPhone(phone);
@@ -116,7 +116,7 @@ class MemberServiceTest {
         // given
         String phone = "010-1111-2222";
         MemberParam user = MemberParam.create(MemberTestDataBuilder.user().phone(phone).build());
-        memberService.updateMember(user);
+        memberService.saveMember(user);
 
         // when
         Boolean exists = memberService.existsByPhone(phone);
@@ -146,8 +146,6 @@ class MemberServiceTest {
         MemberParam user = createUser();
 
         // when
-        memberService.updateMember(admin);
-        memberService.updateMember(user);
 
         // then
         Assertions.assertNotNull(admin.getMemNo());
@@ -163,7 +161,7 @@ class MemberServiceTest {
 
         // then
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            memberService.updateMember(user);
+            memberService.saveMember(user);
         });
     }
 
@@ -173,7 +171,6 @@ class MemberServiceTest {
         MemberParam user = createUser();
 
         // when
-        memberService.updateMember(user);
 
         // then
         Assertions.assertNotNull(user.getMemNo());
@@ -185,7 +182,7 @@ class MemberServiceTest {
         MemberParam user = MemberParam.create(
                 MemberTestDataBuilder.user().password("1234").build()
         );
-        memberService.updateMember(user);
+        memberService.saveMember(user);
 
         user.setPassword("5678");
         memberService.updateMember(user);
@@ -215,7 +212,6 @@ class MemberServiceTest {
         // given
         MemberParam admin = createAdmin();
         MemberParam user = createUser();
-        memberService.updateMember(admin);
 
         // when
         Authentication auth = memberService.getAuthentication(admin);
