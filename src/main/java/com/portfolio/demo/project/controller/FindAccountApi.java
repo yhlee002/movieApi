@@ -1,9 +1,9 @@
 package com.portfolio.demo.project.controller;
 
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.service.PhoneMessageService;
+import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +48,7 @@ public class FindAccountApi {
     // 존재하는 번호인지, aouth인증 회원인지 Ajax로 검증 - 있는 이메일이라면 문자 보낼지 확인 -> 확인시 문자 전송 후 /find-email2로 이동
     public Map<String, String> findEmailCheckPhone(String phone) {
         Map<String, String> result = new HashMap<>();
-        Member member = memberService.findByPhone(phone);
+        MemberVO member = memberService.findByPhone(phone);
         if (member != null && member.getProvider().equals("none")) {
             result.put("resultCode", "exist");
         } else if (member != null && (member.getProvider().equals("naver") || member.getProvider().equals("kakao"))) {
@@ -95,7 +95,7 @@ public class FindAccountApi {
         String phone = (String) session.getAttribute("phoneNum");
         session.removeAttribute("phoneNum");
 
-        Member member = memberService.findByPhone(phone);
+        MemberVO member = memberService.findByPhone(phone);
         model.addAttribute("email", member.getIdentifier());
         return "sign-in/findEmailResult";
     }
@@ -111,7 +111,7 @@ public class FindAccountApi {
     @ResponseBody
     @RequestMapping("/findPwd/checkEmail")
     public String findPwd2(@RequestParam String email) {
-        Member member = memberService.findByIdentifier(email);
+        MemberVO member = memberService.findByIdentifier(email);
         String result = "";
         if (member != null) {
             result = "exist";
@@ -131,7 +131,7 @@ public class FindAccountApi {
 
     @RequestMapping("/findPwd/cert-mail") // 메일 속 인증 링크가 연결되는 페이지
     public String certificationEmail(HttpSession session, @RequestParam Long memNo, @RequestParam String certKey) {
-        Member member = memberService.findByMemNo(memNo);
+        MemberVO member = memberService.findByMemNo(memNo);
         if (passwordEncoder.matches(certKey, member.getCertKey())) {
             session.setAttribute("memNo", memNo);
             memberService.updateCertKey(memNo); // 인증에 성공하면 certKey는 다시 갱신시키기

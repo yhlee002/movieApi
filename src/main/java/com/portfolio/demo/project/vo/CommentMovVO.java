@@ -3,16 +3,17 @@ package com.portfolio.demo.project.vo;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 @Builder
+@Setter
 @Getter
 @ToString
 public class CommentMovVO {
     private Long id;
-//    private Long writerId;
-//    private String writerName;
-    private MemberVO writer;
+    private Long writerId;
+    private String writerName;
     private Long movieNo;
     private String content;
     private String regDate;
@@ -21,9 +22,8 @@ public class CommentMovVO {
     public static CommentMovVO create(CommentMov mov) {
         return CommentMovVO.builder()
                 .id(mov.getId())
-//                .writerId(mov.getWriter().getMemNo())
-//                .writerName(mov.getWriter().getName())
-                .writer(MemberVO.create(mov.getWriter()))
+                .writerId(mov.getWriter().getMemNo())
+                .writerName(mov.getWriter().getName())
                 .movieNo(mov.getMovieNo())
                 .content(mov.getContent())
                 .regDate(mov.getRegDate())

@@ -49,7 +49,7 @@ public class MovieInfoApi {
     public ResponseEntity<List<TmdbMovieVO>> movieSearch(
             @RequestParam(name = "query") String query,
             @RequestParam(name = "includeAdult", required = false, defaultValue = "true") Boolean includeAdult,
-            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
             @RequestParam(name = "year", required = false) String year) {
         String q = URLDecoder.decode(query);
         List<TmdbMovieVO> movies = movieService.getMovieListByTitle(q, includeAdult, page, year);

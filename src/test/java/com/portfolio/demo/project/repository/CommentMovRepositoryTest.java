@@ -4,6 +4,7 @@ import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.CommentMovTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.vo.MemberVO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
@@ -32,11 +33,13 @@ class CommentMovRepositoryTest {
     private EntityManager entityManager;
 
     Member createUser() {
-        return MemberTestDataBuilder.user().build();
+        Member user = MemberTestDataBuilder.user().build();
+        return memberRepository.save(user);
     }
 
     Member createRandomMember() {
-        return MemberTestDataBuilder.randomIdentifierUser().build();
+        Member user = MemberTestDataBuilder.randomIdentifierUser().build();
+        return memberRepository.save(user);
     }
 
     @Test
@@ -45,15 +48,13 @@ class CommentMovRepositoryTest {
         Long movieId = 1096197L; // sample id(영화제목 : No Way Up)
 
         Member member = createRandomMember();
-        memberRepository.save(member);
 
-        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment(member)
-                .content("Nice movie!")
-                .build();
-        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment(member)
-                .content("Good!")
-                .build();
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment().content("Nice movie!").build();
+        commentMov.setWriter(member);
         commentMovRepository.save(commentMov);
+
+        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment().content("Good!").build();
+        commentMov2.setWriter(member);
         commentMovRepository.save(commentMov2);
 
         // when
@@ -70,27 +71,18 @@ class CommentMovRepositoryTest {
         Long movieId = 1096197L; // sample id(영화제목 : No Way Up)
 
         Member user = createRandomMember();
-        memberRepository.save(user);
-
         Member user2 = createRandomMember();
-        memberRepository.save(user2);
 
-        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment(user)
-                .content("Nice movie!")
-                .rating(5)
-                .build();
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment().content("Nice movie!").rating(5).build();
+        commentMov.setWriter(user);
         commentMovRepository.save(commentMov);
 
-        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment(user2)
-                .content("Good!")
-                .rating(5)
-                .build();
+        CommentMov commentMov2 = CommentMovTestDataBuilder.noWayUpComment().content("Good!").rating(5).build();
+        commentMov2.setWriter(user2);
         commentMovRepository.save(commentMov2);
 
-        CommentMov commentMov3 = CommentMovTestDataBuilder.noWayUpComment(user)
-                .content("So so..")
-                .rating(3)
-                .build();
+        CommentMov commentMov3 = CommentMovTestDataBuilder.noWayUpComment().content("So so..").rating(3).build();
+        commentMov3.setWriter(user);
         commentMovRepository.save(commentMov3);
 
         // when
@@ -118,12 +110,10 @@ class CommentMovRepositoryTest {
     void 영화_코멘트_작성() {
         // given
         Member member = createUser();
-        memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMovTestDataBuilder
-                .noWayUpComment(member)
-                .build();
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment().build();
+        commentMov.setWriter(member);
         commentMovRepository.save(commentMov);
 
         // then
@@ -134,16 +124,14 @@ class CommentMovRepositoryTest {
     void 영화_코멘트_수정() {
         // given
         Member member = createUser();
-        memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMovTestDataBuilder
-                .noWayUpComment(member)
-                .build();
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment().build();
+        commentMov.setWriter(member);
         commentMovRepository.save(commentMov);
 
-        commentMov.updateContent("Modified Content.");
-        commentMov.updateRating(2);
+        commentMov.setContent("Modified Content.");
+        commentMov.setRating(2);
         commentMovRepository.save(commentMov);
 
         // then
@@ -158,12 +146,10 @@ class CommentMovRepositoryTest {
     void 영화_코멘트_삭제() {
         // given
         Member member = createUser();
-        memberRepository.save(member);
 
         // when
-        CommentMov commentMov = CommentMovTestDataBuilder
-                .noWayUpComment(member)
-                .build();
+        CommentMov commentMov = CommentMovTestDataBuilder.noWayUpComment().build();
+        commentMov.setWriter(member);
         commentMovRepository.save(commentMov);
 
         // then

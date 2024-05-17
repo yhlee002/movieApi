@@ -1,9 +1,14 @@
 package com.portfolio.demo.project.entity.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.BaseEntity;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Table(name = "member")
 @Entity
@@ -45,6 +50,10 @@ public class Member extends BaseEntity {
     @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
     private String certification;
 
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "writer")
+    List<CommentImp> comments = new ArrayList<>();
+
     public void updateName(String name) {
         this.name = name;
     }
@@ -75,5 +84,9 @@ public class Member extends BaseEntity {
 
     public void updateCertification(String certification) {
         this.certification = certification;
+    }
+
+    public void updateComments(List<CommentImp> comments) {
+        this.comments = comments;
     }
 }

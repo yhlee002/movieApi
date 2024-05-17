@@ -4,6 +4,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
+import com.portfolio.demo.project.vo.MemberVO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -14,12 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpSession;
-
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,71 +28,150 @@ public class MemberService {
 
     private final TempKey tempKey;
 
-    public Member findByMemNo(Long memNo) {
-        Optional<Member> opt = memberRepository.findById(memNo);
+    public MemberVO findByMemNo(Long memNo) {
+        Member member = memberRepository.findById(memNo).orElse(null);
 
-        return opt.orElseGet(() -> null);
+        MemberVO result = null;
+        if (member != null) {
+            result = MemberVO.create(member);
+        } else {
+            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+        }
+
+        return result;
     }
 
-    public Member findByIdentifier(String identifier) {
-        return memberRepository.findByIdentifier(identifier);
+    public MemberVO findByIdentifier(String identifier) {
+        Member member = memberRepository.findByIdentifier(identifier);
+
+        MemberVO result = null;
+        if (member != null) {
+            result = MemberVO.create(member);
+        } else {
+            log.error("해당 식별자의 회원 정보가 존재하지 않습니다. (memNo = {})", identifier);
+        }
+
+        return result;
     }
 
-    public Member findByName(String name) {
-        return memberRepository.findByNameIgnoreCase(name);
+    public MemberVO findByName(String name) {
+        Member member = memberRepository.findByNameIgnoreCase(name);
+
+        MemberVO result = null;
+        if (member != null) {
+            result = MemberVO.create(member);
+        } else {
+            log.error("해당 이름의 회원 정보가 존재하지 않습니다. (memNo = {})", name);
+        }
+        return result;
     }
 
-    public List<Member> findAllByNameContaining(String name, int page, int size) {
+    public List<MemberVO> findAllByNameContaining(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        return memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
+        List<Member> list = memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
+
+        return list.stream().map(MemberVO::create).toList();
     }
 
-    public Member findByPhone(String phone) {
-        return memberRepository.findByPhone(phone);
+    public MemberVO findByPhone(String phone) {
+        Member member = memberRepository.findByPhone(phone);
+
+        MemberVO result = null;
+        if (member != null) {
+            result = MemberVO.create(member);
+        } else {
+            log.error("해당 휴대번호의 회원 정보가 존재하지 않습니다. (phone = {})", phone);
+        }
+
+        return result;
     }
 
     public Boolean existsByPhone(String phone) {
         return memberRepository.existsByPhone(phone);
     }
 
-    public Member findByIdentifierAndProvider(String identifier, String provider) {
-        return memberRepository.findByIdentifierAndProvider(identifier, provider);
+    public MemberVO findByIdentifierAndProvider(String identifier, String provider) {
+        Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
+        return MemberVO.create(mem);
     }
 
-    public Member saveMember(Member member) {
+    public MemberVO updateMember(MemberVO member) {
         if (member.getMemNo() == null) {
             if (member.getProvider().equals("none")) {
-                member.updatePassword(passwordEncoder.encode(member.getPassword()));
-                member.updateCertification("N");
+                member.setPassword(passwordEncoder.encode(member.getPassword()));
+                member.setCertification("N");
             } else {
-                member.updateCertification("Y");
+                member.setPassword("");
+                member.setCertification("Y");
             }
-            if (member.getRole() == null) member.updateRole("ROLE_USER");
+            if (member.getRole() == null) member.setRole("ROLE_USER");
         }
 
-        return memberRepository.save(member);
+        Member created = memberRepository.save(
+                Member.builder()
+                        .memNo(member.getMemNo())
+                        .identifier(member.getIdentifier())
+                        .name(member.getName())
+                        .role(member.getRole())
+                        .password(member.getPassword())
+                        .certification(member.getCertification())
+                        .certKey(member.getCertKey())
+                        .provider(member.getProvider())
+                        .phone(member.getPhone())
+                        .profileImage(member.getProfileImage())
+                        .build()
+        );
+
+        return MemberVO.create(created);
     }
 
-    public void saveOauthMember(Member member) {
-        memberRepository.save(member);
+    public MemberVO saveOauthMember(MemberVO member) {
+        Member created = memberRepository.save(
+                Member.builder()
+                        .memNo(member.getMemNo())
+                        .identifier(member.getIdentifier())
+                        .name(member.getName())
+                        .password(passwordEncoder.encode(member.getPassword()))
+                        .phone(member.getPhone())
+                        .profileImage(member.getProfileImage())
+                        .certification(member.getCertification())
+                        .certKey(member.getCertKey())
+                        .provider(member.getProvider())
+                        .build()
+        );
+
+        return MemberVO.create(created);
     }
 
     public void updatePwd(Long memNo, String pwd) {
-        Optional<Member> opt = memberRepository.findById(memNo);
-        if (opt.isPresent()) {
-            Member member = opt.get();
-            member.updatePassword(passwordEncoder.encode(pwd));
-            memberRepository.save(member);
+        Member member = memberRepository.findById(memNo).orElse(null);
+        if (member != null) {
+
+            Member modified = Member.builder()
+                    .memNo(member.getMemNo())
+                    .identifier(member.getIdentifier())
+                    .name(member.getName())
+                    .password(passwordEncoder.encode(pwd))
+                    .phone(member.getPhone())
+                    .profileImage(member.getProfileImage())
+                    .certification(member.getCertification())
+                    .certKey(member.getCertKey())
+                    .provider(member.getProvider())
+                    .build();
+
+            memberRepository.save(modified);
+
             log.info("회원 비밀번호 업데이트(회원 식별번호 : " + member.getMemNo() + ")");
         } else {
-            throw new IllegalStateException("존재하지 않는 회원입니다.");
+//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+            log.error("해당 아이디를 가진 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
         }
     }
 
     public void updateCertKey(Long memNo) {
         String certKey = tempKey.getKey(10, false);
 
-        Member member = memberRepository.findById(memNo).get();
+        Member member = memberRepository.findById(memNo).orElse(null);
         if (member != null) {
             member.updateCertKey(passwordEncoder.encode(certKey));
             memberRepository.save(member);
@@ -104,58 +179,18 @@ public class MemberService {
     }
 
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
-    public Authentication getAuthentication(Member member) {
-        UserDetail userDetail = new UserDetail(member);
+    public Authentication getAuthentication(MemberVO member) {
+        Member user = memberRepository.findByIdentifier(member.getIdentifier());
+        UserDetail userDetail = new UserDetail(user);
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
     }
 
-    public Member updateMember(Member member) {
-        Member originMember = null;
-        Optional<Member> originMemberOpt = memberRepository.findById(member.getMemNo());
-        if (originMemberOpt.isPresent()) {
-            originMember = originMemberOpt.get();
-
-            String name = member.getName();
-            String profileImg = member.getProfileImage();
-            String phone = member.getPhone();
-
-            /* 닉네임 체크 */
-            if (!name.equals(originMember.getName())) { // 이미 있는 원래 닉네임과 다를 경우 변경
-                originMember.updateName(name);
-            }
-            /* 프로필 이미지 체크 */
-            if (profileImg.length() != 0) { // 프로필 이미지가 존재할 때
-                if (!profileImg.equals(originMember.getProfileImage())) { // 프로필 이미지가 현재 DB의 프로필 이미지와 다르면(새로 등록했다면)
-                    originMember.updateProfileImage(profileImg); // 저장하기
-                }
-            } else { // 이미지가 없거나 있었다가 제거한 경우
-                originMember.updateProfileImage(null);
-            }
-            /* 연락처 체크 */
-            if (!phone.equals(originMember.getPhone())) { // 번호가 바뀐 경우
-                originMember.updatePhone(phone);
-            }
-
-            /* 비밀번호 null 체크 */
-            if (member.getProvider().equals("none")) {
-                if (member.getPassword() != null && member.getPassword().length() != 0) {
-                    originMember.updatePassword(passwordEncoder.encode(member.getPassword()));
-                }
-            }
-
-            originMember.updateName(member.getName()); // 닉네임 변경시 저장
-            originMember.updatePhone(member.getPhone()); // 번호 변경시 저장
-            memberRepository.save(originMember);
-
-            log.info("변경된 회원 정보 : " + originMember.toString());
-        }
-        return originMember;
-    }
-
     public void deleteMember(Long memNo) {
-        Optional<Member> opt = memberRepository.findById(memNo);
-        if (opt.isEmpty()) {
-            log.error("회원 삭제 실패 : 존재하지 않는 회원(MemNo : {})", memNo);
-        } else memberRepository.delete(opt.get());
+        Member member = memberRepository.findById(memNo).orElse(null);
+        if (member != null) {
+            memberRepository.delete(member);
+        } else {
+            log.error("해당 아이디를 가진 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+        }
     }
 }

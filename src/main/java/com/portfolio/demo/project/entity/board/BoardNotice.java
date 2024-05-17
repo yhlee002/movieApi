@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "board_notice")
 @Entity
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EntityListeners(AuditingEntityListener.class)
@@ -41,26 +42,7 @@ public class BoardNotice extends BaseEntity {
     @Column(name = "views")
     private int views = 0; // 조회수
 
-    @Builder
-    public BoardNotice(String title, Member writer, String content) {
-        this.title = title;
-        this.writer = writer;
-        this.content = content;
-    }
-
-    public void updateTitle(String title) {
-        this.title = title;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
-
-    public void updateViewCount() {
+    public void updateViewCnt() {
         this.views++;
-    }
-
-    public void updateWriter(Member writer) {
-        this.writer = writer;
     }
 }

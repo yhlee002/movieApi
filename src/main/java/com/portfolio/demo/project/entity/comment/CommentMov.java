@@ -16,8 +16,8 @@ import java.time.LocalDateTime;
 @Entity
 @Setter
 @Getter
-@ToString
-@EqualsAndHashCode
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CommentMov extends BaseEntity {
 
@@ -37,24 +37,4 @@ public class CommentMov extends BaseEntity {
 
     @Column(name = "rating")
     private int rating;
-
-    @Builder
-    public CommentMov(Member writer, String content, Long movieNo, int rating) {
-        this.writer = writer;
-        this.content = content;
-        this.movieNo = movieNo;
-        this.rating = rating;
-    }
-
-    public void updateContent(String content) {
-        this.content = content;
-    }
-
-    public void updateRating(int rating) {
-        this.rating = rating;
-    }
-
-    public void updateWriter(Member writer) {
-        this.writer = writer;
-    }
 }
