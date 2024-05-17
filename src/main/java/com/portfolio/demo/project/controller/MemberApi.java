@@ -129,7 +129,9 @@ public class MemberApi {
                     .certification("Y")
                     .build();
 
-            MemberParam created = memberService.saveOauthMember(member);
+            Long memNo = memberService.saveOauthMember(member);
+
+            MemberParam created = memberService.findByMemNo(memNo);
 
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 

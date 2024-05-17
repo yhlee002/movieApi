@@ -25,7 +25,7 @@ public class RememberMeTokenService implements PersistentTokenRepository {
         RememberMeToken rmT = new RememberMeToken(token);
         rememberMeTokenRepository.save(rmT);
 
-        log.info("token 발급 : "+ rmT.getToken().toString());
+        log.info("token 발급 : {}", rmT.getToken().toString());
     }
 
     @Override
