@@ -95,87 +95,91 @@ public class MemberService {
         return MemberParam.create(mem);
     }
 
-    public MemberParam updateMember(MemberParam member) {
-        if (member.getMemNo() == null) {
-            if (member.getProvider().equals("none")) {
-                member.setPassword(passwordEncoder.encode(member.getPassword()));
-                member.setCertification("N");
-            } else {
-                member.setPassword("");
-                member.setCertification("Y");
-            }
-            if (member.getRole() == null) member.setRole("ROLE_USER");
-        }
-
-        Member created = memberRepository.save(
-                Member.builder()
-                        .memNo(member.getMemNo())
-                        .identifier(member.getIdentifier())
-                        .name(member.getName())
-                        .role(member.getRole())
-                        .password(member.getPassword())
-                        .certification(member.getCertification())
-                        .certKey(member.getCertKey())
-                        .provider(member.getProvider())
-                        .phone(member.getPhone())
-                        .profileImage(member.getProfileImage())
-                        .build()
-        );
-
-        return MemberParam.create(created);
-    }
-
-    public MemberParam saveOauthMember(MemberParam member) {
-        Member created = memberRepository.save(
-                Member.builder()
-                        .memNo(member.getMemNo())
-                        .identifier(member.getIdentifier())
-                        .name(member.getName())
-                        .password(passwordEncoder.encode(member.getPassword()))
-                        .phone(member.getPhone())
-                        .profileImage(member.getProfileImage())
-                        .certification(member.getCertification())
-                        .certKey(member.getCertKey())
-                        .provider(member.getProvider())
-                        .build()
-        );
-
-        return MemberParam.create(created);
-    }
-
-    public void updatePwd(Long memNo, String pwd) {
-        Member member = memberRepository.findById(memNo).orElse(null);
-        if (member != null) {
-
-            Member modified = Member.builder()
-                    .memNo(member.getMemNo())
-                    .identifier(member.getIdentifier())
-                    .name(member.getName())
-                    .password(passwordEncoder.encode(pwd))
-                    .phone(member.getPhone())
-                    .profileImage(member.getProfileImage())
-                    .certification(member.getCertification())
-                    .certKey(member.getCertKey())
-                    .provider(member.getProvider())
-                    .build();
-
-            memberRepository.save(modified);
-
-            log.info("회원 비밀번호 업데이트(회원 식별번호 : " + member.getMemNo() + ")");
+    public Long saveMember(MemberParam memberParam) {
+        if (memberParam.getProvider().equals("none")) {
+            memberParam.setPassword(passwordEncoder.encode(memberParam.getPassword()));
+            memberParam.setCertification("N");
         } else {
-//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-            log.error("해당 아이디를 가진 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+            memberParam.setPassword("");
+            memberParam.setCertification("Y");
         }
+        if (memberParam.getRole() == null) memberParam.setRole("ROLE_USER");
+
+        Member member = Member.builder()
+                .memNo(null)
+                .identifier(memberParam.getIdentifier())
+                .name(memberParam.getName())
+                .role(memberParam.getRole())
+                .password(memberParam.getPassword())
+                .certification(memberParam.getCertification())
+                .certKey(memberParam.getCertKey())
+                .provider(memberParam.getProvider())
+                .phone(memberParam.getPhone())
+                .profileImage(memberParam.getProfileImage())
+                .build();
+
+        memberRepository.save(member);
+
+        return member.getMemNo();
     }
 
-    public void updateCertKey(Long memNo) {
+    public Long updateMember(MemberParam memberParam) {
+        Member member = memberRepository.findById(memberParam.getMemNo()).orElse(null);
+
+        if (member != null) {
+            member.updateName(memberParam.getName());
+            member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+            member.updatePhone(memberParam.getPhone());
+            member.updateProfileImage(memberParam.getProfileImage());
+            member.updateCertification(memberParam.getCertification());
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return member.getMemNo();
+    }
+
+    public Long saveOauthMember(MemberParam memberParam) {
+        Member member = Member.builder()
+                .memNo(memberParam.getMemNo())
+                .identifier(memberParam.getIdentifier())
+                .name(memberParam.getName())
+                .password(passwordEncoder.encode(memberParam.getPassword()))
+                .phone(memberParam.getPhone())
+                .profileImage(memberParam.getProfileImage())
+                .certification(memberParam.getCertification())
+                .certKey(memberParam.getCertKey())
+                .provider(memberParam.getProvider())
+                .build();
+        memberRepository.save(member);
+
+        return member.getMemNo();
+    }
+
+    public Long updatePwd(Long memNo, String pwd) {
+        Member member = memberRepository.findById(memNo).orElse(null);
+
+        if (member != null) {
+            member.updatePassword(passwordEncoder.encode(pwd));
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return member.getMemNo();
+    }
+
+    public Long updateCertKey(Long memNo) {
         String certKey = tempKey.getKey(10, false);
 
         Member member = memberRepository.findById(memNo).orElse(null);
+
         if (member != null) {
             member.updateCertKey(passwordEncoder.encode(certKey));
-            memberRepository.save(member);
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }
+
+        return member.getMemNo();
     }
 
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */

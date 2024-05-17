@@ -89,7 +89,7 @@ public class MemberApi {
         if ("none".equals(request.getProvider())) {
             // 이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용
             log.info("전송된 유저 정보 : {}", request);
-            MemberParam created = memberService.updateMember(
+            Long memNo = memberService.updateMember(
                     MemberParam.builder()
                             .identifier(request.getIdentifier())
                             .name(request.getName())
@@ -98,10 +98,11 @@ public class MemberApi {
                             .phone(request.getPhone())
                             .build()
             );
-            Map<String, String> result = mailService.sendGreetingMail(request.getIdentifier());
 
+            MemberParam created = memberService.findByMemNo(memNo);
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
+            Map<String, String> result = mailService.sendGreetingMail(request.getIdentifier());
             if (result.get("resultCode").equals("success")) {
                 return new ResponseEntity<>(created, HttpStatus.CREATED);
             } else {

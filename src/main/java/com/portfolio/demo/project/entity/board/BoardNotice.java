@@ -42,7 +42,15 @@ public class BoardNotice extends BaseEntity {
     @Column(name = "views")
     private int views = 0; // 조회수
 
-    public void updateViewCnt() {
-        this.views++;
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateViewCount(int views) {
+        this.views = views;
     }
 }

@@ -33,7 +33,7 @@ public class CommentImpService {
 
     private final MemberRepository memberRepository;
 
-    public CommentImpParam getCommentById(Long id) {
+    public CommentImpParam findById(Long id) {
         CommentImp com = commentImpRepository.findById(id).orElse(null);
 
         CommentImpParam vo = null;
@@ -49,20 +49,28 @@ public class CommentImpService {
         return vo;
     }
 
-    public CommentImpParam updateComment(CommentImpParam comment) {
+    public Long saveComment(CommentImpParam comment) {
         Member writer = memberRepository.findById(comment.getWriterId()).orElse(null);
         BoardImp board = boardImpRepository.findById(comment.getBoardId()).orElse(null);
 
-        CommentImp result = commentImpRepository.save(
-                CommentImp.builder()
-                        .id(comment.getId())
-                        .content(comment.getContent())
-                        .board(board)
-                        .writer(writer)
-                        .build()
-        );
+        CommentImp result = CommentImp.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .board(board)
+                .writer(writer)
+                .build();
 
-        return CommentImpParam.create(result);
+        commentImpRepository.save(result);
+
+        return result.getId();
+    }
+
+    public Long updateComment(CommentImpParam commentParam) {
+        CommentImp comment = commentImpRepository.findById(commentParam.getId()).orElse(null);
+
+        comment.updateContent(commentParam.getContent());
+
+        return comment.getId();
     }
 
     public void deleteCommentById(Long commentId) {

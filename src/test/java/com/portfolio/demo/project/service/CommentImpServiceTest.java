@@ -31,32 +31,37 @@ class CommentImpServiceTest {
     private BoardImpService boardImpService;
 
     MemberParam createUser() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.user().build()
-                )
-        );
+        MemberParam member = MemberParam.create(
+                MemberTestDataBuilder.user().build());
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
+
     }
 
     MemberParam createRandomUser() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.randomIdentifierUser().build()
-                )
-        );
+        MemberParam member = MemberParam.create(
+                MemberTestDataBuilder.randomIdentifierUser().build());
+        Long memNo = memberService.saveMember(member);
+
+        return memberService.findByMemNo(memNo);
     }
 
     BoardImpParam createBoard(BoardImp board, MemberParam member) {
         BoardImpParam imp = BoardImpParam.create(board);
         imp.setWriterId(member.getMemNo());
-        return boardImpService.updateBoard(imp);
+        Long id = boardImpService.saveBoard(imp);
+
+        return boardImpService.findById(id);
     }
 
     CommentImpParam createComment(CommentImp comment, BoardImpParam board, MemberParam member) {
         CommentImpParam comm = CommentImpParam.create(comment);
         comm.setBoardId(board.getId());
         comm.setWriterId(member.getMemNo());
-        return commentImpService.updateComment(comm);
+        Long id = commentImpService.saveComment(comm);
+
+        return commentImpService.findById(id);
     }
 
 //    @BeforeEach
@@ -106,7 +111,7 @@ class CommentImpServiceTest {
         comm.setContent("Modified content.");
         commentImpService.updateComment(comm);
 
-        CommentImpParam foundComment = commentImpService.getCommentById(comm.getId());
+        CommentImpParam foundComment = commentImpService.findById(comm.getId());
 
         // then
         Assertions.assertEquals("Modified content.", foundComment.getContent());
@@ -125,7 +130,7 @@ class CommentImpServiceTest {
 
         // when
         commentImpService.deleteCommentById(comm.getId());
-        CommentImpParam foundComment = commentImpService.getCommentById(comm.getId());
+        CommentImpParam foundComment = commentImpService.findById(comm.getId());
 
         // then
         Assertions.assertNull(foundComment);

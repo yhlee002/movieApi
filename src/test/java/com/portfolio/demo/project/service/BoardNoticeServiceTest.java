@@ -32,25 +32,24 @@ class BoardNoticeServiceTest {
     BoardNoticeService boardNoticeService;
 
     MemberParam createAdmin() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.admin().build()
-                )
-        );
+        MemberParam admin = MemberParam.create(
+                MemberTestDataBuilder.admin().build());
+        Long memNo = memberService.saveMember(admin);
+        return memberService.findByMemNo(memNo);
     }
 
     MemberParam createUser() {
-        return memberService.updateMember(
-                MemberParam.create(
-                        MemberTestDataBuilder.user().build()
-                )
-        );
+        MemberParam user = MemberParam.create(
+                MemberTestDataBuilder.user().build());
+        Long memNo = memberService.saveMember(user);
+        return memberService.findByMemNo(memNo);
     }
 
     BoardNoticeParam createBoard(BoardNotice notice, MemberParam member) {
         BoardNoticeParam board = BoardNoticeParam.create(notice);
         board.setWriterId(member.getMemNo());
-        return boardNoticeService.updateBoard(board);
+        Long id = boardNoticeService.saveBoard(board);
+        return boardNoticeService.findById(id);
     }
 
     @Test
