@@ -34,4 +34,11 @@ public class RememberMeToken {
     public void updateLastUsed(Date lastUsed) {
         this.lastUsed = lastUsed;
     }
+
+    public RememberMeToken(PersistentRememberMeToken token) {
+        this.series = token.getSeries();
+        this.username = token.getUsername();
+        this.token = token.getTokenValue();
+        this.lastUsed = token.getDate();
+    }
 }
