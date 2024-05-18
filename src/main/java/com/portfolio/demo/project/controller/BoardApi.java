@@ -91,7 +91,6 @@ public class BoardApi {
     @PostMapping("/notice")
     public ResponseEntity<BoardNoticeParam> createNotice(@RequestBody CreateBoardRequest request) {
         BoardNoticeParam notice = BoardNoticeParam.builder()
-                .id(request.getId())
                 .title(request.getTitle())
                 .content(request.getContent())
                 .writerId(request.getWriterId())
@@ -110,10 +109,11 @@ public class BoardApi {
      */
     @PatchMapping("/notice")
     public ResponseEntity<BoardNoticeParam> updateNotice(@RequestBody UpdateBoardRequest request) {
-        BoardNoticeParam board = boardNoticeService.findById(request.getId());
-
-        board.setTitle(request.getTitle());
-        board.setContent(request.getContent());
+        BoardNoticeParam board = BoardNoticeParam.builder()
+                .id(request.getId())
+                .title(request.getTitle())
+                .content(request.getContent())
+                .build();
         boardNoticeService.updateBoard(board);
 
         BoardNoticeParam foundBoard = boardNoticeService.findById(board.getId());
@@ -142,11 +142,12 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/imps")
-    public ResponseEntity<ImpressionPagenationParam> imps(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-                                                          @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-                                                          @RequestParam(name = "con", required = false) String condition,
-                                                          @RequestParam(name = "query", required = false) String query) {
-
+    public ResponseEntity<ImpressionPagenationParam> imps(
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+            @RequestParam(name = "con", required = false) String condition,
+            @RequestParam(name = "query", required = false) String query
+    ) {
         ImpressionPagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = switch (condition) {

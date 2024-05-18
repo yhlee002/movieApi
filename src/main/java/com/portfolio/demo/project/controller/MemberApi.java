@@ -10,6 +10,7 @@ import com.portfolio.demo.project.dto.SocialProfileParam;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -441,22 +442,29 @@ public class MemberApi {
 
     @Data
     static class CreateMemberRequest {
+        @NotEmpty
         private String identifier;
         private String password;
+        @NotEmpty
         private String name;
+        @NotEmpty
         private String phone;
+        @NotEmpty
         private String provider;
     }
 
     @Data
     static class SigninRequest {
+        @NotEmpty
         private String identifier;
         private String password;
     }
 
     @Data
     static class CertMailValidationRequest {
+        @NotEmpty
         private Long memNo;
+        @NotEmpty
         private String certKey;
     }
 }
