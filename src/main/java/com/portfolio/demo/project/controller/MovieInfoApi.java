@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.service.MovieService;
-import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.dto.BoxOfficeParam;
 import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
 import com.portfolio.demo.project.dto.kobis.movie.KobisMovieVO;
@@ -27,8 +26,6 @@ import java.util.Map;
 public class MovieInfoApi {
 
     private final MovieService movieService;
-
-    private final CommentMovService commentMovService;
 
 //    @Deprecated
 //    @GetMapping("/movieInfo/{movieCd}")
