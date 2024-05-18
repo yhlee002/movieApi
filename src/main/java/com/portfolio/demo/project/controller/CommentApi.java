@@ -29,9 +29,10 @@ public class CommentApi {
      * @return
      */
     @GetMapping("/comment/movie")
-    public ResponseEntity<CommentMovPagenationParam> getMovieComments(@RequestParam("movieNo") Long movieNo,
-                                                                      @RequestParam(name = "page") int page,
-                                                                      @RequestParam(name = "size") int size
+    public ResponseEntity<CommentMovPagenationParam> getCommentMovs(
+            @RequestParam("movieNo") Long movieNo,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
         CommentMovPagenationParam vos = commentMovService.getCommentsByMovie(movieNo, page, size);
         return new ResponseEntity<>(vos, HttpStatus.OK);
@@ -43,13 +44,12 @@ public class CommentApi {
      * @param request
      */
     @PostMapping("/comment/movie")
-    public ResponseEntity<String> writeCommentMovieInfo(UpdateCommentMovRequest request) {
+    public ResponseEntity<String> createCommentMov(CreateCommentMovRequest request) {
         commentMovService.updateComment(
                 CommentMovParam.builder()
-                        .id(request.getCommentId())
                         .movieNo(request.getMovieNo())
                         .content(request.getContent())
-                        .writerId(request.getMemNo())
+                        .writerId(request.getWriterId())
                         .rating(request.getRating())
                         .build()
         );
@@ -67,6 +67,7 @@ public class CommentApi {
         CommentMovParam commentParam = CommentMovParam.builder()
                 .id(request.getCommentId())
                 .content(request.getContent())
+                .rating(request.getRating())
                 .build();
 
         commentMovService.updateComment(commentParam);
@@ -94,10 +95,13 @@ public class CommentApi {
      * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
      */
     @GetMapping("/comment/movie/checkMemNo")
-    public ResponseEntity<List<CommentMovParam>> getMovieCommentListByMemNo(Long memNo, int page, int size) {
+    public ResponseEntity<List<CommentMovParam>> getCommentMovsByMemNo(
+            @RequestParam(name = "memNo") Long memNo,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "20") int size) {
         List<CommentMovParam> commList = commentMovService.getCommentsByMember(memNo, page, size);
 
-        log.info("조회된 댓글 리스트 : " + commList);
+        log.info("조회된 댓글 수 : {}", commList);
 
         return new ResponseEntity<>(commList, HttpStatus.OK);
     }
@@ -111,7 +115,7 @@ public class CommentApi {
      * @param page
      */
     @GetMapping("/comments/imp")
-    public ResponseEntity<CommentImpPagenationParam> getCommentList(
+    public ResponseEntity<CommentImpPagenationParam> getCommentImpsByBoard(
             @RequestParam(name = "boardId") Long boardId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
@@ -123,17 +127,15 @@ public class CommentApi {
     /**
      * 댓글 작성
      *
-     * @param content
-     * @param boardId
-     * @param memNo
+     * @param request
      */
     @PostMapping("/comment/imp")
-    public void writeCommentImp(String content, Long boardId, Long memNo) {
+    public void writeCommentImp(CreateCommentImpRequest request) {
         commentImpService.updateComment(
                 CommentImpParam.builder()
-                        .content(content)
-                        .boardId(boardId)
-                        .writerId(memNo)
+                        .content(request.getContent())
+                        .boardId(request.getBoardId())
+                        .writerId(request.getWriterId())
                         .build());
     }
 
@@ -146,7 +148,7 @@ public class CommentApi {
     public void updateCommentImp(@RequestBody UpdateCommentImpRequest request) {
         CommentImpParam comm = CommentImpParam.builder()
                 .id(request.getCommentId())
-                .writerId(request.getMemNo())
+                .writerId(request.getWriterId())
                 .content(request.getContent())
                 .boardId(request.getBoardId())
                 .build();
@@ -166,13 +168,17 @@ public class CommentApi {
     }
 
     @GetMapping("/comment/imp/checkMemNo")
-    public List<CommentImpParam> getCommentListByMemNo(Long memNo, int page, int size) {
+    public List<CommentImpParam> getCommentListByMemNo(
+            @RequestParam(name = "memNo") Long memNo,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "20") int size
+    ) {
         return commentImpService.getCommentsByMember(memNo, page, size);
     }
 
     @Data
     static class CreateCommentMovRequest {
-        private Long memNo;
+        private Long writerId;
         private Long movieNo;
         private String content;
         private Integer rating;
@@ -180,7 +186,7 @@ public class CommentApi {
 
     @Data
     static class UpdateCommentMovRequest {
-        private Long memNo;
+        private Long writerId;
         private Long movieNo;
         private Long commentId;
         private String content;
@@ -188,8 +194,15 @@ public class CommentApi {
     }
 
     @Data
+    static class CreateCommentImpRequest {
+        private Long writerId;
+        private Long boardId;
+        private String content;
+    }
+
+    @Data
     static class UpdateCommentImpRequest {
-        private Long memNo;
+        private Long writerId;
         private Long boardId;
         private Long commentId;
         private String content;
