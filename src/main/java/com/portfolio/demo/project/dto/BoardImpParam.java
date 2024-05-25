@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Builder
 @Setter
 @Getter
@@ -19,7 +21,7 @@ public class BoardImpParam {
     private String regDate;
     private int views;
     private int recommended;
-    private int commentSize;
+    private List<CommentImpParam> comments;
 
     public static BoardImpParam create(BoardImp board) {
         return BoardImpParam.builder()
@@ -31,7 +33,6 @@ public class BoardImpParam {
                 .regDate(board.getRegDate())
                 .views(board.getViews())
                 .recommended(board.getRecommended())
-                .commentSize(board.getComments().size())
                 .build();
     }
 }

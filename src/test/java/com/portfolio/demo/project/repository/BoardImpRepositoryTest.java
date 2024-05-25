@@ -1,10 +1,12 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.dto.BoardImpParam;
+import com.portfolio.demo.project.dto.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.board.BoardNotice;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
-import com.portfolio.demo.project.model.BoardNoticeTestDataBuilder;
+import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,17 +38,20 @@ class BoardImpRepositoryTest {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private CommentImpRepository commentImpRepository;
+
     @PersistenceContext
     private EntityManager entityManager;
 
-    @BeforeEach
-    public void setUp() {
-        boardImpRepository.deleteAll();
-        boardImpRepository.flush();
-        memberRepository.deleteAll();
-        memberRepository.flush();
-        entityManager.clear();
-    }
+//    @BeforeEach
+//    public void setUp() {
+//        boardImpRepository.deleteAll();
+//        boardImpRepository.flush();
+//        memberRepository.deleteAll();
+//        memberRepository.flush();
+//        entityManager.clear();
+//    }
 
     Member createUser() {
         Member user = MemberTestDataBuilder.user().build();
@@ -56,6 +63,13 @@ class BoardImpRepositoryTest {
         Member user = MemberTestDataBuilder.randomIdentifierUser().build();
         memberRepository.save(user);
         return user;
+    }
+
+    CommentImp createRandomComment(BoardImp board) {
+        CommentImp comment = CommentImpTestDataBuilder.randomComment()
+                .writer(createRandomUser()).board(board).build();
+        commentImpRepository.save(comment);
+        return comment;
     }
 
     @Test
@@ -94,6 +108,54 @@ class BoardImpRepositoryTest {
         // then
         Assertions.assertEquals(3, page.getContent().size());
         Assertions.assertIterableEquals(boardList, page.getContent());
+    }
+
+    @Test
+    void 모든_후기_게시글_조회_패치조인_컬렉션최적화() {
+        //        Map<Long, List<CommentImpParam>> collect = comments.stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
+        // given
+        Member user = createUser();
+
+        BoardImp board = BoardImpTestDataBuilder.board().writer(user)
+                .title("test-board-1").content("test-content-1").build();
+        boardImpRepository.save(board);
+
+        BoardImp board2 = BoardImpTestDataBuilder.board().writer(user)
+                .title("test-board-2").content("test-content-2").build();
+        boardImpRepository.save(board2);
+
+        BoardImp board3 = BoardImpTestDataBuilder.board().writer(user)
+                .title("test-board-3").content("test-content-3").build();
+        boardImpRepository.save(board3);
+
+        createRandomComment(board);
+        createRandomComment(board2);
+        createRandomComment(board2);
+        createRandomComment(board3);
+
+        entityManager.flush();
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
+        Pageable pageable2 = PageRequest.of(0, 100, Sort.by("regDate").descending());
+
+        Page<BoardImp> page = boardImpRepository.findAll(pageable);
+        List<BoardImp> boardList = page.getContent();
+        List<Long> ids = boardList.stream().map(BoardImp::getId).collect(Collectors.toList());
+
+        Page<CommentImpParam> commentPage = commentImpRepository.findAllParamsByBoardIds(ids, pageable2);
+        Map<Long, List<CommentImpParam>> commentMap = commentPage.getContent().stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
+
+        List<BoardImpParam> boardParams = boardList.stream().map(BoardImpParam::create).collect(Collectors.toList());
+        boardParams.forEach(b -> {
+            b.setComments(commentMap.get(b.getId()));
+        });
+
+        // then
+        Assertions.assertEquals(3, boardParams.size());
+        Assertions.assertEquals(1, boardParams.get(0).getComments().size());
+        Assertions.assertEquals(2, boardParams.get(1).getComments().size());
+        Assertions.assertEquals(1, boardParams.get(2).getComments().size());
     }
 
     @Test
@@ -176,6 +238,37 @@ class BoardImpRepositoryTest {
     }
 
     @Test
+    void 후기_게시글_식별번호를_이용한_단건_조회_패치조인_컬렉션최적화() {
+        // given
+        BoardImp imp = BoardImpTestDataBuilder.board()
+                .writer(createUser())
+                .build();
+        boardImpRepository.save(imp);
+
+        Member commentWriter1 = createRandomUser();
+        Member commentWriter2 = createRandomUser();
+
+        CommentImp comment1 = CommentImpTestDataBuilder.randomComment()
+                .board(imp).writer(commentWriter1).build();
+        commentImpRepository.save(comment1);
+
+        CommentImp comment2 = CommentImpTestDataBuilder.randomComment()
+                .board(imp).writer(commentWriter2).build();
+        commentImpRepository.save(comment2);
+
+        entityManager.flush();
+
+        BoardImpParam boardParam = BoardImpParam.create(imp);
+
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
+        Page<CommentImpParam> commentPage = commentImpRepository.findAllParamsByBoardId(imp.getId(), pageable);
+        List<CommentImpParam> comments = commentPage.getContent();
+        boardParam.setComments(comments);
+
+        Assertions.assertEquals(2, boardParam.getComments().size());
+    }
+
+    @Test
     void 후기_게시글_식별번호를_이용한_이전글_조회() {
         // given
         Member user = createUser();
@@ -191,8 +284,7 @@ class BoardImpRepositoryTest {
         boardImpRepository.save(nextBoard);
 
         // when
-        BoardImp foundBoard = boardImpRepository.findPrevBoardImpById(nextBoard.getId());
-
+        BoardImp foundBoard = boardImpRepository.findPrevBoardImpById(prevBoard.getId());
         // then
         Assertions.assertEquals(prevBoard.getId(), foundBoard.getId());
         org.assertj.core.api.Assertions.assertThat(prevBoard).isEqualTo(foundBoard);
@@ -249,10 +341,6 @@ class BoardImpRepositoryTest {
         // then
         Assertions.assertEquals(3, list.size());
         Assertions.assertEquals(5, list2.size());
-
-        list.stream().map(BoardImp::getViews).forEach(System.out::println);
-        System.out.println("-------------------");
-        list2.stream().map(BoardImp::getViews).forEach(System.out::println);
     }
 
     @Test
