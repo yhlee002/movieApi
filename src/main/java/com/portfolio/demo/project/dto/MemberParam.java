@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import lombok.ToString;
 public class MemberParam {
     private Long memNo;
     private String identifier;
+    @JsonIgnore
     private String password;
     private String name;
     private String profileImage;
@@ -21,6 +23,7 @@ public class MemberParam {
     private String role;
     private String provider;
     private String certification;
+    @JsonIgnore
     private String certKey;
 
     public static MemberParam create(Member member) {

@@ -12,25 +12,28 @@ import java.util.List;
 
 public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 
+    @Query(value = "select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = :id")
+    BoardImp findOneById(@Param("id") Long id);
+
     /**
      * 이전글
      *
      * @param id
      * @return
      */
-    @Query(value = "select b.* from board_imp b join member m on b.writer_no = m.mem_no where b.id = " +
-            "(select b.id from board_imp b where b.id < :id order by b.id desc limit 1)"
-            , nativeQuery = true)
-    BoardImp findPrevBoardImpById(Long id);
+    @Query(value = "select b from BoardImp b join fetch b.writer m where b.id = " +
+            "(select b.id from BoardImp b where b.id < :id order by b.id desc limit 1)")
+    BoardImp findPrevBoardImpById(@Param("id") Long id);
 
     /**
      * 다음글
      *
      * @param id
      */
-    @Query(value = "select b.* from board_imp b join member m on b.writer_no = m.mem_no where b.id = " +
-            "(select b.id from board_imp b where b.id > :id order by b.id limit 1)"
-            , nativeQuery = true)
+    @Query(value = "select b from BoardImp b join b.writer m where b.id = " +
+            "(select b.id from BoardImp b where b.id > :id order by b.id limit 1)")
     BoardImp findNextBoardImpById(Long id);
 
     /**

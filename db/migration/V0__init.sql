@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS member (
     `role` enum('ROLE_USER','ROLE_ADMIN') DEFAULT 'ROLE_USER' COMMENT '권한(일반회원과 관리자 구분)',
     `certification` char(1) DEFAULT '0' COMMENT '인증 여부(소셜 api를 이용하지 않고 회원가입할 경우 메일 인증 여부 저장)',
     `cert_key` varchar(100) DEFAULT NULL COMMENT '메일 인증에 사용되는 키(해시)',
-    PRIMARY KEY (`mem_no`)
+    PRIMARY KEY (`mem_no`),
+    UNIQUE KEY (`identifier`),
+    UNIQUE KEY (`name`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='사용자 정보';
 
 CREATE TABLE IF NOT EXISTS board_imp (
@@ -19,8 +21,8 @@ CREATE TABLE IF NOT EXISTS board_imp (
     `title` varchar(20) NOT NULL COMMENT '게시글 제목',
     `content` text NOT NULL COMMENT '게시글 내용',
     `reg_dt` timestamp COMMENT '후기 작성일자',
+    `recommended` integer NOT NULL DEFAULT '0' COMMENT '추천수',
     `views` int DEFAULT '0' COMMENT '조회수',
-    PRIMARY KEY (`id`),
     KEY `writer_no` (`writer_no`),
     CONSTRAINT `board_imp_ibfk_1` FOREIGN KEY (`writer_no`) REFERENCES `member` (`mem_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='후기 감상 게시글';
