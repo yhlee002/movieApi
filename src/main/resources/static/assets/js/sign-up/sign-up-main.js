@@ -92,7 +92,7 @@ $(function () {
                     // 이름(닉네임)을 가져와 에이잭스로 DB에 존재하는 이름(닉네임)인지 확인
                     $.ajax({
                         url: "/sign-up/nameCk",
-                        type: "post",
+                        type: "get",
                         data: {'name': name},
                         dataType: "text",
                         beforeSend: function (xhr) {

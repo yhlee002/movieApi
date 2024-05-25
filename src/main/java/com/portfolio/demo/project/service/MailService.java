@@ -3,13 +3,12 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.util.TempKey;
+import dev.akkinoc.util.YamlResourceBundle;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +31,7 @@ public class MailService {
 
     private final MemberRepository memberRepository;
 
-    private static ResourceBundle properties = ResourceBundle.getBundle("application");
+    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
 
     private String host = null;
     private Integer port = null;
@@ -40,7 +39,7 @@ public class MailService {
     {
         try {
             host = InetAddress.getLocalHost().getHostAddress();
-            port = Integer.parseInt(properties.getString("server.port"));
+            port = (Integer) properties.getObject("server.port");
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }

@@ -16,6 +16,15 @@ public class CommentImpParam {
     private String content;
     private String regDate;
 
+    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, String regDate) {
+        this.id = id;
+        this.boardId = boardId;
+        this.writerId = writerId;
+        this.writerName = writerName;
+        this.content = content;
+        this.regDate = regDate;
+    }
+
     public static CommentImpParam create(CommentImp imp) {
         return CommentImpParam.builder()
                 .id(imp.getId())

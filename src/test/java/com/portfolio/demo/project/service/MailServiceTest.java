@@ -20,11 +20,12 @@ public class MailServiceTest {
     private MemberService memberService;
 
     MemberParam createUser() {
-        return memberService.updateMember(
+        Long id = memberService.saveMember(
                 MemberParam.create(
                         MemberTestDataBuilder.user().identifier("xxxoxxo00201@gmail.com").build()
                 )
         );
+        return memberService.findByMemNo(id);
     }
 
     @Test
