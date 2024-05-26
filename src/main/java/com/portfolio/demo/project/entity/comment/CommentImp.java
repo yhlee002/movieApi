@@ -20,7 +20,6 @@ public class CommentImp extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private BoardImp board;
@@ -29,7 +28,6 @@ public class CommentImp extends BaseEntity {
     @JoinColumn(name = "writer_mem_no")
     private Member writer;
 
-    @Column(name = "content")
     private String content;
 
     public void updateBoard(BoardImp board) {

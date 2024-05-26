@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
+import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -117,7 +118,7 @@ public class MyPageApi {
 
     @ResponseBody
     @RequestMapping(value = "/mypage/uploadProfileImage_proc")
-    public JsonObject uploadProfileImageProc(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Result<JsonObject>> uploadProfileImageProc(@RequestParam("file") MultipartFile file) {
         /* 실제로 넘어온 이미지를 서버에 업로드하고 DB의 프로필 이미지 경로를 수정 */
         ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
         String fileRoot = resourceBundle.getString("profileImageFileRoot");
@@ -140,7 +141,7 @@ public class MyPageApi {
             jsonObject.addProperty("responseCode", "error");
         }
 
-        return jsonObject;
+        return new ResponseEntity<>(new Result<>(jsonObject), HttpStatus.OK);
     }
 
     /**
@@ -158,9 +159,10 @@ public class MyPageApi {
      * @return 해당 핸드폰 번호로 저장되어있는 사용자 수
      */
     @GetMapping("/mypage/modify_info/phone/check/exist")
-    public ResponseEntity<Boolean> phoneCkProc(@RequestParam String phone) {
-        return new ResponseEntity<>(memberService.existsByPhone(phone)
-                , HttpStatus.OK);
+    public ResponseEntity<Result<Boolean>> phoneCkProc(@RequestParam String phone) {
+        var result = memberService.existsByPhone(phone);
+
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     /**
@@ -170,7 +172,7 @@ public class MyPageApi {
      * @return 인증번호 전송 결과
      */
     @PostMapping("/mypage/modify_info/phone/check")
-    public ResponseEntity<String> phoneCertForm(HttpSession session, @RequestParam String phone) {
+    public ResponseEntity<Result<String>> phoneCertForm(HttpSession session, @RequestParam String phone) {
         Map<String, String> resultMap = messageService.sendCertificationMessage(phone);
         String result = resultMap.get("result");
         String certKey = resultMap.get("certKey");
@@ -178,10 +180,10 @@ public class MyPageApi {
         if (result.equals("success")) {
             session.setAttribute("phoneNum", phone);
             session.setAttribute("certKey", certKey);
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.BAD_REQUEST);
     }
 
 //    @GetMapping("/mypage/modify_info/phone2")
@@ -197,7 +199,7 @@ public class MyPageApi {
      */
     @ResponseBody
     @RequestMapping("/mypage/modify_info/phone/check/certmessage")
-    public ResponseEntity<Map<String, String>> checkPhoneCertVal(HttpSession session, String certKey) {
+    public ResponseEntity<Result<Map<String, String>>> checkPhoneCertVal(HttpSession session, String certKey) {
         Map<String, String> result = new HashMap<>();
         String phone = (String) session.getAttribute("phoneNum");
         session.removeAttribute("phoneNum");
@@ -211,7 +213,7 @@ public class MyPageApi {
             result.put("resultCode", "false");
         }
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
 }

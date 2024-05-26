@@ -17,7 +17,6 @@ public class PersistantLogins {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String series;
 
-    @Column(name = "username")
     private String username;
 
     @Column(name = "TOKEN")

@@ -25,21 +25,18 @@ public class BoardNotice extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 글 번호
 
-    @Column(name = "title", nullable = false)
     private String title; // 제목
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_no")
     private Member writer;
 
-    @Column(name = "content", nullable = false)
     private String content; // 내용
 
     @Column(name = "mod_dt")
     @LastModifiedDate
     private String modDate; // 최종 수정 시간
 
-    @Column(name = "views")
     private int views = 0; // 조회수
 
     public void updateTitle(String title) {

@@ -32,9 +32,7 @@ public class CommentMov extends BaseEntity {
     @Column(name = "movie_no")
     private Long movieNo;
 
-    @Column(name = "content")
     private String content;
 
-    @Column(name = "rating")
     private int rating;
 }

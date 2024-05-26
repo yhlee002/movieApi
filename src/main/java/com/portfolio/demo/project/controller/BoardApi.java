@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -36,7 +37,7 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/notices")
-    public ResponseEntity<NoticePagenationParam> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
+    public ResponseEntity<Result<NoticePagenationParam>> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
                                                          @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
                                                          @RequestParam(name = "query", required = false) String query) {
 
@@ -47,7 +48,7 @@ public class BoardApi {
             pagenationVO = boardNoticeService.getAllBoards(pageNum, size);
         }
 
-        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(pagenationVO), HttpStatus.OK);
     }
 
     /**
@@ -56,7 +57,7 @@ public class BoardApi {
      * @param id
      */
     @GetMapping("/notice/{id}")
-    public ResponseEntity<MultiBoardNoticeResponse> notice(@PathVariable Long id) {
+    public ResponseEntity<Result<MultiBoardNoticeResponse>> notice(@PathVariable Long id) {
         MultiBoardNoticeResponse response = new MultiBoardNoticeResponse();
         BoardNoticeParam board = boardNoticeService.findById(id);
         BoardNoticeParam prev = boardNoticeService.findPrevById(id);
@@ -66,7 +67,7 @@ public class BoardApi {
         response.setPrevBoard(prev);
         response.setNextBoard(next);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
     /**
@@ -76,11 +77,11 @@ public class BoardApi {
      * @return
      */
     @PatchMapping("/notice/view")
-    public ResponseEntity<BoardNoticeParam> updateViews(@RequestBody UpdateBoardRequest request) {
+    public ResponseEntity<Result<BoardNoticeParam>> updateViews(@RequestBody UpdateBoardRequest request) {
         boardNoticeService.upViewCntById(request.getId());
         BoardNoticeParam notice = boardNoticeService.findById(request.getId());
 
-        return new ResponseEntity<>(notice, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(notice), HttpStatus.OK);
     }
 
     /**
@@ -89,17 +90,19 @@ public class BoardApi {
      * @param request
      */
     @PostMapping("/notice")
-    public ResponseEntity<BoardNoticeParam> createNotice(@RequestBody CreateBoardRequest request) {
+    public ResponseEntity<Result<BoardNoticeParam>> createNotice(@RequestBody CreateBoardRequest request) {
         BoardNoticeParam notice = BoardNoticeParam.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .writerId(request.getWriterId())
                 .build();
-        boardNoticeService.updateBoard(notice);
+        Long id = boardNoticeService.updateBoard(notice);
 
-        BoardNoticeParam created = boardNoticeService.findById(notice.getId());
+        BoardNoticeParam created = boardNoticeService.findById(id);
 
-        return new ResponseEntity<>(created, HttpStatus.OK);
+        Result<BoardNoticeParam> result = new Result<>();
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     /**
@@ -108,17 +111,17 @@ public class BoardApi {
      * @param request
      */
     @PatchMapping("/notice")
-    public ResponseEntity<BoardNoticeParam> updateNotice(@RequestBody UpdateBoardRequest request) {
+    public ResponseEntity<Result<BoardNoticeParam>> updateNotice(@RequestBody UpdateBoardRequest request) {
         BoardNoticeParam board = BoardNoticeParam.builder()
                 .id(request.getId())
                 .title(request.getTitle())
                 .content(request.getContent())
                 .build();
-        boardNoticeService.updateBoard(board);
+        Long id = boardNoticeService.updateBoard(board);
 
-        BoardNoticeParam foundBoard = boardNoticeService.findById(board.getId());
+        BoardNoticeParam foundBoard = boardNoticeService.findById(id);
 
-        return new ResponseEntity<>(foundBoard, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(foundBoard), HttpStatus.OK);
     }
 
     /**
@@ -127,10 +130,10 @@ public class BoardApi {
      * @param boardId
      */
     @DeleteMapping("/notice")
-    public ResponseEntity<Boolean> deleteNotice(Long boardId) {
+    public ResponseEntity<Result<Boolean>> deleteNotice(Long boardId) {
         boardNoticeService.deleteBoardByBoardId(boardId);
 
-        return new ResponseEntity<>(true, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
     }
 
     /**
@@ -142,7 +145,7 @@ public class BoardApi {
      * @param query
      */
     @GetMapping("/imps")
-    public ResponseEntity<ImpressionPagenationParam> imps(
+    public ResponseEntity<Result<ImpressionPagenationParam>> imps(
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
             @RequestParam(name = "con", required = false) String condition,
@@ -160,7 +163,7 @@ public class BoardApi {
             pagenationVO = boardImpService.getAllBoards(pageNum, size);
         }
 
-        return new ResponseEntity<>(pagenationVO, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(pagenationVO), HttpStatus.OK);
     }
 
     /**
@@ -170,7 +173,7 @@ public class BoardApi {
      * @return
      */
     @GetMapping("/imp/{id}")
-    public ResponseEntity<MultiBoardImpResponse> impDetail(@PathVariable Long id) {
+    public ResponseEntity<Result<MultiBoardImpResponse>> impDetail(@PathVariable Long id) {
         BoardImpParam board = boardImpService.findById(id);
         BoardImpParam prev = boardImpService.findPrevById(id);
         BoardImpParam next = boardImpService.findNextById(id);
@@ -180,7 +183,7 @@ public class BoardApi {
         response.setPrevBoard(prev);
         response.setNextBoard(next);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
     /**
@@ -190,15 +193,15 @@ public class BoardApi {
      */
     @ResponseBody
     @PatchMapping("/imp")
-    public ResponseEntity<BoardImpParam> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
+    public ResponseEntity<Result<BoardImpParam>> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
         BoardImpParam boardImp = boardImpService.findById(request.getId());
         boardImp.setTitle(request.getTitle());
         boardImp.setContent(request.getContent());
         boardImpService.updateBoard(boardImp);
 
-        BoardImpParam result = boardImpService.findById(boardImp.getId());
+        BoardImpParam board = boardImpService.findById(boardImp.getId());
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(board), HttpStatus.OK);
     }
 
     /**
@@ -218,7 +221,7 @@ public class BoardApi {
      */
     @PutMapping(value = "/summernoteImageFile", produces = "application/json")
     @ResponseBody
-    public JsonObject uploadSummernoteImage(@RequestParam("file") MultipartFile multipartFile) {
+    public ResponseEntity<Result<JsonObject>> uploadSummernoteImage(@RequestParam("file") MultipartFile multipartFile) {
 
         log.info("들어온 파일 원래 이름 : " + multipartFile.getOriginalFilename() + ", size : " + multipartFile.getSize());
 
@@ -244,9 +247,9 @@ public class BoardApi {
             FileUtils.deleteQuietly(targetFile); // 저장된 파일 삭제
             jsonObject.addProperty("responseCode", "error");
             e.printStackTrace();
-        }
+        };
 
-        return jsonObject;
+        return new ResponseEntity<>(new Result<>(jsonObject), HttpStatus.OK);
     }
 
     @Data

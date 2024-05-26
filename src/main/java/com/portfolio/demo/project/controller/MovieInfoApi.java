@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.MovieService;
 import com.portfolio.demo.project.dto.BoxOfficeParam;
 import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
@@ -43,7 +44,7 @@ public class MovieInfoApi {
 //
 
     @GetMapping("/movie/search")
-    public ResponseEntity<List<TmdbMovieVO>> movieSearch(
+    public ResponseEntity<Result<List<TmdbMovieVO>>> movieSearch(
             @RequestParam(name = "query") String query,
             @RequestParam(name = "includeAdult", required = false, defaultValue = "true") Boolean includeAdult,
             @RequestParam(name = "page", required = false, defaultValue = "0") Integer page,
@@ -51,7 +52,7 @@ public class MovieInfoApi {
         String q = URLDecoder.decode(query);
         List<TmdbMovieVO> movies = movieService.getMovieListByTitle(q, includeAdult, page, year);
 
-        return new ResponseEntity<>(movies, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(movies), HttpStatus.OK);
     }
 
     /**
@@ -60,14 +61,14 @@ public class MovieInfoApi {
      * @param movieCd
      */
     @GetMapping("/movie/k/{movieCd}")
-    public ResponseEntity<Map<String, Object>> kobisMovie(@PathVariable String movieCd) {
+    public ResponseEntity<Result<Map<String, Object>>> kobisMovie(@PathVariable String movieCd) {
         Map<String, Object> result = movieService.getMovieInfo(movieCd);
 
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     @GetMapping("/movie/boxoffice/daily")
-    public ResponseEntity<List<BoxOfficeParam>> dailyBoxOffice() {
+    public ResponseEntity<Result<List<BoxOfficeParam>>> dailyBoxOffice() {
         List<KobisMovieVO> list = movieService.getDailyBoxOfficeList();
 
         List<BoxOfficeParam> result = new ArrayList<>();
@@ -79,11 +80,11 @@ public class MovieInfoApi {
                     .build());
         }
         log.info("조회된 주간 박스오피스(데이터 수 : {})", result.size());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     @GetMapping("/movie/boxoffice/weekly")
-    public ResponseEntity<List<BoxOfficeParam>> weeklyBoxOffice() {
+    public ResponseEntity<Result<List<BoxOfficeParam>>> weeklyBoxOffice() {
         List<KobisMovieVO> list = movieService.getWeeklyBoxOfficeList();
 
         List<BoxOfficeParam> result = new ArrayList<>();
@@ -96,15 +97,18 @@ public class MovieInfoApi {
                     .build());
         }
         log.info("조회된 주말 박스오피스(데이터 수 : {})", list.size());
-        return new ResponseEntity<>(result, HttpStatus.OK);
+
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     /**
      * TMDB 영화 API 설정 조회
      */
     @GetMapping("/movie/t/configuration")
-    public ResponseEntity<ImageConfigurationVO> getTmdbConfigurationDetails() {
-        return new ResponseEntity<>(movieService.getTmdbConfigurationDetails(), HttpStatus.OK);
+    public ResponseEntity<Result<ImageConfigurationVO>> getTmdbConfigurationDetails() {
+        var result = movieService.getTmdbConfigurationDetails();
+
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     /**
