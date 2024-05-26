@@ -29,13 +29,14 @@ public class CommentApi {
      * @return
      */
     @GetMapping("/comment/movie")
-    public ResponseEntity<CommentMovPagenationParam> getCommentMovs(
+    public ResponseEntity<Result<CommentMovPagenationParam>> getCommentMovs(
             @RequestParam("movieNo") Long movieNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
         CommentMovPagenationParam vos = commentMovService.getCommentsByMovie(movieNo, page, size);
-        return new ResponseEntity<>(vos, HttpStatus.OK);
+
+        return new ResponseEntity<>(new Result<>(vos), HttpStatus.OK);
     }
 
     /**
@@ -44,7 +45,7 @@ public class CommentApi {
      * @param request
      */
     @PostMapping("/comment/movie")
-    public ResponseEntity<String> createCommentMov(CreateCommentMovRequest request) {
+    public ResponseEntity<Result<String>> createCommentMov(CreateCommentMovRequest request) {
         commentMovService.updateComment(
                 CommentMovParam.builder()
                         .movieNo(request.getMovieNo())
@@ -54,7 +55,7 @@ public class CommentApi {
                         .build()
         );
 
-        return new ResponseEntity<>("success", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new Result<>("success"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -63,7 +64,7 @@ public class CommentApi {
      * @param request
      */
     @PatchMapping("/comment/movie")
-    public ResponseEntity<String> updateCommentMov(UpdateCommentMovRequest request) {
+    public ResponseEntity<Result<String>> updateCommentMov(UpdateCommentMovRequest request) {
         CommentMovParam commentParam = CommentMovParam.builder()
                 .id(request.getCommentId())
                 .content(request.getContent())
@@ -72,7 +73,7 @@ public class CommentApi {
 
         commentMovService.updateComment(commentParam);
 
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>("success"), HttpStatus.OK);
     }
 
 
@@ -95,7 +96,7 @@ public class CommentApi {
      * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
      */
     @GetMapping("/comment/movie/checkMemNo")
-    public ResponseEntity<List<CommentMovParam>> getCommentMovsByMemNo(
+    public ResponseEntity<Result<List<CommentMovParam>>> getCommentMovsByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size) {
@@ -103,7 +104,7 @@ public class CommentApi {
 
         log.info("조회된 댓글 수 : {}", commList);
 
-        return new ResponseEntity<>(commList, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(commList), HttpStatus.OK);
     }
 
     // ------------ 영화 감상 후기 게시판 댓글 ------------ //
@@ -115,13 +116,14 @@ public class CommentApi {
      * @param page
      */
     @GetMapping("/comments/imp")
-    public ResponseEntity<CommentImpPagenationParam> getCommentImpsByBoard(
+    public ResponseEntity<Result<CommentImpPagenationParam>> getCommentImpsByBoard(
             @RequestParam(name = "boardId") Long boardId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
         CommentImpPagenationParam vo = commentImpService.getCommentsByBoard(boardId, page, size);
-        return new ResponseEntity<>(vo, HttpStatus.OK);
+
+        return new ResponseEntity<>(new Result<>(vo), HttpStatus.OK);
     }
 
     /**
@@ -168,12 +170,14 @@ public class CommentApi {
     }
 
     @GetMapping("/comment/imp/checkMemNo")
-    public List<CommentImpParam> getCommentListByMemNo(
+    public ResponseEntity<Result<List<CommentImpParam>>> getCommentListByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
-        return commentImpService.getCommentsByMember(memNo, page, size);
+        List<CommentImpParam> comments = commentImpService.getCommentsByMember(memNo, page, size);
+
+        return new ResponseEntity<>(new Result<>(comments), HttpStatus.OK);
     }
 
     @Data

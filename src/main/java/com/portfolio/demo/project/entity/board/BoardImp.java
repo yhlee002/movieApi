@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.board;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
@@ -35,7 +34,6 @@ public class BoardImp extends BaseEntity {
 
     private int recommended;
 
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
 

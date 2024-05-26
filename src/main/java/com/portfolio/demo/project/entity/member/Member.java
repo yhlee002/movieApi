@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.member;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
@@ -45,7 +44,6 @@ public class Member extends BaseEntity {
     @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
     private String certification;
 
-    @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "writer")
     List<CommentImp> comments = new ArrayList<>();
 
