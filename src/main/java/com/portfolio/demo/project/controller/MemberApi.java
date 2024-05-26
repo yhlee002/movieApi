@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
@@ -61,9 +62,10 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/auth")
-    public ResponseEntity<MemberParam> getCurrentMember(HttpSession session) {
+    public ResponseEntity<Result<MemberParam>> getCurrentMember(HttpSession session) {
         MemberParam member = (MemberParam) session.getAttribute("member");
-        return new ResponseEntity<>(member, HttpStatus.OK);
+
+        return new ResponseEntity<>(new Result<>(member), HttpStatus.OK);
     }
 
     /**
@@ -73,9 +75,9 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/{id}")
-    public ResponseEntity<MemberParam> getMember(@PathVariable Long id) {
+    public ResponseEntity<Result<MemberParam>> getMember(@PathVariable Long id) {
         MemberParam user = memberService.findByMemNo(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(user), HttpStatus.OK);
     }
 
     /**
@@ -86,7 +88,7 @@ public class MemberApi {
      * @return
      */
     @PostMapping("/member")
-    public ResponseEntity<MemberParam> signUp(HttpSession session, @RequestBody CreateMemberRequest request) {
+    public ResponseEntity<Result<MemberParam>> signUp(HttpSession session, @RequestBody CreateMemberRequest request) {
         if ("none".equals(request.getProvider())) {
             // 이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용
             log.info("전송된 유저 정보 : {}", request);
@@ -105,7 +107,7 @@ public class MemberApi {
 
             Map<String, String> result = mailService.sendGreetingMail(request.getIdentifier());
             if (result.get("resultCode").equals("success")) {
-                return new ResponseEntity<>(created, HttpStatus.CREATED);
+                return new ResponseEntity<>(new Result<>(created), HttpStatus.CREATED);
             } else {
                 throw new IllegalStateException();
             }
@@ -136,7 +138,7 @@ public class MemberApi {
 
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
-            return new ResponseEntity<>(created, HttpStatus.CREATED);
+            return new ResponseEntity<>(new Result<>(created), HttpStatus.CREATED);
         }
     }
 
@@ -149,7 +151,7 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member")
-    public ResponseEntity<MemberParam> findMember(@RequestParam(name = "identifier", required = false) String identifier,
+    public ResponseEntity<Result<MemberParam>> findMember(@RequestParam(name = "identifier", required = false) String identifier,
                                                   @RequestParam(name = "name", required = false) String name,
                                                   @RequestParam(name = "phone", required = false) String phone
     ) {
@@ -166,7 +168,7 @@ public class MemberApi {
             log.info("휴대번호({})를 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
         }
 
-        return new ResponseEntity<>(member, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(member), HttpStatus.OK);
     }
 
     /**
@@ -175,7 +177,7 @@ public class MemberApi {
      * @param session
      */
     @GetMapping("/member/oauth2-url")
-    public ResponseEntity<Map<String, String>> getOauthAuthorizationURL(HttpSession session) throws UnsupportedEncodingException {
+    public ResponseEntity<Result<Map<String, String>>> getOauthAuthorizationURL(HttpSession session) throws UnsupportedEncodingException {
 
         SocialLoginParam naverLoginData = naverLoginApiUtil.getAuthorizeData();
         SocialLoginParam kakaoLoginData = kakaoLoginApiUtil.getAuthorizeData();
@@ -186,7 +188,7 @@ public class MemberApi {
         Map<String, String> map = new HashMap<>();
         map.put("naver", naverLoginData.getApiUrl());
         map.put("kakao", kakaoLoginData.getApiUrl());
-        return new ResponseEntity<>(map, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(map), HttpStatus.OK);
     }
 
     /**
@@ -303,7 +305,7 @@ public class MemberApi {
      */
     @PostMapping("/sign-in/check")
     @ResponseBody
-    public ResponseEntity<String> checkInputParams(@RequestBody SigninRequest request) {
+    public ResponseEntity<Result<String>> checkInputParams(@RequestBody SigninRequest request) {
         MemberParam foundMember = memberService.findByIdentifier(request.getIdentifier());
 
         String msg = "";
@@ -325,7 +327,7 @@ public class MemberApi {
             msg = "not user";
         }
 
-        return new ResponseEntity<>(msg, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(msg), HttpStatus.OK);
     }
 
     /**
@@ -349,9 +351,9 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/oauth-profile")
-    public ResponseEntity<SocialProfileParam> getOauthProfile(HttpSession session) {
+    public ResponseEntity<Result<SocialProfileParam>> getOauthProfile(HttpSession session) {
         SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
-        return new ResponseEntity<>(profile, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(profile), HttpStatus.OK);
     }
 
     /**
@@ -362,8 +364,10 @@ public class MemberApi {
      */
     @ResponseBody
     @GetMapping("/cert-mail")
-    public Map<String, String> sendCertMail(@RequestParam(name = "email") String email) {
-        return mailService.sendGreetingMail(email);
+    public ResponseEntity<Result<Map<String, String>>> sendCertMail(@RequestParam(name = "email") String email) {
+        var result = mailService.sendGreetingMail(email);
+
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     /**
@@ -375,7 +379,7 @@ public class MemberApi {
      * @return
      */
     @PostMapping("/cert-mail")
-    public ResponseEntity<MemberParam> validateEmailByCertKey(@RequestBody CertMailValidationRequest request) {
+    public ResponseEntity<Result<MemberParam>> validateEmailByCertKey(@RequestBody CertMailValidationRequest request) {
         // authKey는 해싱된 상태로 링크에 파라미터로 추가되어 이메일 전송됨
         // DB에 저장된 해당 회원의 certKey와 일치하는지 확인하고 정보 수정
         MemberParam member = memberService.findByMemNo(request.getMemNo());
@@ -385,7 +389,7 @@ public class MemberApi {
             member = certUtil.changeCertStatus(member);
             memberService.updateMember(member);
 
-            return new ResponseEntity<>(member, HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(member), HttpStatus.OK);
 
         } else throw new IllegalStateException("인증 정보가 일치하지 않습니다.");
     }
@@ -398,7 +402,7 @@ public class MemberApi {
      * @return
      */
     @PostMapping("/cert-message")
-    public ResponseEntity<Boolean> sendCertMessage(HttpSession session, @RequestParam String phone) {
+    public ResponseEntity<Result<Boolean>> sendCertMessage(HttpSession session, @RequestParam String phone) {
 
         Map<String, String> resultMap = phoneMessageService.sendCertificationMessage(phone);
         String result = resultMap.get("result");
@@ -410,10 +414,10 @@ public class MemberApi {
 
             log.info("phoneAuthKey 인코딩 전 값 : {}", phoneAuthKey);
 
-            return new ResponseEntity<>(true, HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -424,7 +428,7 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/cert-message") // 인증키 일치 여부 확인 페이지
-    public ResponseEntity<Map<String, String>> validateCertMessage(HttpSession session, @RequestParam String certKey) {
+    public ResponseEntity<Result<Map<String, String>>> validateCertMessage(HttpSession session, @RequestParam String certKey) {
         Map<String, String> result = new HashMap<>();
 
         String phoneAuthCertKey = (String) session.getAttribute("phoneAuthCertKey");
@@ -437,7 +441,7 @@ public class MemberApi {
         } else {
             result.put("resultCode", "fail");
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     @Data
