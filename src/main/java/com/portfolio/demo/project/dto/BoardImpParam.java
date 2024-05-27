@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -18,7 +19,7 @@ public class BoardImpParam {
     private String content;
     private Long writerId;
     private String writerName;
-    private String regDate;
+    private LocalDateTime regDate;
     private int views;
     private int recommended;
     private List<CommentImpParam> comments;
