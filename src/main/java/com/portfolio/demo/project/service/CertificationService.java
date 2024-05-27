@@ -103,7 +103,7 @@ public class CertificationService {
 
         if (data != null) {
             data.setCertKey(param.getCertKey());
-            data.setExpiration(LocalDateTime.now());
+            data.setExpiration(LocalDateTime.now().plusMinutes(3));
         } else {
             throw new IllegalStateException("요청에 일치하는 인증정보가 존재하지 않습니다.");
         }
@@ -135,7 +135,7 @@ public class CertificationService {
                     .certificationId(phone)
                     .type(CertificationType.PHONE)
                     .certKey(certKey)
-                    .expiration(LocalDateTime.now())
+                    .expiration(LocalDateTime.now().plusMinutes(3))
                     .build();
 
             certificationRepository.save(data);
@@ -147,35 +147,32 @@ public class CertificationService {
         return new SendCertificationNotifyResult(Boolean.FALSE, null);
     }
 
-    public Boolean sendCertMail(String email) {
-        log.info("들어온 메일 주소 : " + email);
+    public Boolean sendCertificationMail(String toMail) {
         String certKey = tempKey.getKey(10, false);
-        Member member = memberRepository.findByIdentifier(email);
+        Member member = memberRepository.findByIdentifier(toMail);
 
-        String tomail = email;
-        String title = "MovieSite 비밀번호 찾기 인증 메일";
-        String content = "<div style=\"text-align:center\">"
-                + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
-                + "<p>안녕하세요 " + member.getName() + "님. 본인이 맞으시면 다음 링크를 눌러주세요.</p>"
-                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/findPwd/cert-mail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
-                + "</div>";
-
-        return sendEmail(tomail, title, content);
-    }
-
-    public Boolean sendGreetingMail(String email) {
-        String certKey = tempKey.getKey(10, false);
-        Member member = memberRepository.findByIdentifier(email);
-
-        String tomail = email;
         String title = "MovieSite 회원가입 인증 메일";
         String content = "<div style=\"text-align:center\">"
                 + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
-                + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요.</p>"
+                + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (인증번호는 3분간 유효합니다.)</p>"
                 + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-up/cert-mail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
-        return sendEmail(tomail, title, content);
+        Boolean sendResult = sendEmail(toMail, title, content);
+        if (sendResult) {
+            CertificationData data = certificationRepository.findByCertificationIdAndType(toMail, CertificationType.EMAIL);
+            if (data != null) data.setCertKey(certKey); // 변경 감지
+            else certificationRepository.save(
+                    CertificationData.builder()
+                            .certificationId(toMail)
+                            .type(CertificationType.EMAIL)
+                            .certKey(certKey)
+                            .expiration(LocalDateTime.now().plusMinutes(3)).build()
+            );
+
+        }
+
+        return sendResult;
     }
 
     protected Boolean sendEmail(String toMail, String title, String content) {
