@@ -22,7 +22,9 @@ public class Result<T> {
     public Result(T data) {
         this.data = data;
 
-        if (data instanceof List<?> || data instanceof ArrayList<?>) {
+        if (data == null) {
+            this.count = 0;
+        } else if (data instanceof List<?> || data instanceof ArrayList<?>) {
             this.count = ((List<?>) data).size();
         } else if (data.getClass().isArray() || data instanceof Object[]) {
             this.count = ((Object[]) data).length;
