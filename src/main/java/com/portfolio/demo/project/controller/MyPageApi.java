@@ -5,7 +5,6 @@ import com.portfolio.demo.project.controller.member.certkey.CertMessageResponse;
 import com.portfolio.demo.project.controller.member.certkey.CertMessageValidationRequest;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.*;
-import com.portfolio.demo.project.service.certification.PhoneMessageService;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +33,7 @@ public class MyPageApi {
 
     private final CommentImpService commentImpService;
 
-    private final PhoneMessageService messageService;
+    private final CertificationService certificationService;
 
     private final RememberMeTokenService rememberMeTokenService;
 
@@ -177,7 +176,7 @@ public class MyPageApi {
      */
     @PostMapping("/mypage/modify_info/phone/check")
     public ResponseEntity<Result<CertMessageResponse>> phoneCertForm(@RequestBody CertMessageValidationRequest request) {
-        SendCertificationNotifyResult result = messageService.sendCertificationMessage(request.getPhone());
+        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone());
         if (result.getResult()) {
             CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE);
 

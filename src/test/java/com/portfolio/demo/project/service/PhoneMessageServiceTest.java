@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 class PhoneMessageServiceTest {
 
     @Autowired
-    private PhoneMessageService phoneMessageService;
+    private CertificationService certificationService;
 
     @Autowired
     private MemberService memberService;
@@ -28,6 +28,6 @@ class PhoneMessageServiceTest {
         memberService.updateMember(MemberParam.create(member));
 
         // when
-        phoneMessageService.sendCertificationMessage("010-3395-5304");
+        certificationService.sendCertificationMessage("010-3395-5304");
     }
 }
