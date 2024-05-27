@@ -40,7 +40,7 @@ public class CertificationServiceTest {
         MemberParam user = createUser();
 
         // when
-        certificationService.sendCertMail(user.getIdentifier());
+        certificationService.sendCertificationMail(user.getIdentifier());
     }
 
     @Test
@@ -49,6 +49,6 @@ public class CertificationServiceTest {
         MemberParam user = createUser();
 
         // when
-        certificationService.sendGreetingMail(user.getIdentifier());
+        certificationService.sendCertificationMail(user.getIdentifier());
     }
 }
