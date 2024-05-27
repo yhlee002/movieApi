@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.util.AwsSmsUtil;
 import com.portfolio.demo.project.util.VonageMessageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,11 @@ public class PhoneMessageService {
     public Map<String, String> sendCertificationMessage(String phone) {
         Map<String, String> resultMap = new HashMap<>();
         String certKey = Integer.toString(getTempKey());
-        String result = messageUtil.sendPinNumber(certKey, phone);
+//        String result = messageUtil.sendPinNumber(certKey, phone);
+        Boolean result = AwsSmsUtil.sendMessage(certKey, phone);
 
         resultMap.put("certKey", certKey);
-        resultMap.put("result", result);
+        resultMap.put("result", result ? "success" : "fail");
 
         return resultMap;
     }
