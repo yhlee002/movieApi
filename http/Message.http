@@ -1,0 +1,8 @@
+POST localhost:8080/api/certmessage
+Content-Type: application/json
+Accept: application/json
+
+{
+  "phone": "+8201033955304"
+}
+
