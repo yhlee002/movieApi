@@ -19,16 +19,20 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
     BoardNotice findBoardNoticeById(Long id);
 
-    // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)  join Member m on b.writer_no = m.mem_no
-    @Query(value = "select b.* from board_notice b where b.id = " +
-        "(select b.id from board_notice b where b.id < :id order by id desc limit 1)"
-        , nativeQuery = true)
-    BoardNotice findPrevBoardNoticeById(Long id); // 인자로 받는 id는 기준이 되는 글의 번호
+    // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardNotice b2 where b2.id < :id order by b2.id desc limit 1)"
+    )
+    BoardNotice findPrevBoardNoticeById(Long id);
 
     // 해당 글의 다음글(해당 글보다 board_id가 높은 글들을 올림차순으로 나열해 가장 첫번째 것) join Member m on b.writer_no = m.mem_no
-    @Query(value = "select b.* from board_notice b where b.id = " +
-        "(select b.id from board_notice b where b.id > :id order by id asc limit 1)"
-        , nativeQuery = true)
+    @Query("select b from BoardNotice b" +
+            " where b.id = " +
+            "(select b2.id from BoardNotice b2 where b2.id > :id order by b2.id asc limit 1)"
+
+    )
     BoardNotice findNextBoardNoticeById(Long id);
 
     /**
