@@ -23,8 +23,10 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      * @param id
      * @return
      */
-    @Query(value = "select b from BoardImp b join fetch b.writer m where b.id = " +
-            "(select b.id from BoardImp b where b.id < :id order by b.id desc limit 1)")
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardImp b2 where b2.id < :id order by b2.id desc limit 1)")
     BoardImp findPrevBoardImpById(@Param("id") Long id);
 
     /**
@@ -32,14 +34,18 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      *
      * @param id
      */
-    @Query(value = "select b from BoardImp b join b.writer m where b.id = " +
-            "(select b.id from BoardImp b where b.id > :id order by b.id limit 1)")
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardImp b2 where b2.id > :id order by b2.id limit 1)")
     BoardImp findNextBoardImpById(Long id);
 
     /**
      * 인기 게시글 top {size} 조회
      */
-    @Query(value = "select b, m.name from BoardImp b join Member m on b.writer=m order by b.views desc limit :size")
+    @Query("select b, m.name from BoardImp b" +
+            " join fetch b.writer m" +
+            " order by b.views desc limit :size")
     List<BoardImp> findMostFavImpBoards(@Param("size") int size);
 
     /**
@@ -51,8 +57,9 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 //    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
     Page<BoardImp> findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(String name, Pageable pageable);
 
-    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
-            "where m.name like %:name%")
+    @Query(value = "select b from BoardImp b" +
+            " join fetch Member m" +
+            " where m.name like %:name%")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
 
 //    @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
