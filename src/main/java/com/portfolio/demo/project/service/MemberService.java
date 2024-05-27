@@ -112,7 +112,6 @@ public class MemberService {
                 .role(memberParam.getRole())
                 .password(memberParam.getPassword())
                 .certification(memberParam.getCertification())
-                .certKey(memberParam.getCertKey())
                 .provider(memberParam.getProvider())
                 .phone(memberParam.getPhone())
                 .profileImage(memberParam.getProfileImage())
@@ -148,7 +147,6 @@ public class MemberService {
                 .phone(memberParam.getPhone())
                 .profileImage(memberParam.getProfileImage())
                 .certification(memberParam.getCertification())
-                .certKey(memberParam.getCertKey())
                 .provider(memberParam.getProvider())
                 .build();
         memberRepository.save(member);
@@ -168,19 +166,19 @@ public class MemberService {
         return member.getMemNo();
     }
 
-    public Long updateCertKey(Long memNo) {
-        String certKey = tempKey.getKey(10, false);
-
-        Member member = memberRepository.findById(memNo).orElse(null);
-
-        if (member != null) {
-            member.updateCertKey(passwordEncoder.encode(certKey));
-        } else {
-            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-        }
-
-        return member.getMemNo();
-    }
+//    public Long updateCertKey(Long memNo) {
+//        String certKey = tempKey.getKey(10, false);
+//
+//        Member member = memberRepository.findById(memNo).orElse(null);
+//
+//        if (member != null) {
+//            member.updateCertKey(passwordEncoder.encode(certKey));
+//        } else {
+//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+//        }
+//
+//        return member.getMemNo();
+//    }
 
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
     public Authentication getAuthentication(MemberParam member) {

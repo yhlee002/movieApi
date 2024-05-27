@@ -46,7 +46,6 @@ public class MemberRepositoryTest {
         Assertions.assertNotNull(member.getRegDate());
         Assertions.assertNotNull(member.getPhone());
         Assertions.assertEquals("N", member.getCertification());
-        Assertions.assertNull(member.getCertKey());
     }
 
     @Test
