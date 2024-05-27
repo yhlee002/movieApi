@@ -3,6 +3,8 @@ package com.portfolio.demo.project.dto;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @ToString
@@ -14,9 +16,9 @@ public class CommentImpParam {
     private Long writerId;
     private String writerName;
     private String content;
-    private String regDate;
+    private LocalDateTime regDate;
 
-    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, String regDate) {
+    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, LocalDateTime regDate) {
         this.id = id;
         this.boardId = boardId;
         this.writerId = writerId;
