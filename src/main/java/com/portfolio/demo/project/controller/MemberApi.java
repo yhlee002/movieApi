@@ -1,10 +1,16 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.controller.member.certkey.CertMessageResponse;
+import com.portfolio.demo.project.controller.member.certkey.CertMessageValidationRequest;
+import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
+import com.portfolio.demo.project.controller.member.certkey.CertificationType;
 import com.portfolio.demo.project.dto.Result;
+import com.portfolio.demo.project.service.CertificationService;
+import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.PhoneMessageService;
+import com.portfolio.demo.project.service.certification.PhoneMessageService;
 import com.portfolio.demo.project.dto.MemberParam;
 import com.portfolio.demo.project.dto.SocialLoginParam;
 import com.portfolio.demo.project.dto.SocialProfileParam;
@@ -54,6 +60,7 @@ public class MemberApi {
     private final KakaoLoginApiUtil kakaoLoginApiUtil;
 
     private final KakaoProfileApiUtil kakaoProfileApiUtil;
+    private final CertificationService certificationService;
 
     /**
      * 현재 세션의 회원 정보 조회
@@ -157,16 +164,19 @@ public class MemberApi {
     ) {
 
         MemberParam member = null;
+        String condition = null;
         if (identifier != null && !identifier.isEmpty()) {
             member = memberService.findByIdentifier(identifier);
-            log.info("이메일({})을 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
+            condition = "identifier";
         } else if (name != null && !name.isEmpty()) {
             member = memberService.findByName(name); // validateDuplicationName
-            log.info("이름({})를 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
+            condition = "name";
         } else if (phone != null && !phone.isEmpty()) {
             member = memberService.findByPhone(phone);
-            log.info("휴대번호({})를 통해 찾은 사용자 식별번호 : {}", phone, member.getMemNo());
+            condition = "phone";
         }
+
+        log.info("조건: " + condition + " 조회된 사용자(식별번호) :" + (member != null ? member.getMemNo() : "없음"));
 
         return new ResponseEntity<>(new Result<>(member), HttpStatus.OK);
     }
@@ -397,51 +407,42 @@ public class MemberApi {
     /**
      * 인증번호를 받은 휴대전화 번호 입력시 해당 번호로 인증번호 전송
      *
-     * @param session
-     * @param phone
+     * @param request
      * @return
      */
     @PostMapping("/cert-message")
-    public ResponseEntity<Result<Boolean>> sendCertMessage(HttpSession session, @RequestParam String phone) {
+    public ResponseEntity<Result<CertMessageResponse>> sendCertMessage(@RequestBody CertMessageValidationRequest request) {
 
-        Map<String, String> resultMap = phoneMessageService.sendCertificationMessage(phone);
-        String result = resultMap.get("result");
-        String phoneAuthKey = resultMap.get("certKey");
+        SendCertificationNotifyResult result = phoneMessageService.sendCertificationMessage(request.getPhone());
 
-        if (result.equals("success")) {
-            session.setAttribute("phoneAuthCertKey", passwordEncoder.encode(phoneAuthKey));
-            session.setAttribute("phoneNum", phone);
+        if (result.getResult()) {
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE);
 
-            log.info("phoneAuthKey 인코딩 전 값 : {}", phoneAuthKey);
-
-            return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(reponse), HttpStatus.OK);
+        } else {
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.FALSE);
+            return new ResponseEntity<>(new Result<>(reponse), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.BAD_REQUEST);
+
     }
 
     /**
      * 문자로 전송된 인증번호 검증
      *
-     * @param session
-     * @param certKey
+     * @param request
      * @return
      */
     @GetMapping("/cert-message") // 인증키 일치 여부 확인 페이지
-    public ResponseEntity<Result<Map<String, String>>> validateCertMessage(HttpSession session, @RequestParam String certKey) {
-        Map<String, String> result = new HashMap<>();
+    public ResponseEntity<Result<Boolean>> validateCertMessage(@RequestParam CertMessageValidationRequest request) {
 
-        String phoneAuthCertKey = (String) session.getAttribute("phoneAuthCertKey");
+        CertificationDataDto foundData = certificationService.findByCertificationIdAndType(request.getPhone(), CertificationType.PHONE);
 
-        if (passwordEncoder.matches(certKey, phoneAuthCertKey)) {
-            result.put("resultCode", "success");
-            result.put("phoneNum", (String) session.getAttribute("phoneNum"));
-
-            session.removeAttribute("phoneNum");
+        if (request.getCertKey().equals(foundData.getCertKey())) {
+            return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
         } else {
-            result.put("resultCode", "fail");
+            return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
     @Data
@@ -471,5 +472,6 @@ public class MemberApi {
         @NotEmpty
         private String certKey;
     }
+
 }
 

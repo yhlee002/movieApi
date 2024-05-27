@@ -1,8 +1,12 @@
 package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
+import com.portfolio.demo.project.controller.member.certkey.CertMessageResponse;
+import com.portfolio.demo.project.controller.member.certkey.CertMessageValidationRequest;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.*;
+import com.portfolio.demo.project.service.certification.PhoneMessageService;
+import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -168,22 +172,21 @@ public class MyPageApi {
     /**
      * 인증번호 전송
      *
-     * @param phone
+     * @param request
      * @return 인증번호 전송 결과
      */
     @PostMapping("/mypage/modify_info/phone/check")
-    public ResponseEntity<Result<String>> phoneCertForm(HttpSession session, @RequestParam String phone) {
-        Map<String, String> resultMap = messageService.sendCertificationMessage(phone);
-        String result = resultMap.get("result");
-        String certKey = resultMap.get("certKey");
+    public ResponseEntity<Result<CertMessageResponse>> phoneCertForm(@RequestBody CertMessageValidationRequest request) {
+        SendCertificationNotifyResult result = messageService.sendCertificationMessage(request.getPhone());
+        if (result.getResult()) {
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE);
 
-        if (result.equals("success")) {
-            session.setAttribute("phoneNum", phone);
-            session.setAttribute("certKey", certKey);
-            return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
+            return new ResponseEntity<>(new Result<>(reponse), HttpStatus.OK);
+        } else {
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.FALSE);
+            return new ResponseEntity<>(new Result<>(reponse), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>(new Result<>(result), HttpStatus.BAD_REQUEST);
     }
 
 //    @GetMapping("/mypage/modify_info/phone2")
