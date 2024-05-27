@@ -1,8 +1,10 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
+import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.dto.BoardImpParam;
 import com.portfolio.demo.project.dto.ImpressionPagenationParam;
@@ -27,6 +29,8 @@ public class BoardImpService {
     private final BoardImpRepository boardImpRepository;
 
     private final MemberRepository memberRepository;
+
+    private final CommentImpRepository commentImpRepository;
 
     /**
      * 전체 감상평 게시글 조회
@@ -59,12 +63,18 @@ public class BoardImpService {
      * @return
      */
     public BoardImpParam findById(Long id) {
-        BoardImp boardImp = boardImpRepository.findById(id).orElse(null);
+        BoardImp boardImp = boardImpRepository.findOneById(id);
 
         BoardImpParam vo = null;
 
         if (boardImp != null) {
             vo = BoardImpParam.create(boardImp);
+
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpParam> comments = commentImps.getContent();
+
+            vo.setComments(comments);
         }
 
         return vo;
@@ -83,6 +93,12 @@ public class BoardImpService {
 
         if (boardImp != null) {
             vo = BoardImpParam.create(boardImp);
+
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpParam> comments = commentImps.getContent();
+
+            vo.setComments(comments);
         }
         return vo;
     }
@@ -100,6 +116,12 @@ public class BoardImpService {
 
         if (boardImp != null) {
             vo = BoardImpParam.create(boardImp);
+
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpParam> comments = commentImps.getContent();
+
+            vo.setComments(comments);
         }
 
         return vo;
