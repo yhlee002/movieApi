@@ -35,7 +35,8 @@ public class BoardNotice extends BaseEntity {
 
     @Column(name = "mod_dt")
     @LastModifiedDate
-    private String modDate; // 최종 수정 시간
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime modDate; // 최종 수정 시간
 
     private int views = 0; // 조회수
 

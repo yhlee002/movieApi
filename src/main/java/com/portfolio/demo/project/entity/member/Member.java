@@ -38,9 +38,6 @@ public class Member extends BaseEntity {
 
     private String role; // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_USER
 
-    @Column(name = "cert_key")
-    private String certKey;
-
     @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
     private String certification;
 
@@ -69,10 +66,6 @@ public class Member extends BaseEntity {
 
     public void updateRole(String role) {
         this.role = role;
-    }
-
-    public void updateCertKey(String certKey) {
-        this.certKey = certKey;
     }
 
     public void updateCertification(String certification) {

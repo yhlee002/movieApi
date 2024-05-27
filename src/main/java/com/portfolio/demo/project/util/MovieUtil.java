@@ -210,9 +210,6 @@ public class MovieUtil {
                 sb.append(line);
             }
 
-            log.info("KMDb에서 조회해온 영화(제목: {}, 감독: {}, 개봉년도: {}): {}",
-                    title, director, year, sb.toString());
-
             jsonStr = sb.toString();
         } catch (IOException e) {
             try {
@@ -288,7 +285,7 @@ public class MovieUtil {
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
             log.info("요청 URI : {}(method: GET)", response.uri());
-            log.info("조회해온 정보 : {}", response.body());
+//            log.info("조회해온 정보 : {}", response.body());
 
             return response.body();
         } catch (IOException | InterruptedException e) {
