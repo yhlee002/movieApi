@@ -1,9 +1,10 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
+import com.portfolio.demo.project.controller.member.certkey.CertificationType;
 import com.portfolio.demo.project.dto.Result;
-import com.portfolio.demo.project.service.MailService;
+import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.certification.PhoneMessageService;
 import com.portfolio.demo.project.dto.MemberParam;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +31,7 @@ public class FindAccountApi {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final PhoneMessageService messageService;
-
-    private final MailService mailService;
+    private final CertificationService certificationService;
 
     @ResponseBody
     @RequestMapping("/findEmail/phoneCk")
@@ -117,22 +116,21 @@ public class FindAccountApi {
 
     @ResponseBody
     @RequestMapping("/findPwd/sendMail") // 메일 전송(Ajax 비동기)
-    public ResponseEntity<Result<String>> findPwd3(@RequestParam String email) {
-        Map<String, String> sendResult = mailService.sendCertMail(email);
+    public ResponseEntity<Result<Boolean>> findPwd3(@RequestParam String email) {
+        Boolean sendResult = certificationService.sendCertMail(email);
 
-        return new ResponseEntity<>(new Result<>(sendResult.get("resultCode")), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(sendResult), HttpStatus.OK);
     }
 
     // TODO. 수정 예정
     @RequestMapping("/findPwd/cert-mail") // 메일 속 인증 링크가 연결되는 페이지
-    public String certificationEmail(HttpSession session, @RequestParam Long memNo, @RequestParam String certKey) {
+    public ResponseEntity<Result<Boolean>> certificationEmail(@RequestParam Long memNo, @RequestParam String certKey) {
         MemberParam member = memberService.findByMemNo(memNo);
-        if (passwordEncoder.matches(certKey, member.getCertKey())) {
-            session.setAttribute("memNo", memNo);
-            memberService.updateCertKey(memNo); // 인증에 성공하면 certKey는 다시 갱신시키기
-            return "redirect:/findPwd/updatePwd"; //패스워드 변경 페이지로
+        CertificationDataDto certData = certificationService.findByCertificationIdAndType(member.getIdentifier(), CertificationType.EMAIL);
+        if (certData.getCertKey().equals(certKey)) {
+            return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK); // 추후 패스워드 변경 페이지로
         } else {
-            return "error"; // 잘못된 접근입니다.
+            return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -144,9 +142,7 @@ public class FindAccountApi {
     @ResponseBody
     @RequestMapping("/findPwd/updatePwdProc") // 비밀번호 변경 후 결과 알려주기 (js에서 alert로 알려준 뒤 로그인 페이지로 redirect)
     public void updatePwdProc(HttpSession session, @RequestBody @Valid MemberParam memberParam) { // as is: @RequestParam String pwd, to be @RequestBody @Valid MemberParam
-        Long memNo = (Long) session.getAttribute("memNo");
-        session.removeAttribute("memNo");
-        memberService.updatePwd(memNo, memberParam.getPassword());
+        memberService.updatePwd(memberParam.getMemNo(), memberParam.getPassword());
     }
 
 }

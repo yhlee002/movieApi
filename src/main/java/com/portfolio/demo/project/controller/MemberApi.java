@@ -8,9 +8,7 @@ import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.*;
-import com.portfolio.demo.project.service.MailService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.service.certification.PhoneMessageService;
 import com.portfolio.demo.project.dto.MemberParam;
 import com.portfolio.demo.project.dto.SocialLoginParam;
 import com.portfolio.demo.project.dto.SocialProfileParam;
@@ -43,15 +41,9 @@ public class MemberApi {
 
     private final MemberService memberService;
 
-    private final PhoneMessageService phoneMessageService;
-
-    private final MailService mailService;
+    private final CertificationService certificationService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    private final TempKey tempKey = new TempKey();
-
-    private final CertUtil certUtil = new CertUtil(passwordEncoder, tempKey);
 
     private final NaverLoginApiUtil naverLoginApiUtil;
 
@@ -60,7 +52,6 @@ public class MemberApi {
     private final KakaoLoginApiUtil kakaoLoginApiUtil;
 
     private final KakaoProfileApiUtil kakaoProfileApiUtil;
-    private final CertificationService certificationService;
 
     /**
      * 현재 세션의 회원 정보 조회
@@ -112,8 +103,8 @@ public class MemberApi {
             MemberParam created = memberService.findByMemNo(memNo);
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
-            Map<String, String> result = mailService.sendGreetingMail(request.getIdentifier());
-            if (result.get("resultCode").equals("success")) {
+            Boolean result = certificationService.sendGreetingMail(request.getIdentifier());
+            if (result) {
                 return new ResponseEntity<>(new Result<>(created), HttpStatus.CREATED);
             } else {
                 throw new IllegalStateException();
@@ -159,8 +150,8 @@ public class MemberApi {
      */
     @GetMapping("/member")
     public ResponseEntity<Result<MemberParam>> findMember(@RequestParam(name = "identifier", required = false) String identifier,
-                                                  @RequestParam(name = "name", required = false) String name,
-                                                  @RequestParam(name = "phone", required = false) String phone
+                                                          @RequestParam(name = "name", required = false) String name,
+                                                          @RequestParam(name = "phone", required = false) String phone
     ) {
 
         MemberParam member = null;
@@ -374,8 +365,8 @@ public class MemberApi {
      */
     @ResponseBody
     @GetMapping("/cert-mail")
-    public ResponseEntity<Result<Map<String, String>>> sendCertMail(@RequestParam(name = "email") String email) {
-        var result = mailService.sendGreetingMail(email);
+    public ResponseEntity<Result<Boolean>> sendCertMail(@RequestParam(name = "email") String email) {
+        var result = certificationService.sendGreetingMail(email);
 
         return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
@@ -393,10 +384,12 @@ public class MemberApi {
         // authKey는 해싱된 상태로 링크에 파라미터로 추가되어 이메일 전송됨
         // DB에 저장된 해당 회원의 certKey와 일치하는지 확인하고 정보 수정
         MemberParam member = memberService.findByMemNo(request.getMemNo());
-        Boolean validated = certUtil.validateCertKey(member, request.getCertKey());
+        CertificationDataDto certData = certificationService.findByCertificationIdAndType(member.getIdentifier(), CertificationType.EMAIL);
+
+        Boolean validated = certData.getCertKey().equals(request.getCertKey());
 
         if (validated) {
-            member = certUtil.changeCertStatus(member);
+            member.setCertification("Y");
             memberService.updateMember(member);
 
             return new ResponseEntity<>(new Result<>(member), HttpStatus.OK);
@@ -413,18 +406,13 @@ public class MemberApi {
     @PostMapping("/cert-message")
     public ResponseEntity<Result<CertMessageResponse>> sendCertMessage(@RequestBody CertMessageValidationRequest request) {
 
-        SendCertificationNotifyResult result = phoneMessageService.sendCertificationMessage(request.getPhone());
+        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone());
 
         if (result.getResult()) {
             CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE);
 
             return new ResponseEntity<>(new Result<>(reponse), HttpStatus.OK);
-        } else {
-            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.FALSE);
-            return new ResponseEntity<>(new Result<>(reponse), HttpStatus.BAD_REQUEST);
-        }
-
-
+        } else throw new IllegalStateException("인증번호를 전송하는데 실패했습니다. (번호: " + request.getPhone() + ")");
     }
 
     /**

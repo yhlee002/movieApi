@@ -12,10 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 @SpringBootTest
 @Transactional
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-public class MailServiceTest {
+public class CertificationServiceTest {
 
     @Autowired
-    private MailService mailService;
+    private CertificationService certificationService;
+
     @Autowired
     private MemberService memberService;
 
@@ -30,7 +31,7 @@ public class MailServiceTest {
 
     @Test
     void 메일_발송() {
-        mailService.send("xxxoxxo00201@gmail.com", "test mail", "test content.");
+        certificationService.sendEmail("xxxoxxo00201@gmail.com", "test mail", "test content.");
     }
 
     @Test
@@ -39,7 +40,7 @@ public class MailServiceTest {
         MemberParam user = createUser();
 
         // when
-        mailService.sendCertMail(user.getIdentifier());
+        certificationService.sendCertMail(user.getIdentifier());
     }
 
     @Test
@@ -48,6 +49,6 @@ public class MailServiceTest {
         MemberParam user = createUser();
 
         // when
-        mailService.sendGreetingMail(user.getIdentifier());
+        certificationService.sendGreetingMail(user.getIdentifier());
     }
 }
