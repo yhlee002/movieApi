@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Setter
 @Getter
@@ -16,7 +18,7 @@ public class CommentMovParam {
     private String writerName;
     private Long movieNo;
     private String content;
-    private String regDate;
+    private LocalDateTime regDate;
     private int rating;
 
     public static CommentMovParam create(CommentMov mov) {

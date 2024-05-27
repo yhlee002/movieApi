@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Setter
 @Getter
@@ -19,12 +21,10 @@ public class MemberParam {
     private String name;
     private String profileImage;
     private String phone;
-    private String regDate;
+    private LocalDateTime regDate;
     private String role;
     private String provider;
     private String certification;
-    @JsonIgnore
-    private String certKey;
 
     public static MemberParam create(Member member) {
         return MemberParam.builder()
@@ -38,7 +38,6 @@ public class MemberParam {
                 .role(member.getRole())
                 .provider(member.getProvider())
                 .certification(member.getCertification())
-                .certKey(member.getCertKey())
                 .build();
     }
 }
