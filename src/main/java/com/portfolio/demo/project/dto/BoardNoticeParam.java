@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @Builder
 @Setter
 @Getter
@@ -16,8 +18,8 @@ public class BoardNoticeParam {
     private String content;
     private Long writerId;
     private String writerName;
-    private String regDate;
-    private String modDate;
+    private LocalDateTime regDate;
+    private LocalDateTime modDate;
     private int views;
 
     public static BoardNoticeParam create(BoardNotice board) {
