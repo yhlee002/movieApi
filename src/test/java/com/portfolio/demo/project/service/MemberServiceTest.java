@@ -196,18 +196,6 @@ class MemberServiceTest {
     }
 
     @Test
-    void 인증키_수정() {
-        // given
-        MemberParam user = createUser(); // 현재 member.certKey == null
-
-        // when
-        memberService.updateCertKey(user.getMemNo());
-
-        // then
-        Assertions.assertNotNull(user.getCertKey());
-    }
-
-    @Test
     void 회원_정보를_기반으로_Authentication_조회() {
         // given
         MemberParam admin = createAdmin();

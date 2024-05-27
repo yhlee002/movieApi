@@ -117,7 +117,7 @@ public class FindAccountApi {
     @ResponseBody
     @RequestMapping("/findPwd/sendMail") // 메일 전송(Ajax 비동기)
     public ResponseEntity<Result<Boolean>> findPwd3(@RequestParam String email) {
-        Boolean sendResult = certificationService.sendCertMail(email);
+        Boolean sendResult = certificationService.sendCertificationMail(email);
 
         return new ResponseEntity<>(new Result<>(sendResult), HttpStatus.OK);
     }

@@ -103,7 +103,7 @@ public class MemberApi {
             MemberParam created = memberService.findByMemNo(memNo);
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
-            Boolean result = certificationService.sendGreetingMail(request.getIdentifier());
+            Boolean result = certificationService.sendCertificationMail(request.getIdentifier());
             if (result) {
                 return new ResponseEntity<>(new Result<>(created), HttpStatus.CREATED);
             } else {
@@ -365,8 +365,8 @@ public class MemberApi {
      */
     @ResponseBody
     @GetMapping("/cert-mail")
-    public ResponseEntity<Result<Boolean>> sendCertMail(@RequestParam(name = "email") String email) {
-        var result = certificationService.sendGreetingMail(email);
+    public ResponseEntity<Result<Boolean>> sendCertificationEmail(@RequestParam(name = "email") String email) {
+        var result = certificationService.sendCertificationMail(email);
 
         return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
@@ -427,6 +427,7 @@ public class MemberApi {
         CertificationDataDto foundData = certificationService.findByCertificationIdAndType(request.getPhone(), CertificationType.PHONE);
 
         if (request.getCertKey().equals(foundData.getCertKey())) {
+            certificationService.deleteCertification(foundData);
             return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.OK);
