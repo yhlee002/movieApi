@@ -1,15 +1,13 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
-import com.portfolio.demo.project.controller.member.certkey.CertificationType;
+import com.portfolio.demo.project.entity.CertificationType;
 import com.portfolio.demo.project.entity.CertificationData;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CertificationRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
-import com.portfolio.demo.project.util.AwsSmsUtil;
 import com.portfolio.demo.project.util.TempKey;
-import dev.akkinoc.util.YamlResourceBundle;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -18,13 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
+@Transactional
 @Service
 @RequiredArgsConstructor
 public class CertificationService {
@@ -37,19 +35,18 @@ public class CertificationService {
 
     private final TempKey tempKey;
 
-    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+//    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
 
-    private String host = null;
-    private Integer port = null;
+    private String host = "localhost";
+    private Integer port = 8077;
 
-    {
-        try {
-            host = InetAddress.getLocalHost().getHostAddress();
-            port = (Integer) properties.getObject("server.port");
-        } catch (UnknownHostException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    {
+//        try {
+//            host = InetAddress.getLocalHost().getHostAddress();
+//        } catch (UnknownHostException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     /**
      * 식별번호를 이용한 인증정보 단건 조회
@@ -60,7 +57,7 @@ public class CertificationService {
     @Cacheable(value = "Certification")
     public CertificationDataDto findById(Long id) {
         CertificationData data = certificationRepository.findById(id).orElse(null);
-        return new CertificationDataDto(data);
+        return data == null ? null : new CertificationDataDto(data);
     }
 
     /**
@@ -73,7 +70,7 @@ public class CertificationService {
     public CertificationDataDto findByCertificationIdAndType(String certificationId, CertificationType type) {
         CertificationData data = certificationRepository.findByCertificationIdAndType(certificationId, type);
 
-        return new CertificationDataDto(data);
+        return data == null ? null : new CertificationDataDto(data);
     }
 
     /**
@@ -127,52 +124,59 @@ public class CertificationService {
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone) {
         String certKey = Integer.toString(getTempKey());
-//        String result = messageUtil.sendPinNumber(certKey, phone);
-        Boolean success = AwsSmsUtil.sendMessage(certKey, phone);
+//        Boolean success = AwsSmsUtil.sendMessage(certKey, phone);
 
-        if (success) {
-            CertificationData data = CertificationData.builder()
-                    .certificationId(phone)
-                    .type(CertificationType.PHONE)
-                    .certKey(certKey)
-                    .expiration(LocalDateTime.now().plusMinutes(3))
-                    .build();
+//        if (success) {
+        CertificationData foundData = certificationRepository.findByCertificationIdAndType(phone, CertificationType.PHONE);
 
-            certificationRepository.save(data);
-            CertificationDataDto dto = new CertificationDataDto(data);
-
-            return new SendCertificationNotifyResult(Boolean.TRUE, dto);
+        if (foundData != null) {
+            certificationRepository.delete(foundData);
         }
 
-        return new SendCertificationNotifyResult(Boolean.FALSE, null);
+        CertificationData data = CertificationData.builder()
+                .certificationId(phone)
+                .type(CertificationType.PHONE)
+                .certKey(certKey)
+                .expiration(LocalDateTime.now().plusMinutes(3))
+                .build();
+
+        certificationRepository.save(data);
+        CertificationDataDto dto = new CertificationDataDto(data);
+
+        return new SendCertificationNotifyResult(Boolean.TRUE, dto);
+
+//        }
+
+//        return new SendCertificationNotifyResult(Boolean.FALSE, null);
     }
 
-    public Boolean sendCertificationMail(String toMail) {
+    public SendCertificationNotifyResult sendCertificationMail(String toMail) {
         String certKey = tempKey.getKey(10, false);
         Member member = memberRepository.findByIdentifier(toMail);
 
         String title = "MovieSite 회원가입 인증 메일";
         String content = "<div style=\"text-align:center\">"
                 + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
-                + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (인증번호는 3분간 유효합니다.)</p>"
-                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-up/cert-mail?memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (링크는 10분간 유효합니다.)</p>"
+                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-in?cert=mail&memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
         Boolean sendResult = sendEmail(toMail, title, content);
         if (sendResult) {
             CertificationData data = certificationRepository.findByCertificationIdAndType(toMail, CertificationType.EMAIL);
             if (data != null) data.setCertKey(certKey); // 변경 감지
-            else certificationRepository.save(
-                    CertificationData.builder()
-                            .certificationId(toMail)
-                            .type(CertificationType.EMAIL)
-                            .certKey(certKey)
-                            .expiration(LocalDateTime.now().plusMinutes(3)).build()
-            );
-
+            else {
+                data = CertificationData.builder()
+                        .certificationId(toMail)
+                        .type(CertificationType.EMAIL)
+                        .certKey(certKey)
+                        .expiration(LocalDateTime.now().plusMinutes(10)).build();
+                certificationRepository.save(data);
+            }
+            return new SendCertificationNotifyResult(sendResult, new CertificationDataDto(data));
         }
 
-        return sendResult;
+        return new SendCertificationNotifyResult(sendResult, new CertificationDataDto());
     }
 
     protected Boolean sendEmail(String toMail, String title, String content) {

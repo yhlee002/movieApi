@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Builder
@@ -19,7 +19,7 @@ public class BoardImpParam {
     private String content;
     private Long writerId;
     private String writerName;
-    private LocalDateTime regDate;
+    private String regDate;
     private int views;
     private int recommended;
     private List<CommentImpParam> comments;
@@ -31,7 +31,7 @@ public class BoardImpParam {
                 .content(board.getContent())
                 .writerId(board.getWriter().getMemNo())
                 .writerName(board.getWriter().getName())
-                .regDate(board.getRegDate())
+                .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .recommended(board.getRecommended())
                 .build();

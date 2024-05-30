@@ -2,12 +2,14 @@ package com.portfolio.demo.project.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberCertificated;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Builder
 @Setter
@@ -21,10 +23,10 @@ public class MemberParam {
     private String name;
     private String profileImage;
     private String phone;
-    private LocalDateTime regDate;
-    private String role;
+    private String regDate;
+    private MemberRole role;
     private String provider;
-    private String certification;
+    private MemberCertificated certification;
 
     public static MemberParam create(Member member) {
         return MemberParam.builder()
@@ -34,7 +36,7 @@ public class MemberParam {
                 .name(member.getName())
                 .profileImage(member.getProfileImage())
                 .phone(member.getPhone())
-                .regDate(member.getRegDate())
+                .regDate(member.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .role(member.getRole())
                 .provider(member.getProvider())
                 .certification(member.getCertification())

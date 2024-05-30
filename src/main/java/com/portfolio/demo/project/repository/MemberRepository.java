@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,7 +22,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Boolean existsByName(String name);
 
-    List<Member> findByRoleIgnoreCase(String role);
+    List<Member> findByRole(MemberRole role);
 
     Member findByPhone(String phone);
 

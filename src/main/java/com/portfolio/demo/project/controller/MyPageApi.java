@@ -178,11 +178,11 @@ public class MyPageApi {
     public ResponseEntity<Result<CertMessageResponse>> phoneCertForm(@RequestBody CertMessageValidationRequest request) {
         SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone());
         if (result.getResult()) {
-            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE);
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE, "");
 
             return new ResponseEntity<>(new Result<>(reponse), HttpStatus.OK);
         } else {
-            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.FALSE);
+            CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.FALSE, "");
             return new ResponseEntity<>(new Result<>(reponse), HttpStatus.BAD_REQUEST);
         }
 

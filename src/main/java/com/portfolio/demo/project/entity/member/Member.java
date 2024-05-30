@@ -5,6 +5,7 @@ import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
+@DynamicUpdate
 public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 DB에 위임(id값을 null로 전달할 경우 DB가 알아서 AUTO_INCREMENT)
@@ -36,10 +38,12 @@ public class Member extends BaseEntity {
 
     private String provider;
 
-    private String role; // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_USER
+    @Enumerated(EnumType.STRING)
+    private MemberRole role; // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_USER
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
-    private String certification;
+    private MemberCertificated certification;
 
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "writer")
     List<CommentImp> comments = new ArrayList<>();
@@ -64,11 +68,11 @@ public class Member extends BaseEntity {
         this.provider = provider;
     }
 
-    public void updateRole(String role) {
+    public void updateRole(MemberRole role) {
         this.role = role;
     }
 
-    public void updateCertification(String certification) {
+    public void updateCertification(MemberCertificated certification) {
         this.certification = certification;
     }
 

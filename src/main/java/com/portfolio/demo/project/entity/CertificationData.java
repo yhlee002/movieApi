@@ -1,29 +1,29 @@
 package com.portfolio.demo.project.entity;
 
-import com.portfolio.demo.project.controller.member.certkey.CertificationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
+@Table(name = "certification_data")
 @Entity
 @Builder
 @Getter
 @Setter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CertificationData {
+@DynamicUpdate
+public class CertificationData extends BaseEntity {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "certification_id")
     private String certificationId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "certification_type")
     private CertificationType type;
 
