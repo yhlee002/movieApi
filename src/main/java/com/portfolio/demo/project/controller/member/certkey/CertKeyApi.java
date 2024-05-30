@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.controller.member.certkey;
 
 import com.portfolio.demo.project.dto.Result;
+import com.portfolio.demo.project.entity.CertificationType;
 import com.portfolio.demo.project.service.CertificationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

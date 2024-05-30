@@ -1,11 +1,12 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
-import com.portfolio.demo.project.controller.member.certkey.CertificationType;
+import com.portfolio.demo.project.entity.CertificationType;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,8 +117,8 @@ public class FindAccountApi {
 
     @ResponseBody
     @RequestMapping("/findPwd/sendMail") // 메일 전송(Ajax 비동기)
-    public ResponseEntity<Result<Boolean>> findPwd3(@RequestParam String email) {
-        Boolean sendResult = certificationService.sendCertificationMail(email);
+    public ResponseEntity<Result<SendCertificationNotifyResult>> findPwd3(@RequestParam String email) {
+        SendCertificationNotifyResult sendResult = certificationService.sendCertificationMail(email);
 
         return new ResponseEntity<>(new Result<>(sendResult), HttpStatus.OK);
     }
@@ -142,7 +143,7 @@ public class FindAccountApi {
     @ResponseBody
     @RequestMapping("/findPwd/updatePwdProc") // 비밀번호 변경 후 결과 알려주기 (js에서 alert로 알려준 뒤 로그인 페이지로 redirect)
     public void updatePwdProc(HttpSession session, @RequestBody @Valid MemberParam memberParam) { // as is: @RequestParam String pwd, to be @RequestBody @Valid MemberParam
-        memberService.updatePwd(memberParam.getMemNo(), memberParam.getPassword());
+        memberService.updatePwd(memberParam);
     }
 
 }

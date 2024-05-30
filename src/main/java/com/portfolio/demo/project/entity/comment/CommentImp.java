@@ -1,12 +1,12 @@
 package com.portfolio.demo.project.entity.comment;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 @Table(name = "comment_imp")
 @Entity
@@ -14,6 +14,7 @@ import jakarta.persistence.*;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 public class CommentImp extends BaseEntity {
 
     @Id
@@ -25,7 +26,7 @@ public class CommentImp extends BaseEntity {
     private BoardImp board;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "writer_mem_no")
+    @JoinColumn(name = "writer_no")
     private Member writer;
 
     private String content;

@@ -3,7 +3,7 @@ package com.portfolio.demo.project.dto;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Setter
 @Getter
@@ -16,9 +16,9 @@ public class CommentImpParam {
     private Long writerId;
     private String writerName;
     private String content;
-    private LocalDateTime regDate;
+    private String regDate;
 
-    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, LocalDateTime regDate) {
+    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, String regDate) {
         this.id = id;
         this.boardId = boardId;
         this.writerId = writerId;
@@ -34,7 +34,7 @@ public class CommentImpParam {
                 .writerId(imp.getWriter().getMemNo())
                 .writerName(imp.getWriter().getName())
                 .content(imp.getContent())
-                .regDate(imp.getRegDate())
+                .regDate(imp.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
     }
 }

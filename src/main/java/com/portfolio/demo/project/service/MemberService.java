@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberCertificated;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.util.TempKey;
@@ -98,12 +100,12 @@ public class MemberService {
     public Long saveMember(MemberParam memberParam) {
         if (memberParam.getProvider().equals("none")) {
             memberParam.setPassword(passwordEncoder.encode(memberParam.getPassword()));
-            memberParam.setCertification("N");
+            memberParam.setCertification(MemberCertificated.N);
         } else {
             memberParam.setPassword("");
-            memberParam.setCertification("Y");
+            memberParam.setCertification(MemberCertificated.Y);
         }
-        if (memberParam.getRole() == null) memberParam.setRole("ROLE_USER");
+        if (memberParam.getRole() == null) memberParam.setRole(MemberRole.ROLE_USER);
 
         Member member = Member.builder()
                 .memNo(null)
@@ -127,10 +129,37 @@ public class MemberService {
 
         if (member != null) {
             member.updateName(memberParam.getName());
-            member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
             member.updatePhone(memberParam.getPhone());
             member.updateProfileImage(memberParam.getProfileImage());
             member.updateCertification(memberParam.getCertification());
+
+            if (!passwordEncoder.matches(memberParam.getPassword(), member.getPassword())) {
+                member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+            }
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return member.getMemNo();
+    }
+
+    public Long updateCertification(MemberParam memberParam) {
+        Member member = memberRepository.findById(memberParam.getMemNo()).orElse(null);
+
+        if (member != null) {
+            member.updateCertification(memberParam.getCertification());
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return member.getMemNo();
+    }
+
+    public Long updateRole(MemberParam memberParam) {
+        Member member = memberRepository.findById(memberParam.getMemNo()).orElse(null);
+
+        if (member != null) {
+            member.updateRole(memberParam.getRole());
         } else {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }
@@ -154,11 +183,11 @@ public class MemberService {
         return member.getMemNo();
     }
 
-    public Long updatePwd(Long memNo, String pwd) {
-        Member member = memberRepository.findById(memNo).orElse(null);
+    public Long updatePwd(MemberParam memberParam) {
+        Member member = memberRepository.findById(memberParam.getMemNo()).orElse(null);
 
         if (member != null) {
-            member.updatePassword(passwordEncoder.encode(pwd));
+            member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
         } else {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }

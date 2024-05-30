@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -246,8 +247,8 @@ public class MemberRepositoryTest {
         memberRepository.save(m2);
 
         // when
-        List<Member> admins = memberRepository.findByRoleIgnoreCase("ROLE_ADMIN");
-        List<Member> members = memberRepository.findByRoleIgnoreCase("ROLE_USER");
+        List<Member> admins = memberRepository.findByRole(MemberRole.ROLE_ADMIN);
+        List<Member> members = memberRepository.findByRole(MemberRole.ROLE_USER);
 
         // then
         Assertions.assertEquals(1, admins.size());

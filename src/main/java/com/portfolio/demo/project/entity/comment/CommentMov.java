@@ -1,16 +1,12 @@
 package com.portfolio.demo.project.entity.comment;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.hibernate.annotations.DynamicUpdate;
 
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
 
 @Table(name = "comment_movie")
 @Entity
@@ -19,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@DynamicUpdate
 public class CommentMov extends BaseEntity {
 
     @Id
