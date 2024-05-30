@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Builder
 @Setter
@@ -18,7 +18,7 @@ public class CommentMovParam {
     private String writerName;
     private Long movieNo;
     private String content;
-    private LocalDateTime regDate;
+    private String regDate;
     private int rating;
 
     public static CommentMovParam create(CommentMov mov) {
@@ -28,7 +28,7 @@ public class CommentMovParam {
                 .writerName(mov.getWriter().getName())
                 .movieNo(mov.getMovieNo())
                 .content(mov.getContent())
-                .regDate(mov.getRegDate())
+                .regDate(mov.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .rating(mov.getRating())
                 .build();
     }

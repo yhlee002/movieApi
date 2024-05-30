@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Builder
 @Setter
@@ -18,8 +18,8 @@ public class BoardNoticeParam {
     private String content;
     private Long writerId;
     private String writerName;
-    private LocalDateTime regDate;
-    private LocalDateTime modDate;
+    private String regDate;
+    private String modDate;
     private int views;
 
     public static BoardNoticeParam create(BoardNotice board) {
@@ -29,8 +29,8 @@ public class BoardNoticeParam {
                 .content(board.getContent())
                 .writerId(board.getWriter().getMemNo())
                 .writerName(board.getWriter().getName())
-                .regDate(board.getRegDate())
-                .modDate(board.getModDate())
+                .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .modDate(board.getModDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .build();
     }

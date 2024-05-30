@@ -27,7 +27,7 @@ public class CoolSmsMessageUtil {
         params.put("text", "Movie Info Site 인증번호입니다. - " + tempKey);
 
         send(params);
-        log.info("인증번호 : " + tempKey);
+        log.info("문자 메세지로 전송된 인증번호 : {]", tempKey);
         return Integer.toString(tempKey);
     }
 
@@ -43,11 +43,11 @@ public class CoolSmsMessageUtil {
 
         try {
             JSONObject obj = coolsms.send(params);
-            log.info("result : " + obj.toString());
-            log.info("success_count : " + obj.get("success_count"));
+            log.info("result : {}", obj.toString());
+            log.info("success_count : {}", obj.get("success_count"));
         } catch (CoolsmsException e) {
-            log.info("error message : " + e.getMessage());
-            log.info("error code : " + e.getCode());
+            log.info("error message : {}", e.getMessage());
+            log.info("error code : {}", e.getCode());
         }
     }
 }

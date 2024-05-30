@@ -7,6 +7,5 @@ import lombok.Data;
 public class CertMessageValidationRequest {
     @NotEmpty
     private String phone;
-    @NotEmpty
     private String certKey;
 }

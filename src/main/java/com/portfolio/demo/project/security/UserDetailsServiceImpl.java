@@ -36,7 +36,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         log.info("부여될 권한 : " + member.getRole());
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole()));
+        grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole().toString()));
 
 
 
