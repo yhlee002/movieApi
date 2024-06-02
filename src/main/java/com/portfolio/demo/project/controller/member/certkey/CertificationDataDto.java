@@ -1,8 +1,9 @@
 package com.portfolio.demo.project.controller.member.certkey;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.portfolio.demo.project.entity.CertificationData;
-import com.portfolio.demo.project.entity.CertificationType;
+import com.portfolio.demo.project.entity.certification.CertificationData;
+import com.portfolio.demo.project.entity.certification.CertificationReason;
+import com.portfolio.demo.project.entity.certification.CertificationType;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotEmpty;
@@ -28,6 +29,9 @@ public class CertificationDataDto {
     @NotEmpty
     private String certKey;
 
+    @Enumerated(EnumType.STRING)
+    private CertificationReason reason;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     private LocalDateTime expiration;
 
@@ -39,6 +43,7 @@ public class CertificationDataDto {
         this.certificationId = data.getCertificationId();
         this.certificationType = data.getType();
         this.certKey = data.getCertKey();
+        this.reason = data.getReason();
         this.expiration = data.getExpiration();
         this.regDate = data.getRegDate();
     }
