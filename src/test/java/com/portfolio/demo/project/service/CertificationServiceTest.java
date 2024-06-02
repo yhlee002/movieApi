@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.MemberParam;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -40,15 +41,6 @@ public class CertificationServiceTest {
         MemberParam user = createUser();
 
         // when
-        certificationService.sendCertificationMail(user.getIdentifier());
-    }
-
-    @Test
-    void 가입_축하_메일() {
-        // given
-        MemberParam user = createUser();
-
-        // when
-        certificationService.sendCertificationMail(user.getIdentifier());
+        certificationService.sendCertificationMail(user.getIdentifier(), CertificationReason.SIGNUP);
     }
 }

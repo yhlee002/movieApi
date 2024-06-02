@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.controller.member.certkey;
 
-import com.portfolio.demo.project.entity.CertificationType;
+import com.portfolio.demo.project.entity.certification.CertificationType;
 import lombok.Data;
 
 /**

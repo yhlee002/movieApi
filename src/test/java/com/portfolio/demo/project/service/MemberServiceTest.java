@@ -1,11 +1,13 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.MemberParam;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -16,6 +18,8 @@ import java.util.List;
 class MemberServiceTest {
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     MemberParam createAdmin() {
         MemberParam admin = MemberParam.create(
@@ -37,6 +41,14 @@ class MemberServiceTest {
         MemberParam user = MemberParam.create(
                 MemberTestDataBuilder.randomIdentifierUser().build());
         Long memNo = memberService.saveMember(user);
+
+        return memberService.findByMemNo(memNo);
+    }
+
+    MemberParam createNaverUser() {
+        MemberParam user = MemberParam.create(
+                MemberTestDataBuilder.naverUser().build());
+        Long memNo = memberService.saveOauthMember(user);
 
         return memberService.findByMemNo(memNo);
     }
@@ -149,9 +161,9 @@ class MemberServiceTest {
 
         // then
         Assertions.assertNotNull(admin.getMemNo());
-        Assertions.assertEquals("ROLE_ADMIN", admin.getRole());
+        Assertions.assertEquals(MemberRole.ROLE_ADMIN, admin.getRole());
         Assertions.assertNotNull(user.getMemNo());
-        Assertions.assertEquals("ROLE_USER", user.getRole());
+        Assertions.assertEquals(MemberRole.ROLE_USER, user.getRole());
     }
 
     @Test
@@ -168,31 +180,48 @@ class MemberServiceTest {
     @Test
     void 소셜_로그인을_이용한_회원가입() {
         // given
-        MemberParam user = createUser();
+        MemberParam user = createNaverUser();
 
         // when
 
         // then
         Assertions.assertNotNull(user.getMemNo());
+        Assertions.assertEquals("", user.getPassword());
+        Assertions.assertEquals("naver", user.getProvider());
+    }
+
+    @Test
+    void 회원가입시_비밀번호_해싱_테스트() {
+        MemberParam user = MemberParam.create(
+                MemberTestDataBuilder.randomIdentifierUser().password("1234").build()
+        );
+        Long memNo = memberService.saveMember(user);
+
+        MemberParam foundMember = memberService.findByMemNo(memNo);
+
+        Assertions.assertTrue(passwordEncoder.matches("1234", foundMember.getPassword()));
     }
 
     @Test
     void 비밀번호_변경() {
         // given
         MemberParam user = MemberParam.create(
-                MemberTestDataBuilder.user().password("1234").build()
+                MemberTestDataBuilder.randomIdentifierUser().password("1234").build()
         );
-        memberService.saveMember(user);
+        Long memNo = memberService.saveMember(user);
 
-        user.setPassword("5678");
-        memberService.updateMember(user);
+        MemberParam foundMember = memberService.findByMemNo(memNo);
+
+        Assertions.assertTrue(passwordEncoder.matches("1234", foundMember.getPassword()));
+
+        foundMember.setPassword("5678");
+        memberService.updatePwd(foundMember);
 
         // when
-        MemberParam foundMember = memberService.findByMemNo(user.getMemNo());
+        MemberParam foundMember2= memberService.findByMemNo(foundMember.getMemNo());
 
         // then
-        Assertions.assertNotEquals("1234", user.getPassword());
-        Assertions.assertEquals("5678", foundMember.getPassword());
+        Assertions.assertTrue(passwordEncoder.matches("5678", foundMember2.getPassword()));
     }
 
     @Test
@@ -216,10 +245,12 @@ class MemberServiceTest {
 
         // when
         user.setName("ModifiedName");
-        memberService.updateMember(user);
+        Long memNo = memberService.updateMember(user);
+
+        MemberParam foundMember = memberService.findByMemNo(memNo);
 
         // then
-        Assertions.assertEquals("ModifiedName", user.getName());
+        Assertions.assertEquals("ModifiedName", foundMember.getName());
     }
 
     @Test

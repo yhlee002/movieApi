@@ -36,7 +36,9 @@ public class MemberParam {
                 .name(member.getName())
                 .profileImage(member.getProfileImage())
                 .phone(member.getPhone())
-                .regDate(member.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .regDate(
+                        member.getRegDate() == null ? null :
+                                member.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .role(member.getRole())
                 .provider(member.getProvider())
                 .certification(member.getCertification())

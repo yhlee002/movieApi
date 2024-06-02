@@ -2,7 +2,8 @@ package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.controller.member.certkey.*;
 import com.portfolio.demo.project.dto.Result;
-import com.portfolio.demo.project.entity.CertificationType;
+import com.portfolio.demo.project.entity.certification.CertificationReason;
+import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.service.CertificationService;
@@ -110,7 +111,10 @@ public class MemberApi {
 
         log.info("조건: " + condition + " 조회된 사용자(식별번호) :" + (member != null ? member.getMemNo() : "없음"));
 
-        MemberResponse response = new MemberResponse(member);
+        MemberResponse response = null;
+        if (member != null) {
+            response = new MemberResponse(member);
+        }
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
@@ -139,7 +143,7 @@ public class MemberApi {
             MemberParam created = memberService.findByMemNo(memNo);
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
 
-            SendCertificationNotifyResult result = certificationService.sendCertificationMail(request.getIdentifier());
+            SendCertificationNotifyResult result = certificationService.sendCertificationMail(request.getIdentifier(), CertificationReason.SIGNUP);
             if (result.getResult()) {
                 MemberResponse response = new MemberResponse(created);
 
@@ -394,7 +398,7 @@ public class MemberApi {
             log.info("회원이 입력한 값과의 일치 관계 : {}", matched);
 
             if (matched) { // 해당 회원의 비밀번호와 일치할 경우
-                if (foundMember.getCertification().equals("Y")) { // 인증된 회원인 경우
+                if (foundMember.getCertification().equals(MemberCertificated.Y)) { // 인증된 회원인 경우
                     msg = "matched";
                 } else { // 인증되지 않은 회원인 경우
                     msg = "not certified";
@@ -443,7 +447,7 @@ public class MemberApi {
      */
     @PostMapping("/cert-mail")
     public ResponseEntity<Result<CertResponse>> sendCertificationEmail(@RequestBody @Valid CertMailRequest request) {// @RequestParam(name = "email")
-        SendCertificationNotifyResult result = certificationService.sendCertificationMail(request.getIdentifier());
+        SendCertificationNotifyResult result = certificationService.sendCertificationMail(request.getIdentifier(), request.getReason());
 
         if (result.getResult()) {
             CertResponse reponse = new CertResponse(request.getIdentifier(), CertificationType.EMAIL, result.getCertificationDataDto().getCertKey(), Boolean.TRUE, "");
@@ -481,17 +485,17 @@ public class MemberApi {
         boolean validated = certData.getCertKey().equals(request.getCertKey());
 
         if (validated) {
-            if (request.getReason().equals(CertificationReason.SIGNUP)) {
+            if (certData.getReason().equals(CertificationReason.SIGNUP)) {
                 member.setCertification(MemberCertificated.Y);
                 memberService.updateCertification(member);
-            } else if (request.getReason().equals(CertificationReason.FINDPASSWORD)) {
+            } else if (certData.getReason().equals(CertificationReason.FINDPASSWORD)) {
                 // 아무 처리하지 않음
             }
 
             certificationService.deleteCertification(certData);
 
             return new ResponseEntity<>(new Result<>(
-                    new CertResponse(member.getIdentifier(), CertificationType.EMAIL, request.getCertKey(), Boolean.TRUE, request.getReason().toString())
+                    new CertResponse(member.getIdentifier(), CertificationType.EMAIL, request.getCertKey(), Boolean.TRUE, certData.getReason().toString())
             ), HttpStatus.OK);
 
         } else throw new IllegalStateException("인증 정보가 일치하지 않습니다.");
@@ -506,7 +510,7 @@ public class MemberApi {
     @PostMapping("/cert-message")
     public ResponseEntity<Result<CertResponse>> sendCertMessage(@RequestBody @Valid CertMessageValidationRequest request) {
 
-        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone());
+        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone(), request.getReason());
 
         if (result.getResult()) {
             CertResponse reponse = new CertResponse(request.getPhone(), CertificationType.PHONE, result.getCertificationDataDto().getCertKey(), Boolean.TRUE, "");
@@ -628,6 +632,8 @@ public class MemberApi {
     static class CertMailRequest {
         @NotEmpty
         private String identifier;
+        @NotNull
+        private CertificationReason reason;
     }
 
     @Data
@@ -636,12 +642,6 @@ public class MemberApi {
         private Long memNo;
         @NotEmpty
         private String certKey;
-        @NotNull
-        private CertificationReason reason;
-    }
-
-    static enum CertificationReason {
-        SIGNUP, FINDPASSWORD
     }
 
 }

@@ -1,7 +1,8 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
-import com.portfolio.demo.project.entity.CertificationType;
+import com.portfolio.demo.project.entity.certification.CertificationReason;
+import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.MemberService;
@@ -118,7 +119,7 @@ public class FindAccountApi {
     @ResponseBody
     @RequestMapping("/findPwd/sendMail") // 메일 전송(Ajax 비동기)
     public ResponseEntity<Result<SendCertificationNotifyResult>> findPwd3(@RequestParam String email) {
-        SendCertificationNotifyResult sendResult = certificationService.sendCertificationMail(email);
+        SendCertificationNotifyResult sendResult = certificationService.sendCertificationMail(email, CertificationReason.FINDPASSWORD);
 
         return new ResponseEntity<>(new Result<>(sendResult), HttpStatus.OK);
     }

@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.controller;
 
+import com.google.gson.JsonObject;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -104,5 +105,20 @@ public class MemberApiTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.memNo").exists())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.memNo").value(createdMember.getMemNo()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.regDate").exists());
+    }
+
+    @Test
+    void 인증번호_메세지_전송() throws Exception {
+        JsonObject obj = new JsonObject();
+        obj.addProperty("phone", "+821033955304");
+
+        MvcResult result = mockMvc.perform(
+                MockMvcRequestBuilders.post("/api/cert-message")
+                        .content(obj.toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk()).andReturn();
+        String resultStr = result.getResponse().getContentAsString();
+        System.out.println(resultStr);
     }
 }

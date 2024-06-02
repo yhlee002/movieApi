@@ -1,8 +1,9 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
-import com.portfolio.demo.project.entity.CertificationType;
-import com.portfolio.demo.project.entity.CertificationData;
+import com.portfolio.demo.project.entity.certification.CertificationReason;
+import com.portfolio.demo.project.entity.certification.CertificationType;
+import com.portfolio.demo.project.entity.certification.CertificationData;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CertificationRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
@@ -83,6 +84,7 @@ public class CertificationService {
                 .certificationId(param.getCertificationId())
                 .type(param.getCertificationType())
                 .certKey(param.getCertKey())
+                .reason(param.getReason())
                 .expiration(param.getExpiration())
                 .build();
         certificationRepository.save(data);
@@ -122,8 +124,9 @@ public class CertificationService {
      * @param phone
      * @return
      */
-    public SendCertificationNotifyResult sendCertificationMessage(String phone) {
+    public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
         String certKey = Integer.toString(getTempKey());
+        // TODO. 실제로 보내는 부분 활성화 필요(AWS SDK의 영구 권한
 //        Boolean success = AwsSmsUtil.sendMessage(certKey, phone);
 
 //        if (success) {
@@ -137,6 +140,7 @@ public class CertificationService {
                 .certificationId(phone)
                 .type(CertificationType.PHONE)
                 .certKey(certKey)
+                .reason(reason)
                 .expiration(LocalDateTime.now().plusMinutes(3))
                 .build();
 
@@ -150,7 +154,7 @@ public class CertificationService {
 //        return new SendCertificationNotifyResult(Boolean.FALSE, null);
     }
 
-    public SendCertificationNotifyResult sendCertificationMail(String toMail) {
+    public SendCertificationNotifyResult sendCertificationMail(String toMail, CertificationReason reason) {
         String certKey = tempKey.getKey(10, false);
         Member member = memberRepository.findByIdentifier(toMail);
 
@@ -170,6 +174,7 @@ public class CertificationService {
                         .certificationId(toMail)
                         .type(CertificationType.EMAIL)
                         .certKey(certKey)
+                        .reason(reason)
                         .expiration(LocalDateTime.now().plusMinutes(10)).build();
                 certificationRepository.save(data);
             }

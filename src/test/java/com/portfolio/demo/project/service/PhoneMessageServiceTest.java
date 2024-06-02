@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.MemberParam;
@@ -28,6 +29,6 @@ class PhoneMessageServiceTest {
         memberService.updateMember(MemberParam.create(member));
 
         // when
-        certificationService.sendCertificationMessage("010-3395-5304");
+        certificationService.sendCertificationMessage("010-3395-5304", CertificationReason.SIGNUP);
     }
 }
