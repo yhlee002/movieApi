@@ -176,7 +176,7 @@ public class MyPageApi {
      */
     @PostMapping("/mypage/modify_info/phone/check")
     public ResponseEntity<Result<CertMessageResponse>> phoneCertForm(@RequestBody CertMessageValidationRequest request) {
-        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone());
+        SendCertificationNotifyResult result = certificationService.sendCertificationMessage(request.getPhone(), request.getReason());
         if (result.getResult()) {
             CertMessageResponse reponse = new CertMessageResponse(request.getPhone(), result.getCertificationDataDto().getCertKey(), Boolean.TRUE, "");
 

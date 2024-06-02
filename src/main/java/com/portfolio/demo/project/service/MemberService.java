@@ -28,8 +28,6 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
 
-    private final TempKey tempKey;
-
     public MemberParam findByMemNo(Long memNo) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
@@ -172,7 +170,7 @@ public class MemberService {
                 .memNo(memberParam.getMemNo())
                 .identifier(memberParam.getIdentifier())
                 .name(memberParam.getName())
-                .password(passwordEncoder.encode(memberParam.getPassword()))
+                .password(memberParam.getPassword())
                 .phone(memberParam.getPhone())
                 .profileImage(memberParam.getProfileImage())
                 .certification(memberParam.getCertification())

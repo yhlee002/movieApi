@@ -1,5 +1,6 @@
-package com.portfolio.demo.project.entity;
+package com.portfolio.demo.project.entity.certification;
 
+import com.portfolio.demo.project.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -31,4 +32,7 @@ public class CertificationData extends BaseEntity {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiration;
+
+    @Enumerated(EnumType.STRING)
+    private CertificationReason reason;
 }
