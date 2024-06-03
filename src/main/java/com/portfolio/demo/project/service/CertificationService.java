@@ -8,6 +8,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CertificationRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
+import com.portfolio.demo.project.util.AwsSmsUtil;
 import com.portfolio.demo.project.util.TempKey;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -126,10 +127,8 @@ public class CertificationService {
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
         String certKey = Integer.toString(getTempKey());
-        // TODO. 실제로 보내는 부분 활성화 필요(AWS SDK의 영구 권한
-//        Boolean success = AwsSmsUtil.sendMessage(certKey, phone);
+        AwsSmsUtil.sendCertificationMessage(certKey, phone);
 
-//        if (success) {
         CertificationData foundData = certificationRepository.findByCertificationIdAndType(phone, CertificationType.PHONE);
 
         if (foundData != null) {
@@ -148,10 +147,6 @@ public class CertificationService {
         CertificationDataDto dto = new CertificationDataDto(data);
 
         return new SendCertificationNotifyResult(Boolean.TRUE, dto);
-
-//        }
-
-//        return new SendCertificationNotifyResult(Boolean.FALSE, null);
     }
 
     public SendCertificationNotifyResult sendCertificationMail(String toMail, CertificationReason reason) {
