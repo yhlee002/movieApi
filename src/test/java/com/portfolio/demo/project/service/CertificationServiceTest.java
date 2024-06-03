@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ResourceBundle;
+
 @SpringBootTest
 @Transactional
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -21,10 +23,14 @@ public class CertificationServiceTest {
     @Autowired
     private MemberService memberService;
 
+    private ResourceBundle resource = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private String samplePhoneNumber = resource.getString("aws.sample.phone");
+    private String sampleEmailAddress = resource.getString("aws.sample.email");
+
     MemberParam createUser() {
         Long id = memberService.saveMember(
                 MemberParam.create(
-                        MemberTestDataBuilder.user().identifier("xxxoxxo00201@gmail.com").build()
+                        MemberTestDataBuilder.user().identifier("").build()
                 )
         );
         return memberService.findByMemNo(id);
@@ -32,7 +38,7 @@ public class CertificationServiceTest {
 
     @Test
     void 메일_발송() {
-        certificationService.sendEmail("xxxoxxo00201@gmail.com", "test mail", "test content.");
+        certificationService.sendEmail(sampleEmailAddress, "test mail", "test content.");
     }
 
     @Test
@@ -47,6 +53,6 @@ public class CertificationServiceTest {
     @Test
     void 인증_문자_발송() {
         //given
-        certificationService.sendCertificationMessage("phone-number-here", CertificationReason.FINDPASSWORD);
+        certificationService.sendCertificationMessage(samplePhoneNumber, CertificationReason.FINDPASSWORD);
     }
 }
