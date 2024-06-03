@@ -43,4 +43,10 @@ public class CertificationServiceTest {
         // when
         certificationService.sendCertificationMail(user.getIdentifier(), CertificationReason.SIGNUP);
     }
+
+    @Test
+    void 인증_문자_발송() {
+        //given
+        certificationService.sendCertificationMessage("phone-number-here", CertificationReason.FINDPASSWORD);
+    }
 }

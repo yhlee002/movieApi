@@ -22,7 +22,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.apache.maven.plugins:maven-shade-plugin:3.5.3'
+//    implementation 'org.apache.maven.plugins:maven-shade-plugin:3.5.3'
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -39,6 +39,7 @@ dependencies {
 
     implementation platform('software.amazon.awssdk:bom:2.17.290') // 2.25.60
     implementation 'software.amazon.awssdk:aws-sdk-java:2.17.290'
+    implementation 'com.amazonaws:aws-java-sdk-sns:1.12.734'
     implementation 'software.amazon.awssdk:apache-client'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
