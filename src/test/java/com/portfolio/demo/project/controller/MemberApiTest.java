@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ResourceBundle;
+
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -109,8 +111,11 @@ public class MemberApiTest {
 
     @Test
     void 인증번호_메세지_전송() throws Exception {
+        ResourceBundle resource = ResourceBundle.getBundle("Res_ko_KR_keys");
+        String samplePhoneNumber = resource.getString("aws.sample.phone");
+
         JsonObject obj = new JsonObject();
-        obj.addProperty("phone", "+821033955304");
+        obj.addProperty("phone", samplePhoneNumber);
 
         MvcResult result = mockMvc.perform(
                 MockMvcRequestBuilders.post("/api/cert-message")

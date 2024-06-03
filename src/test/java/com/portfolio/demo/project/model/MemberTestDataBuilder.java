@@ -4,16 +4,19 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 
-import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.ResourceBundle;
 
 public class MemberTestDataBuilder {
+    private static final ResourceBundle resource = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private static final String sampleEmailAddress = resource.getString("aws.sample.email");
+    private static final String sampleEmailAddress2 = resource.getString("aws.sample.email2");
 
     private static final Random random = new Random();
 
     public static Member.MemberBuilder admin() {
         return Member.builder()
-                .identifier("dldudgus214@naver.com")
+                .identifier(sampleEmailAddress2)
                 .password("1234")
                 .name("yhlee")
                 .phone("000-000-0000")
@@ -24,7 +27,7 @@ public class MemberTestDataBuilder {
 
     public static Member.MemberBuilder user() {
         return Member.builder()
-                .identifier("xxxoxxo002@gmail.com")
+                .identifier(sampleEmailAddress)
                 .password("1234")
                 .name("이영현")
                 .phone("000-111-0000")
@@ -34,7 +37,7 @@ public class MemberTestDataBuilder {
 
     public static Member.MemberBuilder noPasswordUser() {
         return Member.builder()
-                .identifier("xxxoxxo002@gmail.com")
+                .identifier(sampleEmailAddress)
                 .password(null)
                 .name("이영현")
                 .phone("000-111-0000")
