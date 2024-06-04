@@ -487,7 +487,7 @@ public class MemberApi {
         if (validated) {
             if (certData.getReason().equals(CertificationReason.SIGNUP)) {
                 member.setCertification(MemberCertificated.Y);
-                memberService.updateCertification(member);
+                memberService.updateCertification(member); // 여기 확인
             } else if (certData.getReason().equals(CertificationReason.FINDPASSWORD)) {
                 // 아무 처리하지 않음
             }
