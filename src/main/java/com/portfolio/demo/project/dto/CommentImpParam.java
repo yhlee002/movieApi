@@ -3,6 +3,7 @@ package com.portfolio.demo.project.dto;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Setter
@@ -17,15 +18,6 @@ public class CommentImpParam {
     private String writerName;
     private String content;
     private String regDate;
-
-    public CommentImpParam(Long id, Long boardId, Long writerId, String writerName, String content, String regDate) {
-        this.id = id;
-        this.boardId = boardId;
-        this.writerId = writerId;
-        this.writerName = writerName;
-        this.content = content;
-        this.regDate = regDate;
-    }
 
     public static CommentImpParam create(CommentImp imp) {
         return CommentImpParam.builder()

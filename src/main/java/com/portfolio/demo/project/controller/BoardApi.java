@@ -92,15 +92,15 @@ public class BoardApi {
     @PostMapping("/notice")
     public ResponseEntity<Result<BoardNoticeParam>> createNotice(@RequestBody CreateBoardRequest request) {
         BoardNoticeParam notice = BoardNoticeParam.builder()
-                .title(request.getTitle())
+                .title(request.getTitle().trim())
                 .content(request.getContent())
                 .writerId(request.getWriterId())
                 .build();
-        Long id = boardNoticeService.updateBoard(notice);
+        Long id = boardNoticeService.saveBoard(notice);
 
         BoardNoticeParam created = boardNoticeService.findById(id);
 
-        Result<BoardNoticeParam> result = new Result<>();
+        Result<BoardNoticeParam> result = new Result<>(created);
 
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
@@ -187,6 +187,27 @@ public class BoardApi {
     }
 
     /**
+     * 후기 게시글 작성
+     *
+     * @param request
+     */
+    @PostMapping("/imp")
+    public ResponseEntity<Result<BoardImpParam>> createImp(@RequestBody CreateBoardRequest request) {
+        BoardImpParam imp = BoardImpParam.builder()
+                .title(request.getTitle().trim())
+                .content(request.getContent())
+                .writerId(request.getWriterId())
+                .build();
+        Long id = boardImpService.saveBoard(imp);
+
+        BoardImpParam created = boardImpService.findById(id);
+
+        Result<BoardImpParam> result = new Result<>(created);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    /**
      * 후기 게시글 수정
      *
      * @param request
@@ -254,7 +275,6 @@ public class BoardApi {
 
     @Data
     private static class CreateBoardRequest {
-        private Long id;
         private String title;
         private String content;
         private Long writerId;

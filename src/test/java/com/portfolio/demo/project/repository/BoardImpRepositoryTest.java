@@ -8,6 +8,8 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
@@ -19,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +43,9 @@ class BoardImpRepositoryTest {
 
     @Autowired
     private CommentImpRepository commentImpRepository;
+
+    @Autowired
+    private CommentImpSimpleRepository commentImpSimpleRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -143,8 +149,18 @@ class BoardImpRepositoryTest {
         List<BoardImp> boardList = page.getContent();
         List<Long> ids = boardList.stream().map(BoardImp::getId).collect(Collectors.toList());
 
-        Page<CommentImpParam> commentPage = commentImpRepository.findAllParamsByBoardIds(ids, pageable2);
-        Map<Long, List<CommentImpParam>> commentMap = commentPage.getContent().stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
+        Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardIds(ids, pageable2);
+        List<CommentImpSimpleParam> simpleParams = commentPage.getContent();
+        List<CommentImpParam> params = simpleParams.stream().map(p -> CommentImpParam.builder()
+                .id(p.getId())
+                .boardId(p.getBoardId())
+                .writerName(p.getWriterName())
+                .writerId(p.getWriterId())
+                .content(p.getContent())
+                .regDate(p.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build()
+        ).collect(Collectors.toList());
+        Map<Long, List<CommentImpParam>> commentMap = params.stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
 
         List<BoardImpParam> boardParams = boardList.stream().map(BoardImpParam::create).collect(Collectors.toList());
         boardParams.forEach(b -> {
@@ -261,8 +277,18 @@ class BoardImpRepositoryTest {
         BoardImpParam boardParam = BoardImpParam.create(imp);
 
         Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
-        Page<CommentImpParam> commentPage = commentImpRepository.findAllParamsByBoardId(imp.getId(), pageable);
-        List<CommentImpParam> comments = commentPage.getContent();
+        Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(imp.getId(), pageable);
+        List<CommentImpSimpleParam> simpleParams = commentPage.getContent();
+        List<CommentImpParam> comments = simpleParams.stream().map(p -> CommentImpParam.builder()
+                .id(p.getId())
+                .boardId(p.getBoardId())
+                .writerName(p.getWriterName())
+                .writerId(p.getWriterId())
+                .content(p.getContent())
+                .regDate(p.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build()
+        ).collect(Collectors.toList());
+
         boardParam.setComments(comments);
 
         Assertions.assertEquals(2, boardParam.getComments().size());

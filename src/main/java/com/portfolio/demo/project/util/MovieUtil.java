@@ -195,7 +195,7 @@ public class MovieUtil {
             conn.setRequestProperty("Content-type", "application/json");
 
             responseCode = conn.getResponseCode();
-            log.info("KMDb API 요청 주소: {}", urlBuilder.toString());
+//            log.info("KMDb API 요청 주소: {}", urlBuilder.toString());
             log.info("KMDb API 응답 코드: {}", responseCode);
 
             if (responseCode >= 200 && responseCode <= 300) {

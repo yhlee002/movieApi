@@ -19,10 +19,12 @@ public class BoardImpParam {
     private String content;
     private Long writerId;
     private String writerName;
+    private String writerProfileImage;
     private String regDate;
     private int views;
     private int recommended;
     private List<CommentImpParam> comments;
+    private int commentSize;
 
     public static BoardImpParam create(BoardImp board) {
         return BoardImpParam.builder()
@@ -31,6 +33,7 @@ public class BoardImpParam {
                 .content(board.getContent())
                 .writerId(board.getWriter().getMemNo())
                 .writerName(board.getWriter().getName())
+                .writerProfileImage(board.getWriter().getProfileImage())
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .recommended(board.getRecommended())
