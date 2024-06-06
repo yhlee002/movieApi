@@ -84,7 +84,7 @@ public class CommentApi {
      * @return
      */
     @DeleteMapping("/comment/movie")
-    public String deleteCommentMov(Long commentId) {
+    public String deleteCommentMov(@RequestParam Long commentId) {
         commentMovService.deleteCommentById(commentId);
 
         return "success";
@@ -163,7 +163,7 @@ public class CommentApi {
      * @param commentId
      */
     @DeleteMapping("/comment/imp")
-    public String deleteCommentImp(Long commentId) {
+    public String deleteCommentImp(@RequestParam Long commentId) {
         commentImpService.deleteCommentById(commentId);
 
         return "success";

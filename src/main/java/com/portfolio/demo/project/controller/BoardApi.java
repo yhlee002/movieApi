@@ -130,7 +130,7 @@ public class BoardApi {
      * @param boardId
      */
     @DeleteMapping("/notice")
-    public ResponseEntity<Result<Boolean>> deleteNotice(Long boardId) {
+    public ResponseEntity<Result<Boolean>> deleteNotice(@RequestParam Long boardId) {
         boardNoticeService.deleteBoardByBoardId(boardId);
 
         return new ResponseEntity<>(new Result<>(Boolean.TRUE), HttpStatus.OK);
@@ -231,7 +231,7 @@ public class BoardApi {
      * @param boardId
      */
     @DeleteMapping("/imp")
-    public String deleteImp(Long boardId) {
+    public String deleteImp(@RequestParam Long boardId) {
         boardImpService.deleteById(boardId);
 
         return "redirect:/imps";
