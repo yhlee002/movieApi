@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
@@ -41,44 +43,46 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .requestMatchers("/**").permitAll();
+        http.authorizeRequests(request -> request
+                .requestMatchers("/**").permitAll()
 //                .requestMatchers("/", "/sign-in/**", "/sign-up/**", "/api/**", "/error/**").permitAll()
 //                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
-//                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN");
-        http.cors().configurationSource(corsConfigurationSource());
-        http.csrf().disable();
-        http.httpBasic();
+//                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN")
+        );
 
-        http.formLogin()
+        http.cors(corsConfigurer -> corsConfigurer.configurationSource(corsConfigurationSource()));
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.httpBasic(HttpBasicConfigurer::disable);
+
+        http.formLogin(login -> login
                 .loginPage("/sign-in")
                 .usernameParameter("identifier")
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in")
                 .defaultSuccessUrl("/")
                 .successHandler(signInSuccessHandler())
-                .permitAll();
+                .permitAll());
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
-        http.sessionManagement().maximumSessions(1).maxSessionsPreventsLogin(true);
+        http.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(true));
 
-        http.logout()
+        http.logout(logout -> logout
                 .logoutUrl("/logout")
                 .logoutSuccessUrl("/")
                 .clearAuthentication(true)
                 .invalidateHttpSession(true) // 로그아웃시 세션 삭제
-                .deleteCookies("JSESSIONID", "mvif-remember"); // 로그아웃시 쿠키 삭제 ( Remember-me 쿠키도 제거)
+                .deleteCookies("JSESSIONID", "mvif-remember")); // 로그아웃시 쿠키 삭제 ( Remember-me 쿠키도 제거)
 
 
 //        http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler());
 
-        http.rememberMe()
-                .key("mvif-remember") // 쿠키에 사용되는 값을 암호화하기 위한 키 값
+        http.rememberMe(rememberMe -> rememberMe.key("mvif-remember") // 쿠키에 사용되는 값을 암호화하기 위한 키 값
                 .userDetailsService(userDetailsService) // 시스템에서 사용자 계정을 조회하기 위한 service
                 .tokenRepository(tokenRepository())
                 .tokenValiditySeconds(60 * 60 * 24) // 토큰은 24시간 동안 유효
                 .rememberMeCookieName("mvif-remember") //브라우저에 보관되는 쿠키의 이름(기본값 : remember-me)
-                .rememberMeParameter("remember-me");// 웹 화면에서 로그인할 때 리멤버미 기능의 체크박스 이름
+                .rememberMeParameter("remember-me"));// 웹 화면에서 로그인할 때 리멤버미 기능의 체크박스 이름
+
         return http.build();
     }
 
@@ -97,8 +101,10 @@ public class WebSecurityConfig {
         configuration.setMaxAge(7200L);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
         return source;
     }
+
     @Bean // 제거 임시 보류
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
