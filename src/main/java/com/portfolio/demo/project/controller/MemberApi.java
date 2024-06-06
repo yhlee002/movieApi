@@ -60,14 +60,22 @@ public class MemberApi {
     /**
      * 현재 세션의 회원 정보 조회
      *
-     * @param session
+     * @param
      * @return
      */
-    @GetMapping("/member/auth")
-    public ResponseEntity<Result<MemberResponse>> getCurrentMember(HttpSession session) {
-        MemberParam member = (MemberParam) session.getAttribute("member");
+    @GetMapping("/member/current")
+    public ResponseEntity<Result<MemberResponse>> getCurrentMember() { // HttpSession session
+//        MemberParam member = (MemberParam) session.getAttribute("member");
 
-        return new ResponseEntity<>(new Result<>(new MemberResponse(member)), HttpStatus.OK);
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String principal = (String) auth.getPrincipal();
+
+        if (!principal.equals("anonymousUser")) {
+            MemberParam member = memberService.findByIdentifier(principal);
+            return new ResponseEntity<>(new Result<>(new MemberResponse(member)), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Result<>(null), HttpStatus.OK);
+        }
     }
 
     /**

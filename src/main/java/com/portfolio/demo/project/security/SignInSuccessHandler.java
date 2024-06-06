@@ -66,7 +66,7 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
                 outputData.put("profileImage", memberParam.getProfileImage());
                 outputData.put("phone", memberParam.getPhone());
                 outputData.put("regDate", memberParam.getRegDate());
-                outputData.put("role", memberParam.getRole());
+                outputData.put("role", memberParam.getRole().toString());
                 outputData.put("provider", memberParam.getProvider());
 
 
