@@ -1,30 +1,52 @@
-# Movie Info Web Site
+# Movie Site
 
 
 ## 개요
 영화 정보, 영화에 대한 평점과 리뷰, 일상 등을 남기고 공유할 수 있는 사이트 개발(2020.10.21 ~ 2021.04.16)
 
+Cf. 전체 코드 리팩토링(2024.04 ~ )
+
 ## 개발환경
-* 개발 언어 : Java 1.8
-* Spring Boot 2.3.4.RELEASE
-* Gradle 버전 : 6.6.1
-* 템플릿 엔진 : Thymeleaf 3.0.11.RELEASE
-* 데이터베이스 : MySql
-* 운영체제 : Window 10
-* 사용된 프레임워크 : Spring MVC, Spring Web, Spring Security, JPA, Bootstrap 4
-* 사용된 외부 라이브러리 : Lombok, Gson, FontAwesome, WebJar 
+* 개발 언어 : Java 17
+* Spring Boot 3.2.3
+* Gradle 버전 : 8.0
+* 데이터베이스 : MySQL 8.4
+* 데이터베이스 마이그레이션 : flyway
+* 사용된 프레임워크 : Spring MVC, Spring Web, Spring Security, JPA(Hibernate), ~~Bootstrap 4~~
+* 사용된 외부 라이브러리 : Lombok, Gson, ~~FontAwesome, WebJar~~ 
 * 사용된 외부 API
    - 네아로(네이버 아이디로 로그인) API, 카카오 로그인 API
    - 영화진흥위원회 박스오피스 API, 영화 상세 정보 API
-   - 네이버 영화 검색 API
-   - Vonage sms Message API
-   - Summernote(게시판 에디터)
+   - TMDB 영화 API, KMDB 영화 API
+   - AWS SNS(SMS)
+   - ~~네이버 영화 검색 API(운영 종료)~~
+   - ~~Vonage sms Message API~~
+   - ~~Summernote(게시판 에디터)~~
 
 ## 배포 환경
 + Amazon EC2 인스턴스
    - 운영체제 : Amazon Linux 2
    - 인스턴스 유형 : t2.micro
 
+## DB Schema
+![image](https://github.com/yhlee002/web_moviePublic/assets/60289743/d7dce3c6-f809-45f0-8d0d-65dc0dd9f2e1)
+
+## 변경사항
+- 2024.04
+  + 스프링부트 버전 업그레이드(2.3.4 -> 3.2.3)
+  + 스프링 시큐리티 버전 업그레이드로 WebSecurityConfig.java 리팩토링
+  + Docker compose를 이용해 DB 연결 및 마이그레이션(flyway 적용)
+  + 주요 Api, Service, Repository의 테스트 코드 작성
+  + 영화 API 추가 적용
+  + LocalDateTime타입의 시간 컬럼 필드들을 JPA Audit을 이용해 관리되도록 변경
+- 2024.05
+  + JPA를 이용해 데이터 조회해오는 기능 리팩토링(fetch join 적용, 일부 컬렉션 조회시 DTO로 조회)
+  + API 반환 데이터 컨벤션 수정
+  + DB 및 flyway 버전 업그레이드
+  + 계층간 DTO 데이터 구조 리팩토링
+    - 컨트롤러 <-> 서비스 간에 사용되는 DTO와 반환 데이터로 사용되는 DTO 구분
+   
+    
 ## 주요 기능
 ### 회원가입
       - 입력된 정보는 Ajax 비동기 통신을 통해 정규표현식(regular expression)을 사용한 유효성검사와 중복 여부 검사를 거쳐 저장.
@@ -49,6 +71,4 @@
 ### 주제별 검색
       - 사용자는 게시판에서 원하는 정보를 검색하여 정보를 받음
       - 사용자는 제목 또는 내용, 작성자 등을 직접 선택하여 검색
-
-
 
