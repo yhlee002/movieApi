@@ -182,7 +182,7 @@ class BoardImpServiceTest {
         boardImpService.saveBoard(board3);
 
         // when
-        List<BoardImp> list = boardImpService.getMostFavImpBoard(3);
+        List<BoardImpParam> list = boardImpService.getMostFavImpBoard(3);
         list.forEach(b -> System.out.println(b.getTitle() + " --- " + b.getViews()));
 
         // then

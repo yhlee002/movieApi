@@ -2,9 +2,12 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.dto.BoardImpParam;
 import com.portfolio.demo.project.dto.ImpressionPagenationParam;
@@ -18,8 +21,11 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,6 +38,8 @@ public class BoardImpService {
 
     private final CommentImpRepository commentImpRepository;
 
+    private final CommentImpSimpleRepository commentImpSimpleRepository;
+
     /**
      * 전체 감상평 게시글 조회
      */
@@ -43,11 +51,10 @@ public class BoardImpService {
 
         log.info("조회된 게시글 수 : {}", list.size());
 
-        List<BoardImpParam> vos = new ArrayList<>();
-        list.forEach(boardImp -> {
-            BoardImpParam vo = BoardImpParam.create(boardImp);
-
-            vos.add(vo);
+        List<BoardImpParam> vos = list.stream().map(BoardImpParam::create).collect(Collectors.toList());
+        vos.forEach(vo -> {
+            int commentSize = commentImpRepository.findCountByBoardId(vo.getId());
+            vo.setCommentSize(commentSize);
         });
 
         return ImpressionPagenationParam.builder()
@@ -71,8 +78,17 @@ public class BoardImpService {
             vo = BoardImpParam.create(boardImp);
 
             Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
-            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
-            List<CommentImpParam> comments = commentImps.getContent();
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
+
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
 
             vo.setComments(comments);
         }
@@ -95,8 +111,17 @@ public class BoardImpService {
             vo = BoardImpParam.create(boardImp);
 
             Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
-            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
-            List<CommentImpParam> comments = commentImps.getContent();
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
+
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
 
             vo.setComments(comments);
         }
@@ -118,8 +143,17 @@ public class BoardImpService {
             vo = BoardImpParam.create(boardImp);
 
             Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
-            Page<CommentImpParam> commentImps = commentImpRepository.findAllParamsByBoardId(id, pageable);
-            List<CommentImpParam> comments = commentImps.getContent();
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
+
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
 
             vo.setComments(comments);
         }
@@ -130,8 +164,31 @@ public class BoardImpService {
     /**
      * 인기 감상평 게시글 top {size} 조회
      */
-    public List<BoardImp> getMostFavImpBoard(int size) {
-        return boardImpRepository.findMostFavImpBoards(size);
+    public List<BoardImpParam> getMostFavImpBoard(int size) {
+        List<BoardImp> mostFavImpBoards = boardImpRepository.findMostFavImpBoards(size);
+        List<BoardImpParam> boardParams = mostFavImpBoards.stream().map(BoardImpParam::create).collect(Collectors.toList());
+        List<Long> boardIds = boardParams.stream().map(BoardImpParam::getId).collect(Collectors.toList());
+
+        for (BoardImpParam param : boardParams) {
+            int commentSize = commentImpRepository.findCountByBoardId(param.getId());
+            param.setCommentSize(commentSize);
+        }
+//        Pageable pageable = PageRequest.of(0, size, Sort.by("views").descending());
+//        Page<CommentImpSimpleParam> page = commentImpSimpleRepository.findAllParamsByBoardIds(boardIds, pageable);
+//        List<CommentImpSimpleParam> simpleParams = page.getContent();
+//        List<CommentImpParam> params = simpleParams.stream().map(simple -> CommentImpParam.builder()
+//                .id(simple.getId())
+//                .boardId(simple.getBoardId())
+//                .writerId(simple.getWriterId())
+//                .writerName(simple.getWriterName())
+//                .content(simple.getContent())
+//                .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+//                .build()).collect(Collectors.toList());
+//
+//        Map<Long, List<CommentImpParam>> map = params.stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
+//        boardParams.forEach(board -> board.setComments(map.get(board.getId())));
+
+        return boardParams;
     }
 
     /**
@@ -211,7 +268,7 @@ public class BoardImpService {
      * @param boards
      */
     public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        List<BoardImp> list = boards.stream().map(b ->  {
+        List<BoardImp> list = boards.stream().map(b -> {
             Member member = memberRepository.findById(b.getWriterId()).orElse(null);
 
             return BoardImp.builder()
@@ -239,11 +296,17 @@ public class BoardImpService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
+
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
         return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
+                .boardImpList(list)
                 .build();
     }
 
@@ -258,11 +321,17 @@ public class BoardImpService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
 
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
+
         log.info("조회된 게시글 수 : {}", pages.getContent().size());
 
         return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
+                .boardImpList(list)
                 .build();
     }
 
@@ -276,9 +345,16 @@ public class BoardImpService {
     public ImpressionPagenationParam getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
+
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
+
         return ImpressionPagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
-                .boardImpList(pages.getContent().stream().map(BoardImpParam::create).toList())
+                .boardImpList(list)
                 .build();
 
     }
@@ -302,6 +378,11 @@ public class BoardImpService {
             List<BoardImp> list = pages.getContent();
 
             result = list.stream().map(BoardImpParam::create).toList();
+
+            result.forEach(board -> {
+                int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+                board.setCommentSize(countByBoardId);
+            });
         }
 
         return result;
