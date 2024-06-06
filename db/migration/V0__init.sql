@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS certification_data
     `certification_type` varchar(64)  NOT NULL COMMENT '인증 타입',
     `certification_id`   varchar(64)  NOT NULL COMMENT '인증 대상(휴대전화 번호 혹은 이메일)',
     `cert_key`           varchar(100) NOT NULL COMMENT '인증 번호',
-    `reason`             varchar(20)  NOT NULL COMMENT '인증 이유',
+    `reason`             varchar(20)           COMMENT '인증 이유',
     `expiration`         timestamp COMMENT '만료일시',
     `reg_dt`             timestamp    NOT NULL COMMENT '생성일시',
     PRIMARY KEY (`id`),
