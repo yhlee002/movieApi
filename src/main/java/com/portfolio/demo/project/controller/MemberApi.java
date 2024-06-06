@@ -263,6 +263,13 @@ public class MemberApi {
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
+    @DeleteMapping("/member")
+    public ResponseEntity<Result<Boolean>> deleteMember(@RequestParam Long memNo) {
+        memberService.deleteMember(memNo);
+
+        return ResponseEntity.ok(new Result<>(true));
+    }
+
     /**
      * 소셜 로그인 URL 조회
      *
