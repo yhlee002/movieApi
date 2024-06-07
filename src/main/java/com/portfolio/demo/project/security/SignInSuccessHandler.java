@@ -1,7 +1,13 @@
 package com.portfolio.demo.project.security;
 
+import com.portfolio.demo.project.dto.LoginLogParam;
+import com.portfolio.demo.project.entity.loginlog.LoginLog;
+import com.portfolio.demo.project.entity.loginlog.LoginResult;
+import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.MemberParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +25,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
 
 @Slf4j
+@RequiredArgsConstructor
 public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     /**
      * 인증 권한이 필요한 페이지에 접근하게 되면, 로그인 화면을 띄우기 전에 필요한 정보들을 세션에 저장
@@ -32,8 +40,10 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     private static final String defaultUrl = "/";
 
-    @Autowired // 제거 임시 보류
-    private MemberService memberService;
+//    @Autowired // 제거 임시 보류
+    private final MemberService memberService;
+
+    private final LoginLogService loginLogService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -47,11 +57,17 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
         MemberParam memberParam = null;
 
         if (principal != null) {
-            log.info("current principal : " + principal);
             MemberParam member = memberService.findByIdentifier(principal); // .getUsername()
 
             if (member != null) {
-                log.info("current member : " + member.toString());
+                LoginLogParam logParam = LoginLogParam.builder()
+                        .ip(request.getRemoteAddr())
+                        .memberNo(member.getMemNo())
+                        .memberIdentifier(member.getIdentifier())
+                        .result(LoginResult.SUCCESS)
+//                        .regDate(LocalDateTime::now)
+                        .build();
+                loginLogService.saveLog(logParam);
 
                 memberParam = member;
 

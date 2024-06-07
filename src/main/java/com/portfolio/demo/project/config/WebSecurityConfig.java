@@ -2,7 +2,10 @@ package com.portfolio.demo.project.config;
 
 import com.portfolio.demo.project.security.CustomAuthenticationProvider;
 import com.portfolio.demo.project.security.SignInSuccessHandler;
+import com.portfolio.demo.project.security.SignInFailureHandler;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
+import com.portfolio.demo.project.service.LoginLogService;
+import com.portfolio.demo.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +34,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
+    private final MemberService memberService;
+    private final LoginLogService loginLogService;
     private final UserDetailsServiceImpl userDetailsService;
     private final DataSource dataSource;
 
@@ -60,7 +65,8 @@ public class WebSecurityConfig {
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in")
                 .defaultSuccessUrl("/")
-                .successHandler(signInSuccessHandler())
+                .successHandler(signInSuccessHandler(memberService, loginLogService))
+                .failureHandler(signinFailureHandler(memberService, loginLogService))
                 .permitAll());
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
@@ -121,8 +127,13 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SignInSuccessHandler signInSuccessHandler() {
-        return new SignInSuccessHandler();
+    public SignInSuccessHandler signInSuccessHandler(MemberService memberService, LoginLogService loginLogService) {
+        return new SignInSuccessHandler(memberService, loginLogService);
+    }
+
+    @Bean
+    public SignInFailureHandler signinFailureHandler(MemberService memberService, LoginLogService loginLogService) {
+        return new SignInFailureHandler(memberService, loginLogService);
     }
 
     // 로그아웃시 세션정보 제거(세션이 삭제되어도 세션 정보(Set)에 추가된 사용자 정보는 사라지지 않음)
