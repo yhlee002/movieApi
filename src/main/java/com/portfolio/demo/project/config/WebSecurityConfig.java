@@ -33,8 +33,6 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-
-    private final MemberService memberService;
     private final LoginLogService loginLogService;
     private final UserDetailsServiceImpl userDetailsService;
     private final DataSource dataSource;
@@ -65,8 +63,8 @@ public class WebSecurityConfig {
                 .passwordParameter("password")
                 .loginProcessingUrl("/sign-in")
                 .defaultSuccessUrl("/")
-                .successHandler(signInSuccessHandler(memberService, loginLogService))
-                .failureHandler(signinFailureHandler(memberService, loginLogService))
+                .successHandler(signInSuccessHandler())
+                .failureHandler(signinFailureHandler())
                 .permitAll());
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
@@ -108,6 +106,14 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
+//        return request -> {
+//            CorsConfiguration config = new CorsConfiguration();
+//            config.setAllowedHeaders(Collections.singletonList("*"));
+//            config.setAllowedMethods(Collections.singletonList("*"));
+//            config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:8077")); // ⭐️ 허용할 origin
+//            config.setAllowCredentials(true);
+//            return config;
+//        };
         return source;
     }
 
@@ -127,13 +133,13 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SignInSuccessHandler signInSuccessHandler(MemberService memberService, LoginLogService loginLogService) {
-        return new SignInSuccessHandler(memberService, loginLogService);
+    public SignInSuccessHandler signInSuccessHandler() {
+        return new SignInSuccessHandler(loginLogService);
     }
 
     @Bean
-    public SignInFailureHandler signinFailureHandler(MemberService memberService, LoginLogService loginLogService) {
-        return new SignInFailureHandler(memberService, loginLogService);
+    public SignInFailureHandler signinFailureHandler() {
+        return new SignInFailureHandler(loginLogService);
     }
 
     // 로그아웃시 세션정보 제거(세션이 삭제되어도 세션 정보(Set)에 추가된 사용자 정보는 사라지지 않음)

@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.board;
 
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import lombok.Builder;

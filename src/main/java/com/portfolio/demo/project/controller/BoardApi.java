@@ -1,6 +1,10 @@
 package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
+import com.portfolio.demo.project.dto.board.BoardImpParam;
+import com.portfolio.demo.project.dto.board.BoardNoticeParam;
+import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
+import com.portfolio.demo.project.dto.board.NoticePagenationParam;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
@@ -9,7 +13,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +41,8 @@ public class BoardApi {
      */
     @GetMapping("/notices")
     public ResponseEntity<Result<NoticePagenationParam>> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
-                                                         @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-                                                         @RequestParam(name = "query", required = false) String query) {
+                                                                 @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+                                                                 @RequestParam(name = "query", required = false) String query) {
 
         NoticePagenationParam pagenationVO = null;
         if (query != null) {
@@ -231,10 +234,10 @@ public class BoardApi {
      * @param boardId
      */
     @DeleteMapping("/imp")
-    public String deleteImp(@RequestParam Long boardId) {
+    public ResponseEntity<Result<Boolean>> deleteImp(@RequestParam Long boardId) {
         boardImpService.deleteById(boardId);
 
-        return "redirect:/imps";
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
     }
 
     /**

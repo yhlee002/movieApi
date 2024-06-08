@@ -1,17 +1,17 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.comment.CommentMovPagenationParam;
+import com.portfolio.demo.project.dto.comment.CommentMovParam;
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CommentMovRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;

@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.repository;
 
-import com.portfolio.demo.project.dto.BoardImpParam;
-import com.portfolio.demo.project.dto.CommentImpParam;
+import com.portfolio.demo.project.dto.board.BoardImpParam;
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional

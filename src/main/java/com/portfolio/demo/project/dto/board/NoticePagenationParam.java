@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.board;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
