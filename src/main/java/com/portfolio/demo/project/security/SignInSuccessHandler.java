@@ -1,12 +1,10 @@
 package com.portfolio.demo.project.security;
 
 import com.portfolio.demo.project.dto.LoginLogParam;
-import com.portfolio.demo.project.entity.loginlog.LoginLog;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
@@ -25,7 +23,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -40,8 +37,8 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     private static final String defaultUrl = "/";
 
-//    @Autowired // 제거 임시 보류
-    private final MemberService memberService;
+    @Autowired // 제거 임시 보류
+    private MemberService memberService;
 
     private final LoginLogService loginLogService;
 

@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.member;
 
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;

@@ -4,8 +4,8 @@ import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.dto.BoardNoticeParam;
-import com.portfolio.demo.project.dto.NoticePagenationParam;
+import com.portfolio.demo.project.dto.board.BoardNoticeParam;
+import com.portfolio.demo.project.dto.board.NoticePagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -117,15 +117,15 @@ public class BoardNoticeService {
     /**
      * 공지사항 게시글 작성
      *
-     * @param boardParam
+     * @param param
      */
     @Transactional
-    public Long saveBoard(BoardNoticeParam boardParam) {
-        Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
+    public Long saveBoard(BoardNoticeParam param) {
+        Member user = memberRepository.findById(param.getWriterId()).orElse(null);
 
         BoardNotice board = BoardNotice.builder()
-                .title(boardParam.getTitle())
-                .content(boardParam.getContent())
+                .title(param.getTitle())
+                .content(param.getContent())
                 .writer(user)
                 .views(0)
                 .build();
@@ -138,15 +138,15 @@ public class BoardNoticeService {
 /**
  * 공지사항 게시글 수정
  *
- * @param notice
+ * @param param
  */
 @Transactional
-public Long updateBoard(BoardNoticeParam notice) {
-    BoardNotice board = boardNoticeRepository.findById(notice.getId()).orElse(null);
+public Long updateBoard(BoardNoticeParam param) {
+    BoardNotice board = boardNoticeRepository.findById(param.getId()).orElse(null);
 
     if (board != null) {
-        board.updateTitle(notice.getTitle());
-        board.updateContent(notice.getContent());
+        board.updateTitle(param.getTitle());
+        board.updateContent(param.getContent());
     } else {
         throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
     }

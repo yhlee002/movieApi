@@ -2,14 +2,8 @@ package com.portfolio.demo.project.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.portfolio.demo.project.controller.member.certkey.CertResponse;
-import com.portfolio.demo.project.dto.MemberParam;
-import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.entity.member.MemberCertificated;
-import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;

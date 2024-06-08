@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.intercepter;
 
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

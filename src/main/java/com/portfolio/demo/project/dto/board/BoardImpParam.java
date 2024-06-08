@@ -1,5 +1,6 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.board;
 
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import lombok.Builder;
 import lombok.Getter;

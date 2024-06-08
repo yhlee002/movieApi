@@ -10,7 +10,7 @@ import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.dto.SocialLoginParam;
 import com.portfolio.demo.project.dto.SocialProfileParam;
 import jakarta.servlet.http.HttpServletRequest;
