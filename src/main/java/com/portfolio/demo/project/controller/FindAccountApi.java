@@ -6,7 +6,7 @@ import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,9 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.dto.comment.CommentImpPagenationParam;
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
+import com.portfolio.demo.project.dto.comment.CommentMovPagenationParam;
+import com.portfolio.demo.project.dto.comment.CommentMovParam;
 import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.dto.*;
@@ -45,8 +49,8 @@ public class CommentApi {
      * @param request
      */
     @PostMapping("/comment/movie")
-    public ResponseEntity<Result<String>> createCommentMov(CreateCommentMovRequest request) {
-        commentMovService.updateComment(
+    public ResponseEntity<Result<CommentMovParam>> createCommentMov(@RequestBody CreateCommentMovRequest request) {
+        Long id = commentMovService.saveComment(
                 CommentMovParam.builder()
                         .movieNo(request.getMovieNo())
                         .content(request.getContent())
@@ -55,8 +59,9 @@ public class CommentApi {
                         .build()
         );
 
-        return new ResponseEntity<>(new Result<>("success"), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+        CommentMovParam comment = commentMovService.findById(id);
+
+        return new ResponseEntity<>(new Result<>(comment), HttpStatus.OK);    }
 
     /**
      * 댓글 수정
@@ -64,16 +69,17 @@ public class CommentApi {
      * @param request
      */
     @PatchMapping("/comment/movie")
-    public ResponseEntity<Result<String>> updateCommentMov(UpdateCommentMovRequest request) {
+    public ResponseEntity<Result<CommentMovParam>> updateCommentMov(@RequestBody UpdateCommentMovRequest request) {
         CommentMovParam commentParam = CommentMovParam.builder()
                 .id(request.getCommentId())
                 .content(request.getContent())
                 .rating(request.getRating())
                 .build();
 
-        commentMovService.updateComment(commentParam);
+        Long id = commentMovService.updateComment(commentParam);
+        CommentMovParam comment = commentMovService.findById(id);
 
-        return new ResponseEntity<>(new Result<>("success"), HttpStatus.OK);
+        return new ResponseEntity<>(new Result<>(comment), HttpStatus.OK);
     }
 
 
@@ -84,10 +90,10 @@ public class CommentApi {
      * @return
      */
     @DeleteMapping("/comment/movie")
-    public String deleteCommentMov(@RequestParam Long commentId) {
+    public ResponseEntity<Result<Boolean>> deleteCommentMov(@RequestParam Long commentId) {
         commentMovService.deleteCommentById(commentId);
 
-        return "success";
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
     }
 
     /**
@@ -132,13 +138,17 @@ public class CommentApi {
      * @param request
      */
     @PostMapping("/comment/imp")
-    public void writeCommentImp(CreateCommentImpRequest request) {
-        commentImpService.updateComment(
+    public ResponseEntity<Result<CommentImpParam>> writeCommentImp(@RequestBody CreateCommentImpRequest request) {
+        Long id = commentImpService.saveComment(
                 CommentImpParam.builder()
                         .content(request.getContent())
                         .boardId(request.getBoardId())
                         .writerId(request.getWriterId())
                         .build());
+
+        CommentImpParam imp = commentImpService.findById(id);
+
+        return ResponseEntity.ok(new Result<>(imp));
     }
 
     /**
@@ -147,14 +157,18 @@ public class CommentApi {
      * @param request
      */
     @PatchMapping("/comment/imp")
-    public void updateCommentImp(@RequestBody UpdateCommentImpRequest request) {
+    public ResponseEntity<Result<CommentImpParam>> updateCommentImp(@RequestBody UpdateCommentImpRequest request) {
         CommentImpParam comm = CommentImpParam.builder()
                 .id(request.getCommentId())
                 .writerId(request.getWriterId())
                 .content(request.getContent())
                 .boardId(request.getBoardId())
                 .build();
-        commentImpService.updateComment(comm);
+
+        Long id = commentImpService.updateComment(comm);
+        CommentImpParam imp = commentImpService.findById(id);
+
+        return ResponseEntity.ok(new Result<>(imp));
     }
 
     /**
@@ -163,10 +177,10 @@ public class CommentApi {
      * @param commentId
      */
     @DeleteMapping("/comment/imp")
-    public String deleteCommentImp(@RequestParam Long commentId) {
+    public ResponseEntity<Result<Boolean>> deleteCommentImp(@RequestParam Long commentId) {
         commentImpService.deleteCommentById(commentId);
 
-        return "success";
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
     }
 
     @GetMapping("/comment/imp/checkMemNo")

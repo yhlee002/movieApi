@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.comment;
 
 import lombok.Builder;
 import lombok.Getter;

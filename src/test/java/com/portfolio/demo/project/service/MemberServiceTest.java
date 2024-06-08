@@ -2,7 +2,7 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.comment;
 
 import com.portfolio.demo.project.entity.comment.CommentMov;
 import lombok.Builder;

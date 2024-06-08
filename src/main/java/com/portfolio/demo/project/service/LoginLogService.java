@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.LoginLogParam;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.entity.loginlog.LoginLog;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.entity.member.Member;
@@ -67,6 +67,7 @@ public class LoginLogService {
                 .id(param.getId())
                 .ip(param.getIp())
                 .member(member)
+                .result(param.getResult())
                 .build();
 
         loginLogRepository.save(log);
@@ -74,8 +75,8 @@ public class LoginLogService {
         return log.getId();
     }
 
-    public void deleteLog(LoginLogParam param) {
-        LoginLog log = loginLogRepository.findById(param.getId()).orElse(null);
+    public void deleteLog(Long id) {
+        LoginLog log = loginLogRepository.findById(id).orElse(null);
         loginLogRepository.delete(log);
     }
 }

@@ -1,16 +1,15 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.dto.CommentImpParam;
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
-import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.dto.BoardImpParam;
-import com.portfolio.demo.project.dto.ImpressionPagenationParam;
+import com.portfolio.demo.project.dto.board.BoardImpParam;
+import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j

@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.controller;
 
 import com.portfolio.demo.project.dto.LoginLogParam;
-import com.portfolio.demo.project.dto.MemberParam;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;

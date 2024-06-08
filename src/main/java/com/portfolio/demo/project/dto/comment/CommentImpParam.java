@@ -1,9 +1,8 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.comment;
 
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Setter

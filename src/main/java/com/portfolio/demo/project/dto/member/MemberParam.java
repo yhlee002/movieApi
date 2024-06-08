@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.portfolio.demo.project.entity.member.Member;
