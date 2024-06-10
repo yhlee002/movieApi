@@ -1,12 +1,11 @@
 package com.portfolio.demo.project.util;
 
 import lombok.extern.slf4j.Slf4j;
-import net.nurigo.java_sdk.api.Message;
-import net.nurigo.java_sdk.exceptions.CoolsmsException;
-import org.json.simple.JSONObject;
+import net.nurigo.sdk.NurigoApp;
+import net.nurigo.sdk.message.exception.NurigoMessageNotReceivedException;
+import net.nurigo.sdk.message.model.Message;
+import net.nurigo.sdk.message.service.DefaultMessageService;
 
-import java.util.HashMap;
-import java.util.Random;
 import java.util.ResourceBundle;
 
 @Slf4j
@@ -14,40 +13,31 @@ public class CoolSmsMessageUtil {
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
     private final static String API_KEY = resourceBundle.getString("coolSmsKey");
     private final static String API_SECRET = resourceBundle.getString("coolSmsSecret");
-    private final static String sender = resourceBundle.getString("testPhoneNum");
+    private final static String sender = resourceBundle.getString("messageSender");
 
     // 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송
-    public String sendCertificationMessage(String phone) {
-        int tempKey = getTempKey();
-
-        HashMap<String, String> params = new HashMap<String, String>();
-        params.put("to", phone);    // 수신번호
-        params.put("from", sender);    // 발신번호
-        params.put("type", "SMS");
-        params.put("text", "Movie Info Site 인증번호입니다. - " + tempKey);
-
-        send(params);
-        log.info("문자 메세지로 전송된 인증번호 : {]", tempKey);
-        return Integer.toString(tempKey);
-    }
-
-    // 랜덤 키 생성
-    protected int getTempKey() {
-        Random ran = new Random();
-        return ran.nextInt(9000) + 1000; // => 1000 ~ 9999 범위의 난수 생성
+    public static String sendCertificationMessage(String tempKey, String phone) {
+        send(phone, "Movie Site 인증번호입니다. - " + tempKey);
+        log.info("문자 메세지로 전송된 인증번호 : {}", tempKey);
+        return tempKey;
     }
 
     // 메세지 전송
-    protected void send(HashMap<String, String> params) { // params에 메세지 정보를 만들어서 전달
-        Message coolsms = new Message(API_KEY, API_SECRET);
+    protected static void send(String to, String text) { // params에 메세지 정보를 만들어서 전달
+        DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(API_KEY, API_SECRET, "https://api.coolsms.co.kr");
+
+        Message message = new Message();
+        message.setFrom(sender);
+        message.setTo(to);
+        message.setText(text);
 
         try {
-            JSONObject obj = coolsms.send(params);
-            log.info("result : {}", obj.toString());
-            log.info("success_count : {}", obj.get("success_count"));
-        } catch (CoolsmsException e) {
-            log.info("error message : {}", e.getMessage());
-            log.info("error code : {}", e.getCode());
+            messageService.send(message);
+        } catch (NurigoMessageNotReceivedException exception) {
+            System.out.println(exception.getFailedMessageList());
+            System.out.println(exception.getMessage());
+        } catch (Exception exception) {
+            System.out.println(exception.getMessage());
         }
     }
 }
