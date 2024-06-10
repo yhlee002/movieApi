@@ -1,25 +1,22 @@
 package com.portfolio.demo.project.intercepter;
 
-import com.portfolio.demo.project.entity.member.Member;
-import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.vo.MemberVO;
-import lombok.extern.log4j.Log4j;
+import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import org.springframework.web.servlet.HandlerInterceptor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @Slf4j
-public class RememberMeIntercepter extends HandlerInterceptorAdapter {
+public class RememberMeIntercepter implements HandlerInterceptor {
 
-    @Autowired
-    MemberService memberService;
+    @Autowired // 제거 임시 보류
+    private MemberService memberService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -31,10 +28,12 @@ public class RememberMeIntercepter extends HandlerInterceptorAdapter {
 
             if (auth != null && auth.getName() != "anonymousUser") {
                 log.info("현재 auth : " + auth);
-                UserDetail userDetail = (UserDetail) auth.getPrincipal();
-                Member member = memberService.findByIdentifier(userDetail.getUsername());
+
+                MemberParam member = memberService.findByIdentifier((String) auth.getPrincipal());
+//                UserDetail userDetail = new UserDetail(member);
+
                 log.info("찾아온 member : " + member.toString());
-                session.setAttribute("member", new MemberVO(member));
+                session.setAttribute("member", member);
             }
         }
 

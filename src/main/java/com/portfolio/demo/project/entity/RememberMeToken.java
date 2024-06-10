@@ -1,19 +1,18 @@
 package com.portfolio.demo.project.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+
 import java.util.Date;
 
 @Entity
 @Table(name = "persistent_logins")
 @Getter
-@Setter
-@NoArgsConstructor
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class RememberMeToken {
 
     @Id
@@ -27,6 +26,14 @@ public class RememberMeToken {
 
     @Column(name = "LAST_USED", nullable = false)
     private Date lastUsed;
+
+    public void updateToken(String token) {
+        this.token = token;
+    }
+
+    public void updateLastUsed(Date lastUsed) {
+        this.lastUsed = lastUsed;
+    }
 
     public RememberMeToken(PersistentRememberMeToken token) {
         this.series = token.getSeries();

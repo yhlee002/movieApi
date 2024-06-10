@@ -31,7 +31,7 @@ $(function () {
 
                 $.ajax({
                     url: "/sign-up/emailCk",
-                    type: "post",
+                    type: "get",
                     data: {'email': email},
                     dataType: "text",
                     beforeSend: function (xhr) {
@@ -92,14 +92,14 @@ $(function () {
                     // 이름(닉네임)을 가져와 에이잭스로 DB에 존재하는 이름(닉네임)인지 확인
                     $.ajax({
                         url: "/sign-up/nameCk",
-                        type: "post",
+                        type: "get",
                         data: {'name': name},
                         dataType: "text",
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader(header, token);
                         },
                         success: function (data) {
-                            if (data == "") {
+                            if (data == 0) {
                                 nMessage.html("사용가능한 회원명입니다.");
                                 nMessage.addClass("visible");
                                 nMessage.removeClass("invisible");
@@ -219,7 +219,7 @@ $(function () {
 
             $.ajax({
                 url: "/sign-up/phoneCk",
-                type: "post",
+                type: "get",
                 data: {"phone": phone},
                 dataType: "text",
                 beforeSend: function (xhr) {
@@ -310,24 +310,23 @@ $(function () {
                 let formData = $('#form_signup').serialize();
 
                 $.ajax({
-                    url: "/sign-up/sign-up-processor",
+                    url: "/member",
                     type: "post",
-                    data: formData,
+                    data: {
+                        member: formData,
+                        type: 'd'
+                    },
                     dataType: "text",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader(header, token);
                     },
                     success: function (data) {
-                        if (data != "-1") {
-                            location.href = "/sign-up/success?memNo=" + data;
-                        } else {
-                            alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
-                        }
+                        location.href = "/sign-up/success?memNo=" + data;
 
                     },
                     error: function (request, status) {
                         console.warn("code : " + status + "\nmessage : " + request.responseText);
-                        alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
+                        alert("회원가입에 실패했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다."); // alert("오류가 발생했습니다. 문제가 반복될 경우 고객센터로 문의바랍니다.");
                     }
                 });
             } else {
@@ -341,9 +340,12 @@ $(function () {
                 let formData = $('#form_signup_o').serialize();
 
                 $.ajax({
-                    url: "/sign-up/sign-up-processor_oauth",
+                    url: "/member", // sign-up-processor_oauth",
                     type: "post",
-                    data: formData,
+                    data: {
+                        member: formData,
+                        type: 'o'
+                    },
                     dataType: "text",
                     beforeSend: function (xhr) {
                         xhr.setRequestHeader(header, token);

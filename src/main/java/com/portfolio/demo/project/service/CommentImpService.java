@@ -6,118 +6,124 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.CommentImpPagenationVO;
-import com.portfolio.demo.project.vo.CommentImpVO;
+import com.portfolio.demo.project.dto.comment.CommentImpPagenationParam;
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@RequiredArgsConstructor
+@Transactional
 @Service
 public class CommentImpService {
 
-    @Autowired
-    CommentImpRepository commentImpRepository;
+    private final CommentImpRepository commentImpRepository;
 
-    @Autowired
-    BoardImpRepository boardImpRepository;
+    private final BoardImpRepository boardImpRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    public List<CommentImpVO> getMyCommTop5(Long memNo) {
-        List<CommentImp> commList = commentImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
-        List<CommentImpVO> commVOList = new ArrayList<>();
-        for (CommentImp c : commList) {
-            commVOList.add(new CommentImpVO(c));
-        }
-        return commVOList;
-    }
+    public CommentImpParam findById(Long id) {
+        CommentImp com = commentImpRepository.findById(id).orElse(null);
 
-    public CommentImp saveComment(String content, Long boardId, Long memNo) {
-        BoardImp imp = boardImpRepository.findById(boardId).get();
-        Member writer = memberRepository.findById(memNo).get();
-        CommentImp commImp = CommentImp.builder()
-                .id(null)
-                .content(content)
-                .writer(writer)
-                .board(imp)
-                .build();
-        log.info("생성된 commImp의 내용 : " + commImp.getContent());
-        return commentImpRepository.save(commImp);
-    }
+        CommentImpParam vo = null;
 
-    public CommentImp updateComment(Long commentId, String content) {
-        CommentImp originImp = commentImpRepository.findById(commentId).get();
-        originImp.setContent(content);
-        return commentImpRepository.save(originImp);
-    }
-
-    public void deleteComment(Long commentId) {
-        Optional<CommentImp> comm = commentImpRepository.findById(commentId);
-        if (comm.isPresent()) {
-            commentImpRepository.delete(comm.get());
-        }
-    }
-
-    public List<CommentImpVO> getCommentVOList(Long boardId) {
-        List<CommentImp> commList = commentImpRepository.findByBoardId(boardId);
-        List<CommentImpVO> commVOList = new ArrayList<>();
-
-        for (CommentImp comment : commList) {
-            commVOList.add(new CommentImpVO(comment));
-        }
-
-        return commVOList;
-    }
-
-    public List<CommentImpVO> getCommentVOListByMemNo(Long memNo) {
-        List<CommentImp> commList = commentImpRepository.findByWriter_MemNo(memNo);
-        List<CommentImpVO> commVOList = new ArrayList<>();
-
-        for (CommentImp comment : commList) {
-            commVOList.add(new CommentImpVO(comment));
-        }
-
-        return commVOList;
-    }
-
-    private final static int COMMENT_COUNT_PER_PAGE = 20;
-    private Long memNo;
-
-    public void setMemNo(Long memNo) {
-        this.memNo = memNo;
-    }
-
-    // 본인이 작성한 댓글(마이페이지에서 조회 가능)
-    @Transactional
-    public CommentImpPagenationVO getMyCommListView(int pageNum) {
-        Long totalCommCnt = commentImpRepository.findCountByWriter_MemNo(memNo);
-        int startRow = 0;
-        List<CommentImpVO> commVOList = new ArrayList<>();
-        CommentImpPagenationVO commPagenationVO = null;
-        if (totalCommCnt > 0) {
-            startRow = (pageNum - 1) * COMMENT_COUNT_PER_PAGE;
-
-            List<CommentImp> commList = commentImpRepository.findCommImpListViewByWriterNo(memNo, startRow, COMMENT_COUNT_PER_PAGE);
-            for (CommentImp comment : commList) {
-                commVOList.add(new CommentImpVO(comment));
-            }
+        if (com != null) {
+            vo = CommentImpParam.create(com);
 
         } else {
-            pageNum = 0;
+            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
 
-        int endRow = startRow * COMMENT_COUNT_PER_PAGE;
-
-        commPagenationVO = new CommentImpPagenationVO(totalCommCnt, pageNum, commVOList, COMMENT_COUNT_PER_PAGE, startRow, endRow);
-
-        return commPagenationVO;
+        return vo;
     }
 
+    public Long saveComment(CommentImpParam comment) {
+        Member writer = memberRepository.findById(comment.getWriterId()).orElse(null);
+        BoardImp board = boardImpRepository.findById(comment.getBoardId()).orElse(null);
+
+        CommentImp result = CommentImp.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .board(board)
+                .writer(writer)
+                .build();
+
+        commentImpRepository.save(result);
+
+        return result.getId();
+    }
+
+    public Long updateComment(CommentImpParam commentParam) {
+        CommentImp comment = commentImpRepository.findById(commentParam.getId()).orElse(null);
+
+        comment.updateContent(commentParam.getContent());
+
+        return comment.getId();
+    }
+
+    public void deleteCommentById(Long commentId) {
+        Optional<CommentImp> comm = commentImpRepository.findById(commentId);
+        comm.ifPresent(commentImpRepository::delete);
+    }
+
+    public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
+        BoardImp b = boardImpRepository.findById(boardId).orElse(null);
+
+        List<CommentImpParam> vos = null;
+        CommentImpPagenationParam result = null;
+        if (b != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<CommentImp> pages = commentImpRepository.findAllByBoard(b, pageable);
+            List<CommentImp> list = pages.getContent();
+
+            log.info("조회된 댓글 수 : {}", list.size());
+
+            vos = list.stream().map(CommentImpParam::create).toList();
+
+            result = CommentImpPagenationParam.builder()
+                    .commentImpsList(vos)
+                    .totalPageCnt(pages.getTotalPages())
+                    .build();
+        } else {
+            result = CommentImpPagenationParam.builder()
+                    .commentImpsList(new ArrayList<>())
+                    .totalPageCnt(0)
+                    .build();
+
+            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+
+        return result;
+    }
+
+    public List<CommentImpParam> getCommentsByMember(Long memNo, int page, int size) {
+        Member mem = memberRepository.findById(memNo).orElse(null);
+
+        List<CommentImpParam> vos = new ArrayList<>();
+        if (mem != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<CommentImp> result = commentImpRepository.findAllByWriter(mem, pageable);
+            List<CommentImp> list = result.getContent();
+
+            vos = list.stream().map(CommentImpParam::create).toList();
+        } else {
+            log.error("해당 아이디의 회원 정보가 존재하지 않습니다.");
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return vos;
+    }
 }

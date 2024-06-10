@@ -17,7 +17,7 @@
     <div class="inner">
         <div class="box align-center" id="myPageModi_one">
             <div sec:authorize="isAuthenticated()">
-                <form th:action="@{/mypage/modify_info_proc}" type="post" name="modify_info_form" class="form">
+                <form th:action="@{/mypage/modify_info}" type="patch" name="modify_info_form" class="form">
                     <!-- profile image -->
                     <a href="javascript:window.open('/mypage/uploadProfileImage', 'Upload Profile Image Form', 'width=550px, height=265px')">
                         <img class="profile_image" th:if="${not #strings.isEmpty(session.member.getProfileImage())}"

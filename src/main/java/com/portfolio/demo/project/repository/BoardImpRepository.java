@@ -1,75 +1,82 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.member.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 
-    // 모든 소감글 조회
-    @Query(value = "select b from BoardImp b")
-    List<BoardImp> findAllBoardImp();
+    @Query(value = "select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = :id")
+    BoardImp findOneById(@Param("id") Long id);
 
-    // board_id로 조회
-    BoardImp findBoardImpById(Long boardId);
+    /**
+     * 이전글
+     *
+     * @param id
+     * @return
+     */
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardImp b2 where b2.id < :id order by b2.id desc limit 1)")
+    BoardImp findPrevBoardImpById(@Param("id") Long id);
 
-    // 이전글
-    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no where b.id = " +
-            "(select b.id from board_imp b where b.id < ?1 order by b.id desc limit 1)"
-            , nativeQuery = true)
-    BoardImp findPrevBoardImpByBoardId(Long boardId);
+    /**
+     * 다음글
+     *
+     * @param id
+     */
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardImp b2 where b2.id > :id order by b2.id limit 1)")
+    BoardImp findNextBoardImpById(Long id);
 
-    // 다음글
-    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no where b.id = " +
-            "(select b.id from board_imp b where b.id > ?1 order by b.id asc limit 1)"
-            , nativeQuery = true)
-    BoardImp findNextBoardImpByBoardId(Long boardId);
+    /**
+     * 인기 게시글 top {size} 조회
+     */
+    @Query("select b, m.name from BoardImp b" +
+            " join fetch b.writer m" +
+            " order by b.views desc limit :size")
+    List<BoardImp> findMostFavImpBoards(@Param("size") int size);
 
-    // 인기 게시글 top 5 조회
-    @Query(value = "select b.*, m.name from board_imp b join member m on b.writer_no=m.mem_no order by b.views desc limit 5", nativeQuery = true)
-    List<BoardImp> findTop5ByOrderByViewsDesc();
+    /**
+     * 작성자명으로 검색 결과 조회
+     */
 
-    // 작성자명 검색 결과 조회
-    @Query(value = "select count(b) from BoardImp b where b.writer.name like %?1%")
-    int findBoardNoticeSearchResultTotalCountWN(String writerName);
+//    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
+//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
+//    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
+    Page<BoardImp> findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(String name, Pageable pageable);
 
-    @Query(value = "select b.* from BoardImp b join Member m on b.writer_no = m.mem_no where m.name = ?1 order by b.id desc limit ?2, ?3"
-            , nativeQuery = true)
-    List<BoardImp> findBoardImpListViewByWriterName(String writerName, int startRow, int boardCntPerPage);
+    @Query(value = "select b from BoardImp b" +
+            " join fetch Member m" +
+            " where m.name like %:name%")
+    Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
 
-    // 제목 또는 내용으로 검색 결과 조회
-    @Query("select count(b) from BoardImp b where b.title like %?1% or b.content like %?1%")
-    int findBoardImpSearchResultTotalCountTC(String titleOrContent);
+//    @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
+//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
+//    Integer findTotalPagesByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
 
-    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no where b.title like %?1% or b.content like %?1% order by b.id desc limit ?2, ?3"
-            , nativeQuery = true)
-    List<BoardImp> findBoardImpListViewByTitleOrContent(String titleOrContent, int startRow, int boardCntPerPage);
+    /**
+     * 제목 또는 내용으로 검색 결과 조회
+     */
+    Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
-    // 자신이 작성한 글 조회(마이페이지)
-    @Query(value = "select count(b) from BoardImp b where b.writer.memNo = ?1")
-    int findBoardImpTotalCountByMemNo(Long memNo);
-
-    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no where m.mem_no = ?1 order by b.id desc limit ?2, ?3"
-            , nativeQuery = true)
-    List<BoardImp> findBoardImpListViewByWriterNo(Long memNo, int startRow, int boardCntPerPage);
-
-    // 자신이 작성한 글 최신순 5개(마이페이지)
-    List<BoardImp> findTop5ByWriter_MemNoOrderByRegDateDesc(Long memNo);
-
-    // '제목 또는 내용'으로 검색
-    @Query("select b from BoardImp b where b.title like %?1% or b.content like %?1%")
-    List<BoardImp> findAllBoardImpByTitleAndContent(String titleOrContent);
-
-    /* 페이지네이션 */
-    // 모든 게시글 조회
-    @Query(value = "select count(b) from BoardImp b")
-    Long findCount();
-
-    @Query(value = "select b.* from board_imp b join Member m on b.writer_no = m.mem_no order by b.id desc limit ?1, ?2"
-            , nativeQuery = true)
-    List<BoardImp> findBoardImpListView(int startRow, int boardCntPerPage);
-
-
+    /**
+     * 특정 회원이 작성한 게시글 조회(최신순)
+     * ex. 마이페이지 > 자신이 작성한 글 조회
+     *
+     * @param member
+     * @return
+     */
+    Page<BoardImp> findAllByWriter(Member member, Pageable pageable);
 }

@@ -1,56 +1,54 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-@Repository
 public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> {
 
-    // 모든 notice 게시글 조회
-    @Query(value = "select b from BoardNotice b")
-    List<BoardNotice> findAllBoardNotice();
+    /**
+     * 공지사항 게시글 단건 조회
+     *
+     * @param id
+     * @return
+     */
+    BoardNotice findBoardNoticeById(Long id);
 
-    // board_id로 조회
-//    BoardNotice findByBoarId(Long boardId);
-
-    // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)  join Member m on b.writer_no = m.mem_no
-    @Query(value = "select b.* from board_notice b where b.id = " +
-            "(select b.id from board_notice b where b.id < ?1 order by id desc limit 1)"
-            , nativeQuery = true)
-    BoardNotice findPrevBoardNoticeByBoardId(Long boardId); // 인자로 받는 boardId는 기준이 되는 글의 번호
+    // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
+            " where b.id = " +
+            "(select b2.id from BoardNotice b2 where b2.id < :id order by b2.id desc limit 1)"
+    )
+    BoardNotice findPrevBoardNoticeById(Long id);
 
     // 해당 글의 다음글(해당 글보다 board_id가 높은 글들을 올림차순으로 나열해 가장 첫번째 것) join Member m on b.writer_no = m.mem_no
-    @Query(value = "select b.* from board_notice b where b.id = " +
-            "(select b.id from board_notice b where b.id > ?1 order by id asc limit 1)"
-            , nativeQuery = true)
-    BoardNotice findNextBoardNoticeByBoardId(Long boardId);
+    @Query("select b from BoardNotice b" +
+            " where b.id = " +
+            "(select b2.id from BoardNotice b2 where b2.id > :id order by b2.id asc limit 1)"
 
-    // 최신 게시글 top 5 조회
-    List<BoardNotice> findTop5ByOrderByRegDateDesc();
+    )
+    BoardNotice findNextBoardNoticeById(Long id);
 
+    /**
+     * 최신 게시글 top {size} 조회
+     */
 
-    /* 페이지네이션 */
-    // 전체 게시글 조회
-    @Query("select count(b) from BoardNotice b")
-    int findCount();
+    @Query("select b from BoardNotice b join Member m on b.writer = m order by b.regDate desc limit :size")
+    List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
 
-    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no order by b.id desc limit ?1, ?2"
-            , nativeQuery = true)
-    List<BoardNotice> findBoardNoticeListView(int startRow, int boardCntPerPage);
-
-    // 제목 또는 내용으로 검색 결과 조회
-    @Query("select count(b) from BoardNotice b where b.title like %?1% or b.content like %?1%")
-    int findBoardNoticeSearchResultTotalCountTC(String titleOrContent);
-
-    @Query(value = "select b.* from board_notice b where b.title like %?1% or b.content like %?1% order by b.id desc limit ?2, ?3"
-            , nativeQuery = true)
-    List<BoardNotice> findBoardNoticeListViewByTitleOrContent(String titleOrContent, int startRow, int boardCntPerPage);
-
-    // '제목 또는 내용'으로 검색(검색창만 두고 조건 선택 X)
-    @Query("select b from BoardNotice b where b.title like %?1% or b.content like %?1%")
-    List<BoardNotice> findByTitleOrContentContaining(String titleOrContent);
+    /**
+     * 제목 또는 내용으로 검색 결과 조회
+     *
+     * @param title
+     * @param content
+     */
+//    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where title like %:title% order by b.reg_dt"
+//        , nativeQuery = true)
+    Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 }

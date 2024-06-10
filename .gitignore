@@ -7,6 +7,9 @@ build/
 application.properties
 *.yaml
 
+### local environment
+infra/local/dbdata
+
 ### STS ###
 .apt_generated
 .classpath

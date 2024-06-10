@@ -1,25 +1,22 @@
 package com.portfolio.demo.project.entity.comment;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.hibernate.annotations.DynamicUpdate;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.List;
+import jakarta.persistence.*;
 
 @Table(name = "comment_movie")
+@Entity
 @Setter
 @Getter
-@ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class CommentMov {
+@DynamicUpdate
+public class CommentMov extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,23 +29,7 @@ public class CommentMov {
     @Column(name = "movie_no")
     private Long movieNo;
 
-    @Column(name = "content")
     private String content;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @Column(name = "reg_dt", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate;
-
-    @Column(name = "rating")
     private int rating;
-
-    @Builder
-    public CommentMov(Long id, Member writer, String content, Long movieNo, int rating) {
-        this.id = id;
-        this.writer = writer;
-        this.content = content;
-        this.movieNo = movieNo;
-        this.rating = rating;
-    }
 }

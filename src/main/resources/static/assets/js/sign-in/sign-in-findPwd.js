@@ -47,8 +47,8 @@ $(function () {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader(header, token);
             },
-            success: function (data) {
-                if (data === "success") {
+            success: function (result) {
+                if (result) { // true
                     window.close();
                     opener.alert("이메일 전송에 성공했습니다.");
                 } else {

@@ -1,0 +1,93 @@
+#Tomcat
+server:
+  port: 8080
+  forward-headers-strategy: native
+  compression:
+    enabled: true
+  servlet:
+    context-path: /api
+    encoding: #Encoding UTF-8
+      charset: UTF-8
+      force: true
+      enabled: true
+
+#Thymeleaf
+spring:
+  thymeleaf:
+    cache: false
+    mode: HTML
+
+  config:
+    location: com.portfolio.demo.project.config
+
+  #JPA
+  datasource:
+    url: jdbc:mysql://localhost:3306/moviesite?characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: password
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+
+  #gson
+  mvc:
+    converters:
+      preferred-json-mapper: gson
+
+  #file size
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  #Google mail
+  mail:
+    protocol: smtp
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          port: 587
+          socketFactory:
+            port: 587
+            class: javax.net.ssl.SSLSocketFactory
+          auth: true
+          starttls:
+            enable: true
+          timeout: 5000
+        default-encoding: UTF-8
+
+#Logger
+logging:
+  level:
+    root: INFO
+    org:
+      hibernate:
+        sql: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+      springframework:
+        jdbc:
+          core:
+            JdbcTemplate: TRACE
+            StatementCreatorUtils: TRACE
+
+# P6Spy
+decorator:
+  datasource:
+    p6spy:
+      custom-appender-class: com.p6spy.engine.spy.appender.StdoutLogger
+      enable-logging: true
+

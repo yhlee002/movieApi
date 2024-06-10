@@ -1,55 +1,57 @@
 package com.portfolio.demo.project.entity.board;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Table(name = "board_imp")
+@Builder
 @Entity
-@Setter
 @Getter
-@ToString
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BoardImp {
+@DynamicUpdate
+public class BoardImp extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content") // , nullable = false
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_no")
     private Member writer;
 
-    @Column(name = "reg_dt", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDate;
-
-    @Column(name = "views")
     private int views; // 조회수
 
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "board_id")
-    private List<CommentImp> comments;
+    private int recommended;
 
-    @Builder
-    public BoardImp(Long id, String title, String content, Member writer, LocalDateTime regDate) {
-        this.id = id;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "board")
+    private List<CommentImp> comments = new ArrayList<>();
+
+    public void updateTitle(String title) {
         this.title = title;
+    }
+
+    public void updateContent(String content) {
         this.content = content;
-        this.writer = writer;
-        this.regDate = regDate;
+    }
+
+    public void updateViewCount(int views) {
+        this.views = views;
+    }
+
+    public void updateRecommended(int recommended) {
+        this.recommended = recommended;
     }
 }

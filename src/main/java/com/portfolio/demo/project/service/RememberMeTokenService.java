@@ -2,37 +2,38 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.entity.RememberMeToken;
 import com.portfolio.demo.project.repository.RememberMeTokenRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 @Transactional
 public class RememberMeTokenService implements PersistentTokenRepository {
 
-    @Autowired
-    private RememberMeTokenRepository rememberMeTokenRepository;
+    private final RememberMeTokenRepository rememberMeTokenRepository;
 
     @Override
     public void createNewToken(PersistentRememberMeToken token) {
         RememberMeToken rmT = new RememberMeToken(token);
-        log.info("token 발급 : "+ rmT.getToken().toString());
         rememberMeTokenRepository.save(rmT);
+
+        log.info("token 발급 : {}", rmT.getToken().toString());
     }
 
     @Override
     public void updateToken(String series, String tokenValue, Date lastUsed) {
         RememberMeToken rmT = rememberMeTokenRepository.findBySeries(series);
         if(rmT != null){
-            rmT.setToken(tokenValue);
-            rmT.setLastUsed(lastUsed);
+            rmT.updateToken(tokenValue);
+            rmT.updateLastUsed(lastUsed);
             rememberMeTokenRepository.save(rmT);
         }
     }
