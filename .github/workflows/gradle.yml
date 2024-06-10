@@ -59,7 +59,9 @@ jobs:
 
     - name: Get Github Actions IP
       id: ip
-      uses: haythem/public-ip@v1.2
+      uses: haythem/public-ip@v1.3
+      with:
+        maxRetries: 5 #default value
 
     - name: "Configure AWS Credentials" Action for GitHub Actions
       uses: aws-actions/configure-aws-credentials@v4
@@ -67,7 +69,7 @@ jobs:
         aws-region: ap-northeast-2
         aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
-      
+
     - name: Add Github Actions IP to Security group
       run: |
         aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
@@ -85,7 +87,7 @@ jobs:
           docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
           docker rm $(docker ps --filter 'status=exited' -a -q)
           docker image prune -a -f
-      
+
     - name: Remove Github Actions IP From Security Group
       run: |
         aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
