@@ -1,14 +1,15 @@
 package com.portfolio.demo.project.security;
 
-import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.dto.LoginLogParam;
+import com.portfolio.demo.project.entity.loginlog.LoginResult;
+import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;
-import com.portfolio.demo.project.vo.MemberVO;
+import com.portfolio.demo.project.dto.member.MemberParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,14 +17,15 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.security.Principal;
+import java.io.PrintWriter;
 
 @Slf4j
+@RequiredArgsConstructor
 public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     /**
      * 인증 권한이 필요한 페이지에 접근하게 되면, 로그인 화면을 띄우기 전에 필요한 정보들을 세션에 저장
@@ -35,8 +37,10 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     private static final String defaultUrl = "/";
 
-    @Autowired
-    MemberService memberService;
+    @Autowired // 제거 임시 보류
+    private MemberService memberService;
+
+    private final LoginLogService loginLogService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -47,24 +51,50 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
         String principal = (String) authentication.getPrincipal();
 
         /* 멤버 정보 로드 */
-        MemberVO memberVO = null;
+        MemberParam memberParam = null;
 
         if (principal != null) {
-            log.info("current principal : " + principal);
-            Member member = memberService.findByIdentifier(principal); // .getUsername()
+            MemberParam member = memberService.findByIdentifier(principal); // .getUsername()
 
             if (member != null) {
-                log.info("current member : " + member.toString());
+                LoginLogParam logParam = LoginLogParam.builder()
+                        .ip(request.getRemoteAddr())
+                        .memberNo(member.getMemNo())
+                        .memberIdentifier(member.getIdentifier())
+                        .result(LoginResult.SUCCESS)
+//                        .regDate(LocalDateTime::now)
+                        .build();
+                loginLogService.saveLog(logParam);
 
-                memberVO = new MemberVO(member);
+                memberParam = member;
+
+                response.setStatus(HttpServletResponse.SC_OK);
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("text/html; charset=UTF-8");
+
+                JSONObject outputData = new JSONObject();
+                outputData.put("memNo", memberParam.getMemNo());
+                outputData.put("identifier", memberParam.getIdentifier());
+                outputData.put("name", memberParam.getName());
+                outputData.put("profileImage", memberParam.getProfileImage());
+                outputData.put("phone", memberParam.getPhone());
+                outputData.put("regDate", memberParam.getRegDate());
+                outputData.put("role", memberParam.getRole().toString());
+                outputData.put("provider", memberParam.getProvider());
+
+
+                PrintWriter writer = response.getWriter();
+                writer.write(outputData.toString());
+                writer.flush();
+                writer.close();
             }
         }
 
         HttpSession session = request.getSession();
         session.setAttribute("principal", principal);
-        session.setAttribute("member", memberVO); // 없는 경우 null -> SignInController에서 담음
+        session.setAttribute("member", memberParam); // 없는 경우 null -> SignInController에서 담음
 
-        SetRedirectStrategyUrl(request, response, authentication);
+//        SetRedirectStrategyUrl(request, response, authentication);
     }
 
     public void SetRedirectStrategyUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {

@@ -1,43 +1,63 @@
 package com.portfolio.demo.project.util;
 
+import com.portfolio.demo.project.dto.SocialLoginParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 @Slf4j
+@RequiredArgsConstructor
 public class KakaoLoginApiUtil {
+
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+
     private static String CLIENT_ID = resourceBundle.getString("kakaoClientId");
     private static String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
 
     Map<String, String> tokens;
 
+    public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
+        SecureRandom random = new SecureRandom();
+
+        String callbackUrl = URLEncoder.encode("http://localhost:8077/api/member/oauth2/kakao", "utf-8");
+        String apiUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code";
+        String state = new BigInteger(130, random).toString();
+
+        apiUrl += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENT_ID, callbackUrl, state);
+
+        return SocialLoginParam.builder()
+                .provider("kakao")
+                .state(state)
+                .apiUrl(apiUrl)
+                .build();
+    }
+
     public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
-
-        System.out.println(request.getParameterMap().keySet().toString());
-        System.out.println(request.getParameterMap().values());
-
-        String kakaoCode = request.getParameter("code");
-        String kakaoState = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://3.36.203.4:8080/sign-in/kakao/oauth2", "UTF-8");
+        String code = request.getParameter("code");
+        String state = request.getParameter("state");
+        String redirectURI = URLEncoder.encode("http://localhost:8077/api/member/oauth2/kakao", "UTF-8");
 
         String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
         apiURL += "&client_id=" + CLIENT_ID;
         apiURL += "&client_secret=" + CLIENT_SECRET;
         apiURL += "&redirect_uri=" + redirectURI;
-        apiURL += "&code=" + kakaoCode;
+        apiURL += "&code=" + code;
+//        apiURL += "&state=" + state;
 
-        log.info("apiURL=" + apiURL);
+        log.info("Kakao oauth 소셜 로그인 인증 URL: {}", apiURL);
 
         HttpURLConnection con = null;
         String res = "";
@@ -54,7 +74,7 @@ public class KakaoLoginApiUtil {
                 res = readBody(con.getErrorStream());
             }
 
-            log.info("res : "+res);
+            log.info("Kakao oauth 소셜 로그인 인증 결과: " + res);
 
             if (responseCode == 200) {
                 Map<String, Object> parsedJson = new JSONParser(res).parseObject();
@@ -67,7 +87,7 @@ public class KakaoLoginApiUtil {
             }
 
         } catch (IOException | ParseException e) {
-            throw new RuntimeException("API 요청과 응답 실패", e);
+            throw new RuntimeException("Kakao oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.", e);
         } finally {
             con.disconnect();
         }
@@ -75,14 +95,17 @@ public class KakaoLoginApiUtil {
     }
 
     private static String readBody(InputStream stream) {
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-        try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+        InputStreamReader streamReader = new InputStreamReader(stream);
+
+        try(BufferedReader br = new BufferedReader(streamReader)) {
+            StringBuilder responseBody = new StringBuilder();
+
+            String line = null;
             if ((line = br.readLine()) != null) {
-                sb.append(line);
+                responseBody.append(line);
             }
-            return sb.toString();
+
+            return responseBody.toString();
         } catch (IOException e) {
             throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
         }

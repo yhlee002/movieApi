@@ -1,203 +1,389 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
+import com.portfolio.demo.project.repository.CommentImpRepository;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.vo.ImpressionPagenationVO;
+import com.portfolio.demo.project.dto.board.BoardImpParam;
+import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.time.LocalDateTime;
-import java.util.HashMap;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class BoardImpService {
 
-    @Autowired
-    BoardImpRepository boardImpRepository;
+    private final BoardImpRepository boardImpRepository;
 
-    @Autowired
-    MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-    /* 조회 */
-    public List<BoardImp> selectAllBoards() {
-        return boardImpRepository.findAllBoardImp();
+    private final CommentImpRepository commentImpRepository;
+
+    private final CommentImpSimpleRepository commentImpSimpleRepository;
+
+    /**
+     * 전체 감상평 게시글 조회
+     */
+    public ImpressionPagenationParam getAllBoards(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
+
+        List<BoardImp> list = pages.getContent();
+
+        log.info("조회된 게시글 수 : {}", list.size());
+
+        List<BoardImpParam> vos = list.stream().map(BoardImpParam::create).collect(Collectors.toList());
+        vos.forEach(vo -> {
+            int commentSize = commentImpRepository.findCountByBoardId(vo.getId());
+            vo.setCommentSize(commentSize);
+        });
+
+        return ImpressionPagenationParam.builder()
+                .boardImpList(vos)
+                .totalPageCnt(pages.getTotalPages())
+                .build();
     }
 
-    // 게시글 단건 조회
-    public BoardImp selectBoardByBoardId(Long boardId) {
-        return boardImpRepository.findBoardImpById(boardId);
-    }
+    /**
+     * 감상평 게시글 식별번호로 단건 조회
+     *
+     * @param id
+     * @return
+     */
+    public BoardImpParam findById(Long id) {
+        BoardImp boardImp = boardImpRepository.findOneById(id);
 
-    // 게시글 단건 조회 + 이전글, 다음글
-    public HashMap<String, BoardImp> selectBoardsByBoardId(Long boardId) {
-        BoardImp board = boardImpRepository.findBoardImpById(boardId);
-        BoardImp prevBoard = boardImpRepository.findPrevBoardImpByBoardId(boardId);
-        BoardImp nextBoard = boardImpRepository.findNextBoardImpByBoardId(boardId);
-        HashMap<String, BoardImp> boardNoticeMap = new HashMap<>();
-        boardNoticeMap.put("board", board);
-        boardNoticeMap.put("prevBoard", prevBoard);
-        boardNoticeMap.put("nextBoard", nextBoard);
+        BoardImpParam vo = null;
 
-        return boardNoticeMap;
-    }
+        if (boardImp != null) {
+            vo = BoardImpParam.create(boardImp);
 
-    // 내가 쓴 글 최신순 5개
-    public List<BoardImp> getMyImpTop5(Long memNo) {
-        return boardImpRepository.findTop5ByWriter_MemNoOrderByRegDateDesc(memNo);
-    }
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
 
-    // 인기 게시글 top 5
-    public List<BoardImp> getFavImpBoard() {
-        return boardImpRepository.findTop5ByOrderByViewsDesc();
-    }
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
 
-    /* 추가(작성) */
-    public BoardImp saveBoard(String title, Long memNo, String content) {
-        Member member = null;
-        Optional<Member> memberOpt = memberRepository.findById(memNo);
-        if (memberOpt.isPresent()) {
-            member = memberOpt.get();
+            vo.setComments(comments);
         }
 
-        BoardImp imp = new BoardImp(null, title, content, member, LocalDateTime.now());
-        return boardImpRepository.save(imp);
+        return vo;
     }
 
-    /* 수정 */
-    @Transactional
-    public Long updateBoard(Long boardId, String title, Long memNo, String content) { // 해당 board에 boardId, memNo, regDt 등이 담겨 있다면 다른 내용들도 따로 set하지 않고 바로 save해도 boardId, memNo등이 같으니 변경을 감지하지 않을까?
-        Member member = null;
-        Optional<Member> memberOpt = memberRepository.findById(memNo);
-        if (memberOpt.isPresent()) {
-            member = memberOpt.get();
+    /**
+     * 감상평 게시글 식별번호로 이전글 조회
+     *
+     * @param id
+     * @return
+     */
+    public BoardImpParam findPrevById(Long id) {
+        BoardImp boardImp = boardImpRepository.findPrevBoardImpById(id);
+
+        BoardImpParam vo = null;
+
+        if (boardImp != null) {
+            vo = BoardImpParam.create(boardImp);
+
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
+
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
+
+            vo.setComments(comments);
+        }
+        return vo;
+    }
+
+    /**
+     * 감상평 게시글 식별번호로 다음글 조회
+     *
+     * @param id
+     * @return
+     */
+    public BoardImpParam findNextById(Long id) {
+        BoardImp boardImp = boardImpRepository.findNextBoardImpById(id);
+
+        BoardImpParam vo = null;
+
+        if (boardImp != null) {
+            vo = BoardImpParam.create(boardImp);
+
+            Pageable pageable = PageRequest.of(0, 15, Sort.by("regDate").descending());
+            Page<CommentImpSimpleParam> commentPage = commentImpSimpleRepository.findAllParamsByBoardId(id, pageable);
+            List<CommentImpSimpleParam> result = commentPage.getContent();
+
+            List<CommentImpParam> comments = result.stream().map(simple -> CommentImpParam.builder()
+                    .id(simple.getId())
+                    .boardId(simple.getBoardId())
+                    .writerId(simple.getWriterId())
+                    .writerName(simple.getWriterName())
+                    .content(simple.getContent())
+                    .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                    .build()).collect(Collectors.toList());
+
+            vo.setComments(comments);
         }
 
-        BoardImp newBoard = null;
-        BoardImp originBoard = boardImpRepository.findBoardImpById(boardId);
-        if (originBoard != null) {
-            newBoard = new BoardImp(boardId, title, content, member, originBoard.getRegDate());
+        return vo;
+    }
 
-            boardImpRepository.save(newBoard);
+    /**
+     * 인기 감상평 게시글 top {size} 조회
+     */
+    public List<BoardImpParam> getMostFavImpBoard(int size) {
+        List<BoardImp> mostFavImpBoards = boardImpRepository.findMostFavImpBoards(size);
+        List<BoardImpParam> boardParams = mostFavImpBoards.stream().map(BoardImpParam::create).collect(Collectors.toList());
+        List<Long> boardIds = boardParams.stream().map(BoardImpParam::getId).collect(Collectors.toList());
+
+        for (BoardImpParam param : boardParams) {
+            int commentSize = commentImpRepository.findCountByBoardId(param.getId());
+            param.setCommentSize(commentSize);
         }
+//        Pageable pageable = PageRequest.of(0, size, Sort.by("views").descending());
+//        Page<CommentImpSimpleParam> page = commentImpSimpleRepository.findAllParamsByBoardIds(boardIds, pageable);
+//        List<CommentImpSimpleParam> simpleParams = page.getContent();
+//        List<CommentImpParam> params = simpleParams.stream().map(simple -> CommentImpParam.builder()
+//                .id(simple.getId())
+//                .boardId(simple.getBoardId())
+//                .writerId(simple.getWriterId())
+//                .writerName(simple.getWriterName())
+//                .content(simple.getContent())
+//                .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+//                .build()).collect(Collectors.toList());
+//
+//        Map<Long, List<CommentImpParam>> map = params.stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
+//        boardParams.forEach(board -> board.setComments(map.get(board.getId())));
 
-        return boardId;
+        return boardParams;
     }
 
-    /* 삭제 */
+    /**
+     * 감상평 게시글 작성
+     *
+     * @param boardParam
+     */
     @Transactional
-    public void deleteBoardByBoardId(Long boardId) {
-        BoardImp board = boardImpRepository.findBoardImpById(boardId);
-        boardImpRepository.delete(board);
+    public Long saveBoard(BoardImpParam boardParam) {
+
+        Member user = memberRepository.findById(boardParam.getId()).orElse(null);
+
+        BoardImp board = BoardImp.builder()
+                .title(boardParam.getTitle())
+                .content(boardParam.getContent())
+                .writer(user)
+                .views(0)
+                .recommended(0)
+                .build();
+
+        return board.getId();
     }
 
-    // 게시글 조회수 증가
-    public void upViewCnt(Long boardId) {
-        BoardImp imp = boardImpRepository.findById(boardId).get();
-        imp.setViews(imp.getViews() + 1);
-        boardImpRepository.save(imp);
-    }
-
-    public void deleteBoards(List<BoardImp> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        boardImpRepository.deleteAll(boards);
-    }
-
-    /* 페이지 네이션 */
-    private static final int BOARD_COUNT_PER_PAGE = 10; // 한페이지 당 보여줄 게시글의 수
-
+    /**
+     * 감상평 게시글 수정
+     *
+     * @param boardParam
+     */
     @Transactional
-    public ImpressionPagenationVO getImpListView(int pageNum) {
-        int totalBoardCnt = boardImpRepository.findCount().intValue();
-        int startRow = 0;
-        List<BoardImp> boardImpList = null;
-        ImpressionPagenationVO impPagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
+    public Long updateBoard(BoardImpParam boardParam) {
+        // 작성자 정보 검증
+        BoardImp board = boardImpRepository.findById(boardParam.getId()).orElse(null);
 
-            boardImpList = boardImpRepository.findBoardImpListView(startRow, BOARD_COUNT_PER_PAGE);
+        if (board != null) {
+            board.updateTitle(boardParam.getTitle());
+            board.updateContent(boardParam.getContent());
         } else {
-            pageNum = 0;
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
         }
 
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-
-        impPagenationVO = new ImpressionPagenationVO(totalBoardCnt, pageNum, boardImpList, BOARD_COUNT_PER_PAGE, startRow, endRow);
-
-        return impPagenationVO;
+        return board.getId();
     }
 
-    /* 검색 기능 (작성자명) */
+    /**
+     * 감상평 게시글 삭제
+     *
+     * @param id
+     */
     @Transactional
-    public ImpressionPagenationVO getImpListViewByWriterName(int pageNum, String writer) {
-        int totalBoardCnt = boardImpRepository.findBoardNoticeSearchResultTotalCountWN(writer);
-        int startRow = 0;
-        List<BoardImp> boardImpList = null;
-        ImpressionPagenationVO impressionPagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
-            boardImpList = boardImpRepository.findBoardImpListViewByWriterName(writer, startRow, BOARD_COUNT_PER_PAGE);
+    public void deleteById(Long id) {
+        BoardImp board = boardImpRepository.findById(id).orElse(null);
+        if (board != null) {
+            boardImpRepository.delete(board);
         } else {
-            pageNum = 0;
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
-
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-        impressionPagenationVO = new ImpressionPagenationVO(totalBoardCnt, pageNum, boardImpList, BOARD_COUNT_PER_PAGE, startRow, endRow);
-
-        return impressionPagenationVO;
     }
 
-    /* 검색 기능 (제목 또는 내용) */
+    /**
+     * 감상평 게시글 추천수 업데이트
+     *
+     * @param id
+     */
+    public void upViewCntById(Long id) {
+        BoardImp imp = boardImpRepository.findById(id).orElse(null);
+        if (imp != null) {
+            imp.updateViewCount(imp.getViews() + 1);
+        } else {
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+    }
+
+    /**
+     * 복수의 감상평 게시글 삭제
+     *
+     * @param boards
+     */
+    public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+        List<BoardImp> list = boards.stream().map(b -> {
+            Member member = memberRepository.findById(b.getWriterId()).orElse(null);
+
+            return BoardImp.builder()
+                    .id(b.getId())
+                    .title(b.getTitle())
+                    .content(b.getContent())
+                    .writer(member)
+                    .views(b.getViews())
+                    .recommended(b.getRecommended())
+                    .build();
+        }).toList();
+
+        boardImpRepository.deleteAll(list);
+    }
+
+    /**
+     * 감상평 게시글 조회
+     *
+     * @param page
+     * @return
+     */
+    @Deprecated
     @Transactional
-    public ImpressionPagenationVO getImpListViewByTitleAndContent(int pageNum, String titleOrContent) {
-        int totalBoardCnt = boardImpRepository.findBoardImpSearchResultTotalCountTC(titleOrContent);
-        int startRow = 0;
-        List<BoardImp> boardImpList = null;
-        ImpressionPagenationVO impressionPagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
-            boardImpList = boardImpRepository.findBoardImpListViewByTitleOrContent(titleOrContent, startRow, BOARD_COUNT_PER_PAGE);
-        } else {
-            pageNum = 0;
-        }
+    public ImpressionPagenationParam getImpPagenation(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-        impressionPagenationVO = new ImpressionPagenationVO(totalBoardCnt, pageNum, boardImpList, BOARD_COUNT_PER_PAGE, startRow, endRow);
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
 
-        return impressionPagenationVO;
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+
+        return ImpressionPagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(list)
+                .build();
     }
 
-    private Long memNo;
-
-    public void setMemNo(Long memNo) {
-        this.memNo = memNo;
-    }
-
-    // 본인이 작성한 글(마이페이지에서 조회 가능)
+    /**
+     * 검색 기능 (작성자명)
+     *
+     * @param page
+     * @param keyword
+     */
     @Transactional
-    public ImpressionPagenationVO getMyImpListView(int pageNum) {
-        int totalBoardCnt = boardImpRepository.findBoardImpTotalCountByMemNo(memNo);
-        int startRow = 0;
-        List<BoardImp> boardImpList = null;
-        ImpressionPagenationVO impPagenationVO = null;
-        if (totalBoardCnt > 0) {
-            startRow = (pageNum - 1) * BOARD_COUNT_PER_PAGE;
+    public ImpressionPagenationParam getImpPagenationByWriterName(int page, Integer size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
 
-            boardImpList = boardImpRepository.findBoardImpListViewByWriterNo(memNo, startRow, BOARD_COUNT_PER_PAGE);
-        } else {
-            pageNum = 0;
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
+
+        log.info("조회된 게시글 수 : {}", pages.getContent().size());
+
+        return ImpressionPagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(list)
+                .build();
+    }
+
+    /**
+     * 검색 기능 (제목 또는 내용)
+     *
+     * @param page
+     * @param keyword
+     */
+    @Transactional
+    public ImpressionPagenationParam getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
+
+        List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
+        list.forEach(board -> {
+            int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+            board.setCommentSize(countByBoardId);
+        });
+
+        return ImpressionPagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(list)
+                .build();
+
+    }
+
+    /**
+     * 특정 작성자가 작성한 글(마이페이지에서 조회 가능)
+     *
+     * @param memNo
+     * @param page
+     * @param size
+     */
+    @Transactional
+    public List<BoardImpParam> getImpsByMember(Long memNo, int page, int size) {
+        Member member = memberRepository.findById(memNo).orElse(null);
+
+        List<BoardImpParam> result = new ArrayList<>();
+
+        if (member != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+            Page<BoardImp> pages = boardImpRepository.findAllByWriter(member, pageable);
+            List<BoardImp> list = pages.getContent();
+
+            result = list.stream().map(BoardImpParam::create).toList();
+
+            result.forEach(board -> {
+                int countByBoardId = commentImpRepository.findCountByBoardId(board.getId());
+                board.setCommentSize(countByBoardId);
+            });
         }
 
-        int endRow = startRow * BOARD_COUNT_PER_PAGE;
-
-        impPagenationVO = new ImpressionPagenationVO(totalBoardCnt, pageNum, boardImpList, BOARD_COUNT_PER_PAGE, startRow, endRow);
-
-        return impPagenationVO;
+        return result;
     }
 
 }

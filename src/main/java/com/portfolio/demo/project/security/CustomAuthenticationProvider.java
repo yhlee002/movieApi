@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.security;
 
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -12,10 +13,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Slf4j
 public class CustomAuthenticationProvider implements AuthenticationProvider {
-    @Autowired
+
+    @Autowired // 제거 임시 보류
     private UserDetailsServiceImpl userDetailsService;
 
-    @Autowired
+    @Autowired // 제거 임시 보류
     private PasswordEncoder passwordEncoder;
 
     @Override

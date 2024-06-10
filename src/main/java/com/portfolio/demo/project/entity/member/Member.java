@@ -1,68 +1,82 @@
 package com.portfolio.demo.project.entity.member;
 
+import com.portfolio.demo.project.entity.BaseEntity;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import org.hibernate.annotations.DynamicUpdate;
 
-//@Data // @Data만 쓰면 NoArgConstructor만 생성
+import java.util.ArrayList;
+import java.util.List;
+
 @Table(name = "member")
-@Setter
+@Entity
 @Getter
 @ToString(exclude = "certKey")
-//@AllArgsConstructor // @AllArgsConsturctor을 쓰면 기본 생성자가 없어짐
+@Builder
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 // Entity 클래스를 프로젝트 코드상에서 기본생성자로 생성하는 것은 막되, JPA에서 Entity 클래스를 생성하는것은 허용하기 위해 추가
-@Entity
-public class Member {
+@DynamicUpdate
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 기본 키 생성을 DB에 위임(id값을 null로 전달할 경우 DB가 알아서 AUTO_INCREMENT)
     private Long memNo;
 
-    @Column(name = "identifier", nullable = false)
     private String identifier;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "pwd") // 외부 api 가입 회원의 경우 패스워드 불필요
     private String password;
 
-    @Column(name = "phone", nullable = false)
     private String phone;
-
-    @Column(name = "reg_date", insertable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime regDt;
 
     @Column(name = "profile_image")
     private String profileImage;
 
-    @Column(name = "provider")
     private String provider;
 
-    @Column(name = "role") // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private MemberRole role; // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_USER
 
-    @Column(name = "cert_key")
-    private String certKey;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
+    private MemberCertificated certification;
 
-    @Column(name = "certification")
-    private String certification;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "writer")
+    List<CommentImp> comments = new ArrayList<>();
 
-    @Builder
-    public Member(Long memNo, String identifier, String name, String password, String phone, LocalDateTime regDt, String profileImage, String provider, String role, String certKey, String certification) {
-        this.memNo = memNo;
-        this.identifier = identifier;
+    public void updateName(String name) {
         this.name = name;
-        this.password = password;
+    }
+
+    public void updatePhone(String phone) {
         this.phone = phone;
-        this.regDt = regDt;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public void updateProvider(String provider) {
         this.provider = provider;
+    }
+
+    public void updateRole(MemberRole role) {
         this.role = role;
-        this.certKey = certKey;
+    }
+
+    public void updateCertification(MemberCertificated certification) {
         this.certification = certification;
+    }
+
+    public void updateComments(List<CommentImp> comments) {
+        this.comments = comments;
     }
 }

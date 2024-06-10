@@ -1,0 +1,28 @@
+# infra/local/docker-compose.yaml
+
+version: "3.9"
+
+services:
+  local-db:
+    image: mysql:8.4
+    platform: linux/arm64/v8
+    command: --mysql-native-password=ON #  --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_DATABASE: moviesite
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - ./dbdata:/var/lib/mysql/
+
+  local-db-migrate:
+    image: flyway/flyway:latest
+    restart: always
+    environment:
+      - FLYWAY_DB_URL=jdbc:mysql://local-db/moviesite?allowPublicKeyRetrieval=true&useSSL=false
+      - FLYWAY_DB_USER=root
+      - FLYWAY_DB_PASSWORD=password
+    command: migrate
+    volumes:
+      - ../../db/flyway.conf:/flyway/conf/flyway.conf
+      - ../../db/migration:/flyway/sql

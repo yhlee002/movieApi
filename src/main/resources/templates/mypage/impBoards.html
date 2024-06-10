@@ -16,9 +16,9 @@
     <div class="inner">
         <h2>내가 작성한 후기</h2>
         <div class="box" id="myPage_board">
-            <div th:if="${pagenation.getTotalBoardCnt() > 0}">
+            <div th:if="${list.length > 0}">
                 <ul style="list-style: none;">
-                    <li th:each="board : ${pagenation.getBoardImpList()}">
+                    <li th:each="board : ${list}">
                         <a th:href="@{/imp/{boardId}(boardId=${board.getId()})}">
                             <div class="boardList-item">
                                 <p class="board_title"
@@ -33,7 +33,7 @@
                        th:href="@{/mypage/imp-board?p={i}(i=${index})}"></a>
                 </div>
             </div>
-            <div th:if="${pagenation.getTotalBoardCnt() == 0}" class="align-center">
+            <div th:if="${list.length == 0}" class="align-center">
                 <p>작성한 글이 없습니다.</p>
             </div>
         </div>

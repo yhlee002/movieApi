@@ -2,13 +2,14 @@ package com.portfolio.demo.project.entity.rememberMe;
 
 
 import lombok.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Table(name = "persistant_logins")
 @Entity
-@Setter
+@Builder
 @Getter
 @ToString
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
 public class PersistantLogins {
 
@@ -16,7 +17,6 @@ public class PersistantLogins {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String series;
 
-    @Column(name = "username")
     private String username;
 
     @Column(name = "TOKEN")
@@ -24,12 +24,4 @@ public class PersistantLogins {
 
     @Column(name = "LAST_USED")
     private String lastUsed;
-
-    @Builder
-    public PersistantLogins(String series, String username, String token, String lastUsed) {
-        this.series = series;
-        this.username = username;
-        this.token = token;
-        this.lastUsed = lastUsed;
-    }
 }
