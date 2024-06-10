@@ -63,7 +63,7 @@ jobs:
       with:
         maxRetries: 5 #default value
 
-    - name: "Configure AWS Credentials" Action for GitHub Actions
+    - name: Configure AWS Credentials for GitHub Actions
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: ap-northeast-2
