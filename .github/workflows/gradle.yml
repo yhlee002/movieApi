@@ -50,6 +50,7 @@ jobs:
 
     - name: Docker Login
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
     - name: Docker build
       run: |
         docker build -t app .
@@ -57,8 +58,8 @@ jobs:
         docker push ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
 
     - name: Get Github Actions IP
-        id: ip
-        uses: haythem/public-ip@v1.2
+      id: ip
+      uses: haythem/public-ip@v1.2
 
     - name: "Configure AWS Credentials" Action for GitHub Actions
       uses: aws-actions/configure-aws-credentials@v4
@@ -78,6 +79,7 @@ jobs:
         username: ec2-user
         key: ${{ secrets.BASTION_SSH_PRIVATE_KEY }}
         script: |
+          ssh -i ~/.ssh/${{ secrets.BASTION_SSH_PRIVATE_KEY }} -o StrictHostChecking=no ec2-user@${{ secrets.API_SERVER_PRIVATE_IP }}
           docker pull ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
           docker stop $(docker ps -a -q)
           docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
