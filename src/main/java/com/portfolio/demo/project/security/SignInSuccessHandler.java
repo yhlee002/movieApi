@@ -7,7 +7,6 @@ import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -23,6 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -72,7 +73,7 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType("text/html; charset=UTF-8");
 
-                JSONObject outputData = new JSONObject();
+                Map<String, Object> outputData = new HashMap<>();
                 outputData.put("memNo", memberParam.getMemNo());
                 outputData.put("identifier", memberParam.getIdentifier());
                 outputData.put("name", memberParam.getName());

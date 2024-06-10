@@ -9,6 +9,7 @@ import com.portfolio.demo.project.repository.CertificationRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.AwsSmsUtil;
+import com.portfolio.demo.project.util.CoolSmsMessageUtil;
 import com.portfolio.demo.project.util.TempKey;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -127,26 +128,28 @@ public class CertificationService {
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
         String certKey = Integer.toString(getTempKey());
-        AwsSmsUtil.sendCertificationMessage(certKey, phone);
+//        AwsSmsUtil.sendCertificationMessage(certKey, phone);
+        CoolSmsMessageUtil.sendCertificationMessage(certKey, phone);
 
-        CertificationData foundData = certificationRepository.findByCertificationIdAndType(phone, CertificationType.PHONE);
+        CertificationData data = certificationRepository.findByCertificationIdAndType(phone, CertificationType.PHONE);
 
-        if (foundData != null) {
-            certificationRepository.delete(foundData);
+        if (data != null) {
+            data.setCertKey(certKey);
+            data.setReason(reason);
+            data.setExpiration(LocalDateTime.now().plusMinutes(3));
+        } else {
+            data = CertificationData.builder()
+                    .certificationId(phone)
+                    .type(CertificationType.PHONE)
+                    .certKey(certKey)
+                    .reason(reason)
+                    .expiration(LocalDateTime.now().plusMinutes(3))
+                    .build();
+
+            certificationRepository.save(data);
         }
 
-        CertificationData data = CertificationData.builder()
-                .certificationId(phone)
-                .type(CertificationType.PHONE)
-                .certKey(certKey)
-                .reason(reason)
-                .expiration(LocalDateTime.now().plusMinutes(3))
-                .build();
-
-        certificationRepository.save(data);
-        CertificationDataDto dto = new CertificationDataDto(data);
-
-        return new SendCertificationNotifyResult(Boolean.TRUE, dto);
+        return new SendCertificationNotifyResult(Boolean.TRUE, new CertificationDataDto(data));
     }
 
     public SendCertificationNotifyResult sendCertificationMail(String toMail, CertificationReason reason) {
