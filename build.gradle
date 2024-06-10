@@ -2,9 +2,9 @@ plugins {
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.0.10.RELEASE'
     id 'java'
-    id 'jacoco'
-    id 'org.sonarqube' version '4.0.0.2929'
-    id 'com.diffplug.spotless' version '6.12.0'
+//    id 'jacoco'
+//    id 'org.sonarqube' version '4.0.0.2929'
+//    id 'com.diffplug.spotless' version '6.12.0'
 }
 
 group = 'com.portfolio.younghyun'
@@ -42,22 +42,22 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-sns:1.12.734'
     implementation 'software.amazon.awssdk:apache-client'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    testImplementation "com.redis.testcontainers:testcontainers-redis-junit:1.6.4"
+//    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+//    testImplementation "com.redis.testcontainers:testcontainers-redis-junit:1.6.4"
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1'
     implementation 'com.google.code.gson:gson:2.9.1'
     implementation 'dev.akkinoc.util:yaml-resource-bundle:2.12.3'
-    implementation 'net.nurigo:javaSDK:2.2'
-    implementation 'com.vonage:client:6.2.0'
-    compileOnly 'org.projectlombok:lombok'
+//    implementation 'net.nurigo:javaSDK:2.2'
+//    implementation 'com.vonage:client:6.2.0'
+//    compileOnly 'org.projectlombok:lombok'
 //    compile 'io.jsonwebtoken:jjwt-api:0.11.2'
 //    runtime 'io.jsonwebtoken:jjwt-impl:0.11.2',
 //            'io.jsonwebtoken:jjwt-jackson:0.11.2'
-    implementation 'org.webjars:bootstrap:4.5.2'
-    implementation 'org.webjars:jquery:3.5.1'
-    implementation 'org.webjars:font-awesome:5.15.0'
-    implementation 'org.webjars:webjars-locator-core:0.46'
+//    implementation 'org.webjars:bootstrap:4.5.2'
+//    implementation 'org.webjars:jquery:3.5.1'
+//    implementation 'org.webjars:font-awesome:5.15.0'
+//    implementation 'org.webjars:webjars-locator-core:0.46'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -69,82 +69,88 @@ dependencies {
 //    compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-jacoco {
-    toolVersion = "0.8.8";
+bootJar {
+    archivesBaseName = 'moviesite_api_server'
+    archiveFileName = 'moviesite_api_server.jar'
+    archiveVersion = "0.0.1"
 }
+
+//jacoco {
+//    toolVersion = "0.8.8";
+//}
 
 tasks.named("test") {
     useJUnitPlatform()
 
-    jacoco {}
-    finalizedBy(tasks.jacocoTestReport)
+//    jacoco {}
+//    finalizedBy(tasks.jacocoTestReport)
 }
 
-tasks.jacocoTestReport {
-    reports {
-        xml.required = true
-        html.required = true
-        csv.required = false
+//tasks.jacocoTestReport {
+//    reports {
+//        xml.required = true
+//        html.required = true
+//        csv.required = false
+//
+//        xml.destination(file("build/jacoco/jacoco.xml"))
+//        html.destination(file("build/jacoco/jacoco.html"))
+//    }
+//}
 
-        xml.destination(file("build/jacoco/jacoco.xml"))
-        html.destination(file("build/jacoco/jacoco.html"))
-    }
-}
+//tasks.jacocoTestCoverageVerification {
+//    violationRules {
+//        rule {
+//            enabled = true
+//            element = "CLASS"
+//
+//            // line coverage가 50% 이상이어야 한다.
+//            limit {
+//                counter = "LINE"
+//                value = "COVEREDRATIO"
+//                minimum = BigDecimal.valueOf(0.5) // 최솟값
+//            }
+//
+//            // total line이 최대 100줄이다. (=한 클래스는 100줄 이상의 소스 코드를 가질 수 없다.)
+//            limit {
+//                counter = "LINE"
+//                value = "TOTALCOUNT"
+//                maximum = BigDecimal.valueOf(100) // 최댓값
+//            }
+//
+//            excludes = List.of(
+//                    "*.controller.*",
+//                    "com.portfolio.demo.project.ProjectApplication",
+//                    // 컨트롤러와 메인함수가 있는 클래스는 커버리지 검사 제외
+//            )
+//        }
+//    }
+//}
+//
+//sonar {
+//    properties {
+//        property("sonar.host.url", "http://localhost:9000")
+//        property("sonar.login", "sqp_c3256f1babeaeff69b6d09de0d54166d3a655ffd")
+//        property("sonar.sources", "src/main/java")
+//        property("sonar.tests", "src/test/java")
+//        property("sonar.sourceEncoding", "UTF-8")
+//        property("sonar.projectKey", "moviesite")
+//        property("sonar.projectName", "moviesite")
+//        property("sonar.coverage.jacoco.xmlReportPaths", "build/jacoco/jacoco.xml")
+//    }
+//}
+//
+//spotless {
+//    java {
+//        googleJavaFormat()
+//
+//        removeUnusedImports() // 사용하지 않는 import 제거
+////        trimTrailingWhitespace() // 공백이 2칸이상 존재하거나, 앞 뒤로 불필요한 공백 존재시 제거
+//        indentWithSpaces(4) // 들여쓰기가 탭이 아닌 띄어쓰기(4칸)으로 변경
+//        endWithNewline() // 마지막 줄을 공백으로 종료
+//    }
+//}
 
-tasks.jacocoTestCoverageVerification {
-    violationRules {
-        rule {
-            enabled = true
-            element = "CLASS"
-
-            // line coverage가 50% 이상이어야 한다.
-            limit {
-                counter = "LINE"
-                value = "COVEREDRATIO"
-                minimum = BigDecimal.valueOf(0.5) // 최솟값
-            }
-
-            // total line이 최대 100줄이다. (=한 클래스는 100줄 이상의 소스 코드를 가질 수 없다.)
-            limit {
-                counter = "LINE"
-                value = "TOTALCOUNT"
-                maximum = BigDecimal.valueOf(100) // 최댓값
-            }
-
-            excludes = List.of(
-                    "*.controller.*",
-                    "com.portfolio.demo.project.ProjectApplication",
-                    // 컨트롤러와 메인함수가 있는 클래스는 커버리지 검사 제외
-            )
-        }
-    }
-}
-
-sonar {
-    properties {
-        property("sonar.host.url", "http://localhost:9000")
-        property("sonar.login", "sqp_c3256f1babeaeff69b6d09de0d54166d3a655ffd")
-        property("sonar.sources", "src/main/java")
-        property("sonar.tests", "src/test/java")
-        property("sonar.sourceEncoding", "UTF-8")
-        property("sonar.projectKey", "moviesite")
-        property("sonar.projectName", "moviesite")
-        property("sonar.coverage.jacoco.xmlReportPaths", "build/jacoco/jacoco.xml")
-    }
-}
-
-spotless {
-    java {
-        googleJavaFormat()
-
-        removeUnusedImports() // 사용하지 않는 import 제거
-//        trimTrailingWhitespace() // 공백이 2칸이상 존재하거나, 앞 뒤로 불필요한 공백 존재시 제거
-        indentWithSpaces(4) // 들여쓰기가 탭이 아닌 띄어쓰기(4칸)으로 변경
-        endWithNewline() // 마지막 줄을 공백으로 종료
-    }
-}
-
-tasks.register("addGitPreCommitHook", Copy) {
-    from "script/pre-commit"
-    into ".git/hooks"
-}
+//tasks.register("addGitPreCommitHook", Copy) {
+//    from "script/pre-commit"
+//    into ".git/hooks"
+//}
