@@ -61,7 +61,7 @@ jobs:
       id: ip
       uses: haythem/public-ip@v1.2
 
-    - name: "Configure AWS Credentials" Action for GitHub Actions
+    - name: Configure AWS Credentials for GitHub Actions
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: ap-northeast-2
