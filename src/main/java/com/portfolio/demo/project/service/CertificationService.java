@@ -15,16 +15,13 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class CertificationService {
@@ -56,7 +53,6 @@ public class CertificationService {
      * @param id
      * @return
      */
-    @Cacheable(value = "Certification")
     public CertificationDataDto findById(Long id) {
         CertificationData data = certificationRepository.findById(id).orElse(null);
         return data == null ? null : new CertificationDataDto(data);
@@ -68,7 +64,6 @@ public class CertificationService {
      * @param certificationId
      * @return
      */
-    @Cacheable(value = "Certification")
     public CertificationDataDto findByCertificationIdAndType(String certificationId, CertificationType type) {
         CertificationData data = certificationRepository.findByCertificationIdAndType(certificationId, type);
 

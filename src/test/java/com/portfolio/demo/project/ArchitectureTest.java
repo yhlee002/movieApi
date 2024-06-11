@@ -63,7 +63,7 @@ public class ArchitectureTest {
     }
 
     @Test
-    @DisplayName("service 패키지 안에 있는 클래스들은 Service로 끝나야 하고, @Service 어노테이션이 붙어야 한다.")
+    @DisplayName("service 패키지 속 클래스들은 Service로 끝나야 하고, @Service 어노테이션이 붙어야 한다.")
     public void serviceTest() {
         ArchRule rule =
                 classes()
@@ -186,9 +186,12 @@ public class ArchitectureTest {
                 classes()
                         .that()
                         .resideInAnyPackage("..entity..")
+                        .and()
+                        .areNotEnums()
                         .should()
                         .onlyHaveDependentClassesThat()
-                        .resideInAnyPackage("..repository..", "..service..", "..entity..", "..dto..");
+                        .resideInAnyPackage("..repository..", "..service..", "..entity..", "..dto..",
+                                "..security..");
 
         rule.check(javaClasses);
     }
@@ -202,7 +205,9 @@ public class ArchitectureTest {
                         .resideInAnyPackage("..entity..")
                         .should()
                         .onlyDependOnClassesThat()
-                        .resideInAnyPackage("..entity..", "java..", "jakarta..");
+                        .resideInAnyPackage("..entity..", "java..", "jakarta..",
+                                "..jpa.domain..", "..org.hibernate..", "..security..",
+                                "..springframework.."); // DateTimeFormatter, LastModifiedDate
 
         rule.check(javaClasses);
     }

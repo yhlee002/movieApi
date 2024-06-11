@@ -8,14 +8,12 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.stereotype.Service;
 
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-@Transactional
 public class RememberMeTokenService implements PersistentTokenRepository {
 
     private final RememberMeTokenRepository rememberMeTokenRepository;
@@ -24,8 +22,6 @@ public class RememberMeTokenService implements PersistentTokenRepository {
     public void createNewToken(PersistentRememberMeToken token) {
         RememberMeToken rmT = new RememberMeToken(token);
         rememberMeTokenRepository.save(rmT);
-
-        log.info("token 발급 : {}", rmT.getToken().toString());
     }
 
     @Override

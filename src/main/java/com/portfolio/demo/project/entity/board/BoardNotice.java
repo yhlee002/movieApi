@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.board;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;

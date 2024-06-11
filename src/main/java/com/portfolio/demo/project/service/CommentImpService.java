@@ -15,7 +15,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class CommentImpService {
 
@@ -68,7 +66,11 @@ public class CommentImpService {
     public Long updateComment(CommentImpParam commentParam) {
         CommentImp comment = commentImpRepository.findById(commentParam.getId()).orElse(null);
 
-        comment.updateContent(commentParam.getContent());
+        if (comment != null) {
+            comment.updateContent(commentParam.getContent());
+        } else {
+            throw new IllegalStateException("해당 아이디의 댓글이 존재하지 않습니다.");
+        }
 
         return comment.getId();
     }
@@ -81,8 +83,6 @@ public class CommentImpService {
     public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
         BoardImp b = boardImpRepository.findById(boardId).orElse(null);
 
-        List<CommentImpParam> vos = null;
-        CommentImpPagenationParam result = null;
         if (b != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentImp> pages = commentImpRepository.findAllByBoard(b, pageable);
@@ -90,23 +90,21 @@ public class CommentImpService {
 
             log.info("조회된 댓글 수 : {}", list.size());
 
-            vos = list.stream().map(CommentImpParam::create).toList();
+            List<CommentImpParam> vos = list.stream().map(CommentImpParam::create).toList();
 
-            result = CommentImpPagenationParam.builder()
+            return CommentImpPagenationParam.builder()
                     .commentImpsList(vos)
                     .totalPageCnt(pages.getTotalPages())
                     .build();
         } else {
-            result = CommentImpPagenationParam.builder()
+            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+
+            return CommentImpPagenationParam.builder()
                     .commentImpsList(new ArrayList<>())
                     .totalPageCnt(0)
                     .build();
-
-            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
-//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
         }
-
-        return result;
     }
 
     public List<CommentImpParam> getCommentsByMember(Long memNo, int page, int size) {
