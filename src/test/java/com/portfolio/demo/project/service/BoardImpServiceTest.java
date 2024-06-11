@@ -7,13 +7,13 @@ import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import com.portfolio.demo.project.dto.member.MemberParam;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
@@ -209,9 +209,7 @@ class BoardImpServiceTest {
         BoardImp imp = BoardImpTestDataBuilder.board().build();
 
         // when & then
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            createBoard(imp, user);
-        });
+        Assertions.assertThrows(IllegalStateException.class, () -> createBoard(imp, user));
     }
 
     @Test
@@ -278,7 +276,7 @@ class BoardImpServiceTest {
         BoardImp b2 = BoardImpTestDataBuilder.board().build();
         BoardImpParam board2 = createBoard(b2, user);
 
-        List<BoardImpParam> list = Arrays.asList(new BoardImpParam[]{board, board2});
+        List<BoardImpParam> list = Arrays.asList(board, board2);
 
         int exists = boardImpService.getAllBoards(0, 10).getBoardImpList().size();
         boardImpService.deleteBoards(list);

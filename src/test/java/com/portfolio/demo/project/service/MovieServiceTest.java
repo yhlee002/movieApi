@@ -144,9 +144,9 @@ class MovieServiceTest {
 
         // then
         Assertions.assertEquals(Integer.parseInt(movieId), id);
-        Assertions.assertTrue(backDrops.size() > 0);
-        Assertions.assertTrue(logos.size() > 0);
-        Assertions.assertTrue(posters.size() > 0);
+        Assertions.assertTrue(!backDrops.isEmpty());
+        Assertions.assertTrue(!logos.isEmpty());
+        Assertions.assertTrue(!posters.isEmpty());
     }
 
     @Test

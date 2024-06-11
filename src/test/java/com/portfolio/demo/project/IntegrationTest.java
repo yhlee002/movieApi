@@ -1,6 +1,5 @@
 package com.portfolio.demo.project;
 
-import com.redis.testcontainers.RedisContainer;
 import org.junit.Ignore;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
@@ -23,7 +22,6 @@ import java.util.Map;
 public class IntegrationTest {
 
     static DockerComposeContainer rdbms;
-    static RedisContainer redis;
 
     static {
         // MySQL
@@ -42,10 +40,6 @@ public class IntegrationTest {
                 );
 
         rdbms.start();
-
-        // Redis
-//        redis = new RedisContainer(RedisContainer.DEFAULT_IMAGE_NAME.withTag("6")); // version 6
-//        redis.start();
     }
 
     static class IntegrationTestInitializer
@@ -61,12 +55,6 @@ public class IntegrationTest {
 
             properties.put(
                     "spring.datasource.url", "jdbc:mysql://" + rdbmsHost + ":" + rdbmsPort + "/moviesite");
-
-            // Redis
-//            var redisHost = redis.getHost();
-//            var redisPort = redis.getFirstMappedPort();
-//            properties.put("spring.data.redis.host", redisHost);
-//            properties.put("spring.data.redis.port", redisPort.toString());
 
             TestPropertyValues.of(properties).applyTo(applicationContext);
         }

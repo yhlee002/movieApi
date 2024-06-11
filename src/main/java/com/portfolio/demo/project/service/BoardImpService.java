@@ -165,7 +165,7 @@ public class BoardImpService {
     public List<BoardImpParam> getMostFavImpBoard(int size) {
         List<BoardImp> mostFavImpBoards = boardImpRepository.findMostFavImpBoards(size);
         List<BoardImpParam> boardParams = mostFavImpBoards.stream().map(BoardImpParam::create).collect(Collectors.toList());
-        List<Long> boardIds = boardParams.stream().map(BoardImpParam::getId).collect(Collectors.toList());
+//        List<Long> boardIds = boardParams.stream().map(BoardImpParam::getId).collect(Collectors.toList());
 
         for (BoardImpParam param : boardParams) {
             int commentSize = commentImpRepository.findCountByBoardId(param.getId());
