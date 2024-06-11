@@ -1,0 +1,126 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  S3_BUCKET_NAME: project-moviesite
+  AWS_REGION: ap-northeast-2
+  CODEDEPLOY_NAME: MovieSite
+  CODEDEPLOY_GROUP: moviesite-group
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+
+    steps:
+      # checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # make git repository's secret -> application.yml file
+      - name: Make application.yml
+        run: |
+#          cd ./src/main/resources
+#          touch ./application-prod.yml
+          echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
+
+      # grant execute permission for gradlew
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      # build
+      - name: Build with Gradle Wrapper
+        run: ./gradlew build
+
+      # delete application.yml
+      - name: Delete aplication.yml file
+        run: rm ./src/main/resources/application-prod.yml
+
+      - name: Make Directory
+        run: |
+#          cd ./
+          mkdir -p deploy
+
+      # Jar 파일 복사
+      - name: Copy Jar
+        run: cp ./build/libs/web_movie-0.0.1-SNAPSHOT.jar ./deploy
+
+      # 파일 압축
+      - name: Make zip file
+        run: zip -r ./moviesite-api-$GITHUB_SHA.zip ./deploy
+
+#      - name: Get Github Actions IP
+#        id: ip
+#        uses: haythem/public-ip@v1.3
+#        with:
+#          maxRetries: 5 #default value
+
+      - name: Configure AWS Credentials for GitHub Actions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: $AWS_REGION
+          aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+
+      - name: Upload to S3
+        run: aws s3 cp --region $AWS_REGION --acl private ./moviesite-api-$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/moviesite-api-$GITHUB_SHA
+
+      - name: CodeDeploy
+        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --deployment-group-name $CODEDEPLOY_GROUP \
+          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$moviesite-api-GITHUB_SHA.zip
+
+#      - name: Add Github Actions IP to Security group
+#        run: |
+#          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+#
+#      - name: Deploy to EC2 via Bastion
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.BASTION_HOST }}
+#          username: ec2-user
+#          key: ${{ secrets.BASTION_SSH_PRIVATE_KEY }}
+#          script: |
+#            ssh -i ~/.ssh/${{ secrets.BASTION_SSH_PRIVATE_KEY }} -o StrictHostChecking=no ec2-user@${{ secrets.API_SERVER_PRIVATE_IP }}
+#            docker pull ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
+#            docker stop $(docker ps -a -q)
+#            docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
+#            docker rm $(docker ps --filter 'status=exited' -a -q)
+#            docker image prune -a -f
+#
+#      - name: Remove Github Actions IP From Security Group
+#        run: |
+#          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+  dependency-submission:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
+      # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
+      - name: Generate and submit dependency graph
+        uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
