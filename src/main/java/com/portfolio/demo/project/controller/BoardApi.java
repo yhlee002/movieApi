@@ -5,6 +5,10 @@ import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.board.BoardNoticeParam;
 import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import com.portfolio.demo.project.dto.board.NoticePagenationParam;
+import com.portfolio.demo.project.dto.board.request.CreateBoardRequest;
+import com.portfolio.demo.project.dto.board.request.UpdateBoardRequest;
+import com.portfolio.demo.project.dto.board.response.MultiBoardImpResponse;
+import com.portfolio.demo.project.dto.board.response.MultiBoardNoticeResponse;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
@@ -274,33 +278,5 @@ public class BoardApi {
         };
 
         return new ResponseEntity<>(new Result<>(jsonObject), HttpStatus.OK);
-    }
-
-    @Data
-    private static class CreateBoardRequest {
-        private String title;
-        private String content;
-        private Long writerId;
-    }
-
-    @Data
-    private static class UpdateBoardRequest {
-        private Long id;
-        private String title;
-        private String content;
-    }
-
-    @Data
-    private static class MultiBoardNoticeResponse {
-        private BoardNoticeParam board;
-        private BoardNoticeParam prevBoard;
-        private BoardNoticeParam nextBoard;
-    }
-
-    @Data
-    private static class MultiBoardImpResponse {
-        private BoardImpParam board;
-        private BoardImpParam prevBoard;
-        private BoardImpParam nextBoard;
     }
 }

@@ -4,6 +4,10 @@ import com.portfolio.demo.project.dto.comment.CommentImpPagenationParam;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.dto.comment.CommentMovPagenationParam;
 import com.portfolio.demo.project.dto.comment.CommentMovParam;
+import com.portfolio.demo.project.dto.comment.request.CreateCommentImpRequest;
+import com.portfolio.demo.project.dto.comment.request.CreateCommentMovRequest;
+import com.portfolio.demo.project.dto.comment.request.UpdateCommentImpRequest;
+import com.portfolio.demo.project.dto.comment.request.UpdateCommentMovRequest;
 import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.dto.*;
@@ -192,38 +196,5 @@ public class CommentApi {
         List<CommentImpParam> comments = commentImpService.getCommentsByMember(memNo, page, size);
 
         return new ResponseEntity<>(new Result<>(comments), HttpStatus.OK);
-    }
-
-    @Data
-    static class CreateCommentMovRequest {
-        private Long writerId;
-        private Long movieNo;
-        private String content;
-        private Integer rating;
-    }
-
-    @Data
-    static class UpdateCommentMovRequest {
-        private Long writerId;
-        private Long movieNo;
-        private Long commentId;
-        private String content;
-        private Integer rating;
-    }
-
-    @Data
-    static class CreateCommentImpRequest {
-        private Long writerId;
-        private Long boardId;
-        private String content;
-    }
-
-    @Data
-    static class UpdateCommentImpRequest {
-        private Long writerId;
-        private Long boardId;
-        private Long commentId;
-        private String content;
-
     }
 }
