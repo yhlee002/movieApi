@@ -4,6 +4,8 @@ import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.dto.certification.CertMessageValidationRequest;
 import com.portfolio.demo.project.dto.certification.CertResponse;
 import com.portfolio.demo.project.dto.certification.CertificationDataDto;
+import com.portfolio.demo.project.dto.member.request.*;
+import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
@@ -19,9 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
@@ -564,102 +563,5 @@ public class MemberApi {
                     ), HttpStatus.OK);
         }
     }
-
-    @Data
-    static class MemberResponse {
-        private Long memNo;
-        private String identifier;
-        private String name;
-        private String phone;
-        private String provider;
-        private String profileImage;
-        private MemberRole role;
-        private MemberCertificated certification;
-        private String regDate;
-
-        public MemberResponse(MemberParam member) {
-            this.memNo = member.getMemNo();
-            this.identifier = member.getIdentifier();
-            this.name = member.getName();
-            this.phone = member.getPhone();
-            this.provider = member.getProvider();
-            this.profileImage = member.getProfileImage();
-            this.role = member.getRole();
-            this.certification = member.getCertification();
-            this.regDate = member.getRegDate();
-        }
-    }
-
-    @Data
-    static class CreateMemberRequest {
-        @NotEmpty
-        private String identifier;
-        private String password;
-        @NotEmpty
-        private String name;
-        @NotEmpty
-        private String phone;
-        @NotEmpty
-        private String provider;
-    }
-
-    @Data
-    static class UpdateMemberRequest {
-        @NotNull
-        private Long memNo;
-        private String password;
-        private String name;
-        private String phone;
-        private String provider;
-        private String profileImage;
-    }
-
-    @Data
-    static class UpdatePasswordRequest {
-        @NotNull
-        private Long memNo;
-        @NotEmpty
-        private String password;
-    }
-
-    @Data
-    static class UpdateCertificationRequest {
-        @NotNull
-        private Long memNo;
-        @NotNull
-        private MemberCertificated certification;
-    }
-
-    @Data
-    static class UpdateRoleRequest {
-        @NotNull
-        private Long memNo;
-        @NotNull
-        private MemberRole role;
-    }
-
-    @Data
-    static class SigninRequest {
-        @NotEmpty
-        private String identifier;
-        private String password;
-    }
-
-    @Data
-    static class CertMailRequest {
-        @NotEmpty
-        private String identifier;
-        @NotNull
-        private CertificationReason reason;
-    }
-
-    @Data
-    static class CertMailValidationRequest {
-        @NotNull
-        private Long memNo;
-        @NotEmpty
-        private String certKey;
-    }
-
 }
 

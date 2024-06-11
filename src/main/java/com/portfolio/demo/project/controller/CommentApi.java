@@ -98,10 +98,10 @@ public class CommentApi {
 
     /**
      * @param memNo
-     * @deprecated 추후 Vue.js 등으로 변경시 프론트에서 모두 처리하도록 변경시 삭제 예정
-     * 사용자 식별번호를 이용해 사용자가 입력한 댓글을 식별하기 위한 메서드
+     *
+     * 사용자 식별번호를 이용해 사용자가 입력한 댓글 조회
      */
-    @GetMapping("/comment/movie/checkMemNo")
+    @GetMapping("/comment/movie")
     public ResponseEntity<Result<List<CommentMovParam>>> getCommentMovsByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,

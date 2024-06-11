@@ -13,7 +13,6 @@ import java.util.List;
 @Table(name = "member")
 @Entity
 @Getter
-@ToString(exclude = "certKey")
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
