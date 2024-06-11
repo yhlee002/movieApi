@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -36,22 +38,13 @@ public class CertificationService {
 
 //    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
 
-    private String host = "localhost";
-    private Integer port = 8077;
-
-//    {
-//        try {
-//            host = InetAddress.getLocalHost().getHostAddress();
-//        } catch (UnknownHostException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    private String host;
+    private Integer port;
 
     /**
      * 식별번호를 이용한 인증정보 단건 조회
      *
-     * @param id
-     * @return
+     * @param id 인증정보 식별번호
      */
     public CertificationDataDto findById(Long id) {
         CertificationData data = certificationRepository.findById(id).orElse(null);
@@ -61,8 +54,8 @@ public class CertificationService {
     /**
      * 전화번호 또는 이메일을 이용한 인증정보 단건 조회
      *
-     * @param certificationId
-     * @return
+     * @param certificationId 인증에 사용된 전화번호 혹은 이메일
+     * @param type 인증에 사용된 아이디(certificationId) 타입(전화번호 혹은 이메일)
      */
     public CertificationDataDto findByCertificationIdAndType(String certificationId, CertificationType type) {
         CertificationData data = certificationRepository.findByCertificationIdAndType(certificationId, type);
@@ -73,7 +66,7 @@ public class CertificationService {
     /**
      * 인증정보 생성
      *
-     * @param param
+     * @param param 인증정보
      */
     public Long saveCertification(CertificationDataDto param) {
         CertificationData data = CertificationData.builder()
@@ -91,7 +84,7 @@ public class CertificationService {
     /**
      * 인증정보 수정
      *
-     * @param param
+     * @param param 인증정보
      */
     public void updateCertification(CertificationDataDto param) {
         CertificationData data = certificationRepository.findByCertificationId(param.getCertificationId());
@@ -107,7 +100,7 @@ public class CertificationService {
     /**
      * 인증정보 삭제
      *
-     * @param param
+     * @param param 인증정보
      */
     public void deleteCertification(CertificationDataDto param) {
         CertificationData data = certificationRepository.findByCertificationIdAndType(param.getCertificationId(), param.getCertificationType());
@@ -117,8 +110,8 @@ public class CertificationService {
     /**
      * 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송(결과 반환) + 인증키 서버로 다시 보내기
      *
-     * @param phone
-     * @return
+     * @param phone 인증 전화번호
+     * @param reason 인증 사유
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
         String certKey = Integer.toString(getTempKey());
@@ -146,7 +139,23 @@ public class CertificationService {
         return new SendCertificationNotifyResult(Boolean.TRUE, new CertificationDataDto(data));
     }
 
+    /**
+     *
+     * @param toMail 인증 이메일
+     * @param reason 인증 사유
+     */
     public SendCertificationNotifyResult sendCertificationMail(String toMail, CertificationReason reason) {
+        if (environment.matchesProfiles("prod")) {
+            try {
+                host = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (environment.matchesProfiles("dev")) {
+            host = "localhost";
+            port = 8077;
+        }
+
         String certKey = tempKey.getKey(10, false);
         Member member = memberRepository.findByIdentifier(toMail);
 
@@ -212,10 +221,10 @@ public class CertificationService {
 
             return Boolean.TRUE;
         } catch (MessagingException e) {
-            e.printStackTrace();
+            e.fillInStackTrace();
             Exception ex = null;
             if ((ex = e.getNextException()) != null) {
-                ex.printStackTrace();
+                ex.fillInStackTrace();
             }
 
             log.info("메일 전송에 실패하였습니다. (이메일 주소: {})", toMail);

@@ -110,18 +110,15 @@ public class CommentImpService {
     public List<CommentImpParam> getCommentsByMember(Long memNo, int page, int size) {
         Member mem = memberRepository.findById(memNo).orElse(null);
 
-        List<CommentImpParam> vos = new ArrayList<>();
         if (mem != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentImp> result = commentImpRepository.findAllByWriter(mem, pageable);
             List<CommentImp> list = result.getContent();
 
-            vos = list.stream().map(CommentImpParam::create).toList();
+            return list.stream().map(CommentImpParam::create).toList();
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다.");
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }
-
-        return vos;
     }
 }
