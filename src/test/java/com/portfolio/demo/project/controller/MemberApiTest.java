@@ -41,7 +41,6 @@ public class MemberApiTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 관리자_등록() throws Exception {
         Member admin = MemberTestDataBuilder.admin().build();
         // `mockMvc.perform()` return type : ResultActions

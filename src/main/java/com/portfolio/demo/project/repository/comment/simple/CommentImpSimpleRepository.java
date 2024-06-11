@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.repository.comment.simple;
 
+import com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

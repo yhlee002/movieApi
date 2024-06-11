@@ -231,7 +231,6 @@ class BoardNoticeServiceTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 제목_또는_내용으로_공지사항_게시글_조회_페이지네이션vo() {
         // given
         MemberParam admin = createAdmin();

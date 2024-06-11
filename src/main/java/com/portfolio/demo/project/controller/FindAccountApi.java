@@ -1,13 +1,13 @@
 package com.portfolio.demo.project.controller;
 
-import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
+import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
-import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
+import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

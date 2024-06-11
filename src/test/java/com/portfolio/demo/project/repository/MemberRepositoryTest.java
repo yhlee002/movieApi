@@ -30,7 +30,6 @@ public class MemberRepositoryTest {
     private EntityManager entityManager;
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void 회원_생성() {
         // given
         Member member = MemberTestDataBuilder.user().build();

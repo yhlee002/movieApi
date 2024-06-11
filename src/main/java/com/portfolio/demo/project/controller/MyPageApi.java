@@ -1,11 +1,11 @@
 package com.portfolio.demo.project.controller;
 
 import com.google.gson.JsonObject;
-import com.portfolio.demo.project.controller.member.certkey.CertMessageResponse;
-import com.portfolio.demo.project.controller.member.certkey.CertMessageValidationRequest;
+import com.portfolio.demo.project.dto.certification.CertMessageResponse;
+import com.portfolio.demo.project.dto.certification.CertMessageValidationRequest;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.*;
-import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
+import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;

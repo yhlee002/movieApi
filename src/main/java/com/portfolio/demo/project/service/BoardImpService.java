@@ -5,7 +5,7 @@ import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
-import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.dto.board.BoardImpParam;

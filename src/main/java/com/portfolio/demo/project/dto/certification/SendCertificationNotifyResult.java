@@ -1,7 +1,5 @@
-package com.portfolio.demo.project.service.certification;
+package com.portfolio.demo.project.dto.certification;
 
-import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
-import lombok.Builder;
 import lombok.Data;
 
 @Data

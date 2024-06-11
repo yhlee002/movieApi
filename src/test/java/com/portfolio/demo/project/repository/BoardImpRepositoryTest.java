@@ -8,7 +8,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
 import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
-import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -47,15 +47,6 @@ class BoardImpRepositoryTest {
 
     @PersistenceContext
     private EntityManager entityManager;
-
-//    @BeforeEach
-//    public void setUp() {
-//        boardImpRepository.deleteAll();
-//        boardImpRepository.flush();
-//        memberRepository.deleteAll();
-//        memberRepository.flush();
-//        entityManager.clear();
-//    }
 
     Member createUser() {
         Member user = MemberTestDataBuilder.user().build();

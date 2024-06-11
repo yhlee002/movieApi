@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.controller.member.certkey;
+package com.portfolio.demo.project.dto.certification;
 
 import lombok.Data;
 

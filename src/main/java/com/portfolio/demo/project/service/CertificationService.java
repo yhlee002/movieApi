@@ -1,14 +1,13 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
+import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.certification.CertificationData;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.CertificationRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
-import com.portfolio.demo.project.util.AwsSmsUtil;
+import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.CoolSmsMessageUtil;
 import com.portfolio.demo.project.util.TempKey;
 import jakarta.mail.*;

@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.controller;
 
-import com.portfolio.demo.project.controller.member.certkey.CertResponse;
-import com.portfolio.demo.project.controller.member.certkey.CertificationDataDto;
+import com.portfolio.demo.project.dto.certification.CertResponse;
+import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.service.CertificationService;

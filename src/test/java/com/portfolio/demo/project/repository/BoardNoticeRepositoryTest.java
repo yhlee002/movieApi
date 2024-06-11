@@ -33,26 +33,6 @@ class BoardNoticeRepositoryTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    /**
-     * @Transactional의 동작을 인위적으로 제한한 메서드에 한해 트랜잭션 롤백이 일어나지 않기 때문
-     */
-//    @BeforeEach
-//    public void setUp() {
-//        boardNoticeRepository.deleteAll();
-//        boardNoticeRepository.flush();
-//        memberRepository.deleteAll();
-//        memberRepository.flush();
-//        entityManager.clear();
-//    }
-    @AfterEach
-    public void tearDown() {
-        boardNoticeRepository.deleteAll();
-        boardNoticeRepository.flush();
-        memberRepository.deleteAll();
-        memberRepository.flush();
-        entityManager.clear();
-    }
-
     Member createAdmin() {
         Member admin = MemberTestDataBuilder.admin().build();
         memberRepository.save(admin);
@@ -226,7 +206,6 @@ class BoardNoticeRepositoryTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     void 최근_공지사항_게시글_조회_작성일자_내림차순() throws InterruptedException {
         // given
         Member admin = createAdmin();

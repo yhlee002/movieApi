@@ -64,21 +64,6 @@ class CommentImpServiceTest {
         return commentImpService.findById(id);
     }
 
-//    @BeforeEach
-//    void setUp() {
-//        CommentImpRepository commentImpRepository = Mockito.mock(CommentImpRepository.class);
-//        BoardImpRepository boardImpRepository = Mockito.mock(BoardImpRepository.class);
-//        MemberRepository memberRepository = Mockito.mock(MemberRepository.class);
-//
-//        commentImpService = new CommentImpService(commentImpRepository, boardImpRepository, memberRepository);
-//
-//        PasswordEncoder passwordEncoder = Mockito.mock(PasswordEncoder.class);
-//        TempKey tempKey = new TempKey();
-//        memberService = new MemberService(memberRepository, passwordEncoder, tempKey);
-//
-//        boardImpService = new BoardImpService(boardImpRepository, memberRepository);
-//    }
-
     @Test
     void 댓글_작성() {
         // given

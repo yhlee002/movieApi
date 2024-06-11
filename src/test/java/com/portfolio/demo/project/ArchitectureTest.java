@@ -180,7 +180,7 @@ public class ArchitectureTest {
     }
 
     @Test
-    @DisplayName("entity은 오직 service와 repository에 의해 의존된다.")
+    @DisplayName("entity은 오직 service와 repository, dto 생성에만 의존된다.")
     public void modelDependencyTest() {
         ArchRule rule =
                 classes()
@@ -188,7 +188,7 @@ public class ArchitectureTest {
                         .resideInAnyPackage("..entity..")
                         .should()
                         .onlyHaveDependentClassesThat()
-                        .resideInAnyPackage("..repository..", "..service..", "..entity..");
+                        .resideInAnyPackage("..repository..", "..service..", "..entity..", "..dto..");
 
         rule.check(javaClasses);
     }

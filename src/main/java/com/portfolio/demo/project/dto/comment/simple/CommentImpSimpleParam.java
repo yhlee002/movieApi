@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.repository.comment.simple;
+package com.portfolio.demo.project.dto.comment.simple;
 
 import lombok.Getter;
 import lombok.Setter;

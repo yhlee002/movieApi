@@ -1,13 +1,15 @@
 package com.portfolio.demo.project.controller;
 
-import com.portfolio.demo.project.controller.member.certkey.*;
 import com.portfolio.demo.project.dto.Result;
+import com.portfolio.demo.project.dto.certification.CertMessageValidationRequest;
+import com.portfolio.demo.project.dto.certification.CertResponse;
+import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.service.CertificationService;
-import com.portfolio.demo.project.service.certification.SendCertificationNotifyResult;
+import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;

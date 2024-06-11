@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.controller.member.certkey;
+package com.portfolio.demo.project.dto.certification;
 
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import jakarta.validation.constraints.NotEmpty;
