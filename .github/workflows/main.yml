@@ -22,8 +22,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-#    permissions:
-#      contents: read
+    #    permissions:
+    #      contents: read
 
     steps:
       # checkout
@@ -32,10 +32,7 @@ jobs:
 
       # make git repository's secret -> application.yml file
       - name: Make application.yml
-        run: |
-#          cd ./src/main/resources
-#          touch ./application-prod.yml
-          echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
+        run: echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
 
       # grant execute permission for gradlew
       - name: Grant execute permission for gradlew
@@ -50,9 +47,7 @@ jobs:
         run: rm ./src/main/resources/application-prod.yml
 
       - name: Make Directory
-        run: |
-#          cd ./
-          mkdir -p deploy
+        run: mkdir -p deploy
 
       # Jar 파일 복사
       - name: Copy Jar
@@ -61,12 +56,6 @@ jobs:
       # 파일 압축
       - name: Make zip file
         run: zip -r ./moviesite-api-$GITHUB_SHA.zip ./deploy
-
-#      - name: Get Github Actions IP
-#        id: ip
-#        uses: haythem/public-ip@v1.3
-#        with:
-#          maxRetries: 5 #default value
 
       - name: Configure AWS Credentials for GitHub Actions
         uses: aws-actions/configure-aws-credentials@v4
@@ -83,28 +72,6 @@ jobs:
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --deployment-group-name $CODEDEPLOY_GROUP \
           --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$moviesite-api-GITHUB_SHA.zip
-
-#      - name: Add Github Actions IP to Security group
-#        run: |
-#          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
-#
-#      - name: Deploy to EC2 via Bastion
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.BASTION_HOST }}
-#          username: ec2-user
-#          key: ${{ secrets.BASTION_SSH_PRIVATE_KEY }}
-#          script: |
-#            ssh -i ~/.ssh/${{ secrets.BASTION_SSH_PRIVATE_KEY }} -o StrictHostChecking=no ec2-user@${{ secrets.API_SERVER_PRIVATE_IP }}
-#            docker pull ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
-#            docker stop $(docker ps -a -q)
-#            docker run -d --log-driver=syslog -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod ${{ secrets.DOCKER_USERNAME }}/moviesite_api:latest
-#            docker rm $(docker ps --filter 'status=exited' -a -q)
-#            docker image prune -a -f
-#
-#      - name: Remove Github Actions IP From Security Group
-#        run: |
-#          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
   dependency-submission:
 
