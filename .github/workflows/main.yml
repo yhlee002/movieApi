@@ -51,18 +51,18 @@ jobs:
           container port: 3306
           character set server: utf8mb4
           mysql version: 8.4
-          mysql root password: ${{ secret.DB_TEST_PASSWORD }}
+          mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
           mysql database: moviesite
-          mysql user: ${{ secret.DB_TEST_USERNAME }}
-          mysql password: ${{ secret.DB_TEST_PASSWORD }}
+          mysql user: ${{ secrets.DB_TEST_USERNAME }}
+          mysql password: ${{ secrets.DB_TEST_PASSWORD }}
 
       # Flyway Migration
       - name: Flyway Migration
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
           url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
-          user: ${{ secret.DB_TEST_USERNAME }}
-          password: ${{ secret.DB_TEST_PASSWORD }}
+          user: ${{ secrets.DB_TEST_USERNAME }}
+          password: ${{ secrets.DB_TEST_PASSWORD }}
           # Comma-separated list of locations to scan recursively for migrations
           locations: ./db/migration
       
