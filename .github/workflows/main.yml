@@ -67,10 +67,7 @@ jobs:
     permissions:
       contents: write
     env:
-      S3_BUCKET_NAME: project-moviesite
       AWS_REGION: ap-northeast-2
-      CODEDEPLOY_NAME: MovieSite
-      CODEDEPLOY_GROUP: moviesite-group
     steps:
       # checkout
       - name: Checkout
@@ -125,10 +122,15 @@ jobs:
 
       # Upload to S3
       - name: Upload to S3
+        env:
+          S3_BUCKET_NAME: project-moviesite
         run: aws s3 cp --region $AWS_REGION --acl private ./moviesite-api-$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/moviesite-api-$GITHUB_SHA
 
       # Deploy with CodeDeploy
       - name: CodeDeploy
+        env:
+          CODEDEPLOY_NAME: MovieSite
+          CODEDEPLOY_GROUP: moviesite-group
         run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --deployment-group-name $CODEDEPLOY_GROUP \
