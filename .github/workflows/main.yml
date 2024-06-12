@@ -42,7 +42,31 @@ jobs:
       #   volumes:
       #     - ../../db/flyway.conf:/flyway/conf/flyway.conf
       #     - ../../db/migration:/flyway/sql
-          
+    steps:
+      # Flyway Migration
+      - name: flyway
+        uses: joshuaavalon/flyway-action@v3.0.0
+        with:
+          url: ${{ secrets.DB_TEST_ENDPOINT }}
+          user: ${{ secrets.DB_TEST_USERNAME }}
+          password: ${{ secrets.DB_TEST_PASSWORD }}
+          # Comma-separated list of locations to scan recursively for migrations
+          locations: filesystem:sql
+
+      # Test
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        
+      # - name: Build with Gradle
+      #   uses: gradle/gradle-build-action@v3.3.2
+      #   with:
+      #     arguments: build
+ 
+      - name: Build with Gradle
+        run: ./gradlew build
+        
+      - name: Test with Gradle
+        run: ./gradlew test
       
   build:
     runs-on: ubuntu-latest
@@ -60,35 +84,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          
-      # # Docker Compose
-      # - name: action-docker-compose
-      #   uses: sudo-bot/action-docker-compose@latest
-      #   with:
-      #     cli-args: docker compose -f './infra/test/docker-compose.yaml' up
-      
-      # # Setup MySQL
-      # - name: mysql
-      #   uses: samin/mysql-action@v1.3
-      #   with:
-      #     host port: 3306
-      #     container port: 3306
-      #     character set server: utf8mb4
-      #     mysql version: 8.4
-      #     mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
-      #     mysql database: moviesite
-      #     mysql user: ${{ secrets.DB_TEST_USERNAME }}
-      #     mysql password: ${{ secrets.DB_TEST_PASSWORD }}
-
-      # Flyway Migration
-      - name: flyway
-        uses: joshuaavalon/flyway-action@v3.0.0
-        with:
-          url: ${{ secrets.DB_TEST_ENDPOINT }}
-          user: ${{ secrets.DB_TEST_USERNAME }}
-          password: ${{ secrets.DB_TEST_PASSWORD }}
-          # Comma-separated list of locations to scan recursively for migrations
-          locations: filesystem:sql
       
       # Setup Gradle
       - name: Setup Gradle
