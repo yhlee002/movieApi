@@ -20,10 +20,34 @@ env:
   CODEDEPLOY_GROUP: moviesite-group
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.4
+        options: --mysql-native-password=ON
+        env:
+          MYSQL_DATABASE: moviesite
+          MYSQL_USER: root
+          MYSQL_ROOT_PASSWORD: password
+        volumes:
+          - ./dbdata:/var/lib/mysql/
+      # flyway:
+      #   image: flyway/flyway:latest
+      #   env:
+      #     FLYWAY_DB_URL: ${{ secrets.DB_TEST_ENDPOINT }}
+      #     FLYWAY_DB_USER: ${{ secrets.DB_TEST_USERNAME }}
+      #     FLYWAY_DB_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+      #   command: migrate
+      #   volumes:
+      #     - ../../db/flyway.conf:/flyway/conf/flyway.conf
+      #     - ../../db/migration:/flyway/sql
+          
+      
   build:
     runs-on: ubuntu-latest
-    #    permissions:
-    #      contents: read
+    permissions:
+      contents: write
 
     steps:
       # checkout
@@ -43,28 +67,28 @@ jobs:
       #   with:
       #     cli-args: docker compose -f './infra/test/docker-compose.yaml' up
       
-      # Setup MySQL
-      - name: Start MySQL
-        uses: samin/mysql-action@v1.3
-        with:
-          host port: 3306
-          container port: 3306
-          character set server: utf8mb4
-          mysql version: 8.4
-          mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
-          mysql database: moviesite
-          mysql user: ${{ secrets.DB_TEST_USERNAME }}
-          mysql password: ${{ secrets.DB_TEST_PASSWORD }}
+      # # Setup MySQL
+      # - name: mysql
+      #   uses: samin/mysql-action@v1.3
+      #   with:
+      #     host port: 3306
+      #     container port: 3306
+      #     character set server: utf8mb4
+      #     mysql version: 8.4
+      #     mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
+      #     mysql database: moviesite
+      #     mysql user: ${{ secrets.DB_TEST_USERNAME }}
+      #     mysql password: ${{ secrets.DB_TEST_PASSWORD }}
 
       # Flyway Migration
-      - name: Flyway Migration
+      - name: flyway
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
-          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
+          url: ${{ secrets.DB_TEST_ENDPOINT }}
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
           # Comma-separated list of locations to scan recursively for migrations
-          locations: ./db/migration
+          locations: filesystem:sql
       
       # Setup Gradle
       - name: Setup Gradle
