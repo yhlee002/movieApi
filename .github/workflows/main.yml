@@ -16,38 +16,53 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:8.4
-        # options: --mysql-native-password=ON
-        env:
-          MYSQL_DATABASE: moviesite
-          MYSQL_USER: ${{ secrets.DB_TEST_USERNAME }}
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
-        volumes:
-          - ./dbdata:/var/lib/mysql/
-      # flyway:
-      #   image: flyway/flyway:latest
-      #   env:
-      #     FLYWAY_DB_URL: ${{ secrets.DB_TEST_ENDPOINT }}
-      #     FLYWAY_DB_USER: ${{ secrets.DB_TEST_USERNAME }}
-      #     FLYWAY_DB_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
-      #   command: migrate
-      #   volumes:
-      #     - ../../db/flyway.conf:/flyway/conf/flyway.conf
-      #     - ../../db/migration:/flyway/sql
+    # services:
+    #   mysql:
+    #     image: mysql:8.4
+    #     # options: --mysql-native-password=ON
+    #     env:
+    #       MYSQL_DATABASE: moviesite
+    #       MYSQL_USER: ${{ secrets.DB_TEST_USERNAME }}
+    #       MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+    #     volumes:
+    #       - ./dbdata:/var/lib/mysql/
+    #   flyway:
+    #     image: flyway/flyway:latest
+    #     env:
+    #       FLYWAY_DB_URL: ${{ secrets.DB_TEST_ENDPOINT }}
+    #       FLYWAY_DB_USER: ${{ secrets.DB_TEST_USERNAME }}
+    #       FLYWAY_DB_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+    #     # command: migrate
+    #     volumes:
+    #       - ../../db/flyway.conf:/flyway/conf/flyway.conf
+    #       - ../../db/migration:/flyway/sql
     steps:
-      # Flyway Migration
-      - name: flyway
+      - name: Make Sql Directory
+        run: mkdir db/migration -p
+
+      - name: Print Working Directory(~) 
+        run: pwd
+
+      - name: Copy Sql files
+        run : cp ./db/migration/* ./db/migration
+    
+      - name: Setup Mysql
+        uses: mirromutth/mysql-action@v1.1
+        with:
+          host port: 3306
+          container port: 3306
+          mysql database: 'moviesite'
+          mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
+      
+      - name: Setup Flyway
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
-          url: ${{ secrets.DB_TEST_ENDPOINT }}
+          url: jdbc:mysql://mysql:3306/moviesite # ${{ secrets.DB_TEST_ENDPOINT }}
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
           # Comma-separated list of locations to scan recursively for migrations
-          locations: filesystem:../../db/migration
-
-      # Test
+          # locations: filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
+      
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
@@ -111,7 +126,7 @@ jobs:
 
       # Make Zip file
       - name: Make zip file
-        run: zip -r ./moviesite-api-$GITHUB_SHA.zip ./deploy
+        run: zip -r -qq -j ./moviesite-api-$GITHUB_SHA.zip ./deploy
 
       # Access to AWS
       - name: Configure AWS Credentials for GitHub Actions
