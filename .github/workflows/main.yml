@@ -36,20 +36,37 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-
-      # Setup MySQL
-      - name: Start MySQL
-        uses: samin/mysql-action@v1.3
-        with:
-          host port: 3306
-          container port: 3306
-          character set server: utf8mb4
-          mysql version: 8.4
-          mysql root password: password
-          mysql database: moviesite
-          mysql user: root
-          mysql password: password
           
+      # Docker Compose
+      - name: action-docker-compose
+        uses: sudo-bot/action-docker-compose@latest
+        with:
+          cli-args: docker-compose -f ./infra/test/docker-compose.yaml up
+      
+      # # Setup MySQL
+      # - name: Start MySQL
+      #   uses: samin/mysql-action@v1.3
+      #   with:
+      #     host port: 3306
+      #     container port: 3306
+      #     character set server: utf8mb4
+      #     mysql version: 8.4
+      #     mysql root password: password
+      #     mysql database: moviesite
+      #     mysql user: root
+      #     mysql password: password
+
+      # # Flyway Migration
+      # - name: Flyway Migration
+      #   uses: joshuaavalon/flyway-action@v3.0.0
+      #   with:
+      #     url: jdbc:mysql:localhost:3306
+      #     user: root
+      #     # The password to use to connect to the database
+      #     password: password
+      #     # Comma-separated list of locations to scan recursively for migrations
+      #     locations: filesystem:./db/migration
+      
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
@@ -110,8 +127,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-      # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
+          
       - name: Generate and submit dependency graph
         uses: gradle/actions/dependency-submission@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
