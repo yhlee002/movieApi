@@ -51,53 +51,54 @@ jobs:
           container port: 3306
           character set server: utf8mb4
           mysql version: 8.4
-          mysql root password: password
+          mysql root password: ${{ secret.DB_TEST_PASSWORD }}
           mysql database: moviesite
-          mysql user: root
-          mysql password: password
+          mysql user: ${{ secret.DB_TEST_USERNAME }}
+          mysql password: ${{ secret.DB_TEST_PASSWORD }}
 
       # Flyway Migration
       - name: Flyway Migration
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
-          url: jdbc:mysql:localhost:3306
-          user: root
-          # The password to use to connect to the database
-          password: password
+          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
+          user: ${{ secret.DB_TEST_USERNAME }}
+          password: ${{ secret.DB_TEST_PASSWORD }}
           # Comma-separated list of locations to scan recursively for migrations
-          locations: filesystem:./db/migration
+          locations: ./db/migration
       
       # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
         
-      # make git repository's secret -> application.yml file
+      # Make git repository's secret -> application.yml file
       - name: Make application.yml
         run: echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
 
-      # grant execute permission for gradlew
+      # Grant execute permission for gradlew
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      # build
+      # Build
       - name: Build with Gradle Wrapper
         run: ./gradlew build -Pprofile=prod
 
-      # delete application.yml
+      # Delete application.yml
       - name: Delete aplication.yml file
         run: rm ./src/main/resources/application-prod.yml
 
+      # Make Directory
       - name: Make Directory
         run: mkdir -p deploy
 
-      # Jar 파일 복사
+      # Copy Jar file
       - name: Copy Jar
         run: cp ./build/libs/moviesite_api_server.jar ./deploy
 
-      # 파일 압축
+      # Make Zip file
       - name: Make zip file
         run: zip -r ./moviesite-api-$GITHUB_SHA.zip ./deploy
 
+      # Access to AWS
       - name: Configure AWS Credentials for GitHub Actions
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -105,9 +106,11 @@ jobs:
           aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
 
+      # Upload to S3
       - name: Upload to S3
         run: aws s3 cp --region $AWS_REGION --acl private ./moviesite-api-$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/moviesite-api-$GITHUB_SHA
 
+      # Deploy with CodeDeploy
       - name: CodeDeploy
         run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
           --deployment-config-name CodeDeployDefault.AllAtOnce \
