@@ -37,35 +37,35 @@ jobs:
           java-version: 17
           distribution: 'temurin'
           
-      # Docker Compose
-      - name: action-docker-compose
-        uses: sudo-bot/action-docker-compose@latest
-        with:
-          cli-args: docker compose -f './infra/test/docker-compose.yaml' up
+      # # Docker Compose
+      # - name: action-docker-compose
+      #   uses: sudo-bot/action-docker-compose@latest
+      #   with:
+      #     cli-args: docker compose -f './infra/test/docker-compose.yaml' up
       
-      # # Setup MySQL
-      # - name: Start MySQL
-      #   uses: samin/mysql-action@v1.3
-      #   with:
-      #     host port: 3306
-      #     container port: 3306
-      #     character set server: utf8mb4
-      #     mysql version: 8.4
-      #     mysql root password: password
-      #     mysql database: moviesite
-      #     mysql user: root
-      #     mysql password: password
+      # Setup MySQL
+      - name: Start MySQL
+        uses: samin/mysql-action@v1.3
+        with:
+          host port: 3306
+          container port: 3306
+          character set server: utf8mb4
+          mysql version: 8.4
+          mysql root password: password
+          mysql database: moviesite
+          mysql user: root
+          mysql password: password
 
-      # # Flyway Migration
-      # - name: Flyway Migration
-      #   uses: joshuaavalon/flyway-action@v3.0.0
-      #   with:
-      #     url: jdbc:mysql:localhost:3306
-      #     user: root
-      #     # The password to use to connect to the database
-      #     password: password
-      #     # Comma-separated list of locations to scan recursively for migrations
-      #     locations: filesystem:./db/migration
+      # Flyway Migration
+      - name: Flyway Migration
+        uses: joshuaavalon/flyway-action@v3.0.0
+        with:
+          url: jdbc:mysql:localhost:3306
+          user: root
+          # The password to use to connect to the database
+          password: password
+          # Comma-separated list of locations to scan recursively for migrations
+          locations: filesystem:./db/migration
       
       # Setup Gradle
       - name: Setup Gradle
