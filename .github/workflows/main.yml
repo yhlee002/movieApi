@@ -20,7 +20,7 @@ jobs:
       mysql:
         image: mysql:8.4
         # options: --mysql-native-password=ON
-        options: mysql-native-password=on
+        options: --mysql-native-password=on
         env:
           MYSQL_DATABASE: moviesite
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
