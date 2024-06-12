@@ -41,7 +41,7 @@ jobs:
       - name: action-docker-compose
         uses: sudo-bot/action-docker-compose@latest
         with:
-          cli-args: docker-compose -f ./infra/test/docker-compose.yaml up
+          cli-args: docker compose -f ./infra/test/docker-compose.yaml up
       
       # # Setup MySQL
       # - name: Start MySQL
