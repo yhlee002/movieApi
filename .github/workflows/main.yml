@@ -25,7 +25,7 @@ jobs:
     services:
       mysql:
         image: mysql:8.4
-        options: --mysql-native-password=ON
+        # options: --mysql-native-password=ON
         env:
           MYSQL_DATABASE: moviesite
           MYSQL_USER: root
