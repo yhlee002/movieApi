@@ -30,12 +30,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Setup JDK
       - name: Setup Java JDK
         uses: actions/setup-java@v4.2.1
         with:
           java-version: 17
           distribution: 'temurin'
 
+      # Setup MySQL
+      - name: Start MySQL
+        uses: samin/mysql-action@v1.3
+        with:
+          host port: 3306
+          container port: 3306
+          character set server: utf8mb4
+          mysql version: 8.4
+          mysql root password: password
+          mysql database: moviesite
+          mysql user: root
+          mysql password: password
+          
+      # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
         
