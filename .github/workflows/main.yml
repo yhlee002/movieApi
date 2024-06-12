@@ -43,8 +43,11 @@ jobs:
       - name: Print Working Directory(~) 
         run: pwd
 
+      - name: ls
+        run: ls -al
+
       - name: Copy Sql files
-        run : cp ./db/migration/* ./db/migration
+        run : cp filesystem/db/migration/* ./db/migration
     
       - name: Setup Mysql
         uses: mirromutth/mysql-action@v1.1
