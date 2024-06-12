@@ -31,6 +31,7 @@ public class MemberTestDataBuilder {
                 .password("1234")
                 .name("이영현")
                 .phone("000-111-0000")
+                .role(MemberRole.ROLE_USER)
                 .provider("none")
                 .certification(MemberCertificated.Y);
     }
@@ -39,8 +40,9 @@ public class MemberTestDataBuilder {
         return Member.builder()
                 .identifier(sampleEmailAddress)
                 .password(null)
-                .name("이영현")
-                .phone("000-111-0000")
+                .name("비밀번호없는아이디")
+                .phone("000-000-1212")
+                .role(MemberRole.ROLE_USER)
                 .provider("none")
                 .certification(MemberCertificated.N);
     }
@@ -51,6 +53,7 @@ public class MemberTestDataBuilder {
                 .password("")
                 .name("네이버유저")
                 .phone("000-1212-3434")
+                .role(MemberRole.ROLE_USER)
                 .provider("naver")
                 .certification(MemberCertificated.Y);
     }
@@ -63,10 +66,11 @@ public class MemberTestDataBuilder {
         String randomString = sb.toString();
 
         return Member.builder()
-                .identifier("test" + new Random().nextInt(10000) + "@gmail.com")
+                .identifier("test" + new Random().nextInt(1000000) + "@gmail.com")
                 .password("1234")
                 .name(randomString)
                 .phone("000-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
+                .role(MemberRole.ROLE_USER)
                 .provider("none")
                 .certification(MemberCertificated.N);
     }

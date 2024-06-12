@@ -120,7 +120,7 @@ class MemberServiceTest {
 
         // then
         Assertions.assertNotNull(foundMember);
-        Assertions.assertEquals(user.getMemNo(), foundMember.getMemNo());
+        Assertions.assertEquals(phone, foundMember.getPhone());
     }
 
     @Test
@@ -232,10 +232,11 @@ class MemberServiceTest {
 
         // when
         Authentication auth = memberService.getAuthentication(admin);
-        Assertions.assertThrows(NullPointerException.class, () -> memberService.getAuthentication(user));
+        Authentication auth2 = memberService.getAuthentication(user);
 
         Assertions.assertNotNull(auth);
-        Assertions.assertEquals("ROLE_ADMIN", auth.getAuthorities().iterator().next().getAuthority());
+        Assertions.assertEquals(MemberRole.ROLE_ADMIN, auth.getAuthorities().iterator().next().getAuthority());
+        Assertions.assertEquals(MemberRole.ROLE_USER, auth2.getAuthorities().iterator().next().getAuthority());
     }
 
     @Test

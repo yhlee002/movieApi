@@ -88,7 +88,12 @@ public class MemberApi {
     @GetMapping("/member/{id}")
     public ResponseEntity<Result<MemberResponse>> getMember(@PathVariable Long id) {
         MemberParam member = memberService.findByMemNo(id);
-        return new ResponseEntity<>(new Result<>(new MemberResponse(member)), HttpStatus.OK);
+        if (member != null) {
+            return ResponseEntity.ok(new Result<>(new MemberResponse(member)));
+        } else {
+            return ResponseEntity.ok(new Result<>(null));
+        }
+
     }
 
     /**
@@ -146,6 +151,8 @@ public class MemberApi {
                             .password(request.getPassword())
                             .provider(request.getProvider())
                             .phone(request.getPhone())
+                            .role(request.getRole()) // admin만 존재
+                            .certification(request.getCertification()) // admin만 존재
                             .build()
             );
 

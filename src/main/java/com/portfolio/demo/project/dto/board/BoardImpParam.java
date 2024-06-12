@@ -40,4 +40,14 @@ public class BoardImpParam {
                 .recommended(board.getRecommended())
                 .build();
     }
+
+    public static BoardImpParam createWithoutWriterAndRegDate(BoardImp board) {
+        return BoardImpParam.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
+                .views(board.getViews())
+                .recommended(board.getRecommended())
+                .build();
+    }
 }

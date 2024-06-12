@@ -9,6 +9,6 @@ public class CommentImpTestDataBuilder {
     private static final Random random = new Random();
     public static CommentImp.CommentImpBuilder randomComment() {
         return CommentImp.builder()
-                .content("Random comment for test." + random.nextInt(1000));
+                .content("Random comment for test." + random.nextInt(1000000));
     }
 }

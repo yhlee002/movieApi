@@ -10,6 +10,7 @@ import com.portfolio.demo.project.repository.MemberRepository;
 import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.CoolSmsMessageUtil;
 import com.portfolio.demo.project.util.TempKey;
+import dev.akkinoc.util.YamlResourceBundle;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -36,7 +37,10 @@ public class CertificationService {
 
     private final TempKey tempKey;
 
-//    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+
+    private final String mailUserName = properties.getString("spring.mail.username");
+    private final String mailPassword = properties.getString("spring.mail.password");
 
     private String host;
     private Integer port;
@@ -187,19 +191,17 @@ public class CertificationService {
 
     protected Boolean sendEmail(String toMail, String title, String content) {
         try {
-            String username = environment.getProperty("spring.mail.username");
-            String password = environment.getProperty("spring.mail.password");
             Properties props = new Properties();
             props.put("mail.smtp.host", "smtp.gmail.com");
             props.put("mail.smtp.port", 587);
-            props.put("mail.smtp.user", username);
+            props.put("mail.smtp.user", mailUserName);
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
 
             Authenticator authenticator = new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
+                    return new PasswordAuthentication(mailUserName, mailPassword);
                 }
             };
 
@@ -209,7 +211,7 @@ public class CertificationService {
             Message msg = new MimeMessage(session);
 
             Address toAddr = new InternetAddress(toMail);
-            Address fromAddr = new InternetAddress(username);
+            Address fromAddr = new InternetAddress(mailUserName);
 
             msg.setFrom(fromAddr);
             msg.setRecipient(Message.RecipientType.TO, toAddr);

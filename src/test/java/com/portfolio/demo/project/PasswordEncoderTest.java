@@ -14,7 +14,7 @@ public class PasswordEncoderTest {
 
     @Test
     void 테스트1() {
-        String str = "132589dd!!D";
+        String str = "1234";
         String hashed = passwordEncoder.encode(str);
 
         Assertions.assertNotEquals(passwordEncoder.encode(str), hashed);

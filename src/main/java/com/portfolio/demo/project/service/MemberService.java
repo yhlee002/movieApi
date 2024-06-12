@@ -91,7 +91,10 @@ public class MemberService {
 
     public MemberParam findByIdentifierAndProvider(String identifier, String provider) {
         Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
-        return MemberParam.create(mem);
+        if (mem != null) {
+            return MemberParam.create(mem);
+        }
+        return null;
     }
 
     public Long saveMember(MemberParam memberParam) {

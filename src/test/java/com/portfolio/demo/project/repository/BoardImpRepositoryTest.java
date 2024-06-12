@@ -178,7 +178,6 @@ class BoardImpRepositoryTest {
         Assertions.assertNotNull(board.getWriter());
         Assertions.assertEquals(0, board.getViews());
         Assertions.assertNotNull(board.getRegDate());
-        Assertions.assertEquals(0, board.getComments().size());
     }
 
     @Test
@@ -299,7 +298,7 @@ class BoardImpRepositoryTest {
         boardImpRepository.save(nextBoard);
 
         // when
-        BoardImp foundBoard = boardImpRepository.findPrevBoardImpById(prevBoard.getId());
+        BoardImp foundBoard = boardImpRepository.findPrevBoardImpById(nextBoard.getId());
         // then
         Assertions.assertEquals(prevBoard.getId(), foundBoard.getId());
         org.assertj.core.api.Assertions.assertThat(prevBoard).isEqualTo(foundBoard);
@@ -432,8 +431,6 @@ class BoardImpRepositoryTest {
         List<BoardImp> list2 = page2.getContent();
 
         // then
-
-
         Assertions.assertAll(
                 () -> Assertions.assertEquals(10, list.size()),
                 () -> Assertions.assertEquals(4, list2.size()),

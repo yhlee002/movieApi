@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @SpringBootTest
@@ -45,8 +46,15 @@ class CommentMovServiceTest {
     }
 
     CommentMovParam createComment(CommentMov comment, MemberParam member) {
-        CommentMovParam comm = CommentMovParam.create(comment);
-        comm.setWriterId(member.getMemNo());
+        CommentMovParam comm = CommentMovParam.builder()
+                .id(comment.getId())
+                .movieNo(comment.getMovieNo())
+                .content(comment.getContent())
+                .rating(comment.getRating())
+                .writerId(member.getMemNo())
+                .writerName(member.getName())
+                .regDate(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
         Long id = commentMovService.saveComment(comm);
 
         return commentMovService.findById(id);

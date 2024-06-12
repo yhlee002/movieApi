@@ -3,8 +3,10 @@ package com.portfolio.demo.project.dto.member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class MemberResponse {
     private Long memNo;
     private String identifier;

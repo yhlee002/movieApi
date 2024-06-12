@@ -197,7 +197,7 @@ public class BoardImpService {
     @Transactional
     public Long saveBoard(BoardImpParam boardParam) {
 
-        Member user = memberRepository.findById(boardParam.getId()).orElse(null);
+        Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
 
         BoardImp board = BoardImp.builder()
                 .title(boardParam.getTitle())
@@ -206,6 +206,7 @@ public class BoardImpService {
                 .views(0)
                 .recommended(0)
                 .build();
+        boardImpRepository.save(board);
 
         return board.getId();
     }

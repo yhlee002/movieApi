@@ -1,5 +1,7 @@
 package com.portfolio.demo.project.dto.member.request;
 
+import com.portfolio.demo.project.entity.member.MemberCertificated;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
@@ -14,4 +16,6 @@ public class CreateMemberRequest {
     private String phone;
     @NotEmpty
     private String provider;
+    private MemberRole role;
+    private MemberCertificated certification;
 }

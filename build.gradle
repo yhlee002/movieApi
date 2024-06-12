@@ -75,6 +75,10 @@ bootJar {
     archiveVersion = "0.0.1"
 }
 
+jar {
+    enabled = false
+}
+
 //jacoco {
 //    toolVersion = "0.8.8";
 //}

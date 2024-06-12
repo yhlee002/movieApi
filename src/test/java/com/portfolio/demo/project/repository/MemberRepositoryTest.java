@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import jakarta.persistence.EntityManager;
@@ -45,7 +46,7 @@ public class MemberRepositoryTest {
         Assertions.assertNotNull(member.getProvider());
         Assertions.assertNotNull(member.getRegDate());
         Assertions.assertNotNull(member.getPhone());
-        Assertions.assertEquals("N", member.getCertification());
+        Assertions.assertEquals(MemberCertificated.N, member.getCertification());
     }
 
     @Test

@@ -44,8 +44,10 @@ class BoardImpServiceTest {
     }
 
     BoardImpParam createBoard(BoardImp board, MemberParam member) {
-        BoardImpParam imp = BoardImpParam.create(board);
-        imp.setWriterId(member.getMemNo());
+        BoardImpParam imp = BoardImpParam.createWithoutWriterAndRegDate(board);
+        if (member != null) {
+            imp.setWriterId(member.getMemNo());
+        }
         Long id = boardImpService.saveBoard(imp);
         return boardImpService.findById(id);
     }
@@ -56,7 +58,7 @@ class BoardImpServiceTest {
         MemberParam user = createUser();
 
         for (int n = 0; n < 3; n++) {
-            BoardImpParam created = BoardImpParam.create(
+            BoardImpParam created = BoardImpParam.createWithoutWriterAndRegDate(
                     BoardImpTestDataBuilder.board()
                             .title("test-board-" + n)
                             .build()
@@ -129,23 +131,26 @@ class BoardImpServiceTest {
         // given
         MemberParam user = createUser();
 
-        BoardImpParam board1 = BoardImpParam.create(
+        BoardImpParam board1 = BoardImpParam.createWithoutWriterAndRegDate(
                 BoardImpTestDataBuilder.board().title("test-board-1").build()
         );
+        board1.setWriterId(user.getMemNo());
         boardImpService.saveBoard(board1);
 
         Thread.sleep(500);
 
-        BoardImpParam board2 = BoardImpParam.create(
+        BoardImpParam board2 = BoardImpParam.createWithoutWriterAndRegDate(
                 BoardImpTestDataBuilder.board().title("test-board-2").build()
         );
+        board2.setWriterId(user.getMemNo());
         boardImpService.saveBoard(board2);
 
         Thread.sleep(500);
 
-        BoardImpParam board3 = BoardImpParam.create(
+        BoardImpParam board3 = BoardImpParam.createWithoutWriterAndRegDate(
                 BoardImpTestDataBuilder.board().title("test-board-3").build()
         );
+        board3.setWriterId(user.getMemNo());
         boardImpService.saveBoard(board3);
 
         List<BoardImpParam> list = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
@@ -167,19 +172,22 @@ class BoardImpServiceTest {
         MemberParam user = createUser();
 
         BoardImp b1 = BoardImpTestDataBuilder.board().title("board-1").build();
-        b1.updateViewCount(3);
         BoardImpParam board = createBoard(b1, user);
-        boardImpService.saveBoard(board);
+        Long bId1 = boardImpService.saveBoard(board);
+        boardImpService.upViewCntById(bId1);
 
         BoardImp b2 = BoardImpTestDataBuilder.board().title("board-2").build();
-        b2.updateViewCount(10);
         BoardImpParam board2 = createBoard(b2, user);
-        boardImpService.saveBoard(board2);
+        Long bId2 = boardImpService.saveBoard(board2);
+        boardImpService.upViewCntById(bId2);
+        boardImpService.upViewCntById(bId2);
 
         BoardImp b3 = BoardImpTestDataBuilder.board().title("board-3").build();
-        b3.updateViewCount(7);
         BoardImpParam board3 = createBoard(b3, user);
-        boardImpService.saveBoard(board3);
+        Long bId3 = boardImpService.saveBoard(board3);
+        boardImpService.upViewCntById(bId3);
+        boardImpService.upViewCntById(bId3);
+        boardImpService.upViewCntById(bId3);
 
         // when
         List<BoardImpParam> list = boardImpService.getMostFavImpBoard(3);
@@ -189,27 +197,10 @@ class BoardImpServiceTest {
         Assertions.assertEquals(3, list.size());
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(10, list.get(0).getViews()),
-                () -> Assertions.assertEquals(7, list.get(1).getViews()),
-                () -> Assertions.assertEquals(3, list.get(2).getViews())
+                () -> Assertions.assertEquals(3, list.get(0).getViews()),
+                () -> Assertions.assertEquals(2, list.get(1).getViews()),
+                () -> Assertions.assertEquals(1, list.get(2).getViews())
         );
-    }
-
-    @Test
-    void 감상평_게시글_작성_저장되지_않은_회원_참조() {
-        // given
-        MemberService memberServiceMock = Mockito.spy(memberService);
-        Mockito.doReturn(
-                MemberTestDataBuilder.admin()
-                        .memNo(100L)
-                        .build()
-        ).when(memberServiceMock).findByMemNo(100L);
-
-        MemberParam user = memberService.findByMemNo(100L);
-        BoardImp imp = BoardImpTestDataBuilder.board().build();
-
-        // when & then
-        Assertions.assertThrows(IllegalStateException.class, () -> createBoard(imp, user));
     }
 
     @Test

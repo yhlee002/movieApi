@@ -105,7 +105,7 @@ public class CommentApi {
      *
      * 사용자 식별번호를 이용해 사용자가 입력한 댓글 조회
      */
-    @GetMapping("/comment/movie")
+    @GetMapping("/comment/movie/member")
     public ResponseEntity<Result<List<CommentMovParam>>> getCommentMovsByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,

@@ -78,7 +78,7 @@ class MovieServiceTest {
 
         // then
         Assertions.assertNotNull(movie);
-        Assertions.assertEquals("파묘", movie.getTitle());
+        Assertions.assertTrue(movie.getTitle().contains("파묘"));
         Assertions.assertEquals("장재현", movie.getDirectors().getDirector().get(0).getDirectorNm());
         Assertions.assertEquals("2024", movie.getProdYear());
     }

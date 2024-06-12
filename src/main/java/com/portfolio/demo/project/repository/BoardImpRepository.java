@@ -58,7 +58,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     Page<BoardImp> findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(String name, Pageable pageable);
 
     @Query(value = "select b from BoardImp b" +
-            " join fetch Member m" +
+            " join fetch b.writer m" +
             " where m.name like %:name%")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
 
