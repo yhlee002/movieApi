@@ -34,6 +34,10 @@ jobs:
         uses: actions/setup-java@v4.2.1
         with:
           java-version: 17
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
         
       # make git repository's secret -> application.yml file
       - name: Make application.yml
