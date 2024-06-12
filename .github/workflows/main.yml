@@ -67,10 +67,8 @@ jobs:
     permissions:
       contents: write
     env:
-      S3_BUCKET_NAME: project-moviesite
       AWS_REGION: ap-northeast-2
-      CODEDEPLOY_NAME: MovieSite
-      CODEDEPLOY_GROUP: moviesite-group
+      S3_BUCKET_NAME: project-moviesite
     steps:
       # checkout
       - name: Checkout
@@ -119,7 +117,7 @@ jobs:
       - name: Configure AWS Credentials for GitHub Actions
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: $AWS_REGION
+          aws-region: ap-northeast-2
           aws-access-key-id: ${{ secrets.ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
 
@@ -129,10 +127,15 @@ jobs:
 
       # Deploy with CodeDeploy
       - name: CodeDeploy
-        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
-          --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name $CODEDEPLOY_GROUP \
-          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$moviesite-api-GITHUB_SHA.zip
+        env:
+          CODEDEPLOY_NAME: MovieSite
+          CODEDEPLOY_GROUP: moviesite-group
+        # run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
+        #   --deployment-config-name CodeDeployDefault.AllAtOnce \
+        #   --deployment-group-name $CODEDEPLOY_GROUP \
+        #   --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=moviesite-api-$GITHUB_SHA.zip
+        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $CODEDEPLOY_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=moviesite-api-$GITHUB_SHA.zip
+          
 
   dependency-submission:
 
