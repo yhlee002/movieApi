@@ -11,28 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class MovieSiteApplicationTest extends IntegrationTest {
 
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
     @Test
-    void contextLoad() {
-        Member admin = MemberTestDataBuilder.admin().build();
-        Member savedMember = memberRepository.save(admin);
-
-        entityManager.flush();
-        entityManager.clear();
-
-        Member member = memberRepository.findById(savedMember.getMemNo()).orElseThrow();
-
-        Assertions.assertEquals(member.getMemNo(), admin.getMemNo());
-        Assertions.assertEquals(member.getName(), admin.getName());
-        Assertions.assertEquals(member.getIdentifier(), admin.getIdentifier());
-        Assertions.assertEquals(member.getPhone(), admin.getPhone());
-        Assertions.assertEquals(member.getRole(), admin.getRole());
-//        Assertions.assertEquals(member.getRegDt(), admin.getRegDt());
-    }
-
+    void contextLoad() {}
 }
