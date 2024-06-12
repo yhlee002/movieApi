@@ -16,16 +16,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # services:
-    #   mysql:
-    #     image: mysql:8.4
-    #     # options: --mysql-native-password=ON
-    #     env:
-    #       MYSQL_DATABASE: moviesite
-    #       MYSQL_USER: ${{ secrets.DB_TEST_USERNAME }}
-    #       MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
-    #     volumes:
-    #       - ./dbdata:/var/lib/mysql/
+    services:
+      mysql:
+        image: mysql:8.4
+        # options: --mysql-native-password=ON
+        options: mysql-native-password=ON
+        env:
+          MYSQL_DATABASE: moviesite
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+        volumes:
+          - ./dbdata:/var/lib/mysql/
+        
     #   flyway:
     #     image: flyway/flyway:latest
     #     env:
@@ -37,8 +38,8 @@ jobs:
     #       - ../../db/flyway.conf:/flyway/conf/flyway.conf
     #       - ../../db/migration:/flyway/sql
     steps:
-      - name: Make Sql Directory
-        run: mkdir db/migration -p
+      # - name: Make Sql Directory
+      #   run: mkdir db/migration -p
 
       # - name: Print Working Directory(~) 
       #   run: pwd
@@ -49,22 +50,22 @@ jobs:
       # - name: Copy Sql files
       #   run : cp filesystem/db/migration/* ./db/migration
     
-      - name: Setup Mysql
-        uses: mirromutth/mysql-action@v1.1
-        with:
-          host port: 3306
-          container port: 3306
-          mysql database: 'moviesite'
-          mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
+      # - name: Setup Mysql
+      #   uses: mirromutth/mysql-action@v1.1
+      #   with:
+      #     host port: 3306
+      #     container port: 3306
+      #     mysql database: 'moviesite'
+      #     mysql root password: ${{ secrets.DB_TEST_PASSWORD }}
       
       - name: Setup Flyway
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
-          url: jdbc:mysql://mysql:3306/moviesite # ${{ secrets.DB_TEST_ENDPOINT }}
+          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
           # Comma-separated list of locations to scan recursively for migrations
-          # locations: ./db/flyway.conf:/flyway/conf/flyway.conf, ./db/migration:/flyway/sql
+          locations: ./db/flyway.conf:/flyway/conf/flyway.conf, ./db/migration:/flyway/sql
           # default: filesystem:sql
       
       - name: Grant execute permission for gradlew
