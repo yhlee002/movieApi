@@ -235,8 +235,8 @@ class MemberServiceTest {
         Authentication auth2 = memberService.getAuthentication(user);
 
         Assertions.assertNotNull(auth);
-        Assertions.assertEquals(MemberRole.ROLE_ADMIN, auth.getAuthorities().iterator().next().getAuthority());
-        Assertions.assertEquals(MemberRole.ROLE_USER, auth2.getAuthorities().iterator().next().getAuthority());
+        Assertions.assertEquals(MemberRole.ROLE_ADMIN.toString(), auth.getAuthorities().iterator().next().getAuthority());
+        Assertions.assertEquals(MemberRole.ROLE_USER.toString(), auth2.getAuthorities().iterator().next().getAuthority());
     }
 
     @Test

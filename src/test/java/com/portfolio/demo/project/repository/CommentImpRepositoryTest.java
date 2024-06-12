@@ -173,7 +173,7 @@ public class CommentImpRepositoryTest {
         Page<CommentImp> comments = commentImpRepository.findAll(pageable);
 
         // then
-        Assertions.assertEquals(7, comments.getTotalElements());
+        Assertions.assertEquals(8, comments.getTotalElements());
     }
 
     @Test

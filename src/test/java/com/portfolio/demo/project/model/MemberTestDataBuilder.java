@@ -33,7 +33,7 @@ public class MemberTestDataBuilder {
                 .phone("000-111-0000")
                 .role(MemberRole.ROLE_USER)
                 .provider("none")
-                .certification(MemberCertificated.Y);
+                .certification(MemberCertificated.N);
     }
 
     public static Member.MemberBuilder noPasswordUser() {

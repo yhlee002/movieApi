@@ -32,4 +32,13 @@ public class CommentMovParam {
                 .rating(mov.getRating())
                 .build();
     }
+
+    public static CommentMovParam createWithoutWriterAndRegDate(CommentMov mov) {
+        return CommentMovParam.builder()
+                .id(mov.getId())
+                .movieNo(mov.getMovieNo())
+                .content(mov.getContent())
+                .rating(mov.getRating())
+                .build();
+    }
 }

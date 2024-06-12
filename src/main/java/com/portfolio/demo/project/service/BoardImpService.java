@@ -194,7 +194,6 @@ public class BoardImpService {
      *
      * @param boardParam
      */
-    @Transactional
     public Long saveBoard(BoardImpParam boardParam) {
 
         Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
@@ -216,7 +215,6 @@ public class BoardImpService {
      *
      * @param boardParam
      */
-    @Transactional
     public Long updateBoard(BoardImpParam boardParam) {
         // 작성자 정보 검증
         BoardImp board = boardImpRepository.findById(boardParam.getId()).orElse(null);
@@ -237,7 +235,6 @@ public class BoardImpService {
      *
      * @param id
      */
-    @Transactional
     public void deleteById(Long id) {
         BoardImp board = boardImpRepository.findById(id).orElse(null);
         if (board != null) {
@@ -289,8 +286,6 @@ public class BoardImpService {
      * @param page
      * @return
      */
-    @Deprecated
-    @Transactional
     public ImpressionPagenationParam getImpPagenation(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
         Page<BoardImp> pages = boardImpRepository.findAll(pageable);
@@ -315,7 +310,6 @@ public class BoardImpService {
      * @param page
      * @param keyword
      */
-    @Transactional
     public ImpressionPagenationParam getImpPagenationByWriterName(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
@@ -340,7 +334,6 @@ public class BoardImpService {
      * @param page
      * @param keyword
      */
-    @Transactional
     public ImpressionPagenationParam getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
@@ -365,7 +358,6 @@ public class BoardImpService {
      * @param page
      * @param size
      */
-    @Transactional
     public List<BoardImpParam> getImpsByMember(Long memNo, int page, int size) {
         Member member = memberRepository.findById(memNo).orElse(null);
 

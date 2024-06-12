@@ -139,6 +139,7 @@ public class CommentMovService {
 
         if (comment != null) {
             comment.setContent(commentParam.getContent());
+            comment.setRating(commentParam.getRating());
         } else {
             throw new IllegalStateException("해당 아이디의 댓글 정보가 존재하지 않습니다.");
         }

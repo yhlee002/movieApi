@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.dto.board;
 
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,15 @@ public class BoardNoticeParam {
                 .writerProfileImage(board.getWriter().getProfileImage())
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .modDate(board.getModDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .views(board.getViews())
+                .build();
+    }
+
+    public static BoardNoticeParam createWithoutWriterAndRegDate(BoardNotice board) {
+        return BoardNoticeParam.builder()
+                .id(board.getId())
+                .title(board.getTitle())
+                .content(board.getContent())
                 .views(board.getViews())
                 .build();
     }

@@ -8,7 +8,6 @@ import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import org.junit.jupiter.api.*;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;

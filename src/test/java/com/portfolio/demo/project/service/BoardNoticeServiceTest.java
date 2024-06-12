@@ -46,7 +46,7 @@ class BoardNoticeServiceTest {
     }
 
     BoardNoticeParam createBoard(BoardNotice notice, MemberParam member) {
-        BoardNoticeParam board = BoardNoticeParam.create(notice);
+        BoardNoticeParam board = BoardNoticeParam.createWithoutWriterAndRegDate(notice);
         board.setWriterId(member.getMemNo());
         Long id = boardNoticeService.saveBoard(board);
         return boardNoticeService.findById(id);
@@ -100,14 +100,14 @@ class BoardNoticeServiceTest {
         BoardNoticeParam b3 = createBoard(nextBoard, admin);
 
         // when
-        BoardNoticeParam prevBoardNotice = boardNoticeService.findPrevById(b1.getId());
+        BoardNoticeParam prevBoardNotice = boardNoticeService.findPrevById(b2.getId());
         BoardNoticeParam boardNotice = boardNoticeService.findById(b2.getId());
-        BoardNoticeParam nextBoardNotice = boardNoticeService.findNextById(b3.getId());
+        BoardNoticeParam nextBoardNotice = boardNoticeService.findNextById(b2.getId());
 
         // then
-        Assertions.assertEquals(prevBoard.getId(), prevBoardNotice.getId());
-        Assertions.assertEquals(board.getId(), boardNotice.getId());
-        Assertions.assertEquals(nextBoard.getId(), nextBoardNotice.getId());
+        Assertions.assertEquals(b1.getId(), prevBoardNotice.getId());
+        Assertions.assertEquals(b2.getId(), boardNotice.getId());
+        Assertions.assertEquals(b3.getId(), nextBoardNotice.getId());
     }
 
     @Test
@@ -145,7 +145,7 @@ class BoardNoticeServiceTest {
 
         boardNoticeService.updateBoard(b1);
 
-        BoardNoticeParam foundBoard = boardNoticeService.findById(board.getId());
+        BoardNoticeParam foundBoard = boardNoticeService.findById(b1.getId());
 
         // then
         Assertions.assertEquals("Modified Title", foundBoard.getTitle());
@@ -207,8 +207,10 @@ class BoardNoticeServiceTest {
         boardNoticeService.upViewCntById(b1.getId());
         boardNoticeService.upViewCntById(b1.getId());
 
+        BoardNoticeParam foundBoard = boardNoticeService.findById(b1.getId());
+
         // then
-        Assertions.assertEquals(3, b1.getViews());
+        Assertions.assertEquals(3, foundBoard.getViews());
     }
 
     @Test

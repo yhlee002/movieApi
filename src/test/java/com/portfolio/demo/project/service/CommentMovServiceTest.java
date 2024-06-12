@@ -46,15 +46,8 @@ class CommentMovServiceTest {
     }
 
     CommentMovParam createComment(CommentMov comment, MemberParam member) {
-        CommentMovParam comm = CommentMovParam.builder()
-                .id(comment.getId())
-                .movieNo(comment.getMovieNo())
-                .content(comment.getContent())
-                .rating(comment.getRating())
-                .writerId(member.getMemNo())
-                .writerName(member.getName())
-                .regDate(comment.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .build();
+        CommentMovParam comm = CommentMovParam.createWithoutWriterAndRegDate(comment);
+        comm.setWriterId(member.getMemNo());
         Long id = commentMovService.saveComment(comm);
 
         return commentMovService.findById(id);
@@ -147,7 +140,7 @@ class CommentMovServiceTest {
         CommentMov c3 = CommentMovTestDataBuilder.noWayUpComment().build();
         CommentMovParam comment3 = createComment(c3, user2);
 
-        CommentMov c4 = CommentMovTestDataBuilder.noWayUpComment().build();
+        CommentMov c4 = CommentMovTestDataBuilder.duneComment().build();
         CommentMovParam comment4 = createComment(c4, user2);
 
         // when

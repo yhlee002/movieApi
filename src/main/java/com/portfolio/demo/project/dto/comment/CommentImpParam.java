@@ -28,4 +28,11 @@ public class CommentImpParam {
                 .regDate(imp.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
     }
+
+    public static CommentImpParam createWithoutBoarAndWriterAndRegDate(CommentImp imp) {
+        return CommentImpParam.builder()
+                .id(imp.getId())
+                .content(imp.getContent())
+                .build();
+    }
 }

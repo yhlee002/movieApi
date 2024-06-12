@@ -30,39 +30,36 @@ public class MemberService {
     public MemberParam findByMemNo(Long memNo) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
-        MemberParam result = null;
         if (member != null) {
-            result = MemberParam.create(member);
+            return MemberParam.create(member);
         } else {
-            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+            log.error("해당 식별번호의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
         }
 
-        return result;
+        return null;
     }
 
     public MemberParam findByIdentifier(String identifier) {
         Member member = memberRepository.findByIdentifier(identifier);
 
-        MemberParam result = null;
         if (member != null) {
-            result = MemberParam.create(member);
+            return MemberParam.create(member);
         } else {
-            log.error("해당 식별자의 회원 정보가 존재하지 않습니다. (memNo = {})", identifier);
+            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (identifier = {})", identifier);
         }
 
-        return result;
+        return null;
     }
 
     public MemberParam findByName(String name) {
         Member member = memberRepository.findByNameIgnoreCase(name);
 
-        MemberParam result = null;
         if (member != null) {
-            result = MemberParam.create(member);
+            return MemberParam.create(member);
         } else {
-            log.error("해당 이름의 회원 정보가 존재하지 않습니다. (memNo = {})", name);
+            log.error("해당 이름의 회원 정보가 존재하지 않습니다. (name = {})", name);
         }
-        return result;
+        return null;
     }
 
     public List<MemberParam> findAllByNameContaining(String name, int page, int size) {
@@ -75,14 +72,13 @@ public class MemberService {
     public MemberParam findByPhone(String phone) {
         Member member = memberRepository.findByPhone(phone);
 
-        MemberParam result = null;
         if (member != null) {
-            result = MemberParam.create(member);
+            return MemberParam.create(member);
         } else {
             log.error("해당 휴대번호의 회원 정보가 존재하지 않습니다. (phone = {})", phone);
         }
 
-        return result;
+        return null;
     }
 
     public Boolean existsByPhone(String phone) {
@@ -93,6 +89,8 @@ public class MemberService {
         Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
         if (mem != null) {
             return MemberParam.create(mem);
+        } else {
+            log.error("해당 정보의 회원 정보가 존재하지 않습니다. (identifier = {}, provider = {})", identifier, provider);
         }
         return null;
     }
@@ -195,20 +193,6 @@ public class MemberService {
         return member.getMemNo();
     }
 
-//    public Long updateCertKey(Long memNo) {
-//        String certKey = tempKey.getKey(10, false);
-//
-//        Member member = memberRepository.findById(memNo).orElse(null);
-//
-//        if (member != null) {
-//            member.updateCertKey(passwordEncoder.encode(certKey));
-//        } else {
-//            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-//        }
-//
-//        return member.getMemNo();
-//    }
-
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
     public Authentication getAuthentication(MemberParam member) {
         Member user = memberRepository.findByIdentifier(member.getIdentifier());
@@ -221,7 +205,7 @@ public class MemberService {
         if (member != null) {
             memberRepository.delete(member);
         } else {
-            log.error("해당 아이디를 가진 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+            throw new IllegalStateException("해당 아이디를 가진 회원 정보가 존재하지 않습니다.");
         }
     }
 }

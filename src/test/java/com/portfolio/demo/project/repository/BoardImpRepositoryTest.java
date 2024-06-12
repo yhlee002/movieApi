@@ -107,7 +107,6 @@ class BoardImpRepositoryTest {
 
     @Test
     void 모든_후기_게시글_조회_패치조인_컬렉션최적화() {
-        //        Map<Long, List<CommentImpParam>> collect = comments.stream().collect(Collectors.groupingBy(CommentImpParam::getBoardId));
         // given
         Member user = createUser();
 

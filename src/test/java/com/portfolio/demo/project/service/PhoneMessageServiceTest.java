@@ -26,7 +26,7 @@ class PhoneMessageServiceTest {
     void sendCertificationMessage() {
         // given
         Member member = MemberTestDataBuilder.user().name("이영현").phone("010-3395-5304").build();
-        memberService.updateMember(MemberParam.create(member));
+        memberService.saveMember(MemberParam.create(member));
 
         // when
         certificationService.sendCertificationMessage("010-3395-5304", CertificationReason.SIGNUP);
