@@ -30,6 +30,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          java-version: 17
+        
       # make git repository's secret -> application.yml file
       - name: Make application.yml
         run: echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
