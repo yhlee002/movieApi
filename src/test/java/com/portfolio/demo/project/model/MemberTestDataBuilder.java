@@ -63,6 +63,7 @@ public class MemberTestDataBuilder {
         for (int i = 0; i < 10; i++) {
             sb.append((char) random.nextInt(26));
         }
+        sb.append(new Random().nextInt(1000));
         String randomString = sb.toString();
 
         return Member.builder()
