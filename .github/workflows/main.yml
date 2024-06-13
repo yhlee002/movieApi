@@ -70,6 +70,10 @@ jobs:
         
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
+      # Make git repository's secret -> application.yml file
+      - name: Make application.yml
+        run: echo "${{ secrets.APPLICATION_TEST }}" > ./src/test/resources/application.yml
         
       - name: Test with Gradle
         run: ./gradlew test
@@ -110,10 +114,6 @@ jobs:
       # Build
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build -Pprofile=prod -x test
-
-      # Delete application.yml
-      - name: Delete aplication.yml file
-        run: rm ./src/main/resources/application-prod.yml
 
       # Make Directory
       - name: Make Directory
