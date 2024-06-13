@@ -49,10 +49,13 @@ jobs:
         run: pwd
 
       - name: ls
-        run: ls -al
+        run: ls -al 
 
       - name: ls2
-        run: ls -al | grep 'movie'
+        run: ls -al ../
+
+      - name: ls3
+        run: ls -al ../../
 
       # - name: Copy Sql files
       #   run : cp filesystem/db/migration/* ./db/migration
