@@ -63,13 +63,13 @@ jobs:
       
       # Make git repository's secret -> application.yml file
       - name: Make application.yml
-        run: echo "${{ secrets.APPLICATION_TEST }}" > ./src/test/resources/application.yml
+        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/test/resources/application.yml
 
       - name: Make Res_ko_KR_keys.properties
         run: echo "${{ secrets.Res_ko_KR_keys }}" > ./src/test/resources/Res_ko_KR_keys.properties
         
       - name: Test with Gradle
-        run: ./gradlew test
+        run: ./gradlew test -Pprofile=dev
 
       - run: cat file:///home/runner/work/movieApi/movieApi/build/reports/tests/test/index.html
       
@@ -98,7 +98,7 @@ jobs:
         
       # Make git repository's secret -> application.yml file
       - name: Make application.yml
-        run: echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application-prod.yml
+        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
 
       - name: Make Res_ko_KR_keys.properties
         run: echo "${{ secrets.Res_ko_KR_keys }}" > ./src/main/resources/Res_ko_KR_keys.properties
