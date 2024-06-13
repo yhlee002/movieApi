@@ -71,15 +71,32 @@ jobs:
       - name: ls
         run: ls -al | grep 'db'
 
-      - name: Setup Flyway
-        uses: joshuaavalon/flyway-action@v3.0.0
+      # - name: Setup Flyway
+      #   uses: joshuaavalon/flyway-action@v3.0.0
+      #   with:
+      #     url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
+      #     user: ${{ secrets.DB_TEST_USERNAME }}
+      #     password: ${{ secrets.DB_TEST_PASSWORD }}
+      #     # Comma-separated list of locations to scan recursively for migrations
+      #     locations: filesystem:sql
+      #     # filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
+      #     # default: filesystem:sql
+
+      - name: Flyway Hub Migration Test
+        # You may pin to the exact commit or the version.
+        # uses: red-gate/flyway-hub-migration-test@53101faddaca93ef97b259bf9b2bf03a1b626d62
+        uses: red-gate/flyway-hub-migration-test@v4
         with:
-          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
-          user: ${{ secrets.DB_TEST_USERNAME }}
-          password: ${{ secrets.DB_TEST_PASSWORD }}
-          # Comma-separated list of locations to scan recursively for migrations
-          locations: filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
-          # default: filesystem:sql
+          # The name of the Flyway Hub project to test
+          projectName: movieApi
+          # The database engine that migrations should run against
+          engine: MySQL (v8.0)
+          # The path to the flyway conf to use when running this migration test
+          flywayConfPath: .
+          # The custom database to create and run the flyway migrations against
+          databaseName: moviesite
+          # The directories containing the migration scripts to run
+          migrationDirs: sql
       
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
