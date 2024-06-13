@@ -92,7 +92,7 @@ jobs:
           # The name of the Flyway Hub project to test
           projectName: movieApi
           # The database engine that migrations should run against
-          engine: MySQL (v8.0)
+          engine: mysql-8
           # The path to the flyway conf to use when running this migration test
           flywayConfPath: .
           # The custom database to create and run the flyway migrations against
