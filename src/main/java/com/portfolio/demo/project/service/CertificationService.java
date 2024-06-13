@@ -59,7 +59,7 @@ public class CertificationService {
      * 전화번호 또는 이메일을 이용한 인증정보 단건 조회
      *
      * @param certificationId 인증에 사용된 전화번호 혹은 이메일
-     * @param type 인증에 사용된 아이디(certificationId) 타입(전화번호 혹은 이메일)
+     * @param type            인증에 사용된 아이디(certificationId) 타입(전화번호 혹은 이메일)
      */
     public CertificationDataDto findByCertificationIdAndType(String certificationId, CertificationType type) {
         CertificationData data = certificationRepository.findByCertificationIdAndType(certificationId, type);
@@ -114,7 +114,7 @@ public class CertificationService {
     /**
      * 회원가입 또는 이메일 찾기시에 핸드폰 번호 인증 메세지 전송(결과 반환) + 인증키 서버로 다시 보내기
      *
-     * @param phone 인증 전화번호
+     * @param phone  인증 전화번호
      * @param reason 인증 사유
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
@@ -144,13 +144,14 @@ public class CertificationService {
     }
 
     /**
-     *
      * @param toMail 인증 이메일
      * @param reason 인증 사유
      */
     public SendCertificationNotifyResult sendCertificationMail(String toMail, CertificationReason reason) {
         if (environment.matchesProfiles("prod")) {
             try {
+                log.info("localhost: {}", InetAddress.getLocalHost());
+                log.info("localhost의 host address: {}", InetAddress.getLocalHost().getHostAddress());
                 host = InetAddress.getLocalHost().getHostAddress();
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
