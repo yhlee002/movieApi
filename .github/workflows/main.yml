@@ -15,52 +15,66 @@ on:
 
 jobs:
   test:
+    env: 
+      FLYWAYHUB_ACCESS_TOKEN: ${{ secrets.SECRET_ACCESS_KEY }}
     runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:8.4
-        # options: --mysql-native-password=ON
+        image: bitnami/mysql:8.0.20
         env:
           MYSQL_DATABASE: moviesite
-          MYSQL_USER: ${{ secrets.DB_TEST_USERNAME }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+          MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+        options: >-
+          --health-cmd="mysqladmin ping" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=3
         volumes:
           - ./dbdata:/var/lib/mysql/
-      # flyway:
-      #   image: flyway/flyway:latest
-      #   env:
-      #     FLYWAY_DB_URL: ${{ secrets.DB_TEST_ENDPOINT }}
-      #     FLYWAY_DB_USER: ${{ secrets.DB_TEST_USERNAME }}
-      #     FLYWAY_DB_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
-      #   command: migrate
-      #   volumes:
-      #     - ../../db/flyway.conf:/flyway/conf/flyway.conf
-      #     - ../../db/migration:/flyway/sql
+        
+    #   flyway:
+    #     image: flyway/flyway:latest
+    #     env:
+    #       FLYWAY_DB_URL: ${{ secrets.DB_TEST_ENDPOINT }}
+    #       FLYWAY_DB_USER: ${{ secrets.DB_TEST_USERNAME }}
+    #       FLYWAY_DB_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
+    #     # command: migrate
+    #     volumes:
+    #       - ../../db/flyway.conf:/flyway/conf/flyway.conf
+    #       - ../../db/migration:/flyway/sql
     steps:
-      # Flyway Migration
-      - name: flyway
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: ls -al
+
+      - name: Setup Flyway
         uses: joshuaavalon/flyway-action@v3.0.0
         with:
-          url: ${{ secrets.DB_TEST_ENDPOINT }}
+          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
-          # Comma-separated list of locations to scan recursively for migrations
-          locations: filesystem:../../db/migration
-
-      # Test
+          locations: filesystem:db/flyway.conf, filesystem:db/migration/*.sql
+          # ./db/flyway.conf:/flyway/conf/flyway.conf, ./db/migration:/flyway/sql
+          # default: filesystem:sql
+        
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4.2.1
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
-      # - name: Build with Gradle
-      #   uses: gradle/gradle-build-action@v3.3.2
-      #   with:
-      #     arguments: build
- 
-      - name: Build with Gradle
-        run: ./gradlew build
-        
       - name: Test with Gradle
         run: ./gradlew test
+
+      - run: cat file:///home/runner/work/movieApi/movieApi/build/reports/tests/test/index.html
       
   build:
     runs-on: ubuntu-latest
@@ -111,7 +125,7 @@ jobs:
 
       # Make Zip file
       - name: Make zip file
-        run: zip -r ./moviesite-api-$GITHUB_SHA.zip ./deploy
+        run: zip -r -qq -j ./moviesite-api-$GITHUB_SHA.zip ./deploy
 
       # Access to AWS
       - name: Configure AWS Credentials for GitHub Actions
