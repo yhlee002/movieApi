@@ -84,7 +84,11 @@ jobs:
       #     databaseName: moviesite
       #     # The directories containing the migration scripts to run
       #     migrationDirs: sql
-      
+
+      # Setup Gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+        
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
