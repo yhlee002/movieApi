@@ -71,16 +71,10 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         
-      # - name: Build with Gradle
-      #   uses: gradle/gradle-build-action@v3.3.2
-      #   with:
-      #     arguments: build
- 
-      - name: Build with Gradle
-        run: ./gradlew build
-        
       - name: Test with Gradle
         run: ./gradlew test
+
+      - run: cat file:///home/runner/work/movieApi/movieApi/build/reports/tests/test/index.html
       
   build:
     runs-on: ubuntu-latest
