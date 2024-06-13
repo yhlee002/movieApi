@@ -45,11 +45,14 @@ jobs:
       # - name: Make Sql Directory
       #   run: mkdir db/migration -p
 
-      # - name: Print Working Directory(~) 
-      #   run: pwd
+      - name: Print Working Directory(~) 
+        run: pwd
 
-      # - name: ls
-      #   run: ls -al
+      - name: ls
+        run: ls -al
+
+      - name: ls2
+        run: ls -al | grep 'movie'
 
       # - name: Copy Sql files
       #   run : cp filesystem/db/migration/* ./db/migration
