@@ -55,8 +55,8 @@ jobs:
           url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
-          locations: filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
-          # filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
+          locations: filesystem:db/flyway.conf, filesystem:db/migration/*.sql
+          # ./db/flyway.conf:/flyway/conf/flyway.conf, ./db/migration:/flyway/sql
           # default: filesystem:sql
         
       - name: Setup Java JDK
