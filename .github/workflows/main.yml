@@ -69,7 +69,7 @@ jobs:
         run: echo "${{ secrets.Res_ko_KR_keys }}" > ./src/test/resources/Res_ko_KR_keys.properties
         
       - name: Test with Gradle
-        run: ./gradlew test -Pprofile=dev
+        run: ./gradlew test
 
       - run: cat file:///home/runner/work/movieApi/movieApi/build/reports/tests/test/index.html
       
