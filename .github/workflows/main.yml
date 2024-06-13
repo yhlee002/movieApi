@@ -58,6 +58,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
+      - run: ls -al
+      - run: ls -al ./src
+      - run: ls -al ./src/test
       - run: ls -al ./src/test/resources
       
       # Make git repository's secret -> application.yml file
