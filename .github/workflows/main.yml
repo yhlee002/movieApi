@@ -44,14 +44,27 @@ jobs:
     #       - ../../db/flyway.conf:/flyway/conf/flyway.conf
     #       - ../../db/migration:/flyway/sql
     steps:
-      # Setup JDK
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - run: ls -al
+
+      - name: Setup Flyway
+        uses: joshuaavalon/flyway-action@v3.0.0
+        with:
+          url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
+          user: ${{ secrets.DB_TEST_USERNAME }}
+          password: ${{ secrets.DB_TEST_PASSWORD }}
+          locations: filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
+          # filesystem/db/flyway.conf:/flyway/conf/flyway.conf, filesystem/db/migration:/flyway/sql
+          # default: filesystem:sql
+        
       - name: Setup Java JDK
         uses: actions/setup-java@v4.2.1
         with:
           java-version: 17
           distribution: 'temurin'
-          
-      # Setup Gradle
+      
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
         
