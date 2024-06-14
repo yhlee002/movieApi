@@ -25,6 +25,8 @@ jobs:
           MYSQL_DATABASE: moviesite
           MYSQL_ROOT_PASSWORD: ${{ secrets.DB_TEST_PASSWORD }}
           MYSQL_AUTHENTICATION_PLUGIN: mysql_native_password
+        ports:
+          - 3306:3306
         options: >-
           --health-cmd="mysqladmin ping" 
           --health-interval=10s 
@@ -42,8 +44,7 @@ jobs:
           url: jdbc:mysql://mysql:3306/moviesite?allowPublicKeyRetrieval=true&useSSL=false
           user: ${{ secrets.DB_TEST_USERNAME }}
           password: ${{ secrets.DB_TEST_PASSWORD }}
-          locations: filesystem:db/flyway.conf, filesystem:db/migration/*.sql
-          # ./db/flyway.conf:/flyway/conf/flyway.conf, ./db/migration:/flyway/sql
+          locations: filesystem:db, filesystem:db/migration
           # default: filesystem:sql
         
       - name: Setup Java JDK
