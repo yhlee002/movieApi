@@ -71,8 +71,6 @@ jobs:
         
       - name: Test with Gradle
         run: ./gradlew test
-
-      - run: cat file:///home/runner/work/movieApi/movieApi/build/reports/tests/test/index.html
       
   build:
     runs-on: ubuntu-latest
