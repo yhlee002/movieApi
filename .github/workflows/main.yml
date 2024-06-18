@@ -118,6 +118,10 @@ jobs:
       - name: Copy Jar
         run: cp ./build/libs/moviesite_api_server.jar ./deploy
 
+      - run: mkdir -p ./deploy/scripts
+      - run: cp ./scripts/* ./deploy/scripts
+      - run: cp ./appspec.yml ./deploy
+
       # Make Zip file
       - name: Make zip file
         run: zip -r -qq -j ./moviesite-api-$GITHUB_SHA.zip ./deploy
