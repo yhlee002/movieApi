@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,8 +26,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Transactional
+@Service
 public class CertificationService {
 
     private final Environment environment;
@@ -156,9 +158,9 @@ public class CertificationService {
             } catch (UnknownHostException e) {
                 throw new RuntimeException(e);
             }
-        } else if (environment.matchesProfiles("dev")) {
+        } else if (environment.matchesProfiles("local")) {
             host = "localhost";
-            port = 8077;
+            port = 80;
         }
 
         String certKey = tempKey.getKey(10, false);
@@ -242,3 +244,4 @@ public class CertificationService {
         return ran.nextInt(9000) + 1000; // => 1000 ~ 9999 범위의 난수 생성
     }
 }
+

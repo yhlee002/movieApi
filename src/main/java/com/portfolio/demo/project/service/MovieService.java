@@ -8,6 +8,7 @@ import com.portfolio.demo.project.dto.tmdb.TmdbMovieDetailVO;
 import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 @Slf4j
+@Transactional
 @Service
 public class MovieService {
 
