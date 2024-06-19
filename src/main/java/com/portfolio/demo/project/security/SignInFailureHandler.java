@@ -27,6 +27,8 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String memNo = request.getParameter("username");
 
+        if (memNo != null) return;
+
         MemberParam member = memberService.findByMemNo(Long.getLong(memNo));
         if (member != null) {
             LoginLogParam logParam = LoginLogParam.builder()

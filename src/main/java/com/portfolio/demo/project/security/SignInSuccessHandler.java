@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.security;
 
+import com.google.gson.JsonObject;
 import com.portfolio.demo.project.dto.LoginLogParam;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;
@@ -73,15 +74,15 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType("text/html; charset=UTF-8");
 
-                Map<String, Object> outputData = new HashMap<>();
-                outputData.put("memNo", memberParam.getMemNo());
-                outputData.put("identifier", memberParam.getIdentifier());
-                outputData.put("name", memberParam.getName());
-                outputData.put("profileImage", memberParam.getProfileImage());
-                outputData.put("phone", memberParam.getPhone());
-                outputData.put("regDate", memberParam.getRegDate());
-                outputData.put("role", memberParam.getRole().toString());
-                outputData.put("provider", memberParam.getProvider());
+                JsonObject outputData = new JsonObject();
+                outputData.addProperty("memNo", memberParam.getMemNo());
+                outputData.addProperty("identifier", memberParam.getIdentifier());
+                outputData.addProperty("name", memberParam.getName());
+                outputData.addProperty("profileImage", memberParam.getProfileImage());
+                outputData.addProperty("phone", memberParam.getPhone());
+                outputData.addProperty("regDate", memberParam.getRegDate());
+                outputData.addProperty("role", memberParam.getRole().toString());
+                outputData.addProperty("provider", memberParam.getProvider());
 
 
                 PrintWriter writer = response.getWriter();

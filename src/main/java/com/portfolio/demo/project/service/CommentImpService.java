@@ -82,6 +82,19 @@ public class CommentImpService {
         comm.ifPresent(commentImpRepository::delete);
     }
 
+    public CommentImpPagenationParam getComments(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<CommentImp> pages = commentImpRepository.findAll(pageable);
+        List<CommentImp> list = pages.getContent();
+
+        List<CommentImpParam> vos = list.stream().map(CommentImpParam::create).toList();
+
+        return CommentImpPagenationParam.builder()
+                .commentImpsList(vos)
+                .totalPageCnt(pages.getTotalPages())
+                .build();
+    }
+
     public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
         BoardImp b = boardImpRepository.findById(boardId).orElse(null);
 

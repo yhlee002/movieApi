@@ -36,15 +36,21 @@ public class CommentApi {
      * @param movieNo
      * @return
      */
-    @GetMapping("/comment/movie")
+    @GetMapping("/comments/movie")
     public ResponseEntity<Result<CommentMovPagenationParam>> getCommentMovs(
-            @RequestParam("movieNo") Long movieNo,
+            @RequestParam(name = "movieNo", required = false) Long movieNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
         CommentMovPagenationParam vos = commentMovService.getCommentsByMovie(movieNo, page, size);
 
         return new ResponseEntity<>(new Result<>(vos), HttpStatus.OK);
+    }
+
+    @GetMapping("/comment/movie/{id}")
+    public ResponseEntity<Result<CommentMovParam>> getCommentMov(@PathVariable Long id) {
+        CommentMovParam mov = commentMovService.findById(id);
+        return new ResponseEntity<>(new Result<>(mov), HttpStatus.OK);
     }
 
     /**
@@ -127,11 +133,16 @@ public class CommentApi {
      */
     @GetMapping("/comments/imp")
     public ResponseEntity<Result<CommentImpPagenationParam>> getCommentImpsByBoard(
-            @RequestParam(name = "boardId") Long boardId,
+            @RequestParam(name = "boardId", required = false) Long boardId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "20") int size
     ) {
-        CommentImpPagenationParam vo = commentImpService.getCommentsByBoard(boardId, page, size);
+        CommentImpPagenationParam vo = null;
+        if (boardId != null) {
+            vo = commentImpService.getCommentsByBoard(boardId, page, size);
+        } else {
+            vo = commentImpService.getComments(page, size);
+        }
 
         return new ResponseEntity<>(new Result<>(vo), HttpStatus.OK);
     }

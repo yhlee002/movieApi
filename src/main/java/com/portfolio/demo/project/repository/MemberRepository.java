@@ -18,11 +18,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Member findByNameIgnoreCase(String name);
 
+    Page<Member> findByIdentifierIgnoreCaseContaining(String identifier, Pageable pageable);
+
     Page<Member> findByNameIgnoreCaseContaining(String name, Pageable pageable);
+
+    Page<Member> findByPhoneIgnoreCaseContaining(String phone, Pageable pageable);
 
     Boolean existsByName(String name);
 
-    List<Member> findByRole(MemberRole role);
+    Page<Member> findByRole(MemberRole role, Pageable pageable);
 
     Member findByPhone(String phone);
 

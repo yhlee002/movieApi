@@ -36,8 +36,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -109,7 +112,6 @@ public class MemberApi {
                                                              @RequestParam(name = "name", required = false) String name,
                                                              @RequestParam(name = "phone", required = false) String phone
     ) {
-
         MemberParam member = null;
         String condition = null;
         if (identifier != null && !identifier.isEmpty()) {
@@ -130,6 +132,32 @@ public class MemberApi {
             response = new MemberResponse(member);
         }
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
+    }
+
+    @GetMapping("/members")
+    public ResponseEntity<Result<List<MemberResponse>>> findMembers(@RequestParam(name = "identifier", required = false) String identifier,
+                                                                    @RequestParam(name = "name", required = false) String name,
+                                                                    @RequestParam(name = "phone", required = false) String phone,
+                                                                    @RequestParam(name = "role", required = false) MemberRole role,
+                                                                    @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                                    @RequestParam(name = "size", required = false, defaultValue = "10") int size
+    ) {
+        List<MemberParam> members = new ArrayList<>();
+        if (identifier != null && !identifier.isEmpty()) {
+            members = memberService.findAllByIdentifierContaining(identifier, page, size);
+        } else if (name != null && !name.isEmpty()) {
+            members = memberService.findAllByNameContaining(name, page, size); // validateDuplicationName
+        } else if (phone != null && !phone.isEmpty()) {
+            members = memberService.findAllByPhoneContaining(phone, page, size);
+        } else if (role != null) {
+            members = memberService.findAllByRole(role, page, size);
+        } else {
+            members = memberService.findAll(page, size);
+        }
+
+        List<MemberResponse> responses = members.stream().map(param -> new MemberResponse(param)).collect(Collectors.toList());
+        return ResponseEntity.ok(new Result<>(responses));
+
     }
 
     /**

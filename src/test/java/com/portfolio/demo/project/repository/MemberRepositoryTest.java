@@ -247,8 +247,9 @@ public class MemberRepositoryTest {
         memberRepository.save(m2);
 
         // when
-        List<Member> admins = memberRepository.findByRole(MemberRole.ROLE_ADMIN);
-        List<Member> members = memberRepository.findByRole(MemberRole.ROLE_USER);
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
+        List<Member> admins = memberRepository.findByRole(MemberRole.ROLE_ADMIN, pageable).getContent();
+        List<Member> members = memberRepository.findByRole(MemberRole.ROLE_USER, pageable).getContent();;
 
         // then
         Assertions.assertEquals(1, admins.size());

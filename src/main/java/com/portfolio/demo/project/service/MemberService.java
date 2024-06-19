@@ -64,9 +64,37 @@ public class MemberService {
         return null;
     }
 
+    public List<MemberParam> findAllByIdentifierContaining(String identifier, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        List<Member> list = memberRepository.findByIdentifierIgnoreCaseContaining(identifier, pageable).getContent();
+
+        return list.stream().map(MemberParam::create).toList();
+    }
+
     public List<MemberParam> findAllByNameContaining(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         List<Member> list = memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
+
+        return list.stream().map(MemberParam::create).toList();
+    }
+
+    public List<MemberParam> findAllByPhoneContaining(String phone, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        List<Member> list = memberRepository.findByPhoneIgnoreCaseContaining(phone, pageable).getContent();
+
+        return list.stream().map(MemberParam::create).toList();
+    }
+
+    public List<MemberParam> findAllByRole(MemberRole role, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        List<Member> list = memberRepository.findByRole(role, pageable).getContent();
+
+        return list.stream().map(MemberParam::create).toList();
+    }
+
+    public List<MemberParam> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        List<Member> list = memberRepository.findAll(pageable).getContent();
 
         return list.stream().map(MemberParam::create).toList();
     }

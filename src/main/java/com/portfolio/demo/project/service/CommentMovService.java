@@ -51,7 +51,13 @@ public class CommentMovService {
      */
     public CommentMovPagenationParam getCommentsByMovie(Long movieNo, int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by("regDate").descending());
-        Page<CommentMov> pages = commentMovRepository.findAllByMovieNo(movieNo, pageable);
+
+        Page<CommentMov> pages =  null;
+        if (movieNo != null) {
+            pages = commentMovRepository.findAllByMovieNo(movieNo, pageable);
+        } else {
+            pages = commentMovRepository.findAll(pageable);
+        }
 
         List<CommentMov> list = pages.getContent();
 
