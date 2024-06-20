@@ -83,20 +83,6 @@ public class BoardApi {
     }
 
     /**
-     * 공지사항 게시글 조회수 상승
-     *
-     * @param request
-     * @return
-     */
-    @PatchMapping("/notice/view")
-    public ResponseEntity<Result<BoardNoticeParam>> updateViews(@RequestBody UpdateBoardRequest request) {
-        boardNoticeService.upViewCntById(request.getId());
-        BoardNoticeParam notice = boardNoticeService.findById(request.getId());
-
-        return new ResponseEntity<>(new Result<>(notice), HttpStatus.OK);
-    }
-
-    /**
      * 공지사항 게시글 작성
      *
      * @param request
@@ -134,6 +120,20 @@ public class BoardApi {
         BoardNoticeParam foundBoard = boardNoticeService.findById(id);
 
         return new ResponseEntity<>(new Result<>(foundBoard), HttpStatus.OK);
+    }
+
+    /**
+     * 공지사항 게시글 조회수 상승
+     *
+     * @param request
+     * @return
+     */
+    @PatchMapping("/notice/view")
+    public ResponseEntity<Result<BoardNoticeParam>> updateNoticeViews(@RequestBody UpdateBoardRequest request) {
+        boardNoticeService.upViewCntById(request.getId());
+        BoardNoticeParam notice = boardNoticeService.findById(request.getId());
+
+        return new ResponseEntity<>(new Result<>(notice), HttpStatus.OK);
     }
 
     /**
@@ -241,6 +241,20 @@ public class BoardApi {
         BoardImpParam board = boardImpService.findById(boardImp.getId());
 
         return new ResponseEntity<>(new Result<>(board), HttpStatus.OK);
+    }
+
+    /**
+     * 후기 게시글 조회수 상승
+     *
+     * @param request
+     * @return
+     */
+    @PatchMapping("/imp/view")
+    public ResponseEntity<Result<BoardImpParam>> updateImpViews(@RequestBody UpdateBoardRequest request) {
+        boardImpService.upViewCntById(request.getId());
+        BoardImpParam imp = boardImpService.findById(request.getId());
+
+        return new ResponseEntity<>(new Result<>(imp), HttpStatus.OK);
     }
 
     /**
