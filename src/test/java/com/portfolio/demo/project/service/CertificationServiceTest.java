@@ -36,6 +36,7 @@ public class CertificationServiceTest {
         return memberService.findByMemNo(id);
     }
 
+    /* 이메일 & 메세지 전송 기능 - 테스트는 통과되었으나 CI 과정의 테스트 진행 X
     @Test
     void 메일_발송() {
         certificationService.sendEmail(sampleEmailAddress, "test mail", "test content.");
@@ -55,4 +56,5 @@ public class CertificationServiceTest {
         //given
         certificationService.sendCertificationMessage(samplePhoneNumber, CertificationReason.FINDPASSWORD);
     }
+    */
 }
