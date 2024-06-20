@@ -49,7 +49,8 @@ Amazon EC2 Instance(OS: Amazon Linux 2)
 
 
 ## 아키텍처
-![image](https://github.com/yhlee002/movieApi/assets/60289743/4f832ff6-79c6-41c2-af6e-034ce3845f5a)
+![image](https://github.com/yhlee002/movieApi/assets/60289743/95bb99de-e710-4046-85f5-f784d37b72c3)
+
 
 
 ## DB Schema
