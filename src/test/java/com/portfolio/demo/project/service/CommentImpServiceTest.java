@@ -56,7 +56,7 @@ class CommentImpServiceTest {
     }
 
     CommentImpParam createComment(CommentImp comment, BoardImpParam board, MemberParam member) {
-        CommentImpParam comm = CommentImpParam.createWithoutBoarAndWriterAndRegDate(comment);
+        CommentImpParam comm = CommentImpParam.createWithoutBoardAndWriterAndRegDate(comment);
         comm.setBoardId(board.getId());
         comm.setWriterId(member.getMemNo());
         Long id = commentImpService.saveComment(comm);

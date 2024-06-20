@@ -29,7 +29,7 @@ public class CommentImpParam {
                 .build();
     }
 
-    public static CommentImpParam createWithoutBoarAndWriterAndRegDate(CommentImp imp) {
+    public static CommentImpParam createWithoutBoardAndWriterAndRegDate(CommentImp imp) {
         return CommentImpParam.builder()
                 .id(imp.getId())
                 .content(imp.getContent())

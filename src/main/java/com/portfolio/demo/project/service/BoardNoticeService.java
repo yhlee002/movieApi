@@ -103,9 +103,48 @@ public class BoardNoticeService {
      * @param size 조회할 게시글 수
      * @return 최근 공지사항 게시글 {size}개
      */
-    public List<BoardNoticeParam> getRecentNoticeBoard(int size) {
+    public List<BoardNoticeParam> getRecentNoticeBoards(int size) {
         List<BoardNotice> result = boardNoticeRepository.findRecentBoardNoticesOrderByRegDate(size);
         return result.stream().map(BoardNoticeParam::create).toList();
+    }
+
+    /**
+     * 공지사항 게시글 조회(검색어가 존재)
+     *
+     * @param page 페이지 번호
+     * @param keyword 조회할 게시글 수
+     */
+    public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        List<BoardNotice> list = pages.getContent();
+
+        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
+
+        return NoticePagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardNoticeList(vos)
+                .build();
+    }
+
+    /**
+     *
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     * @param condition 정렬 기준(2024.06 기준 views)
+     * @return
+     */
+    public NoticePagenationParam getAllBoardsOrderByCondition(int page, Integer size, String condition) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(condition).descending());
+        Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
+        List<BoardNotice> list = pages.getContent();
+
+        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
+
+        return NoticePagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardNoticeList(vos)
+                .build();
     }
 
     /**
@@ -132,7 +171,7 @@ public class BoardNoticeService {
     /**
      * 공지사항 게시글 수정
      *
-     * @param param
+     * @param param 게시글 정보
      */
     public Long updateBoard(BoardNoticeParam param) {
         BoardNotice board = boardNoticeRepository.findById(param.getId()).orElse(null);
@@ -150,7 +189,7 @@ public class BoardNoticeService {
     /**
      * 공지사항 게시글 삭제
      *
-     * @param boardId
+     * @param boardId 게시글 식별번호
      */
     public void deleteBoardByBoardId(Long boardId) {
         BoardNotice board = boardNoticeRepository.findById(boardId).orElse(null);
@@ -165,7 +204,7 @@ public class BoardNoticeService {
     /**
      * 선택된 공지사항 게시글 삭제
      *
-     * @param boards
+     * @param boards 삭제할 게시글 목록
      */
     public void deleteBoards(List<BoardNoticeParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
         boards.forEach(board -> {
@@ -182,7 +221,7 @@ public class BoardNoticeService {
     /**
      * 공지사항 게시글 조회수 증가
      *
-     * @param boardId
+     * @param boardId 게시글 식별번호
      */
 
     public void upViewCntById(Long boardId) {
@@ -193,24 +232,5 @@ public class BoardNoticeService {
         } else {
             throw new IllegalStateException("해당 식별번호의 게시글 정보가 존재하지 않습니다.");
         }
-    }
-
-    /**
-     * 공지사항 게시글 조회(검색어가 존재)
-     *
-     * @param page
-     * @param keyword
-     */
-    public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
-        List<BoardNotice> list = pages.getContent();
-
-        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
-
-        return NoticePagenationParam.builder()
-                .totalPageCnt(pages.getTotalPages())
-                .boardNoticeList(vos)
-                .build();
     }
 }

@@ -1,15 +1,16 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.board.*;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
+import com.portfolio.demo.project.dto.comment.count.CommentCount;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.repository.comment.count.CommentImpCountRepository;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
-import com.portfolio.demo.project.dto.board.BoardImpParam;
-import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,8 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,6 +38,8 @@ public class BoardImpService {
     private final CommentImpRepository commentImpRepository;
 
     private final CommentImpSimpleRepository commentImpSimpleRepository;
+
+    private final CommentImpCountRepository commentImpCountRepository;
 
     /**
      * 전체 감상평 게시글 조회
@@ -188,6 +190,51 @@ public class BoardImpService {
 //        boardParams.forEach(board -> board.setComments(map.get(board.getId())));
 
         return boardParams;
+    }
+
+    /**
+     *
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     * @param condition 정렬 기준(2024.06 기준 views)
+     * @return
+     */
+    public ImpressionPagenationParam getAllBoardsOrderByCondition(int page, Integer size, String condition) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(condition).descending());
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
+        List<BoardImp> list = pages.getContent();
+
+        List<BoardImpParam> vos = list.stream().map(BoardImpParam::create).toList();
+
+        return ImpressionPagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(vos)
+                .build();
+    }
+
+    public ImpressionPagenationParam getAllBoardsOrderByCommentSizeDesc(int page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BoardImp> pages = boardImpRepository.findAllOrderByCommentsCountDesc(pageable);
+        List<BoardImp> list = pages.getContent();
+
+        List<Long> ids = list.stream().map(imp -> imp.getId()).collect(Collectors.toList());
+        List<CommentCount> commentCounts = commentImpCountRepository.findCommentCountsByBoardIds(ids);
+        Map<Long, Long> commentCountMap = commentCounts.stream().collect(Collectors.toMap(CommentCount::getBoardId, CommentCount::getCount));
+
+        List<BoardImpParam> vos = list.stream().map(BoardImpParam::create).toList();
+        for (BoardImpParam board : vos) {
+            Long count = commentCountMap.get(board.getId());
+            if (count != null) {
+                board.setCommentSize(count.intValue());
+            } else {
+                board.setCommentSize(0);
+            }
+        }
+
+        return ImpressionPagenationParam.builder()
+                .totalPageCnt(pages.getTotalPages())
+                .boardImpList(vos)
+                .build();
     }
 
     /**

@@ -13,7 +13,6 @@ import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
 import jakarta.validation.Valid;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -46,11 +45,17 @@ public class BoardApi {
     @GetMapping("/notices")
     public ResponseEntity<Result<NoticePagenationParam>> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
                                                                  @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-                                                                 @RequestParam(name = "query", required = false) String query) {
+                                                                 @RequestParam(name = "query", required = false) String query,
+                                                                 @RequestParam(name = "condition", required = false) String condition) {
 
         NoticePagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
+        } else if (condition != null) {
+            if ("views".equals(condition)) {
+                pagenationVO = boardNoticeService.getAllBoardsOrderByCondition(pageNum, size, condition);
+            }
+
         } else {
             pagenationVO = boardNoticeService.getAllBoards(pageNum, size);
         }
@@ -155,7 +160,7 @@ public class BoardApi {
     public ResponseEntity<Result<ImpressionPagenationParam>> imps(
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
-            @RequestParam(name = "con", required = false) String condition,
+            @RequestParam(name = "condition", required = false) String condition,
             @RequestParam(name = "query", required = false) String query
     ) {
         ImpressionPagenationParam pagenationVO = null;
@@ -166,6 +171,12 @@ public class BoardApi {
                 default -> pagenationVO;
             };
 
+        } else if (condition != null) {
+            if ("views".equals(condition) || "recommended".equals(condition)) {
+                pagenationVO = boardImpService.getAllBoardsOrderByCondition(pageNum, size, condition);
+            } else if ("comments".equals(condition)) {
+                pagenationVO = boardImpService.getAllBoardsOrderByCommentSizeDesc(pageNum, size);
+            }
         } else {
             pagenationVO = boardImpService.getAllBoards(pageNum, size);
         }

@@ -400,4 +400,12 @@ class BoardImpServiceTest {
         Assertions.assertEquals(3, boards.size());
         Assertions.assertEquals(1, boards2.size());
     }
+
+    @Test
+    void collection_size로_sort하기() {
+        ImpressionPagenationParam pagenationParam = boardImpService.getAllBoardsOrderByCommentSizeDesc(0, 10);
+
+        Assertions.assertEquals(1736, pagenationParam.getBoardImpList().get(0).getId());
+        Assertions.assertEquals(2, pagenationParam.getBoardImpList().get(0).getCommentSize());
+    }
 }

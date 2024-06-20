@@ -60,7 +60,7 @@ class BoardImpRepositoryTest {
         return user;
     }
 
-    CommentImp createRandomComment(BoardImp board) {
+    CommentImp createRandomCommentWithRandomUser(BoardImp board) {
         CommentImp comment = CommentImpTestDataBuilder.randomComment()
                 .writer(createRandomUser()).board(board).build();
         commentImpRepository.save(comment);
@@ -122,10 +122,10 @@ class BoardImpRepositoryTest {
                 .title("test-board-3").content("test-content-3").build();
         boardImpRepository.save(board3);
 
-        createRandomComment(board);
-        createRandomComment(board2);
-        createRandomComment(board2);
-        createRandomComment(board3);
+        createRandomCommentWithRandomUser(board);
+        createRandomCommentWithRandomUser(board2);
+        createRandomCommentWithRandomUser(board2);
+        createRandomCommentWithRandomUser(board3);
 
         entityManager.flush();
 
@@ -497,5 +497,34 @@ class BoardImpRepositoryTest {
                     Assertions.assertTrue(b.getTitle().contains(keyword2) || b.getContent().contains(keyword2));
                 })
         );
+    }
+
+    @Test
+    void comment_size로_sort하기() {
+        // given
+        Member boardWriter = createRandomUser();
+
+        BoardImp b1 = BoardImpTestDataBuilder.board().writer(boardWriter).build();
+        boardImpRepository.save(b1);
+
+        BoardImp b2 = BoardImpTestDataBuilder.board().writer(boardWriter).build();
+        boardImpRepository.save(b2);
+
+        for (int i = 0; i < 10; i++) {
+            createRandomCommentWithRandomUser(b1);
+        }
+
+        for (int i = 0; i < 8; i++) {
+            createRandomCommentWithRandomUser(b2);
+        }
+
+        // when
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<BoardImp> boardImpPage = boardImpRepository.findAllOrderByCommentsCountDesc(pageable);
+        List<BoardImp> boardImps = boardImpPage.getContent();
+
+        // then
+        Assertions.assertEquals(boardImps.get(0).getId(), b1.getId());
+        Assertions.assertEquals(boardImps.get(1).getId(), b2.getId());
     }
 }

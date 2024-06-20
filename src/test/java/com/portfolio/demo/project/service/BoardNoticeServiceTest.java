@@ -123,8 +123,8 @@ class BoardNoticeServiceTest {
         }
 
         // when
-        List<BoardNoticeParam> list = boardNoticeService.getRecentNoticeBoard(10);
-        List<BoardNoticeParam> list2 = boardNoticeService.getRecentNoticeBoard(7);
+        List<BoardNoticeParam> list = boardNoticeService.getRecentNoticeBoards(10);
+        List<BoardNoticeParam> list2 = boardNoticeService.getRecentNoticeBoards(7);
 
         // then
         Assertions.assertEquals(10, list.size());

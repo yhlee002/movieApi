@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import org.springframework.data.domain.Page;
@@ -48,10 +49,16 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             " order by b.views desc limit :size")
     List<BoardImp> findMostFavImpBoards(@Param("size") int size);
 
+    @Query(value = "select b from BoardImp b" +
+            " join b.writer m" +
+            " left join b.comments c" +
+            " group by b.id" +
+            " order by count(c.id) desc")
+    Page<BoardImp> findAllOrderByCommentsCountDesc(Pageable pageable);
+
     /**
      * 작성자명으로 검색 결과 조회
      */
-
 //    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
 //            "where m.name like %:name% order by b.id desc limit :size offset :offset")
 //    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
