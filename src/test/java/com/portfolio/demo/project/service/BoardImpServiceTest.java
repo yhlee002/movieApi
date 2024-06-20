@@ -1,8 +1,11 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.model.BoardImpTestDataBuilder;
+import com.portfolio.demo.project.model.CommentImpTestDataBuilder;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
@@ -25,6 +28,8 @@ class BoardImpServiceTest {
 
     @Autowired
     private MemberService memberService;
+    @Autowired
+    private CommentImpService commentImpService;
 
     MemberParam createUser() {
         Member user = MemberTestDataBuilder.user().build();
@@ -48,7 +53,18 @@ class BoardImpServiceTest {
             imp.setWriterId(member.getMemNo());
         }
         Long id = boardImpService.saveBoard(imp);
+
         return boardImpService.findById(id);
+    }
+
+    CommentImpParam createRandomComment(BoardImpParam board, MemberParam member) {
+        CommentImp c = CommentImpTestDataBuilder.randomComment().build();
+        CommentImpParam param = CommentImpParam.createWithoutBoardAndWriterAndRegDate(c);
+        param.setBoardId(board.getId());
+        param.setWriterId(member.getMemNo());
+        Long id = commentImpService.saveComment(param);
+
+        return commentImpService.findById(id);
     }
 
     @Test
@@ -403,9 +419,28 @@ class BoardImpServiceTest {
 
     @Test
     void collection_size로_sort하기() {
+        // given
+        MemberParam boardWriter = createUser();
+        MemberParam commentWriter = createRandomUser();
+
+        BoardImpParam b1 = createBoard(BoardImpTestDataBuilder.board().build(), boardWriter);
+        BoardImpParam b2 = createBoard(BoardImpTestDataBuilder.board().build(), boardWriter);
+
+        for (int i = 0; i < 20; i++) {
+            createRandomComment(b1, commentWriter);
+        }
+        for (int i = 0; i < 15; i++) {
+            createRandomComment(b2, commentWriter);
+        }
+
+        // when
         ImpressionPagenationParam pagenationParam = boardImpService.getAllBoardsOrderByCommentSizeDesc(0, 10);
 
-        Assertions.assertEquals(1736, pagenationParam.getBoardImpList().get(0).getId());
-        Assertions.assertEquals(2, pagenationParam.getBoardImpList().get(0).getCommentSize());
+        // then
+        Assertions.assertEquals(b1.getId(), pagenationParam.getBoardImpList().get(0).getId());
+        Assertions.assertEquals(20, pagenationParam.getBoardImpList().get(0).getCommentSize());
+
+        Assertions.assertEquals(b2.getId(), pagenationParam.getBoardImpList().get(1).getId());
+        Assertions.assertEquals(15, pagenationParam.getBoardImpList().get(1).getCommentSize());
     }
 }

@@ -84,6 +84,7 @@ public class MemberApiTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.regDate").exists());
     }
 
+    /* 메세지 전송 API의 불필요한 호출로 CI 과정의 테스트 진행 X
     @Test
     void 관리자_등록() throws Exception {
         Member admin = MemberTestDataBuilder.admin().build();
@@ -107,7 +108,6 @@ public class MemberApiTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.data.regDate").exists());
     }
 
-    /* 메세지 전송 API의 불필요한 호출로 CI 과정의 테스트 진행 X
     @Test
     void 일반_회원_가입() throws Exception {
         Member user = MemberTestDataBuilder.randomIdentifierUser()
