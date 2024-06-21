@@ -118,8 +118,8 @@ jobs:
       - name: Copy Jar
         run: cp ./build/libs/moviesite_api_server.jar ./deploy
 
-      - run: mkdir -p ./deploy/scripts
-      - run: cp ./scripts/* ./deploy/scripts
+      - run: mkdir -p ./deploy
+      - run: cp -r ./scripts ./deploy
       - run: cp ./appspec.yml ./deploy
 
       # Make Zip file
