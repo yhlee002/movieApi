@@ -122,9 +122,9 @@ jobs:
       - run: cp ./scripts/deploy.sh ./deploy
       - run: cp ./appspec.yml ./deploy
 
-      # Make Zip file
-      - name: Make zip file
-        run: tar cvf ./moviesite-api-$GITHUB_SHA.zip ./deploy
+      # Make tar file
+      - name: Make tar file
+        run: tar cvf ./moviesite-api-$GITHUB_SHA.tar ./deploy
 
       # Access to AWS
       - name: Configure AWS Credentials for GitHub Actions
@@ -136,18 +136,14 @@ jobs:
 
       # Upload to S3
       - name: Upload to S3
-        run: aws s3 cp --region $AWS_REGION --acl private ./moviesite-api-$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/moviesite-api-$GITHUB_SHA
+        run: aws s3 cp --region $AWS_REGION --acl private ./moviesite-api-$GITHUB_SHA.tar s3://$S3_BUCKET_NAME/moviesite-api-$GITHUB_SHA
 
       # Deploy with CodeDeploy
       - name: CodeDeploy
         env:
           CODEDEPLOY_NAME: MovieSite
           CODEDEPLOY_GROUP: moviesite-group
-        # run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME \
-        #   --deployment-config-name CodeDeployDefault.AllAtOnce \
-        #   --deployment-group-name $CODEDEPLOY_GROUP \
-        #   --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=moviesite-api-$GITHUB_SHA.zip
-        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $CODEDEPLOY_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=moviesite-api-$GITHUB_SHA
+        run: aws deploy create-deployment --application-name $CODEDEPLOY_NAME --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name $CODEDEPLOY_GROUP --s3-location bucket=$S3_BUCKET_NAME,bundleType=tar,key=moviesite-api-$GITHUB_SHA
           
 
   dependency-submission:
