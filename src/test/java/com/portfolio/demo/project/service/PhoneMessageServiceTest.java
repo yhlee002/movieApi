@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ResourceBundle;
+
 @SpringBootTest
 @Transactional
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -22,13 +24,18 @@ class PhoneMessageServiceTest {
     @Autowired
     private MemberService memberService;
 
+    private final ResourceBundle resource = ResourceBundle.getBundle("Res_ko_KR_keys");
+    private final String samplePhoneNumber = resource.getString("aws.sample.phone");
+
+    /* 빌드 과정중의 테스트시 불필요한 sms API 호출 방지를 위해 주석 처리
     @Test
     void sendCertificationMessage() {
         // given
-        Member member = MemberTestDataBuilder.user().name("이영현").phone("010-3395-5304").build();
+        Member member = MemberTestDataBuilder.user().name("devYH").phone(samplePhoneNumber).build();
         memberService.saveMember(MemberParam.create(member));
 
         // when
-        certificationService.sendCertificationMessage("010-3395-5304", CertificationReason.SIGNUP);
+        certificationService.sendCertificationMessage(samplePhoneNumber, CertificationReason.SIGNUP);
     }
+     */
 }
