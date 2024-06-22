@@ -96,7 +96,7 @@ public class WebSecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> allowOrigins = new ArrayList<String>();
         allowOrigins.add("http://localhost");
-        allowOrigins.add("http://3.38.19.101:8077");
+        allowOrigins.add("http://3.38.19.101");
 
         configuration.setAllowedOrigins(allowOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
