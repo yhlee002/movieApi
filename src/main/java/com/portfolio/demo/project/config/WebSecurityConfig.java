@@ -5,7 +5,6 @@ import com.portfolio.demo.project.security.SignInSuccessHandler;
 import com.portfolio.demo.project.security.SignInFailureHandler;
 import com.portfolio.demo.project.security.UserDetailsServiceImpl;
 import com.portfolio.demo.project.service.LoginLogService;
-import com.portfolio.demo.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -94,16 +93,13 @@ public class WebSecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> allowOrigins = new ArrayList<String>();
-        allowOrigins.add("http://localhost");
-        allowOrigins.add("http://3.38.19.101");
 
-        configuration.setAllowedOrigins(allowOrigins);
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost", "http://3.38.19.101"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
         configuration.setExposedHeaders(Arrays.asList("set-cookie"));
         configuration.setAllowCredentials(true);
-//        configuration.setMaxAge(7200L);
+        configuration.setMaxAge(7200L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
