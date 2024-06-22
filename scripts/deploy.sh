@@ -18,4 +18,4 @@ fi
 
 DEPLOY_JAR=$DEPLOY_PATH
 echo ">>> DEPLOY_JAR 배포"    >> /home/ec2-user/app/api/deploy.log
-nohup java -jar -Dserver.port=8080 $DEPLOY_JAR > /home/ec2-user/app/api/logs/server.log 2>&1 < /dev/null &
+nohup java -jar -Dserver.port=8080 -Dspring.profiles.active=prod $DEPLOY_JAR > /home/ec2-user/app/api/logs/server.log 2>&1 < /dev/null &
