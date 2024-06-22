@@ -42,7 +42,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost", "http://3.38.19.101")
                 .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("Authorization", "Content-Type", "X-Auth-Token")
-                .exposedHeaders("set-cookie")
+                .exposedHeaders("Set-Cookie")
                 .allowCredentials(true)
                 .maxAge(7200L);
     }

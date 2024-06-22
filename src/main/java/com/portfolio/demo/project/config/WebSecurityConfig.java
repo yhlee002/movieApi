@@ -46,8 +46,8 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests(request -> request
-                .requestMatchers("/**").permitAll()
+        http.authorizeHttpRequests((authorize) -> authorize
+                        .anyRequest().permitAll()
 //                .requestMatchers("/", "/sign-in/**", "/sign-up/**", "/api/**", "/error/**").permitAll()
 //                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
 //                .requestMatchers("/admin/**", "/notice/new").hasRole("ADMIN")
