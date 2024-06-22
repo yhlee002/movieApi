@@ -95,18 +95,15 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         List<String> allowOrigins = new ArrayList<String>();
-        allowOrigins.add("http://localhost");
-        allowOrigins.add("http://3.38.19.101");
+        allowOrigins.add("http://localhost:80");
+        allowOrigins.add("http://3.38.19.101:80");
 
         configuration.setAllowedOrigins(allowOrigins);
-//        List<String> allowOriginPatterns = new ArrayList<>();
-//        allowOriginPatterns.add("*");
-//        configuration.setAllowedOriginPatterns(allowOriginPatterns);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
         configuration.setExposedHeaders(Arrays.asList("set-cookie"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(7200L);
+//        configuration.setMaxAge(7200L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
