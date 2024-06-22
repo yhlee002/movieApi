@@ -27,6 +27,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import javax.sql.DataSource;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -101,21 +102,15 @@ public class WebSecurityConfig {
 //        List<String> allowOriginPatterns = new ArrayList<>();
 //        allowOriginPatterns.add("*");
 //        configuration.setAllowedOriginPatterns(allowOriginPatterns);
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("authorization", "content-type", "x-auth-token"));
+        configuration.setExposedHeaders(Arrays.asList("set-cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(7200L);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
-//        return request -> {
-//            CorsConfiguration config = new CorsConfiguration();
-//            config.setAllowedHeaders(Collections.singletonList("*"));
-//            config.setAllowedMethods(Collections.singletonList("*"));
-//            config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:8077")); // ⭐️ 허용할 origin
-//            config.setAllowCredentials(true);
-//            return config;
-//        };
         return source;
     }
 
