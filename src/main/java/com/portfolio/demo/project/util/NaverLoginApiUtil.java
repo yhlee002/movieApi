@@ -15,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,21 +25,25 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class NaverLoginApiUtil {
 
-    private static ResourceBundle properties = YamlResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
-    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-
-    protected static final String HOST = properties.getString("public.host");
-//    protected static final String PORT = (Integer) properties.getString("server.port");
-
+    private static final ResourceBundle properties = YamlResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
     private final static String CLIENTID = resourceBundle.getString("naverClientId");
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
+    protected static String HOST = "";
 
-    Map<String, String> tokens;
+    {
+        String profile = System.getProperty("spring.profiles.active");
+        if ("prod".equals(profile)) {
+            HOST = properties.getString("public.host");
+        } else {
+            HOST = "localhost";
+        }
+    }
 
-    public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
+    public SocialLoginParam getAuthorizeData() {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/naver", "utf-8");
+        String callbackUrl = URLEncoder.encode("http://" + HOST + "/oauth-callback/naver", StandardCharsets.UTF_8);
         String apiUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
@@ -51,10 +56,10 @@ public class NaverLoginApiUtil {
                 .build();
     }
 
-    public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
+    public Map<String, String> getTokens(HttpServletRequest request) {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/naver", "UTF-8");
+        String redirectURI = "http://" + HOST + "/oauth-callback/naver";
 
         String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&";
         apiURL += "client_id=" + CLIENTID;
@@ -67,7 +72,7 @@ public class NaverLoginApiUtil {
 
         HttpURLConnection con = null;
         String res = "";
-        tokens = new HashMap<>();
+        Map<String, String> tokens = new HashMap<>();
 
         try {
             con = connect(apiURL);
@@ -82,15 +87,20 @@ public class NaverLoginApiUtil {
 
             log.info("Naver oauth 소셜 로그인 인증 결과: " + res);
 
+            Map<String, Object> parsedJson = new JSONParser(res).parseObject();
             if (responseCode == 200) {
-                Map<String, Object> parsedJson = new JSONParser(res).parseObject();
-                log.info(parsedJson.toString());
-
                 String access_token = (String) parsedJson.get("access_token");
                 String refresh_token = (String) parsedJson.get("refresh_token");
 
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
+            } else if (responseCode == 400) {
+                String error = (String) parsedJson.get("error");
+                String errorDesc = (String) parsedJson.get("error_description");
+                String errorCode = (String) parsedJson.get("error_code");
+
+                log.error("Naver oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.(errorCode: {}, errDesc: {}", errorCode, errorDesc);
+                throw new IllegalStateException("Kakao oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.");
             }
         } catch (IOException | ParseException e) {
             throw new RuntimeException("Naver oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.", e);

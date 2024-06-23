@@ -1,5 +1,8 @@
 package com.portfolio.demo.project.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.dto.social.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
@@ -12,7 +15,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -21,16 +26,22 @@ public class KakaoProfileApiUtil {
     private SocialProfileParam profile;
 
     public SocialProfileParam getProfile(String token) throws ParseException {
-        String header = "Bearer " + token;
-
         Map<String, String> requestHeader = new HashMap<>();
-        requestHeader.put("Authorization", header);
+        requestHeader.put("Authorization", "Bearer " + token);
         String res = get(URL, requestHeader);
 
-        Map<String, Object> parsedJson = new JSONParser(res).parseObject();
-        String id = String.valueOf(parsedJson.get("id"));
-        Map<String, Object> kakao_account = (Map<String, Object>) parsedJson.get("kakao_account");
-        profile = (SocialProfileParam) kakao_account.get("profile");
+        Gson gson = new Gson();
+        JsonObject obj = gson.fromJson(res, JsonObject.class);
+        JsonObject accountObj = obj.get("kakao_account").getAsJsonObject();
+        JsonObject profileObj = accountObj.get("profile").getAsJsonObject();
+
+        profile = SocialProfileParam.builder()
+                .id(obj.get("id").getAsString())
+                .provider(SocialLoginProvider.KAKAO)
+                .name(profileObj.get("nickname").getAsString())
+                .thumbnailImageUrl(profileObj.get("thumbnail_image_url").getAsString())
+                .profileImageUrl(profileObj.get("profile_image_url").getAsString())
+                .build();
 
         return profile;
     }

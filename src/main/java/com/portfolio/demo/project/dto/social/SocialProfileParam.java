@@ -7,6 +7,12 @@ import lombok.Getter;
 @Getter
 public class SocialProfileParam {
     private String id;
-    private String nickname;
-    private String profileImageUrl; // profile_image_url
+    private SocialLoginProvider provider;
+    private String name;
+    private String phone;
+    private String email;
+//    private Boolean isEmailVerified;
+//    private Boolean isEmailValid;
+    private String thumbnailImageUrl;
+    private String profileImageUrl;
 }

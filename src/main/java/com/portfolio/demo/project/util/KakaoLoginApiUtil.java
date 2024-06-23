@@ -26,23 +26,25 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class KakaoLoginApiUtil {
 
-    //    private static ResourceBundle properties = YamlResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
-    private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
-
-    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
-
-    protected static final String HOST = properties.getString("public.host");
-//    protected static final Integer PORT = (Integer) properties.getObject("server.post");
-
+    private static final ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+    private static final ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
     private static final String CLIENT_ID = resourceBundle.getString("kakaoClientId");
     private static final String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
+    protected static String HOST = "";
 
-    Map<String, String> tokens;
+    {
+        String profile = System.getProperty("spring.profiles.active");
+        if ("prod".equals(profile)) {
+            HOST = properties.getString("public.host");
+        } else {
+            HOST = "localhost";
+        }
+    }
 
-    public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
+    public SocialLoginParam getAuthorizeData() {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/kakao", StandardCharsets.UTF_8);
+        String callbackUrl = "http://" + HOST + "/oauth-callback/kakao";
         String apiUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
@@ -55,23 +57,23 @@ public class KakaoLoginApiUtil {
                 .build();
     }
 
-    public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
+    public Map<String, String> getTokens(HttpServletRequest request) {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/kakao", "UTF-8");
+        String redirectURI = "http://" + HOST + "/oauth-callback/kakao";
 
         String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
         apiURL += "&client_id=" + CLIENT_ID;
         apiURL += "&client_secret=" + CLIENT_SECRET;
         apiURL += "&redirect_uri=" + redirectURI;
         apiURL += "&code=" + code;
-//        apiURL += "&state=" + state;
+        apiURL += "&state=" + state;
 
         log.info("Kakao oauth 소셜 로그인 인증 URL: {}", apiURL);
 
         HttpURLConnection con = null;
         String res = "";
-        tokens = new HashMap<>();
+        Map<String, String> tokens = new HashMap<>();
 
         con = connect(apiURL);
 
@@ -86,16 +88,21 @@ public class KakaoLoginApiUtil {
 
             log.info("Kakao oauth 소셜 로그인 인증 결과: " + res);
 
+            Map<String, Object> parsedJson = new JSONParser(res).parseObject();
             if (responseCode == 200) {
-                Map<String, Object> parsedJson = new JSONParser(res).parseObject();
-
                 String access_token = (String) parsedJson.get("access_token");
                 String refresh_token = (String) parsedJson.get("refresh_token");
 
                 tokens.put("access_token", access_token);
                 tokens.put("refresh_token", refresh_token);
-            }
+            } else {
+                String error = (String) parsedJson.get("error");
+                String errorDesc = (String) parsedJson.get("error_description");
+                String errorCode = (String) parsedJson.get("error_code");
 
+                log.error("Naver oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.(errorCode: {}, errDesc: {}", errorCode, errorDesc);
+                throw new IllegalStateException("Kakao oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.");
+            }
         } catch (IOException | ParseException e) {
             throw new RuntimeException("Kakao oauth 소셜 로그인 API 토큰 요청에 실패하였습니다.", e);
         } finally {

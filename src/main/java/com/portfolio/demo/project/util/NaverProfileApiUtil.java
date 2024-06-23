@@ -1,8 +1,10 @@
 package com.portfolio.demo.project.util;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.dto.social.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
 
 import java.io.BufferedReader;
@@ -29,14 +31,20 @@ public class NaverProfileApiUtil {
         String res = get(apiURL, requestHeaders);
         log.info("네이버 프로필 조회 api 실행 결과 : "+res);
 
-        Map<String, Object> parsedJson = new JSONParser(res).parseObject();
-        String resultCode = (String)parsedJson.get("resultcode");
-        String message = (String)parsedJson.get("message");
-
+        Gson gson = new Gson();
+        JsonObject parsedJson = gson.fromJson(res, JsonObject.class);
+        String resultCode = parsedJson.get("resultcode").getAsString();
+        String message = parsedJson.get("message").getAsString();
+        JsonObject response = parsedJson.get("response").getAsJsonObject();
         /* responseBody로부터 데이터 뽑아내기*/
         SocialProfileParam profile = null;
         if(resultCode.equals("00") && message.equals("success")){
-            profile = (SocialProfileParam) parsedJson.get("response");
+            profile = SocialProfileParam.builder()
+                    .id(response.get("id").getAsString())
+                    .provider(SocialLoginProvider.NAVER)
+                    .name(response.get("nickname").getAsString())
+                    .profileImageUrl(response.get("profile_image").getAsString())
+                    .build();
         }
 
         return profile;
