@@ -28,7 +28,7 @@ public class NaverLoginApiUtil {
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
     protected static final String HOST = properties.getString("public.host");
-    protected static final String PORT = properties.getString("server.port");
+//    protected static final String PORT = (Integer) properties.getString("server.port");
 
     private final static String CLIENTID = resourceBundle.getString("naverClientId");
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");

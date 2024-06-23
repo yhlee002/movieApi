@@ -32,7 +32,7 @@ public class KakaoLoginApiUtil {
     private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
 
     protected static final String HOST = properties.getString("public.host");
-    protected static final Integer PORT = (Integer) properties.getObject("server.post");
+//    protected static final Integer PORT = (Integer) properties.getObject("server.post");
 
     private static final String CLIENT_ID = resourceBundle.getString("kakaoClientId");
     private static final String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
