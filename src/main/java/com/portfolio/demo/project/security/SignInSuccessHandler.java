@@ -82,7 +82,7 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
                 outputData.addProperty("phone", memberParam.getPhone());
                 outputData.addProperty("regDate", memberParam.getRegDate());
                 outputData.addProperty("role", memberParam.getRole().toString());
-                outputData.addProperty("provider", memberParam.getProvider());
+                outputData.addProperty("provider", memberParam.getProvider().toString());
 
 
                 PrintWriter writer = response.getWriter();

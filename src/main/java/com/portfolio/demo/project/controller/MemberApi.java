@@ -6,6 +6,7 @@ import com.portfolio.demo.project.dto.certification.CertResponse;
 import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.dto.member.request.*;
 import com.portfolio.demo.project.dto.member.MemberResponse;
+import com.portfolio.demo.project.dto.social.*;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
@@ -15,8 +16,6 @@ import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResul
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
-import com.portfolio.demo.project.dto.SocialLoginParam;
-import com.portfolio.demo.project.dto.SocialProfileParam;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -337,7 +336,7 @@ public class MemberApi {
      * @throws ParseException
      */
     @GetMapping("/member/oauth2/naver")
-    public String oauthNaver(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws UnsupportedEncodingException, ParseException {
+    public ResponseEntity<Result<SocialLoginResponse>> oauthNaver(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws UnsupportedEncodingException, ParseException {
 
         Map<String, String> res = naverLoginApiUtil.getTokens(request);
         String access_token = res.get("access_token");
@@ -351,23 +350,27 @@ public class MemberApi {
         log.info("profile : {}", profile);
 
         /* 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환 */
-        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), "naver");
+        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), SocialLoginProvider.NAVER);
 
+        SocialLoginResponse response = new SocialLoginResponse();
         if (member != null) { // info.getRole().equals("ROLE_USER")
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
-            if (member.getProvider().equals("naver")) {
+            if (member.getProvider().equals(SocialLoginProvider.NAVER)) {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
                 session.setAttribute("member", member);
 
-                return "redirect:/";
+                response.setStatus(SocialLoginStatus.LOGIN_SUCCESS);
+                return ResponseEntity.ok(new Result<>(response));
             } else { // none
                 log.info("소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
 
                 rttr.addFlashAttribute("oauthMsg", "소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
-                return "redirect:/sign-in";
+
+                response.setStatus(SocialLoginStatus.NOT_SOCIAL_MEMBER);
+                return ResponseEntity.ok(new Result<>(response));
             }
 
         } else {
@@ -377,7 +380,8 @@ public class MemberApi {
             session.setAttribute("provider", "naver");
             rttr.addFlashAttribute("oauthMsg", "가입된 회원이 아닙니다. 회원가입을 진행해주세요.");
 
-            return "redirect:/sign-in";
+            response.setStatus(SocialLoginStatus.SIGNUP_REQUIRED);
+            return ResponseEntity.ok(new Result<>(response));
         }
     }
 
@@ -392,7 +396,7 @@ public class MemberApi {
      * @throws ParseException
      */
     @GetMapping("/member/oauth2/kakao")
-    public String oauthKakao(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws UnsupportedEncodingException, ParseException {
+    public ResponseEntity<Result<SocialLoginResponse>> oauthKakao(HttpSession session, HttpServletRequest request, RedirectAttributes rttr) throws UnsupportedEncodingException, ParseException {
 
         Map<String, String> res = kakaoLoginApiUtil.getTokens(request);
         String access_token = res.get("access_token");
@@ -404,23 +408,32 @@ public class MemberApi {
         SocialProfileParam profile = kakaoProfileApiUtil.getProfile(access_token);
         log.info("profile : {}", profile);
 
-        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), "kakao");
+        MemberParam member = memberService.findByIdentifierAndProvider(profile.getId(), SocialLoginProvider.KAKAO);
+        SocialLoginResponse response = new SocialLoginResponse();
         if (member != null) {
             log.info("회원정보가 존재합니다. \n회원정보 : " + member.toString());
 
-            if (member.getProvider().equals("kakao")) {
+            if (member.getProvider().equals(SocialLoginProvider.KAKAO)) {
                 Authentication auth = memberService.getAuthentication(member);
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                MemberParam memberParam = member;
-                session.setAttribute("member", memberParam);
+                session.setAttribute("member", member);
 
-                return "redirect:/";
+                response.setStatus(SocialLoginStatus.LOGIN_SUCCESS);
+                return ResponseEntity.ok(new Result<>(response));
             } else { // none
                 log.info("소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
 
                 rttr.addFlashAttribute("oauthMsg", "소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
-                return "redirect:/sign-in";
+                log.info("Oauth2.0 소셜 로그인(유형: 카카오, 결과: false, identifier: {}", member.getIdentifier());
+
+                response.setProvider(SocialLoginProvider.KAKAO);
+                response.setIdentifier(member.getIdentifier());
+                response.setResult(Boolean.FALSE);
+                response.setStatus(SocialLoginStatus.NOT_SOCIAL_MEMBER);
+                response.setMessage("소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
+
+                return ResponseEntity.ok(new Result<>(response));
             }
         } else { // 필요없는 코드
             log.info("소셜 로그인 진행 결과: 가입되지 않은 회원입니다.");
@@ -428,7 +441,8 @@ public class MemberApi {
             session.setAttribute("profile", profile);
             session.setAttribute("provider", "kakao");
             rttr.addFlashAttribute("oauthMsg", "가입된 회원이 아닙니다. 회원가입을 진행해주세요.");
-            return "redirect:/sign-in";
+            response.setStatus(SocialLoginStatus.SIGNUP_REQUIRED);
+            return ResponseEntity.ok(new Result<>(response));
         }
     }
 

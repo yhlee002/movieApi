@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.util;
 
-import com.portfolio.demo.project.dto.SocialProfileParam;
+import com.portfolio.demo.project.dto.social.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;

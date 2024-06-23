@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.entity.member;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
@@ -35,7 +36,8 @@ public class Member extends BaseEntity {
     @Column(name = "profile_image")
     private String profileImage;
 
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    private SocialLoginProvider provider;
 
     @Enumerated(EnumType.STRING)
     private MemberRole role; // 회원가입시 ROLE 미부여, 이메일 인증시 ROLE_USER
@@ -63,7 +65,7 @@ public class Member extends BaseEntity {
         this.profileImage = profileImage;
     }
 
-    public void updateProvider(String provider) {
+    public void updateProvider(SocialLoginProvider provider) {
         this.provider = provider;
     }
 

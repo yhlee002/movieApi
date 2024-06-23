@@ -1,6 +1,8 @@
 package com.portfolio.demo.project.util;
 
-import com.portfolio.demo.project.dto.SocialLoginParam;
+import com.portfolio.demo.project.dto.social.SocialLoginParam;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import dev.akkinoc.util.YamlResourceBundle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.JSONParser;
@@ -13,6 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,24 +25,28 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class KakaoLoginApiUtil {
 
+    private static ResourceBundle properties = YamlResourceBundle.getBundle("application");
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
-    private static String CLIENT_ID = resourceBundle.getString("kakaoClientId");
-    private static String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
+    protected static final String HOST = properties.getString("public.host");
+    protected static final String PORT = properties.getString("server.port");
+
+    private static final String CLIENT_ID = resourceBundle.getString("kakaoClientId");
+    private static final String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
 
     Map<String, String> tokens;
 
     public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://localhost:8077/api/member/oauth2/kakao", "utf-8");
+        String callbackUrl = URLEncoder.encode("http://" + HOST + ":" + PORT + "/api/member/oauth2/kakao", StandardCharsets.UTF_8);
         String apiUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
         apiUrl += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENT_ID, callbackUrl, state);
 
         return SocialLoginParam.builder()
-                .provider("kakao")
+                .provider(SocialLoginProvider.KAKAO)
                 .state(state)
                 .apiUrl(apiUrl)
                 .build();

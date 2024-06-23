@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.util;
 
-import com.portfolio.demo.project.dto.SocialLoginParam;
+import com.portfolio.demo.project.dto.social.SocialLoginParam;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,14 +33,14 @@ public class NaverLoginApiUtil {
     public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://localhost:8077/api/member/oauth2/naver", "utf-8");
+        String callbackUrl = URLEncoder.encode("http://localhost:8080/api/member/oauth2/naver", "utf-8");
         String apiUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
         apiUrl += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENTID, callbackUrl, state);
 
         return SocialLoginParam.builder()
-                .provider("naver")
+                .provider(SocialLoginProvider.NAVER)
                 .state(state)
                 .apiUrl(apiUrl)
                 .build();

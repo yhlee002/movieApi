@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -115,7 +116,7 @@ public class MemberService {
         return memberRepository.existsByPhone(phone);
     }
 
-    public MemberParam findByIdentifierAndProvider(String identifier, String provider) {
+    public MemberParam findByIdentifierAndProvider(String identifier, SocialLoginProvider provider) {
         Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
         if (mem != null) {
             return MemberParam.create(mem);
@@ -126,7 +127,7 @@ public class MemberService {
     }
 
     public Long saveMember(MemberParam memberParam) {
-        if (memberParam.getProvider().equals("none")) {
+        if (memberParam.getProvider().equals(SocialLoginProvider.NONE)) {
             memberParam.setPassword(passwordEncoder.encode(memberParam.getPassword()));
             memberParam.setCertification(MemberCertificated.N);
         } else {

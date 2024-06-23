@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -218,12 +219,12 @@ public class MemberRepositoryTest {
                 .name("test-member")
                 .phone("010-1234-5678")
                 .identifier("test-mail@gmail.com")
-                .provider("none").build();
+                .provider(SocialLoginProvider.NONE).build();
         memberRepository.save(member);
 
         // when
         Member foundMember = memberRepository.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
-        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", "naver");
+        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", SocialLoginProvider.NAVER);
 
         // then
         Assertions.assertNotNull(foundMember);
