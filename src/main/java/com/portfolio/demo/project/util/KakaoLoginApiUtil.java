@@ -9,6 +9,7 @@ import org.apache.tomcat.util.json.JSONParser;
 import org.apache.tomcat.util.json.ParseException;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.io.*;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
@@ -25,11 +26,13 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class KakaoLoginApiUtil {
 
-    private static ResourceBundle properties = YamlResourceBundle.getBundle("application");
+    //    private static ResourceBundle properties = YamlResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
 
+    private static ResourceBundle properties = ResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
+
     protected static final String HOST = properties.getString("public.host");
-    protected static final String PORT = properties.getString("server.port");
+    protected static final Integer PORT = (Integer) properties.getObject("server.post");
 
     private static final String CLIENT_ID = resourceBundle.getString("kakaoClientId");
     private static final String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
@@ -39,7 +42,7 @@ public class KakaoLoginApiUtil {
     public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://" + HOST + ":" + PORT + "/api/member/oauth2/kakao", StandardCharsets.UTF_8);
+        String callbackUrl = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/kakao", StandardCharsets.UTF_8);
         String apiUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
@@ -55,7 +58,7 @@ public class KakaoLoginApiUtil {
     public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://localhost:8077/api/member/oauth2/kakao", "UTF-8");
+        String redirectURI = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/kakao", "UTF-8");
 
         String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
         apiURL += "&client_id=" + CLIENT_ID;
@@ -104,7 +107,7 @@ public class KakaoLoginApiUtil {
     private static String readBody(InputStream stream) {
         InputStreamReader streamReader = new InputStreamReader(stream);
 
-        try(BufferedReader br = new BufferedReader(streamReader)) {
+        try (BufferedReader br = new BufferedReader(streamReader)) {
             StringBuilder responseBody = new StringBuilder();
 
             String line = null;

@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.dto.member;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Data;
@@ -12,7 +13,7 @@ public class MemberResponse {
     private String identifier;
     private String name;
     private String phone;
-    private String provider;
+    private SocialLoginProvider provider;
     private String profileImage;
     private MemberRole role;
     private MemberCertificated certification;

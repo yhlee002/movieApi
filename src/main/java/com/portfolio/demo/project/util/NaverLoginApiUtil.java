@@ -2,6 +2,7 @@ package com.portfolio.demo.project.util;
 
 import com.portfolio.demo.project.dto.social.SocialLoginParam;
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import dev.akkinoc.util.YamlResourceBundle;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,11 @@ import java.util.ResourceBundle;
 @RequiredArgsConstructor
 public class NaverLoginApiUtil {
 
+    private static ResourceBundle properties = YamlResourceBundle.getBundle("application", YamlResourceBundle.Control.INSTANCE);
     private static ResourceBundle resourceBundle = ResourceBundle.getBundle("Res_ko_KR_keys");
+
+    protected static final String HOST = properties.getString("public.host");
+    protected static final String PORT = properties.getString("server.port");
 
     private final static String CLIENTID = resourceBundle.getString("naverClientId");
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
@@ -33,7 +38,7 @@ public class NaverLoginApiUtil {
     public SocialLoginParam getAuthorizeData() throws UnsupportedEncodingException {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://localhost:8080/api/member/oauth2/naver", "utf-8");
+        String callbackUrl = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/naver", "utf-8");
         String apiUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
@@ -49,7 +54,7 @@ public class NaverLoginApiUtil {
     public Map<String, String> getTokens(HttpServletRequest request) throws UnsupportedEncodingException {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = URLEncoder.encode("http://localhost:8077/api/member/oauth2/naver", "UTF-8");
+        String redirectURI = URLEncoder.encode("http://" + HOST + "/api/member/oauth2/naver", "UTF-8");
 
         String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&";
         apiURL += "client_id=" + CLIENTID;

@@ -160,7 +160,6 @@ public class CertificationService {
             }
         } else if (environment.matchesProfiles("local")) {
             host = "localhost";
-            port = 80;
         }
 
         String certKey = tempKey.getKey(10, false);
@@ -168,9 +167,9 @@ public class CertificationService {
 
         String title = "MovieSite 회원가입 인증 메일";
         String content = "<div style=\"text-align:center\">"
-                + "<img src=\"http://" + host + ":" + port + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
+                + "<img src=\"http://" + host + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
                 + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (링크는 10분간 유효합니다.)</p>"
-                + "인증하기 링크 : <a href='http://" + host + ":" + port + "/sign-in?cert=mail&memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                + "인증하기 링크 : <a href='http://" + host + "/sign-in?cert=mail&memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
                 + "</div>";
 
         Boolean sendResult = sendEmail(toMail, title, content);
