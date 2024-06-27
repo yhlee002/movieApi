@@ -40,6 +40,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -181,6 +182,9 @@ public class MemberApi {
      */
     @GetMapping("/sign-up/oauth2")
     public void oauthRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        InetAddress address = InetAddress.getLocalHost();
+
+        log.info("리다이렉션 발생(호스트명: {}, 호스트 주소: {})", address.getHostName(), address.getHostAddress());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
         request.getSession().setAttribute("oauthUser", user);
