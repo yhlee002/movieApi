@@ -2,7 +2,6 @@ package com.portfolio.demo.project.oauth2.handler;
 
 import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-
-import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor

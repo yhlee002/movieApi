@@ -86,10 +86,6 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
     public Member getUser(OAuthAttributes oAuthAttributes, SocialLoginProvider provider) {
         Member user = memberRepository.findByIdentifierAndProvider(oAuthAttributes.getOAuth2UserInfo().getId() + "@socialuser.com", provider);
 
-//        if (user == null) {
-//            return createUser(provider, oAuthAttributes);
-//        }
-
         if (user != null) {
             if (!user.getProfileImage().equals(oAuthAttributes.getOAuth2UserInfo().getProfileUrl())) {
                 user.updateProfileImage(oAuthAttributes.getOAuth2UserInfo().getProfileUrl());
