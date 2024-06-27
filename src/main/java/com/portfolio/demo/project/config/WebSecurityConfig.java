@@ -78,13 +78,10 @@ public class WebSecurityConfig {
 
         // redirect-uri로 들어올 때 실행
         http.oauth2Login(login -> login
-                .defaultSuccessUrl("http://" + HOST, true) // successHandler에 우선순위 밀려 실행되지 않음
-//                .defaultSuccessUrl("http://" + HOST + ":8080/api/sign-in/oauth", true)
                 .failureUrl("http://" + HOST + "/sign-in")
                 .userInfoEndpoint(config -> config.userService(oAuth2UserService))
-//                .successHandler(new OAuth2SignInSuccessHandler("http://" + HOST))
-//                .successHandler(oAuth2SignInSuccessHandler())
-//                .failureHandler(oAuth2SignInFailureHandler())
+                .successHandler(oAuth2SignInSuccessHandler())
+                .failureHandler(oAuth2SignInFailureHandler())
                 .permitAll());
 
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
@@ -114,7 +111,7 @@ public class WebSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost", "http://3.38.19.101"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost", "http://localhost/", "http://3.38.19.101"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*")); // "Authorization", "Content-Type", "X-Auth-Token"
         configuration.setExposedHeaders(Arrays.asList("set-cookie"));

@@ -42,17 +42,17 @@ public class MemberService {
         return null;
     }
 
-    public MemberParam findByIdentifier(String identifier) {
-        Member member = memberRepository.findByIdentifier(identifier);
-
-        if (member != null) {
-            return MemberParam.create(member);
-        } else {
-            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (identifier = {})", identifier);
-        }
-
-        return null;
-    }
+//    public MemberParam findByIdentifier(String identifier) {
+//        Member member = memberRepository.findByIdentifier(identifier);
+//
+//        if (member != null) {
+//            return MemberParam.create(member);
+//        } else {
+//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (identifier = {})", identifier);
+//        }
+//
+//        return null;
+//    }
 
     public MemberParam findByName(String name) {
         Member member = memberRepository.findByNameIgnoreCase(name);
@@ -93,6 +93,13 @@ public class MemberService {
         return list.stream().map(MemberParam::create).toList();
     }
 
+    public List<MemberParam> findAllByProvider(SocialLoginProvider provider, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        List<Member> list = memberRepository.findByProvider(provider, pageable).getContent();
+
+        return list.stream().map(MemberParam::create).toList();
+    }
+
     public List<MemberParam> findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         List<Member> list = memberRepository.findAll(pageable).getContent();
@@ -117,6 +124,10 @@ public class MemberService {
     }
 
     public MemberParam findByIdentifierAndProvider(String identifier, SocialLoginProvider provider) {
+        if (provider != SocialLoginProvider.none) {
+            identifier += "@socialuser.com";
+        }
+
         Member mem = memberRepository.findByIdentifierAndProvider(identifier, provider);
         if (mem != null) {
             return MemberParam.create(mem);

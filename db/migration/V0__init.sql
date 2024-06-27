@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS member
     `role`          enum ('ROLE_USER','ROLE_ADMIN')        DEFAULT 'ROLE_USER' COMMENT '권한(일반회원과 관리자 구분)',
     `certification` char(1)                                DEFAULT '0' COMMENT '인증 여부(소셜 api를 이용하지 않고 회원가입할 경우 메일 인증 여부 저장)',
     PRIMARY KEY (`mem_no`),
-    UNIQUE KEY (`identifier`),
+    UNIQUE KEY (`identifier`, `provider`),
     UNIQUE KEY (`name`),
     UNIQUE KEY (`phone`)
 ) ENGINE = InnoDB

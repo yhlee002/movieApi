@@ -234,7 +234,7 @@ class BoardImpRepositoryTest {
         boardImpRepository.save(imp);
 
         // when
-        BoardImp foundBoard = boardImpRepository.findById(imp.getId()).orElse(null);
+        BoardImp foundBoard = boardImpRepository.findOneById(imp.getId());
 
         // then
         org.assertj.core.api.Assertions.assertThat(imp).isEqualTo(foundBoard);

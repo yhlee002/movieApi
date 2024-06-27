@@ -2,6 +2,7 @@ package com.portfolio.demo.project.security.handler;
 
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.dto.LoginLogParam;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;
@@ -50,13 +51,13 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         String principal = (String) authentication.getPrincipal();
-        log.info("Login Success - principal : " + principal + ", authenticated : " + authentication.getAuthorities());
+        log.info("로그인 성공(시도한 identifier: {}, authenticated: {})", principal, authentication.getAuthorities());
 
         /* 멤버 정보 로드 */
         MemberParam memberParam = null;
 
         if (principal != null) {
-            MemberParam member = memberService.findByIdentifier(principal); // .getUsername()
+            MemberParam member = memberService.findByIdentifierAndProvider(principal, SocialLoginProvider.none); // .getUsername()
 
             if (member != null) {
                 LoginLogParam logParam = LoginLogParam.builder()

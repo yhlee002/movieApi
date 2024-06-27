@@ -13,14 +13,16 @@ public class CommentImpSimpleParam {
     private Long boardId;
     private Long writerId;
     private String writerName;
+    private String writerProfileImage;
     private String content;
     private LocalDateTime regDate;
 
-    public CommentImpSimpleParam(Long id, Long boardId, Long writerId, String writerName, String content, LocalDateTime regDate) {
+    public CommentImpSimpleParam(Long id, Long boardId, Long writerId, String writerName, String writerProfileImage, String content, LocalDateTime regDate) {
         this.id = id;
         this.boardId = boardId;
         this.writerId = writerId;
         this.writerName = writerName;
+        this.writerProfileImage = writerProfileImage;
         this.content = content;
         this.regDate = regDate;
     }

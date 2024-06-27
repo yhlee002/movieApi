@@ -11,11 +11,20 @@ import org.springframework.data.repository.query.Param;
 
 public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
 
+    @Query("select c from CommentImp c" +
+            " join fetch c.writer m" +
+            " where c.board = :board")
+    Page<CommentImp> findAllByBoard(@Param("board") BoardImp board, Pageable pageable);
 
+    @Query("select c from CommentImp c" +
+            " join fetch c.writer m" +
+            " where c.board.id = :boardId")
+    Page<CommentImp> findAllByBoardId(@Param("boardId") Long boardId, Pageable pageable);
 
-    Page<CommentImp> findAllByBoard(BoardImp board, Pageable pageable);
-
-    Page<CommentImp> findAllByBoardId(@Param("board_id") Long boardId, Pageable pageable);
+    @Query("select c from CommentImp c" +
+            " join fetch c.writer m" +
+            " where c.id = :id")
+    CommentImp findOneById(@Param("id") Long id);
 
     @Query(value = "select count(c) from CommentImp c" +
             " where c.board.id = :id")

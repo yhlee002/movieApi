@@ -38,13 +38,6 @@ class BoardNoticeServiceTest {
         return memberService.findByMemNo(memNo);
     }
 
-    MemberParam createUser() {
-        MemberParam user = MemberParam.create(
-                MemberTestDataBuilder.user().build());
-        Long memNo = memberService.saveMember(user);
-        return memberService.findByMemNo(memNo);
-    }
-
     BoardNoticeParam createBoard(BoardNotice notice, MemberParam member) {
         BoardNoticeParam board = BoardNoticeParam.createWithoutWriterAndRegDate(notice);
         board.setWriterId(member.getMemNo());

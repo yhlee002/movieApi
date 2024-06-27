@@ -24,6 +24,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -62,6 +63,9 @@ public class MemberApi {
 
     private final KakaoProfileApiUtil kakaoProfileApiUtil;
 
+    @Value("${web.server.host}")
+    private String HOST;
+
     /**
      * 현재 세션의 회원 정보 조회
      *
@@ -75,19 +79,22 @@ public class MemberApi {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String identifier = "";
         MemberRole role = null;
+        SocialLoginProvider provider;
         if (auth instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
             identifier = user.getIdentifier();
             role = user.getRole();
+            provider = user.getProvider();
         } else {
             identifier = (String) auth.getPrincipal();
             Iterator<? extends GrantedAuthority> iter = auth.getAuthorities().iterator();
             role = MemberRole.valueOf(iter.next().toString());
+            provider = SocialLoginProvider.none;
         }
 
         if (!identifier.equals("anonymousUser") &&
                 !role.equals(MemberRole.ROLE_ANONYMOUS) && !role.equals(MemberRole.ROLE_GUEST)) {
-            MemberParam member = memberService.findByIdentifier(identifier);
+            MemberParam member = memberService.findByIdentifierAndProvider(identifier, provider);
             return new ResponseEntity<>(new Result<>(new MemberResponse(member)), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Result<>(null), HttpStatus.OK);
@@ -120,14 +127,15 @@ public class MemberApi {
      */
     @GetMapping("/member")
     public ResponseEntity<Result<MemberResponse>> findMember(@RequestParam(name = "identifier", required = false) String identifier,
+                                                             @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
                                                              @RequestParam(name = "name", required = false) String name,
                                                              @RequestParam(name = "phone", required = false) String phone
     ) {
         MemberParam member = null;
         String condition = null;
-        if (identifier != null && !identifier.isEmpty()) {
-            member = memberService.findByIdentifier(identifier);
-            condition = "identifier";
+        if (identifier != null && !identifier.isEmpty() && provider != null) {
+            member = memberService.findByIdentifierAndProvider(identifier, provider);
+            condition = "identifier&provider";
         } else if (name != null && !name.isEmpty()) {
             member = memberService.findByName(name); // validateDuplicationName
             condition = "name";
@@ -150,6 +158,7 @@ public class MemberApi {
                                                                     @RequestParam(name = "name", required = false) String name,
                                                                     @RequestParam(name = "phone", required = false) String phone,
                                                                     @RequestParam(name = "role", required = false) MemberRole role,
+                                                                    @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
                                                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                                                     @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
@@ -162,6 +171,8 @@ public class MemberApi {
             members = memberService.findAllByPhoneContaining(phone, page, size);
         } else if (role != null) {
             members = memberService.findAllByRole(role, page, size);
+        } else if (provider != null) {
+            members = memberService.findAllByProvider(provider, page, size);
         } else {
             members = memberService.findAll(page, size);
         }
@@ -169,6 +180,53 @@ public class MemberApi {
         List<MemberResponse> responses = members.stream().map(param -> new MemberResponse(param)).collect(Collectors.toList());
         return ResponseEntity.ok(new Result<>(responses));
 
+    }
+
+    /**
+     * 소셜 로그인 API 호출 뒤 로그인 성공시 해당 경로로 리다이렉트
+     *
+     * @param request
+     * @param response
+     * @throws IOException
+     */
+    @GetMapping("/sign-up/oauth2")
+    public void oauthRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
+        request.getSession().setAttribute("oauthUser", user);
+
+        response.sendRedirect("http://" + HOST + "/sign-up?type=oauth");
+    }
+
+    /**
+     * 소셜 로그인 API 호출 이후 세션에 넣어둔 사용자 프로필 정보를 조회
+     *
+     * @param request
+     * @return
+     */
+    @GetMapping("/oauth2/userinfo")
+    public ResponseEntity<Result<MemberResponse>> getOAuthUserInfoFromSession(HttpServletRequest request) {
+        CustomOAuth2User user = (CustomOAuth2User) request.getSession().getAttribute("oauthUser");
+
+        MemberResponse result = new MemberResponse();
+
+        if (SocialLoginProvider.naver.equals(user.getProvider())) {
+            Map<String, Object> response = user.getAttributes();
+
+            result.setIdentifier(user.getIdentifier());
+            result.setProvider(user.getProvider());
+            result.setProfileImage(String.valueOf(response.get("profile_image")));
+        } else if (SocialLoginProvider.kakao.equals(user.getProvider())){
+            Map<String, Object> kakaoAccount = (Map<String, Object>) user.getAttributes().get("kakao_account");
+            Map<String, String> profile = (Map<String, String>) kakaoAccount.get("profile");
+            String profileImage = profile.get("profile_image_url");
+
+            result.setIdentifier(user.getIdentifier());
+            result.setProvider(user.getProvider());
+            result.setProfileImage(profileImage);
+        }
+
+        return ResponseEntity.ok(new Result<>(result));
     }
 
     /**
@@ -205,10 +263,20 @@ public class MemberApi {
                 throw new IllegalStateException();
             }
         } else {
-            SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
-            log.info("조횐 프로필 : {}", profile);
+//            SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
+            CustomOAuth2User oAuth2User = (CustomOAuth2User) session.getAttribute("oauthUser");
+            SocialLoginProvider provider = oAuth2User.getProvider();
 
-            String profileImage = profile.getProfileImageUrl();
+            String profileImage = "";
+            if (SocialLoginProvider.naver.equals(provider)) {
+                Map<String, String> map = oAuth2User.getAttribute("response");
+                profileImage = map.get("profile_image");
+            } else {
+                Map<String, Object> kakaoAccount = oAuth2User.getAttribute("kakao_account");
+                Map<String, String> profile = (Map<String, String>) kakaoAccount.get("profile");
+                profileImage = profile.get("profile_image_url");
+            }
+
             if (profileImage != null) {
                 profileImage = profileImage.replace("\\", "");
             }
@@ -330,184 +398,13 @@ public class MemberApi {
     }
 
     /**
-     * 소셜 로그인 URL 조회
-     *
-     * @param provider 소셜 로그인 공급자(kakao | naver)
-     */
-    @GetMapping("/member/oauth2-url")
-    public ResponseEntity<Result<Map<String, String>>> getOauthAuthorizationURL(HttpSession session, @RequestParam("provider") SocialLoginProvider provider) {
-
-        SocialLoginParam socialLoginData = null;
-        if (provider.equals(SocialLoginProvider.naver)) {
-            socialLoginData = naverLoginApiUtil.getAuthorizeData();
-            session.setAttribute("naverState", socialLoginData.getState());
-        } else if (provider.equals(SocialLoginProvider.kakao)) {
-            socialLoginData = kakaoLoginApiUtil.getAuthorizeData();
-            session.setAttribute("kakaoState", socialLoginData.getState());
-        }
-
-        Map<String, String> map = new HashMap<>();
-        map.put("provider", provider.toString());
-        map.put("url", socialLoginData != null ? socialLoginData.getApiUrl() : null);
-
-        return new ResponseEntity<>(new Result<>(map), HttpStatus.OK);
-    }
-
-    /**
-     * 소셜 로그인 API - 액세스 토큰 요청
-     *
-     * @param providerStr
-     */
-    @GetMapping("/member/oauth2/{provider}")
-    public ResponseEntity<Result<Boolean>> getLoginToken(HttpSession session, HttpServletRequest request,
-                                                         @PathVariable("provider") String providerStr) {
-        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toLowerCase());
-
-        String state = request.getParameter("state");
-        String storedState = String.valueOf(session.getAttribute(providerStr.toLowerCase() + "State"));
-
-        if (!state.equals(storedState)) {
-            return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.UNAUTHORIZED); // 401
-        }
-
-        if (provider.equals(SocialLoginProvider.naver)) {
-            Map<String, String> res = naverLoginApiUtil.getTokens(request);
-            String access_token = res.get("access_token");
-            String refresh_token = res.get("refresh_token");
-
-            session.setAttribute("naverCurrentAT", access_token);
-            session.setAttribute("naverCurrentRT", refresh_token);
-        } else if (provider.equals(SocialLoginProvider.kakao)) {
-            Map<String, String> res = kakaoLoginApiUtil.getTokens(request);
-            String access_token = res.get("access_token");
-            String refresh_token = res.get("refresh_token");
-
-            session.setAttribute("kakaoCurrentAT", access_token);
-            session.setAttribute("kakaoCurrentRT", refresh_token);
-        }
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
-     * 소셜 로그인 API - Profile 조회
-     * access_token을 사용해 사용자 프로필 조회 api 호출
-     *
-     * @param providerStr
-     * @throws ParseException
-     */
-    @GetMapping("/member/oauth2/profile/{provider}")
-    public ResponseEntity<Result<SocialLoginResponse>> getSocialProfile(HttpSession session,
-                                                                        @PathVariable("provider") String providerStr) throws ParseException {
-        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toLowerCase());
-        String token = String.valueOf(session.getAttribute(providerStr.toLowerCase() + "CurrentAT"));
-
-        SocialLoginResponse response = new SocialLoginResponse();
-
-        if (provider.equals(SocialLoginProvider.naver)) {
-            SocialProfileParam profile = naverProfileApiUtil.getProfile(token); // Map으로 사용자 데이터 받기
-            log.info("Oauth2.0 get profile: provider: {}, profile : {}", profile);
-
-            // 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환
-            MemberParam member = memberService.findByIdentifier(profile.getId());
-
-            response.setProvider(SocialLoginProvider.naver);
-            response.setIdentifier(profile.getId());
-
-            if (member != null) { // info.getRole().equals("ROLE_USER")
-                if (member.getProvider().equals(SocialLoginProvider.naver)) {
-                    Authentication auth = memberService.getAuthentication(member);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-
-                    session.setAttribute("member", member);
-
-                    response.setResult(Boolean.TRUE);
-                    response.setStatus(SocialLoginStatus.LOGIN_SUCCESS);
-                    response.setMessage("");
-                } else { // none
-                    response.setResult(Boolean.FALSE);
-                    response.setStatus(SocialLoginStatus.NOT_SOCIAL_MEMBER);
-                    response.setMessage("소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
-                }
-            } else {
-                response.setResult(Boolean.FALSE);
-                response.setStatus(SocialLoginStatus.SIGNUP_REQUIRED);
-                response.setMessage("가입되지 않은 회원입니다.");
-
-                session.setAttribute("profile", profile);
-            }
-        } else if (provider.equals(SocialLoginProvider.kakao)) {
-            SocialProfileParam profile = kakaoProfileApiUtil.getProfile(token); // access_token
-            log.info("Oauth2.0 get profile: provider: {}, profile : {}", profile);
-
-            MemberParam member = memberService.findByIdentifier(profile.getId());
-
-            response.setProvider(SocialLoginProvider.kakao);
-            response.setIdentifier(profile.getId());
-
-            if (member != null) {
-                if (member.getProvider().equals(SocialLoginProvider.kakao)) {
-                    Authentication auth = memberService.getAuthentication(member);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-
-                    session.setAttribute("member", member);
-
-                    response.setResult(Boolean.TRUE);
-                    response.setStatus(SocialLoginStatus.LOGIN_SUCCESS);
-                    response.setMessage("");
-                } else { // none
-                    response.setResult(Boolean.FALSE);
-                    response.setStatus(SocialLoginStatus.NOT_SOCIAL_MEMBER);
-                    response.setMessage("소셜 로그인 정보로 가입된 회원이 아닙니다. 이메일로 로그인해주세요.");
-                }
-            } else { // 필요없는 코드
-                response.setResult(Boolean.FALSE);
-                response.setStatus(SocialLoginStatus.SIGNUP_REQUIRED);
-                response.setMessage("가입되지 않은 회원입니다.");
-
-                session.setAttribute("profile", profile);
-            }
-        }
-
-        log.info("Oauth2.0 소셜 로그인(유형: {}, 결과: {}, identifier: {}, 메세지: {})",
-                response.getProvider(), response.getResult(), response.getIdentifier(), response.getMessage());
-
-        return ResponseEntity.ok(new Result<>(response));
-    }
-
-    /**
-     * 소셜 로그인 API 관련
-     * HttpSession에 저장된 profile 조회
-     */
-    @GetMapping("/member/oauth2/profile-server")
-    public ResponseEntity<Result<SocialProfileParam>> getProfileFromSession(HttpSession session) {
-        SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
-        return ResponseEntity.ok(new Result<>(profile));
-    }
-
-    /**
-     * 소셜 로그인 API 관련
-     * HttpSession에 저장된 profile 삭제(회원가입까지 진행하지 않는 경우)
-     */
-    @DeleteMapping("/member/oauth2/profile-server")
-    public ResponseEntity<Result<Boolean>> removeProfileFromSession(HttpSession session) {
-        SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
-
-        if (profile != null) {
-            session.removeAttribute("profile");
-        }
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
      * 로그인 전 입력 정보 유효성 확인
      *
      * @param request
      */
     @PostMapping("/sign-in/check")
     public ResponseEntity<Result<String>> checkInputParams(@RequestBody SigninRequest request) {
-        MemberParam foundMember = memberService.findByIdentifier(request.getIdentifier());
+        MemberParam foundMember = memberService.findByIdentifierAndProvider(request.getIdentifier(), SocialLoginProvider.none);
 
         String msg = "";
         if (foundMember != null) { // 해당 이메일의 회원이 존재할 경우
@@ -653,12 +550,4 @@ public class MemberApi {
                     ), HttpStatus.OK);
         }
     }
-
-    @GetMapping("/sign-in/oauth/{provider}")
-    public ResponseEntity<Result<MemberResponse>> oauthRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable("provider") String provider) throws IOException {
-        System.out.println(response.getOutputStream());
-
-        return null;
-    }
-
 }

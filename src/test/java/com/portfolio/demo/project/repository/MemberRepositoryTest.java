@@ -224,7 +224,7 @@ public class MemberRepositoryTest {
 
         // when
         Member foundMember = memberRepository.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
-        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", SocialLoginProvider.naver);
+        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572@socialuser.com", SocialLoginProvider.naver);
 
         // then
         Assertions.assertNotNull(foundMember);

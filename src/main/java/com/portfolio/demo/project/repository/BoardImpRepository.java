@@ -1,8 +1,8 @@
 package com.portfolio.demo.project.repository;
 
-import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +12,14 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
+
+    /**
+     * 후기 게시글 전체 조회
+     */
+    @NotNull
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m")
+    Page<BoardImp> findAll(Pageable pageable);
 
     @Query(value = "select b from BoardImp b" +
             " join fetch b.writer m" +

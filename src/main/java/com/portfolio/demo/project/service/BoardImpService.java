@@ -87,6 +87,7 @@ public class BoardImpService {
                     .boardId(simple.getBoardId())
                     .writerId(simple.getWriterId())
                     .writerName(simple.getWriterName())
+                    .writerProfileImage(simple.getWriterProfileImage())
                     .content(simple.getContent())
                     .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build()).collect(Collectors.toList());
@@ -120,6 +121,7 @@ public class BoardImpService {
                     .boardId(simple.getBoardId())
                     .writerId(simple.getWriterId())
                     .writerName(simple.getWriterName())
+                    .writerProfileImage(simple.getWriterProfileImage())
                     .content(simple.getContent())
                     .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build()).collect(Collectors.toList());
@@ -152,6 +154,7 @@ public class BoardImpService {
                     .boardId(simple.getBoardId())
                     .writerId(simple.getWriterId())
                     .writerName(simple.getWriterName())
+                    .writerProfileImage(simple.getWriterProfileImage())
                     .content(simple.getContent())
                     .regDate(simple.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                     .build()).collect(Collectors.toList());

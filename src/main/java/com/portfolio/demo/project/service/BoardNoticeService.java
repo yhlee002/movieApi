@@ -53,7 +53,7 @@ public class BoardNoticeService {
      * @return 단건 공지 게시글
      */
     public BoardNoticeParam findById(Long boardId) {
-        BoardNotice board = boardNoticeRepository.findById(boardId).orElse(null);
+        BoardNotice board = boardNoticeRepository.findOneById(boardId);
 
         if (board != null) {
             return BoardNoticeParam.create(board);
@@ -231,7 +231,7 @@ public class BoardNoticeService {
      */
 
     public void upViewCntById(Long boardId) {
-        BoardNotice notice = boardNoticeRepository.findById(boardId).orElse(null);
+        BoardNotice notice = boardNoticeRepository.findOneById(boardId);
 
         if (notice != null) {
             notice.updateViewCount(notice.getViews() + 1);

@@ -34,7 +34,7 @@ public class CommentImpService {
     private final MemberRepository memberRepository;
 
     public CommentImpParam findById(Long id) {
-        CommentImp com = commentImpRepository.findById(id).orElse(null);
+        CommentImp com = commentImpRepository.findOneById(id);
 
         CommentImpParam vo = null;
 
@@ -42,8 +42,8 @@ public class CommentImpService {
             vo = CommentImpParam.create(com);
 
         } else {
-            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
-//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+            log.error("해당 아이디의 댓글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 댓글 정보가 존재하지 않습니다.");
         }
 
         return vo;
@@ -96,7 +96,7 @@ public class CommentImpService {
     }
 
     public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
-        BoardImp b = boardImpRepository.findById(boardId).orElse(null);
+        BoardImp b = boardImpRepository.findOneById(boardId);
 
         if (b != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
@@ -112,8 +112,8 @@ public class CommentImpService {
                     .totalPageCnt(pages.getTotalPages())
                     .build();
         } else {
-            log.error("해당 아이디의 게시글 정보가 존재하지 않습니다.");
-//            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+            log.error("해당 아이디의 댓글 정보가 존재하지 않습니다.");
+//            throw new IllegalStateException("해당 아이디의 댓글 정보가 존재하지 않습니다.");
 
             return CommentImpPagenationParam.builder()
                     .commentImpsList(new ArrayList<>())

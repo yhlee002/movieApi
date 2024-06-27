@@ -2,6 +2,7 @@ package com.portfolio.demo.project.dto.board;
 
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +22,7 @@ public class BoardImpParam {
     private Long writerId;
     private String writerName;
     private String writerProfileImage;
+    private MemberRole writerRole;
     private String regDate;
     private int views;
     private int recommended;
@@ -35,6 +37,7 @@ public class BoardImpParam {
                 .writerId(board.getWriter().getMemNo())
                 .writerName(board.getWriter().getName())
                 .writerProfileImage(board.getWriter().getProfileImage())
+                .writerRole(board.getWriter().getRole())
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .recommended(board.getRecommended())

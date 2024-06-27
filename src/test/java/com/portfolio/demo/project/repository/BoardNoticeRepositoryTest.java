@@ -152,7 +152,7 @@ class BoardNoticeRepositoryTest {
         boardNoticeRepository.save(boardNotice);
 
         // when
-        BoardNotice foundBoard = boardNoticeRepository.findBoardNoticeById(boardNotice.getId());
+        BoardNotice foundBoard = boardNoticeRepository.findOneById(boardNotice.getId());
 
         // then
         Assertions.assertEquals(boardNotice.getId(), foundBoard.getId());

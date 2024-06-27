@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.dto.comment;
 
 import com.portfolio.demo.project.entity.comment.CommentImp;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.*;
 
 import java.time.format.DateTimeFormatter;
@@ -15,6 +16,8 @@ public class CommentImpParam {
     private Long boardId;
     private Long writerId;
     private String writerName;
+    private String writerProfileImage;
+    private MemberRole writerRole;
     private String content;
     private String regDate;
 
@@ -24,6 +27,8 @@ public class CommentImpParam {
                 .boardId(imp.getBoard().getId())
                 .writerId(imp.getWriter().getMemNo())
                 .writerName(imp.getWriter().getName())
+                .writerProfileImage(imp.getWriter().getProfileImage())
+                .writerRole(imp.getWriter().getRole())
                 .content(imp.getContent())
                 .regDate(imp.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();

@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.intercepter;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.MemberService;
@@ -33,21 +34,24 @@ public class RememberMeIntercepter implements HandlerInterceptor {
 
         String identifier = "";
         MemberRole role = null;
+        SocialLoginProvider provider = null;
         if (auth instanceof OAuth2AuthenticationToken) {
             CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
             identifier = user.getIdentifier();
             role = user.getRole();
+            provider = user.getProvider();
         } else {
             identifier = (String) auth.getPrincipal();
-            role = auth.getAuthorities().contains(MemberRole.ROLE_ADMIN) ? MemberRole.ROLE_ADMIN :
-            auth.getAuthorities().contains(MemberRole.ROLE_USER) ? MemberRole.ROLE_USER : MemberRole.ROLE_GUEST;
+//            role = auth.getAuthorities().contains(MemberRole.ROLE_ADMIN) ? MemberRole.ROLE_ADMIN :
+//            auth.getAuthorities().contains(MemberRole.ROLE_USER) ? MemberRole.ROLE_USER : MemberRole.ROLE_GUEST;
             Iterator<? extends GrantedAuthority> iter = auth.getAuthorities().iterator();
             role = MemberRole.valueOf(iter.next().toString());
+            provider = SocialLoginProvider.none;
         }
 
         log.info("RememberMeIntercepter 로그인 된 유저 확인(정보: {}, 권한: {})", auth.getName(), auth.getAuthorities());
 
-        MemberParam member = memberService.findByIdentifier(identifier);
+        MemberParam member = memberService.findByIdentifierAndProvider(identifier, provider);
 
         if (member != null) {
             log.info("RememberMeIntercepter member 조회(id: {}, identifier: {})", member.getMemNo(), member.getIdentifier());

@@ -2,6 +2,7 @@ package com.portfolio.demo.project.oauth2;
 
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.userinfo.KakaoOAuth2UserInfo;
 import com.portfolio.demo.project.oauth2.userinfo.NaverOAuth2UserInfo;
@@ -54,6 +55,7 @@ public class OAuthAttributes {
                 .name(oAuth2UserDto.getNickname())
                 .profileImage(oAuth2UserDto.getProfileUrl())
                 .role(MemberRole.ROLE_GUEST) // 첫 소셜 로그인시 role_guest -> 회원가입 의사 물은 후 role_user
+                .certification(MemberCertificated.Y)
 //                .role(MemberRole.ROLE_USER)
                 .build();
     }

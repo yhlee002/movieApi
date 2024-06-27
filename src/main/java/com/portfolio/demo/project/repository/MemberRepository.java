@@ -25,6 +25,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Page<Member> findByRole(MemberRole role, Pageable pageable);
 
+    Page<Member> findByProvider(SocialLoginProvider provider, Pageable pageable);
+
     Member findByPhone(String phone);
 
     Boolean existsByPhone(String phone);

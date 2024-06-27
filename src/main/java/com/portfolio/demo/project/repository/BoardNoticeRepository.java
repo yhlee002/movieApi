@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,12 +13,23 @@ import java.util.List;
 public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> {
 
     /**
+     * 공지사항 게시글 전체 조회
+     */
+    @NotNull
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m")
+    Page<BoardNotice> findAll(Pageable pageable);
+
+    /**
      * 공지사항 게시글 단건 조회
      *
      * @param id
      * @return
      */
-    BoardNotice findBoardNoticeById(Long id);
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
+            " where b.id = :id")
+    BoardNotice findOneById(@Param("id") Long id);
 
     // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)
     @Query("select b from BoardNotice b" +
@@ -29,6 +41,7 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
 
     // 해당 글의 다음글(해당 글보다 board_id가 높은 글들을 올림차순으로 나열해 가장 첫번째 것) join Member m on b.writer_no = m.mem_no
     @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
             " where b.id = " +
             "(select b2.id from BoardNotice b2 where b2.id > :id order by b2.id asc limit 1)"
 

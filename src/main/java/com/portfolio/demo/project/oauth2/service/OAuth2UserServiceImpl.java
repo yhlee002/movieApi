@@ -2,6 +2,7 @@ package com.portfolio.demo.project.oauth2.service;
 
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.oauth2.OAuthAttributes;
 import com.portfolio.demo.project.repository.MemberRepository;
@@ -55,12 +56,22 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 
         Member createdUser = getUser(oAuthAttributes, provider);
 
+//        return new CustomOAuth2User(
+//                Collections.singleton(new SimpleGrantedAuthority(String.valueOf(createdUser.getRole()))),
+//                oAuth2User.getAttributes(),
+//                oAuthAttributes.getNameAttributeKey(),
+//                SocialLoginProvider.valueOf(registrationId),
+//                createdUser.getIdentifier(),
+//                createdUser.getRole()
+//        );
+        MemberRole role = createdUser != null ? MemberRole.ROLE_USER : MemberRole.ROLE_GUEST;
         return new CustomOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(String.valueOf(createdUser.getRole()))),
+                Collections.singleton(new SimpleGrantedAuthority(String.valueOf(MemberRole.ROLE_GUEST))),
                 oAuth2User.getAttributes(),
                 oAuthAttributes.getNameAttributeKey(),
-                createdUser.getIdentifier(),
-                createdUser.getRole()
+                SocialLoginProvider.valueOf(registrationId),
+                oAuthAttributes.getOAuth2UserInfo().getId(),
+                role
         );
     }
 
@@ -73,18 +84,20 @@ public class OAuth2UserServiceImpl implements OAuth2UserService<OAuth2UserReques
 
     @Transactional
     public Member getUser(OAuthAttributes oAuthAttributes, SocialLoginProvider provider) {
-        Member user = memberRepository.findByIdentifierAndProvider(oAuthAttributes.getOAuth2UserInfo().getId(), provider);
+        Member user = memberRepository.findByIdentifierAndProvider(oAuthAttributes.getOAuth2UserInfo().getId() + "@socialuser.com", provider);
 
-        if (user == null) {
-            return createUser(provider, oAuthAttributes);
-        }
+//        if (user == null) {
+//            return createUser(provider, oAuthAttributes);
+//        }
 
-        if (!user.getProfileImage().equals(oAuthAttributes.getOAuth2UserInfo().getProfileUrl())) {
-            user.updateProfileImage(oAuthAttributes.getOAuth2UserInfo().getProfileUrl());
-        }
+        if (user != null) {
+            if (!user.getProfileImage().equals(oAuthAttributes.getOAuth2UserInfo().getProfileUrl())) {
+                user.updateProfileImage(oAuthAttributes.getOAuth2UserInfo().getProfileUrl());
+            }
 
-        if (!user.getName().equals(oAuthAttributes.getOAuth2UserInfo().getNickname())) {
-            user.updateName(oAuthAttributes.getOAuth2UserInfo().getNickname());
+            if (!user.getName().equals(oAuthAttributes.getOAuth2UserInfo().getNickname())) {
+                user.updateName(oAuthAttributes.getOAuth2UserInfo().getNickname());
+            }
         }
 
         return user;
