@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.member.MemberParam;
@@ -71,7 +72,7 @@ class MemberServiceTest {
         MemberParam user = createUser();
 
         // when
-        MemberParam foundUser = memberService.findByIdentifier(user.getIdentifier());
+        MemberParam foundUser = memberService.findByIdentifierAndProvider(user.getIdentifier(), SocialLoginProvider.none);
 
         // then
         Assertions.assertEquals(user.getMemNo(), foundUser.getMemNo());
