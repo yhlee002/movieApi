@@ -4,6 +4,7 @@ import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -13,9 +14,8 @@ public class CreateMemberRequest {
     private String password;
     @NotEmpty
     private String name;
-    @NotEmpty
     private String phone;
-    @NotEmpty
+    @NotNull
     private SocialLoginProvider provider;
     private MemberRole role;
     private MemberCertificated certification;

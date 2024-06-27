@@ -37,7 +37,7 @@ public class KakaoProfileApiUtil {
 
         profile = SocialProfileParam.builder()
                 .id(obj.get("id").getAsString())
-                .provider(SocialLoginProvider.KAKAO)
+                .provider(SocialLoginProvider.kakao)
                 .name(profileObj.get("nickname").getAsString())
                 .thumbnailImageUrl(profileObj.get("thumbnail_image_url").getAsString())
                 .profileImageUrl(profileObj.get("profile_image_url").getAsString())

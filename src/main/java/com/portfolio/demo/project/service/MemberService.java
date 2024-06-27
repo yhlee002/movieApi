@@ -127,7 +127,7 @@ public class MemberService {
     }
 
     public Long saveMember(MemberParam memberParam) {
-        if (memberParam.getProvider().equals(SocialLoginProvider.NONE)) {
+        if (memberParam.getProvider().equals(SocialLoginProvider.none)) {
             memberParam.setPassword(passwordEncoder.encode(memberParam.getPassword()));
             memberParam.setCertification(MemberCertificated.N);
         } else {
@@ -148,6 +148,23 @@ public class MemberService {
                 .profileImage(memberParam.getProfileImage())
                 .build();
 
+        memberRepository.save(member);
+
+        return member.getMemNo();
+    }
+
+    public Long saveOauthMember(MemberParam memberParam) {
+        Member member = Member.builder()
+                .memNo(memberParam.getMemNo())
+                .identifier(memberParam.getIdentifier())
+                .name(memberParam.getName())
+                .password("")
+                .phone(memberParam.getPhone())
+                .role(MemberRole.ROLE_USER)
+                .profileImage(memberParam.getProfileImage())
+                .certification(memberParam.getCertification())
+                .provider(memberParam.getProvider())
+                .build();
         memberRepository.save(member);
 
         return member.getMemNo();
@@ -196,22 +213,6 @@ public class MemberService {
         return member.getMemNo();
     }
 
-    public Long saveOauthMember(MemberParam memberParam) {
-        Member member = Member.builder()
-                .memNo(memberParam.getMemNo())
-                .identifier(memberParam.getIdentifier())
-                .name(memberParam.getName())
-                .password(memberParam.getPassword())
-                .phone(memberParam.getPhone())
-                .profileImage(memberParam.getProfileImage())
-                .certification(memberParam.getCertification())
-                .provider(memberParam.getProvider())
-                .build();
-        memberRepository.save(member);
-
-        return member.getMemNo();
-    }
-
     public Long updatePwd(MemberParam memberParam) {
         Member member = memberRepository.findById(memberParam.getMemNo()).orElse(null);
 
@@ -227,6 +228,11 @@ public class MemberService {
     /* 외부 로그인 api를 통해 로그인하는 경우 - CustomAuthenticationProvider를 거치는 것이 좋을지?(해당 계정의 ROLE 재검사 과정 거침) */
     public Authentication getAuthentication(MemberParam member) {
         Member user = memberRepository.findByIdentifier(member.getIdentifier());
+
+        if (!SocialLoginProvider.none.equals(user.getProvider())) {
+            user.updatePassword("");
+        }
+
         UserDetail userDetail = new UserDetail(user);
         return new UsernamePasswordAuthenticationToken(userDetail.getUsername(), null, userDetail.getAuthorities());
     }

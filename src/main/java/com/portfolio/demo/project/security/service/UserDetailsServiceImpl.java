@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.security;
+package com.portfolio.demo.project.security.service;
 
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.entity.member.Member;
@@ -37,8 +37,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
         grantedAuthorities.add(new SimpleGrantedAuthority(member.getRole().toString()));
-
-
 
         return new UserDetail(member);
     }

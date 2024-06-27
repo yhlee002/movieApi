@@ -196,7 +196,7 @@ public class MovieUtil {
 
             responseCode = conn.getResponseCode();
 //            log.info("KMDb API 요청 주소: {}", urlBuilder.toString());
-            log.info("KMDb API 응답 코드: {}", responseCode);
+//            log.info("KMDb API 응답 코드: {}", responseCode);
 
             if (responseCode >= 200 && responseCode <= 300) {
                 rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -284,8 +284,7 @@ public class MovieUtil {
 
         try {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-            log.info("요청 URI : {}(method: GET)", response.uri());
-//            log.info("조회해온 정보 : {}", response.body());
+//            log.info("요청 URI : {}(method: GET)", response.uri());
 
             return response.body();
         } catch (IOException | InterruptedException e) {

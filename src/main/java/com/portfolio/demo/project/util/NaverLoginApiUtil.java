@@ -30,6 +30,8 @@ public class NaverLoginApiUtil {
     private final static String CLIENTID = resourceBundle.getString("naverClientId");
     private final static String CLIENTSECRET = resourceBundle.getString("naverClientSecret");
     protected static String HOST = "";
+    protected static Integer PORT = (Integer) properties.getObject("server.port");
+    protected static String REDIRECT_URI = "";
 
     {
         String profile = System.getProperty("spring.profiles.active");
@@ -38,19 +40,21 @@ public class NaverLoginApiUtil {
         } else {
             HOST = "localhost";
         }
+        
+        REDIRECT_URI = "http://" + HOST + ":" + PORT + "/api/login/oauth2/code/kakao";
     }
 
     public SocialLoginParam getAuthorizeData() {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = URLEncoder.encode("http://" + HOST + "/oauth-callback/naver", StandardCharsets.UTF_8);
+        String callbackUrl = URLEncoder.encode(REDIRECT_URI, StandardCharsets.UTF_8); // "http://" + HOST + "/oauth-callback/naver"
         String apiUrl = "https://nid.naver.com/oauth2.0/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
         apiUrl += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENTID, callbackUrl, state);
 
         return SocialLoginParam.builder()
-                .provider(SocialLoginProvider.NAVER)
+                .provider(SocialLoginProvider.naver)
                 .state(state)
                 .apiUrl(apiUrl)
                 .build();
@@ -59,7 +63,7 @@ public class NaverLoginApiUtil {
     public Map<String, String> getTokens(HttpServletRequest request) {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = "http://" + HOST + "/oauth-callback/naver";
+        String redirectURI = REDIRECT_URI; // "http://" + HOST + "/oauth-callback/naver";
 
         String apiURL = "https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&";
         apiURL += "client_id=" + CLIENTID;

@@ -1,11 +1,15 @@
 package com.portfolio.demo.project.config;
 
-import com.portfolio.demo.project.security.CustomAuthenticationProvider;
-import com.portfolio.demo.project.security.SignInSuccessHandler;
-import com.portfolio.demo.project.security.SignInFailureHandler;
-import com.portfolio.demo.project.security.UserDetailsServiceImpl;
-import com.portfolio.demo.project.service.LoginLogService;
+import com.portfolio.demo.project.oauth2.handler.OAuth2SignInFailureHandler;
+import com.portfolio.demo.project.oauth2.handler.OAuth2SignInSuccessHandler;
+import com.portfolio.demo.project.oauth2.service.OAuth2UserServiceImpl;
+import com.portfolio.demo.project.security.*;
+import com.portfolio.demo.project.security.handler.SignInFailureHandler;
+import com.portfolio.demo.project.security.handler.SignInSuccessHandler;
+import com.portfolio.demo.project.security.service.UserDetailsServiceImpl;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -33,11 +38,14 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    private final LoginLogService loginLogService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final OAuth2UserServiceImpl oAuth2UserService;
     private final DataSource dataSource;
 
     private static final String[] CSRF_IGNORE = {"/signin/**", "/signup/**"};
+
+    @Value("${web.server.host}")
+    private String HOST;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() throws Exception {
@@ -45,8 +53,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, InMemoryClientRegistrationRepository clientRegistrationRepository) throws Exception {
         http.authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/api/oauth2/authorization/**").permitAll()
                         .anyRequest().permitAll()
 //                .requestMatchers("/", "/sign-in/**", "/sign-up/**", "/api/**", "/error/**").permitAll()
 //                .requestMatchers("/user/**", "/logout", "/boardName/**", "/mypage/**", "/imp/**", "/notice/**").authenticated() // ROLE_USER 혹은 ROLE_ADMIN만 접근 가능
@@ -67,12 +76,23 @@ public class WebSecurityConfig {
                 .failureHandler(signinFailureHandler())
                 .permitAll());
 
+        // redirect-uri로 들어올 때 실행
+        http.oauth2Login(login -> login
+                .defaultSuccessUrl("http://" + HOST, true) // successHandler에 우선순위 밀려 실행되지 않음
+//                .defaultSuccessUrl("http://" + HOST + ":8080/api/sign-in/oauth", true)
+                .failureUrl("http://" + HOST + "/sign-in")
+                .userInfoEndpoint(config -> config.userService(oAuth2UserService))
+//                .successHandler(new OAuth2SignInSuccessHandler("http://" + HOST))
+//                .successHandler(oAuth2SignInSuccessHandler())
+//                .failureHandler(oAuth2SignInFailureHandler())
+                .permitAll());
+
         //최대 세션 수를 하나로 제한해 동시 로그인 불가
         http.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(true));
 
         http.logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
+                .logoutSuccessUrl("http://" + HOST)
                 .clearAuthentication(true)
                 .invalidateHttpSession(true) // 로그아웃시 세션 삭제
                 .deleteCookies("JSESSIONID", "mvif-remember")); // 로그아웃시 쿠키 삭제 ( Remember-me 쿠키도 제거)
@@ -96,7 +116,7 @@ public class WebSecurityConfig {
 
         configuration.setAllowedOrigins(Arrays.asList("http://localhost", "http://3.38.19.101"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Auth-Token"));
+        configuration.setAllowedHeaders(Arrays.asList("*")); // "Authorization", "Content-Type", "X-Auth-Token"
         configuration.setExposedHeaders(Arrays.asList("set-cookie"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(7200L);
@@ -117,19 +137,34 @@ public class WebSecurityConfig {
         return new CustomAuthenticationProvider();
     }
 
+//    @Bean
+//    public OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService(MemberRepository memberRepository) {
+//        return new OAuth2UserServiceImpl(memberRepository);
+//    }
+
     @Bean
     public SecureRandom secureRandom() {
         return new SecureRandom();
     }
 
     @Bean
+    public OAuth2SignInSuccessHandler oAuth2SignInSuccessHandler() {
+        return new OAuth2SignInSuccessHandler();
+    }
+
+    @Bean
+    public OAuth2SignInFailureHandler oAuth2SignInFailureHandler() {
+        return new OAuth2SignInFailureHandler();
+    }
+
+    @Bean
     public SignInSuccessHandler signInSuccessHandler() {
-        return new SignInSuccessHandler(loginLogService);
+        return new SignInSuccessHandler();
     }
 
     @Bean
     public SignInFailureHandler signinFailureHandler() {
-        return new SignInFailureHandler(loginLogService);
+        return new SignInFailureHandler();
     }
 
     // 로그아웃시 세션정보 제거(세션이 삭제되어도 세션 정보(Set)에 추가된 사용자 정보는 사라지지 않음)

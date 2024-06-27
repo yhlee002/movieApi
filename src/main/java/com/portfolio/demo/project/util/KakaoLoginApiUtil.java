@@ -31,7 +31,8 @@ public class KakaoLoginApiUtil {
     private static final String CLIENT_ID = resourceBundle.getString("kakaoClientId");
     private static final String CLIENT_SECRET = resourceBundle.getString("kakaoClientSecret");
     protected static String HOST = "";
-
+    protected static Integer PORT = (Integer) properties.getObject("server.port");
+    protected static String REDIRECT_URI = "";
     {
         String profile = System.getProperty("spring.profiles.active");
         if ("prod".equals(profile)) {
@@ -39,19 +40,21 @@ public class KakaoLoginApiUtil {
         } else {
             HOST = "localhost";
         }
+
+        REDIRECT_URI = "http://" + HOST + ":" + PORT + "/api/login/oauth2/code/kakao";
     }
 
     public SocialLoginParam getAuthorizeData() {
         SecureRandom random = new SecureRandom();
 
-        String callbackUrl = "http://" + HOST + "/oauth-callback/kakao";
+        String callbackUrl = REDIRECT_URI; // "http://" + HOST + "/api/login/oauth2/code/kakao";
         String apiUrl = "https://kauth.kakao.com/oauth/authorize?response_type=code";
         String state = new BigInteger(130, random).toString();
 
         apiUrl += String.format("&client_id=%s&redirect_uri=%s&state=%s", CLIENT_ID, callbackUrl, state);
 
         return SocialLoginParam.builder()
-                .provider(SocialLoginProvider.KAKAO)
+                .provider(SocialLoginProvider.kakao)
                 .state(state)
                 .apiUrl(apiUrl)
                 .build();
@@ -60,7 +63,7 @@ public class KakaoLoginApiUtil {
     public Map<String, String> getTokens(HttpServletRequest request) {
         String code = request.getParameter("code");
         String state = request.getParameter("state");
-        String redirectURI = "http://" + HOST + "/oauth-callback/kakao";
+        String redirectURI = REDIRECT_URI; // "http://" + HOST + "/api/login/oauth2/code/kakao";
 
         String apiURL = "https://kauth.kakao.com/oauth/token?grant_type=authorization_code";
         apiURL += "&client_id=" + CLIENT_ID;

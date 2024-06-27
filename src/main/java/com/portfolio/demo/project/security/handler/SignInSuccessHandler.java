@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.security;
+package com.portfolio.demo.project.security.handler;
 
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.dto.LoginLogParam;
@@ -9,6 +9,7 @@ import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -23,8 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,18 +38,19 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
     private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
     private static final String defaultUrl = "/";
 
-    @Autowired // 제거 임시 보류
+    @Autowired
     private MemberService memberService;
 
-    private final LoginLogService loginLogService;
+    @Autowired
+    private LoginLogService loginLogService;
+
+    @Value("${web.server.host}")
+    private String HOST;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        log.info("Login Success - principal : " + authentication.getPrincipal() + ", authenticated : " + authentication.getAuthorities());
-
-        System.out.println("authentication.getPrincipal() : "+authentication.getPrincipal().toString());
-
         String principal = (String) authentication.getPrincipal();
+        log.info("Login Success - principal : " + principal + ", authenticated : " + authentication.getAuthorities());
 
         /* 멤버 정보 로드 */
         MemberParam memberParam = null;
@@ -110,6 +110,4 @@ public class SignInSuccessHandler implements AuthenticationSuccessHandler {
             redirectStrategy.sendRedirect(request, response, savedRequest.getRedirectUrl());
         }
     }
-
-
 }

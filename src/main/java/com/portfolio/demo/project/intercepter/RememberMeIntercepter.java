@@ -1,16 +1,22 @@
 package com.portfolio.demo.project.intercepter;
 
+import com.portfolio.demo.project.entity.member.MemberRole;
+import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
+import java.util.Iterator;
 
 @Slf4j
 public class RememberMeIntercepter implements HandlerInterceptor {
@@ -23,20 +29,33 @@ public class RememberMeIntercepter implements HandlerInterceptor {
 
         HttpSession session = request.getSession();
 
-        if (request.getSession().getAttribute("member") == null) {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            if (auth != null && auth.getName() != "anonymousUser") {
-                log.info("현재 auth : " + auth);
+        String identifier = "";
+        MemberRole role = null;
+        if (auth instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
+            identifier = user.getIdentifier();
+            role = user.getRole();
+        } else {
+            identifier = (String) auth.getPrincipal();
+            role = auth.getAuthorities().contains(MemberRole.ROLE_ADMIN) ? MemberRole.ROLE_ADMIN :
+            auth.getAuthorities().contains(MemberRole.ROLE_USER) ? MemberRole.ROLE_USER : MemberRole.ROLE_GUEST;
+            Iterator<? extends GrantedAuthority> iter = auth.getAuthorities().iterator();
+            role = MemberRole.valueOf(iter.next().toString());
+        }
 
-                MemberParam member = memberService.findByIdentifier((String) auth.getPrincipal());
-//                UserDetail userDetail = new UserDetail(member);
+        log.info("RememberMeIntercepter 로그인 된 유저 확인(정보: {}, 권한: {})", auth.getName(), auth.getAuthorities());
 
-                log.info("찾아온 member : " + member.toString());
-                session.setAttribute("member", member);
-            }
+        MemberParam member = memberService.findByIdentifier(identifier);
+
+        if (member != null) {
+            log.info("RememberMeIntercepter member 조회(id: {}, identifier: {})", member.getMemNo(), member.getIdentifier());
+            session.setAttribute("member", member);
+        } else {
+            log.info("RememberMeIntercepter member 조회(없음)");
         }
 
         return true;
-    }
+}
 }

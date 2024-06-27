@@ -219,12 +219,12 @@ public class MemberRepositoryTest {
                 .name("test-member")
                 .phone("010-1234-5678")
                 .identifier("test-mail@gmail.com")
-                .provider(SocialLoginProvider.NONE).build();
+                .provider(SocialLoginProvider.none).build();
         memberRepository.save(member);
 
         // when
         Member foundMember = memberRepository.findByIdentifierAndProvider(member.getIdentifier(), member.getProvider());
-        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", SocialLoginProvider.NAVER);
+        Member foundMember2 = memberRepository.findByIdentifierAndProvider("238095572", SocialLoginProvider.naver);
 
         // then
         Assertions.assertNotNull(foundMember);

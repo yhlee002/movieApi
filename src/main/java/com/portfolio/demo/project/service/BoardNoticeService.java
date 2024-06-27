@@ -131,11 +131,17 @@ public class BoardNoticeService {
      *
      * @param page 페이지 번호
      * @param size 조회할 게시글 수
-     * @param condition 정렬 기준(2024.06 기준 views)
+     * @param orderby 정렬 기준(2024.06 기준 views)
      * @return
      */
-    public NoticePagenationParam getAllBoardsOrderByCondition(int page, Integer size, String condition) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(condition).descending());
+    public NoticePagenationParam getAllBoardsOrderByCondition(int page, Integer size, String orderby) {
+        Sort sort = null;
+        if ("regdate".equals(orderby.toLowerCase())) {
+            sort = Sort.by("regDate").descending();
+        } else if ("views".equals(orderby.toLowerCase())){
+            sort = Sort.by("views").descending();
+        }
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
         List<BoardNotice> list = pages.getContent();
 

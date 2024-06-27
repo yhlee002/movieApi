@@ -3,9 +3,11 @@ package com.portfolio.demo.project.dto.board;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Setter
 @Getter
 @Builder
 @AllArgsConstructor

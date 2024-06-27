@@ -25,6 +25,7 @@ dependencies {
 //    implementation 'org.apache.maven.plugins:maven-shade-plugin:3.5.3'
 
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.security:spring-security-oauth2-client:6.3.1'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
     implementation 'org.springframework.boot:spring-boot-starter-web'

@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.security;
+package com.portfolio.demo.project.security.handler;
 
 import com.portfolio.demo.project.dto.LoginLogParam;
 import com.portfolio.demo.project.dto.member.MemberParam;
@@ -21,7 +21,8 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
     @Autowired
     private MemberService memberService;
 
-    private final LoginLogService loginLogService;
+    @Autowired
+    private LoginLogService loginLogService;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {

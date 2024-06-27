@@ -41,7 +41,7 @@ public class NaverProfileApiUtil {
         if(resultCode.equals("00") && message.equals("success")){
             profile = SocialProfileParam.builder()
                     .id(response.get("id").getAsString())
-                    .provider(SocialLoginProvider.NAVER)
+                    .provider(SocialLoginProvider.naver)
                     .name(response.get("nickname").getAsString())
                     .profileImageUrl(response.get("profile_image").getAsString())
                     .build();

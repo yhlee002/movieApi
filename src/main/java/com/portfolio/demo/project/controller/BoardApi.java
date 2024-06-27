@@ -46,16 +46,34 @@ public class BoardApi {
     public ResponseEntity<Result<NoticePagenationParam>> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
                                                                  @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
                                                                  @RequestParam(name = "query", required = false) String query,
-                                                                 @RequestParam(name = "condition", required = false) String condition) {
+                                                                 @RequestParam(name = "condition", required = false) String condition,
+                                                                 @RequestParam(name = "orderby", required = false) String orderBy) {
 
         NoticePagenationParam pagenationVO = null;
         if (query != null) {
-            pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
-        } else if (condition != null) {
-            if ("views".equals(condition)) {
-                pagenationVO = boardNoticeService.getAllBoardsOrderByCondition(pageNum, size, condition);
-            }
+            if ("titleOrContent".equals(condition)) {
+                pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
 
+//                if (orderBy != null && !orderBy.isEmpty()) {
+//                    if ("views".equals(orderBy)) {
+//                        List<BoardNoticeParam> list = pagenationVO.getBoardNoticeList().stream()
+//                                .sorted(Comparator.comparing(BoardNoticeParam::getViews))
+//                                .collect(Collectors.toList());
+//                        pagenationVO.setBoardNoticeList(list);
+//                    } else if ("recent".equals(orderBy)) {
+//                        List<BoardNoticeParam> list = pagenationVO.getBoardNoticeList().stream()
+//                                .sorted(Comparator.comparing(BoardNoticeParam::getViews))
+//                                .collect(Collectors.toList());
+//                        pagenationVO.setBoardNoticeList(list);
+//                    }
+//                }
+            }
+        } else if (orderBy != null) {
+            if ("views".equals(orderBy)) {
+                pagenationVO = boardNoticeService.getAllBoardsOrderByCondition(pageNum, size, condition);
+            } else if ("recent".equals(orderBy)) {
+                pagenationVO = boardNoticeService.getAllBoards(pageNum, size);
+            }
         } else {
             pagenationVO = boardNoticeService.getAllBoards(pageNum, size);
         }
@@ -153,29 +171,33 @@ public class BoardApi {
      *
      * @param size
      * @param pageNum
-     * @param condition
-     * @param query
+     * @param condition 검색 조건(제목 또는 내용 | 글쓴이)
+     * @param query     검색 키워드
+     * @param orderBy   정렬 기준
      */
     @GetMapping("/imps")
     public ResponseEntity<Result<ImpressionPagenationParam>> imps(
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
             @RequestParam(name = "condition", required = false) String condition,
-            @RequestParam(name = "query", required = false) String query
+            @RequestParam(name = "query", required = false) String query,
+            @RequestParam(name = "orderby", required = false) String orderBy
     ) {
         ImpressionPagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = switch (condition) {
                 case "writerName" -> boardImpService.getImpPagenationByWriterName(pageNum, size, query);
-                case "TitleOrContent" -> boardImpService.getImpPagenationByTitleOrContent(pageNum, size, query);
+                case "titleOrContent" -> boardImpService.getImpPagenationByTitleOrContent(pageNum, size, query);
                 default -> pagenationVO;
             };
 
-        } else if (condition != null) {
-            if ("views".equals(condition) || "recommended".equals(condition)) {
-                pagenationVO = boardImpService.getAllBoardsOrderByCondition(pageNum, size, condition);
-            } else if ("comments".equals(condition)) {
+        } else if (orderBy != null) {
+            if ("views".equals(orderBy) || "recommended".equals(orderBy)) {
+                pagenationVO = boardImpService.getAllBoardsOrderByCondition(pageNum, size, orderBy);
+            } else if ("comments".equals(orderBy)) {
                 pagenationVO = boardImpService.getAllBoardsOrderByCommentSizeDesc(pageNum, size);
+            } else if ("recent".equals(orderBy)) {
+                pagenationVO = boardImpService.getAllBoards(pageNum, size);
             }
         } else {
             pagenationVO = boardImpService.getAllBoards(pageNum, size);
@@ -300,7 +322,8 @@ public class BoardApi {
             FileUtils.deleteQuietly(targetFile); // 저장된 파일 삭제
             jsonObject.addProperty("responseCode", "error");
             e.printStackTrace();
-        };
+        }
+        ;
 
         return new ResponseEntity<>(new Result<>(jsonObject), HttpStatus.OK);
     }

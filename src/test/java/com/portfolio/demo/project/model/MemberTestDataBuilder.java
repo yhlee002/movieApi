@@ -22,7 +22,7 @@ public class MemberTestDataBuilder {
                 .name("yhlee")
                 .phone("000-000-0000")
                 .role(MemberRole.ROLE_ADMIN)
-                .provider(SocialLoginProvider.NONE)
+                .provider(SocialLoginProvider.none)
                 .certification(MemberCertificated.Y);
     }
 
@@ -33,7 +33,7 @@ public class MemberTestDataBuilder {
                 .name("이영현")
                 .phone("000-111-0000")
                 .role(MemberRole.ROLE_USER)
-                .provider(SocialLoginProvider.NONE)
+                .provider(SocialLoginProvider.none)
                 .certification(MemberCertificated.N);
     }
 
@@ -44,7 +44,7 @@ public class MemberTestDataBuilder {
                 .name("비밀번호없는아이디")
                 .phone("000-000-1212")
                 .role(MemberRole.ROLE_USER)
-                .provider(SocialLoginProvider.NONE)
+                .provider(SocialLoginProvider.none)
                 .certification(MemberCertificated.N);
     }
 
@@ -55,7 +55,7 @@ public class MemberTestDataBuilder {
                 .name("네이버유저")
                 .phone("000-1212-3434")
                 .role(MemberRole.ROLE_USER)
-                .provider(SocialLoginProvider.NAVER)
+                .provider(SocialLoginProvider.naver)
                 .certification(MemberCertificated.Y);
     }
 
@@ -73,7 +73,7 @@ public class MemberTestDataBuilder {
                 .name(randomString)
                 .phone("000-" + random.nextInt(100, 999) + "-" + random.nextInt(1000, 9999))
                 .role(MemberRole.ROLE_USER)
-                .provider(SocialLoginProvider.NONE)
+                .provider(SocialLoginProvider.none)
                 .certification(MemberCertificated.N);
     }
 }

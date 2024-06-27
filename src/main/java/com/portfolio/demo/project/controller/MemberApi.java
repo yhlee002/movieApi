@@ -11,6 +11,7 @@ import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
+import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.util.*;
@@ -26,19 +27,20 @@ import org.apache.tomcat.util.json.ParseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -71,10 +73,21 @@ public class MemberApi {
 //        MemberParam member = (MemberParam) session.getAttribute("member");
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String principal = (String) auth.getPrincipal();
+        String identifier = "";
+        MemberRole role = null;
+        if (auth instanceof OAuth2AuthenticationToken) {
+            CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
+            identifier = user.getIdentifier();
+            role = user.getRole();
+        } else {
+            identifier = (String) auth.getPrincipal();
+            Iterator<? extends GrantedAuthority> iter = auth.getAuthorities().iterator();
+            role = MemberRole.valueOf(iter.next().toString());
+        }
 
-        if (!principal.equals("anonymousUser")) {
-            MemberParam member = memberService.findByIdentifier(principal);
+        if (!identifier.equals("anonymousUser") &&
+                !role.equals(MemberRole.ROLE_ANONYMOUS) && !role.equals(MemberRole.ROLE_GUEST)) {
+            MemberParam member = memberService.findByIdentifier(identifier);
             return new ResponseEntity<>(new Result<>(new MemberResponse(member)), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(new Result<>(null), HttpStatus.OK);
@@ -95,7 +108,6 @@ public class MemberApi {
         } else {
             return ResponseEntity.ok(new Result<>(null));
         }
-
     }
 
     /**
@@ -168,9 +180,7 @@ public class MemberApi {
      */
     @PostMapping("/member")
     public ResponseEntity<Result<MemberResponse>> signUp(HttpSession session, @RequestBody @Valid CreateMemberRequest request) {
-        if (SocialLoginProvider.NONE.equals(request.getProvider())) {
-            // 이메일로 찾는 과정 + identifier 컬럼을 유니크 키로 사용
-//            log.info("전송된 유저 정보 : {}", request);
+        if (SocialLoginProvider.none.equals(request.getProvider())) {
             Long memNo = memberService.saveMember(
                     MemberParam.builder()
                             .identifier(request.getIdentifier())
@@ -220,6 +230,14 @@ public class MemberApi {
             MemberResponse response = new MemberResponse(created);
 
             log.info("생성된 유저 식별번호 : {}", created.getMemNo());
+
+            // 로그인
+            Authentication auth = memberService.getAuthentication(created);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            session.setAttribute("member", member);
+
+            // 세션의 profile 제거
+            session.removeAttribute("profile");
 
             return new ResponseEntity<>(new Result<>(response), HttpStatus.CREATED);
         }
@@ -298,6 +316,12 @@ public class MemberApi {
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
+    /**
+     * 회원 삭제
+     *
+     * @param memNo
+     * @return
+     */
     @DeleteMapping("/member")
     public ResponseEntity<Result<Boolean>> deleteMember(@RequestParam Long memNo) {
         memberService.deleteMember(memNo);
@@ -314,10 +338,10 @@ public class MemberApi {
     public ResponseEntity<Result<Map<String, String>>> getOauthAuthorizationURL(HttpSession session, @RequestParam("provider") SocialLoginProvider provider) {
 
         SocialLoginParam socialLoginData = null;
-        if (provider.equals(SocialLoginProvider.NAVER)) {
+        if (provider.equals(SocialLoginProvider.naver)) {
             socialLoginData = naverLoginApiUtil.getAuthorizeData();
             session.setAttribute("naverState", socialLoginData.getState());
-        } else if(provider.equals(SocialLoginProvider.KAKAO)) {
+        } else if (provider.equals(SocialLoginProvider.kakao)) {
             socialLoginData = kakaoLoginApiUtil.getAuthorizeData();
             session.setAttribute("kakaoState", socialLoginData.getState());
         }
@@ -330,15 +354,14 @@ public class MemberApi {
     }
 
     /**
-     * 소셜 로그인 API
-     * 액세스 토큰 요청
+     * 소셜 로그인 API - 액세스 토큰 요청
      *
      * @param providerStr
      */
     @GetMapping("/member/oauth2/{provider}")
     public ResponseEntity<Result<Boolean>> getLoginToken(HttpSession session, HttpServletRequest request,
-                                                                          @PathVariable("provider") String providerStr) {
-        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toUpperCase());
+                                                         @PathVariable("provider") String providerStr) {
+        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toLowerCase());
 
         String state = request.getParameter("state");
         String storedState = String.valueOf(session.getAttribute(providerStr.toLowerCase() + "State"));
@@ -347,14 +370,14 @@ public class MemberApi {
             return new ResponseEntity<>(new Result<>(Boolean.FALSE), HttpStatus.UNAUTHORIZED); // 401
         }
 
-        if (provider.equals(SocialLoginProvider.NAVER)) {
+        if (provider.equals(SocialLoginProvider.naver)) {
             Map<String, String> res = naverLoginApiUtil.getTokens(request);
             String access_token = res.get("access_token");
             String refresh_token = res.get("refresh_token");
 
             session.setAttribute("naverCurrentAT", access_token);
             session.setAttribute("naverCurrentRT", refresh_token);
-        } else if (provider.equals(SocialLoginProvider.KAKAO)) {
+        } else if (provider.equals(SocialLoginProvider.kakao)) {
             Map<String, String> res = kakaoLoginApiUtil.getTokens(request);
             String access_token = res.get("access_token");
             String refresh_token = res.get("refresh_token");
@@ -367,8 +390,8 @@ public class MemberApi {
     }
 
     /**
-     * Oauth2.0 - Profile 조회
-     * access token을 사용해 사용자 프로필 조회 api 호출
+     * 소셜 로그인 API - Profile 조회
+     * access_token을 사용해 사용자 프로필 조회 api 호출
      *
      * @param providerStr
      * @throws ParseException
@@ -376,23 +399,23 @@ public class MemberApi {
     @GetMapping("/member/oauth2/profile/{provider}")
     public ResponseEntity<Result<SocialLoginResponse>> getSocialProfile(HttpSession session,
                                                                         @PathVariable("provider") String providerStr) throws ParseException {
-        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toUpperCase());
+        SocialLoginProvider provider = SocialLoginProvider.valueOf(providerStr.toLowerCase());
         String token = String.valueOf(session.getAttribute(providerStr.toLowerCase() + "CurrentAT"));
 
         SocialLoginResponse response = new SocialLoginResponse();
 
-        if (provider.equals(SocialLoginProvider.NAVER)) {
+        if (provider.equals(SocialLoginProvider.naver)) {
             SocialProfileParam profile = naverProfileApiUtil.getProfile(token); // Map으로 사용자 데이터 받기
             log.info("Oauth2.0 get profile: provider: {}, profile : {}", profile);
 
             // 해당 프로필과 일치하는 회원 정보가 있는지 조회 후, 있다면 role 값(ROLE_USER) 반환
             MemberParam member = memberService.findByIdentifier(profile.getId());
 
-            response.setProvider(SocialLoginProvider.NAVER);
+            response.setProvider(SocialLoginProvider.naver);
             response.setIdentifier(profile.getId());
 
             if (member != null) { // info.getRole().equals("ROLE_USER")
-                if (member.getProvider().equals(SocialLoginProvider.NAVER)) {
+                if (member.getProvider().equals(SocialLoginProvider.naver)) {
                     Authentication auth = memberService.getAuthentication(member);
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -413,17 +436,17 @@ public class MemberApi {
 
                 session.setAttribute("profile", profile);
             }
-        } else if (provider.equals(SocialLoginProvider.KAKAO)) {
+        } else if (provider.equals(SocialLoginProvider.kakao)) {
             SocialProfileParam profile = kakaoProfileApiUtil.getProfile(token); // access_token
             log.info("Oauth2.0 get profile: provider: {}, profile : {}", profile);
 
             MemberParam member = memberService.findByIdentifier(profile.getId());
 
-            response.setProvider(SocialLoginProvider.KAKAO);
+            response.setProvider(SocialLoginProvider.kakao);
             response.setIdentifier(profile.getId());
 
             if (member != null) {
-                if (member.getProvider().equals(SocialLoginProvider.KAKAO)) {
+                if (member.getProvider().equals(SocialLoginProvider.kakao)) {
                     Authentication auth = memberService.getAuthentication(member);
                     SecurityContextHolder.getContext().setAuthentication(auth);
 
@@ -452,12 +475,20 @@ public class MemberApi {
         return ResponseEntity.ok(new Result<>(response));
     }
 
+    /**
+     * 소셜 로그인 API 관련
+     * HttpSession에 저장된 profile 조회
+     */
     @GetMapping("/member/oauth2/profile-server")
     public ResponseEntity<Result<SocialProfileParam>> getProfileFromSession(HttpSession session) {
         SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
         return ResponseEntity.ok(new Result<>(profile));
     }
 
+    /**
+     * 소셜 로그인 API 관련
+     * HttpSession에 저장된 profile 삭제(회원가입까지 진행하지 않는 경우)
+     */
     @DeleteMapping("/member/oauth2/profile-server")
     public ResponseEntity<Result<Boolean>> removeProfileFromSession(HttpSession session) {
         SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
@@ -473,7 +504,6 @@ public class MemberApi {
      * 로그인 전 입력 정보 유효성 확인
      *
      * @param request
-     * @return
      */
     @PostMapping("/sign-in/check")
     public ResponseEntity<Result<String>> checkInputParams(@RequestBody SigninRequest request) {
@@ -513,18 +543,6 @@ public class MemberApi {
         if (auth != null) {
             new SecurityContextLogoutHandler().logout(request, response, auth); // 세션을 무효화시킴(네이버 로그인 api에서 제공하는 접근 토큰, 리프레시 토큰도 함께 제거될 듯?
         } else throw new IllegalStateException("로그인된 회원 정보가 없습니다.");
-    }
-
-    /**
-     * 회원가입시 소셜 API로 접근한 경우 소셜 프로필 정보 조회
-     *
-     * @param session
-     * @return
-     */
-    @GetMapping("/member/oauth-profile")
-    public ResponseEntity<Result<SocialProfileParam>> getOauthProfile(HttpSession session) {
-        SocialProfileParam profile = (SocialProfileParam) session.getAttribute("profile");
-        return new ResponseEntity<>(new Result<>(profile), HttpStatus.OK);
     }
 
     /**
@@ -635,5 +653,12 @@ public class MemberApi {
                     ), HttpStatus.OK);
         }
     }
-}
 
+    @GetMapping("/sign-in/oauth/{provider}")
+    public ResponseEntity<Result<MemberResponse>> oauthRedirect(HttpServletRequest request, HttpServletResponse response, @PathVariable("provider") String provider) throws IOException {
+        System.out.println(response.getOutputStream());
+
+        return null;
+    }
+
+}
