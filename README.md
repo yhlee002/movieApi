@@ -11,6 +11,7 @@
 * API 데이터 반환시 엔티티를 직접 반환하던 코드를 ResponseEntity와 별도의 DTO를 이용해 정돈
 * JPA 활용해 데이터 조회 기능 최적화 시도
 * Git Actions, AWS S3, AWS CodeDeploy를 이용해 CI/CD 파이프라인 구축
+* Spring Security + OAuth2.0 기능 -> Spring OAuth2 사용 방식으로 변경
 #### 주요 변경사항
 - 2024.04
   + 스프링부트 버전 업그레이드(2.3.4 -> 3.2.3)
@@ -30,6 +31,7 @@
 - 2024.06
   + 주요 API 작성 및 수정
   + Git Actions + AWS S3, AWS CodeDeploy를 이용해 CI/CD 파이프라인 구축
+  + 구현된 OAuth2.0 소셜 로그인 기능을 Spring OAuth2을 사용하는 방식으로 마이그레이션
 
 
 ## 개발환경
