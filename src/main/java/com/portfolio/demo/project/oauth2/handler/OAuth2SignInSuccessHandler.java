@@ -117,7 +117,7 @@ public class OAuth2SignInSuccessHandler extends SimpleUrlAuthenticationSuccessHa
     public void SetRedirectStrategyUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 //        SavedRequest savedRequest = requestCache.getRequest(request, response);
 //        log.info("saveRequest 정보 : {}", savedRequest.toString());
-        log.info("redirect uri : {}", "http://" + HOST);
+        log.info("OAuth2SignSuccessHanlder 리다이렉션 발생(경로: {})", "http://" + HOST);
         redirectStrategy.sendRedirect(request, response, "http://" + HOST); // savedRequest.getRedirectUrl()
     }
 

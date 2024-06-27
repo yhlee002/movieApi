@@ -55,14 +55,6 @@ public class MemberApi {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    private final NaverLoginApiUtil naverLoginApiUtil;
-
-    private final NaverProfileApiUtil naverProfileApiUtil;
-
-    private final KakaoLoginApiUtil kakaoLoginApiUtil;
-
-    private final KakaoProfileApiUtil kakaoProfileApiUtil;
-
     @Value("${web.server.host}")
     private String HOST;
 
@@ -73,9 +65,7 @@ public class MemberApi {
      * @return
      */
     @GetMapping("/member/current")
-    public ResponseEntity<Result<MemberResponse>> getCurrentMember() { // HttpSession session
-//        MemberParam member = (MemberParam) session.getAttribute("member");
-
+    public ResponseEntity<Result<MemberResponse>> getCurrentMember() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String identifier = "";
         MemberRole role = null;
@@ -195,7 +185,10 @@ public class MemberApi {
         CustomOAuth2User user = (CustomOAuth2User) auth.getPrincipal();
         request.getSession().setAttribute("oauthUser", user);
 
-        response.sendRedirect("http://" + HOST + "/sign-up?type=oauth");
+        String redirectUrl = "http://" + HOST + "/sign-up?type=oauth";
+        log.info("/sign-up/oauth2 리다이렉션 발생(경로: {})", redirectUrl);
+
+        response.sendRedirect(redirectUrl);
     }
 
     /**
