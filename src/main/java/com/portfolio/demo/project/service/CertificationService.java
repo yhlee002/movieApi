@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.certification.CertificationDataDto;
+import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.certification.CertificationData;
@@ -16,6 +17,7 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,6 +49,8 @@ public class CertificationService {
     private String host;
     private Integer port;
 
+    @Value("${spring.profiles.active}")
+    private String profile;
     /**
      * 식별번호를 이용한 인증정보 단건 조회
      *
@@ -121,8 +125,11 @@ public class CertificationService {
      */
     public SendCertificationNotifyResult sendCertificationMessage(String phone, CertificationReason reason) {
         String certKey = Integer.toString(getTempKey());
-//        AwsSmsUtil.sendCertificationMessage(certKey, phone);
-        CoolSmsMessageUtil.sendCertificationMessage(certKey, phone);
+
+        // 개발용(프로덕션 환경에서만 실제 메세지 전송)
+        if ("prod".equals(profile)) {
+            CoolSmsMessageUtil.sendCertificationMessage(certKey, phone);
+        }
 
         CertificationData data = certificationRepository.findByCertificationIdAndType(phone, CertificationType.PHONE);
 
@@ -163,7 +170,7 @@ public class CertificationService {
         }
 
         String certKey = tempKey.getKey(10, false);
-        Member member = memberRepository.findByIdentifier(toMail);
+        Member member = memberRepository.findByIdentifierAndProvider(toMail, SocialLoginProvider.none);
 
         String title = "MovieSite 회원가입 인증 메일";
         String content = "<div style=\"text-align:center\">"
