@@ -395,6 +395,18 @@ public class MemberApi {
     }
 
     /**
+     * 회원 다수 삭제
+     *
+     * @param memNoList
+     */
+    @PostMapping("/member/batch-delete")
+    public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody List<Long> memNoList) {
+        memberService.deleteMembers(memNoList);
+
+        return ResponseEntity.ok(new Result<>(true));
+    }
+
+    /**
      * 로그인 전 입력 정보 유효성 확인
      *
      * @param request

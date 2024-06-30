@@ -256,4 +256,8 @@ public class MemberService {
             throw new IllegalStateException("해당 아이디를 가진 회원 정보가 존재하지 않습니다.");
         }
     }
+
+    public void deleteMembers(List<Long> memNoList) {
+        memberRepository.deleteByMemNos(memNoList);
+    }
 }
