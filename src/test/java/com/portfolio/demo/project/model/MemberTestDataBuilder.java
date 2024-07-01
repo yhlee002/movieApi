@@ -11,13 +11,12 @@ import java.util.ResourceBundle;
 public class MemberTestDataBuilder {
     private static final ResourceBundle resource = ResourceBundle.getBundle("Res_ko_KR_keys");
     private static final String sampleEmailAddress = resource.getString("aws.sample.email");
-    private static final String sampleEmailAddress2 = resource.getString("aws.sample.email2");
 
     private static final Random random = new Random();
 
     public static Member.MemberBuilder admin() {
         return Member.builder()
-                .identifier(sampleEmailAddress2)
+                .identifier(sampleEmailAddress)
                 .password("1234")
                 .name("yhlee")
                 .phone("000-000-0000")
@@ -30,7 +29,7 @@ public class MemberTestDataBuilder {
         return Member.builder()
                 .identifier(sampleEmailAddress)
                 .password("1234")
-                .name("이영현")
+                .name("test-user")
                 .phone("000-111-0000")
                 .role(MemberRole.ROLE_USER)
                 .provider(SocialLoginProvider.none)

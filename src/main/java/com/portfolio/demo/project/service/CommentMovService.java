@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.comment.CommentImpPagenationParam;
 import com.portfolio.demo.project.dto.comment.CommentMovPagenationParam;
 import com.portfolio.demo.project.dto.comment.CommentMovParam;
 import com.portfolio.demo.project.entity.comment.CommentMov;
@@ -30,60 +31,42 @@ public class CommentMovService {
 
     /**
      * 추천순으로 댓글 조회(미개발)
-     * @param pageNum
      * @param movieId
-     * @return
+     * @param pageNum
+     * @param size
      */
-    public Map<String, Object> getCommentsOrderByRecommended(Long movieId, int pageNum, int size) {
+    public CommentMovPagenationParam getCommentsOrderByRecommended(Long movieId, int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by(Sort.Direction.DESC, "recommended"));
         Page<CommentMov> page = commentMovRepository.findAllByMovieNo(movieId, pageable);
-        List<CommentMovParam> commentMovParamList = page.getContent().stream().map(CommentMovParam::create).collect(Collectors.toList());
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("list", commentMovParamList);
-        result.put("totalPageCnt", page.getTotalPages());
-        result.put("totalCommentCnt", page.getTotalElements());
-        return result;
+        return new CommentMovPagenationParam(page);
     }
 
     /**
      * 해당 영화에 대한 모든 리뷰 가져오기
+     *
+     * @param movieNo
+     * @param pageNum
+     * @param size
      */
     public CommentMovPagenationParam getCommentsByMovie(Long movieNo, int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by("regDate").descending());
 
-        Page<CommentMov> pages =  null;
+        Page<CommentMov> result =  null;
         if (movieNo != null) {
-            pages = commentMovRepository.findAllByMovieNo(movieNo, pageable);
+            result = commentMovRepository.findAllByMovieNo(movieNo, pageable);
         } else {
-            pages = commentMovRepository.findAll(pageable);
+            result = commentMovRepository.findAll(pageable);
         }
 
-        List<CommentMov> list = pages.getContent();
-
-        log.info("조회된 댓글 수 : {}", list.size());
-
-        List<CommentMovParam> vos = list.stream().map(CommentMovParam::create).toList();
-
-        return CommentMovPagenationParam.builder()
-                .commentMovsList(vos)
-                .totalPageCnt(pages.getTotalPages())
-                .build();
-    }
-
-    /**
-     * 해당 영화에 대한 모든 리뷰의 전체 페이지 수
-     *
-     * @deprecated 제거 예정
-     */
-    public Integer getTotalPageCountByMovieNo(Long movieNo, int size) {
-        Pageable pageable = PageRequest.of(0, size, Sort.by("regDate").descending());
-        Page<CommentMov> page = commentMovRepository.findAllByMovieNo(movieNo, pageable);
-        return page.getTotalPages();
+        return new CommentMovPagenationParam(result);
     }
 
     /**
      * 전체 리뷰 조회
+     *
+     * @param pageNum
+     * @param size
      */
     public List<CommentMov> getComments(int pageNum, int size) {
         Pageable pageable = PageRequest.of(pageNum, size, Sort.by("regDate").descending());
@@ -93,27 +76,26 @@ public class CommentMovService {
     }
 
     /**
-     * 사용자가 쓴 댓글 조회(수정, 삭제 버튼)
+     * 사용자가 쓴 댓글 조회
      *
      * @param memNo
      * @param page
+     * @param size
      */
-    public List<CommentMovParam> getCommentsByMember(Long memNo, int page, int size) {
+    public CommentMovPagenationParam getCommentsByMember(Long memNo, int page, int size) {
         Member member = memberRepository.findById(memNo).orElse(null);
 
-        List<CommentMovParam> result = new ArrayList<>();
-
+        CommentMovPagenationParam param = null;
         if (member != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-            Page<CommentMov> pages = commentMovRepository.findByWriter(member, pageable);
-            List<CommentMov> list = pages.getContent();
+            Page<CommentMov> result = commentMovRepository.findByWriter(member, pageable);
 
-            result = list.stream().map(CommentMovParam::create).toList();
+            param = new CommentMovPagenationParam(result);
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", memNo);
         }
 
-        return result;
+        return param;
     }
 
     /**

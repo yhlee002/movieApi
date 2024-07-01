@@ -27,8 +27,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Page<Member> findByPhoneIgnoreCaseContaining(String phone, Pageable pageable);
 
-    Boolean existsByName(String name);
-
     Page<Member> findByRole(MemberRole role, Pageable pageable);
 
     Page<Member> findByProvider(SocialLoginProvider provider, Pageable pageable);

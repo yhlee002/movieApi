@@ -58,6 +58,9 @@ Amazon EC2 Instance(OS: Amazon Linux 2)
 ![image](https://github.com/yhlee002/web_moviePublic/assets/60289743/d7dce3c6-f809-45f0-8d0d-65dc0dd9f2e1)
 
 
+## API 명세서
+http://3.38.19.101:8080/api/swagger-ui/index.html
+
 ## 주요 기능
 ### 회원가입
       - 입력된 정보는 Ajax 비동기 통신을 통해 정규표현식(regular expression)을 사용한 유효성검사와 중복 여부 검사를 거쳐 저장.

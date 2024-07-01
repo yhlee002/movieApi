@@ -4,6 +4,7 @@ import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.dto.certification.CertMessageValidationRequest;
 import com.portfolio.demo.project.dto.certification.CertResponse;
 import com.portfolio.demo.project.dto.certification.CertificationDataDto;
+import com.portfolio.demo.project.dto.member.MemberPagenationParam;
 import com.portfolio.demo.project.dto.member.request.*;
 import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.dto.social.*;
@@ -17,6 +18,7 @@ import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResul
 import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -45,6 +47,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Tag(name = "Member", description = "Member 관련 API 입니다.")
+@RequestMapping("/members")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -61,11 +65,8 @@ public class MemberApi {
 
     /**
      * 현재 세션의 회원 정보 조회
-     *
-     * @param
-     * @return
      */
-    @GetMapping("/member/current")
+    @GetMapping("/current")
     public ResponseEntity<Result<MemberResponse>> getCurrentMember() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String identifier = "";
@@ -96,9 +97,8 @@ public class MemberApi {
      * 특정 식별번호의 회원 정보 조회
      *
      * @param id
-     * @return
      */
-    @GetMapping("/member/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Result<MemberResponse>> getMember(@PathVariable Long id) {
         MemberParam member = memberService.findByMemNo(id);
         if (member != null) {
@@ -112,11 +112,11 @@ public class MemberApi {
      * 특정 조건의 회원 조회
      *
      * @param identifier
+     * @param provider
      * @param name
      * @param phone
-     * @return
      */
-    @GetMapping("/member")
+    @GetMapping("/") // /api/member?... -> /api/members?...
     public ResponseEntity<Result<MemberResponse>> findMember(@RequestParam(name = "identifier", required = false) String identifier,
                                                              @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
                                                              @RequestParam(name = "name", required = false) String name,
@@ -144,8 +144,18 @@ public class MemberApi {
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
     }
 
-    @GetMapping("/members")
-    public ResponseEntity<Result<List<MemberResponse>>> findMembers(@RequestParam(name = "identifier", required = false) String identifier,
+    /**
+     * 회원 검색
+     * @param identifier
+     * @param name
+     * @param phone
+     * @param role
+     * @param provider
+     * @param page
+     * @param size
+     */
+    @GetMapping("/search") // members -> members/search
+    public ResponseEntity<Result<MemberPagenationParam>> findMembers(@RequestParam(name = "identifier", required = false) String identifier,
                                                                     @RequestParam(name = "name", required = false) String name,
                                                                     @RequestParam(name = "phone", required = false) String phone,
                                                                     @RequestParam(name = "role", required = false) MemberRole role,
@@ -153,32 +163,28 @@ public class MemberApi {
                                                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                                                     @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
-        List<MemberParam> members = new ArrayList<>();
+        MemberPagenationParam pagenationParam = new MemberPagenationParam();
         if (identifier != null && !identifier.isEmpty()) {
-            members = memberService.findAllByIdentifierContaining(identifier, page, size);
+            pagenationParam = memberService.findAllByIdentifierContaining(identifier, page, size);
         } else if (name != null && !name.isEmpty()) {
-            members = memberService.findAllByNameContaining(name, page, size); // validateDuplicationName
+            pagenationParam = memberService.findAllByNameContaining(name, page, size); // validateDuplicationName
         } else if (phone != null && !phone.isEmpty()) {
-            members = memberService.findAllByPhoneContaining(phone, page, size);
+            pagenationParam = memberService.findAllByPhoneContaining(phone, page, size);
         } else if (role != null) {
-            members = memberService.findAllByRole(role, page, size);
+            pagenationParam = memberService.findAllByRole(role, page, size);
         } else if (provider != null) {
-            members = memberService.findAllByProvider(provider, page, size);
+            pagenationParam = memberService.findAllByProvider(provider, page, size);
         } else {
-            members = memberService.findAll(page, size);
+            pagenationParam = memberService.findAll(page, size);
         }
 
-        List<MemberResponse> responses = members.stream().map(param -> new MemberResponse(param)).collect(Collectors.toList());
-        return ResponseEntity.ok(new Result<>(responses));
-
+        pagenationParam.setCurrentPage(page);
+        pagenationParam.setSize(size);
+        return ResponseEntity.ok(new Result<>(pagenationParam));
     }
 
     /**
      * 소셜 로그인 API 호출 뒤 로그인 성공시 해당 경로로 리다이렉트
-     *
-     * @param request
-     * @param response
-     * @throws IOException
      */
     @GetMapping("/sign-up/oauth2")
     public void oauthRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -197,9 +203,6 @@ public class MemberApi {
 
     /**
      * 소셜 로그인 API 호출 이후 세션에 넣어둔 사용자 프로필 정보를 조회
-     *
-     * @param request
-     * @return
      */
     @GetMapping("/oauth2/userinfo")
     public ResponseEntity<Result<MemberResponse>> getOAuthUserInfoFromSession(HttpServletRequest request) {
@@ -229,11 +232,9 @@ public class MemberApi {
     /**
      * 회원가입
      *
-     * @param session
      * @param request
-     * @return
      */
-    @PostMapping("/member")
+    @PostMapping("/")
     public ResponseEntity<Result<MemberResponse>> signUp(HttpSession session, @RequestBody @Valid CreateMemberRequest request) {
         if (SocialLoginProvider.none.equals(request.getProvider())) {
             Long memNo = memberService.saveMember(
@@ -310,8 +311,10 @@ public class MemberApi {
 
     /**
      * 회원 정보 수정
+     *
+     * @param request
      */
-    @PatchMapping("/member")
+    @PatchMapping("/")
     public ResponseEntity<Result<MemberResponse>> updateMember(@RequestBody @Valid UpdateMemberRequest request) {
         MemberParam member = memberService.findByMemNo(request.getMemNo());
 
@@ -333,7 +336,7 @@ public class MemberApi {
      *
      * @param request
      */
-    @PatchMapping("/member/password")
+    @PatchMapping("/password")
     public ResponseEntity<Result<MemberResponse>> updateMemberPassword(@RequestBody @Valid UpdatePasswordRequest request) {
         Long memNo = memberService.updatePwd(
                 MemberParam.builder().memNo(request.getMemNo()).password(request.getPassword()).build());
@@ -348,7 +351,7 @@ public class MemberApi {
      *
      * @param request
      */
-    @PatchMapping("/member/certification")
+    @PatchMapping("/certification")
     public ResponseEntity<Result<MemberResponse>> updateMemberCertification(@RequestBody @Valid UpdateCertificationRequest request) {
         Long memNo = memberService.updateCertification(
                 MemberParam.builder()
@@ -367,7 +370,7 @@ public class MemberApi {
      *
      * @param request
      */
-    @PatchMapping("/member/role")
+    @PatchMapping("/role")
     public ResponseEntity<Result<MemberResponse>> updateMemberRole(@RequestBody @Valid UpdateRoleRequest request) {
         Long memNo = memberService.updateRole(
                 MemberParam.builder()
@@ -385,9 +388,8 @@ public class MemberApi {
      * 회원 삭제
      *
      * @param memNo
-     * @return
      */
-    @DeleteMapping("/member")
+    @DeleteMapping("/")
     public ResponseEntity<Result<Boolean>> deleteMember(@RequestParam Long memNo) {
         memberService.deleteMember(memNo);
 
@@ -399,7 +401,7 @@ public class MemberApi {
      *
      * @param memNoList
      */
-    @PostMapping("/member/batch-delete")
+    @PostMapping("/batch-delete")
     public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody List<Long> memNoList) {
         memberService.deleteMembers(memNoList);
 
@@ -440,8 +442,6 @@ public class MemberApi {
     /**
      * 로그아웃
      *
-     * @param request
-     * @param response
      */
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
@@ -455,7 +455,6 @@ public class MemberApi {
      * 인증 메일 (재)전송
      *
      * @param request
-     * @return
      */
     @PostMapping("/cert-mail")
     public ResponseEntity<Result<CertResponse>> sendCertificationEmail(@RequestBody @Valid CertMailRequest request) {// @RequestParam(name = "email")
@@ -474,7 +473,6 @@ public class MemberApi {
      * 빈 페이지에 도달하면 해당 페이지에서 Post 요청 후 결과를 받아 결과에 따라 리다이렉트)
      *
      * @param request
-     * @return
      */
     @PostMapping("/cert-mail/validation")
     public ResponseEntity<Result<CertResponse>> validateEmailByCertKey(@RequestBody @Valid CertMailValidationRequest request) {
@@ -517,7 +515,6 @@ public class MemberApi {
      * 인증번호를 받은 휴대전화 번호 입력시 해당 번호로 인증번호 전송
      *
      * @param request
-     * @return
      */
     @PostMapping("/cert-message")
     public ResponseEntity<Result<CertResponse>> sendCertMessage(@RequestBody @Valid CertMessageValidationRequest request) {
@@ -535,7 +532,6 @@ public class MemberApi {
      * 문자로 전송된 인증번호 검증
      *
      * @param request
-     * @return
      */
     @PostMapping("/cert-message/validation") // 인증키 일치 여부 확인 페이지
     public ResponseEntity<Result<CertResponse>> validateCertMessage(@RequestBody @Valid CertMessageValidationRequest request) {

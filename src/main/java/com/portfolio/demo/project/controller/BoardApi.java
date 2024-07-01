@@ -12,6 +12,7 @@ import com.portfolio.demo.project.dto.board.response.MultiBoardNoticeResponse;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+@Tag(name = "Board", description = "일반 게시글 관련 API 입니다.")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -53,20 +55,6 @@ public class BoardApi {
         if (query != null) {
             if ("titleOrContent".equals(condition)) {
                 pagenationVO = boardNoticeService.getBoardNoticePagenationByTitleOrContent(pageNum, size, query);
-
-//                if (orderBy != null && !orderBy.isEmpty()) {
-//                    if ("views".equals(orderBy)) {
-//                        List<BoardNoticeParam> list = pagenationVO.getBoardNoticeList().stream()
-//                                .sorted(Comparator.comparing(BoardNoticeParam::getViews))
-//                                .collect(Collectors.toList());
-//                        pagenationVO.setBoardNoticeList(list);
-//                    } else if ("recent".equals(orderBy)) {
-//                        List<BoardNoticeParam> list = pagenationVO.getBoardNoticeList().stream()
-//                                .sorted(Comparator.comparing(BoardNoticeParam::getViews))
-//                                .collect(Collectors.toList());
-//                        pagenationVO.setBoardNoticeList(list);
-//                    }
-//                }
             }
         } else if (orderBy != null) {
             if ("views".equals(orderBy)) {
@@ -86,7 +74,7 @@ public class BoardApi {
      *
      * @param id
      */
-    @GetMapping("/notice/{id}")
+    @GetMapping("/notices/{id}")
     public ResponseEntity<Result<MultiBoardNoticeResponse>> notice(@PathVariable Long id) {
         MultiBoardNoticeResponse response = new MultiBoardNoticeResponse();
         BoardNoticeParam board = boardNoticeService.findById(id);
@@ -105,7 +93,7 @@ public class BoardApi {
      *
      * @param request
      */
-    @PostMapping("/notice")
+    @PostMapping("/notices")
     public ResponseEntity<Result<BoardNoticeParam>> createNotice(@RequestBody CreateBoardRequest request) {
         BoardNoticeParam notice = BoardNoticeParam.builder()
                 .title(request.getTitle().trim())
@@ -126,7 +114,7 @@ public class BoardApi {
      *
      * @param request
      */
-    @PatchMapping("/notice")
+    @PatchMapping("/notices")
     public ResponseEntity<Result<BoardNoticeParam>> updateNotice(@RequestBody UpdateBoardRequest request) {
         BoardNoticeParam board = BoardNoticeParam.builder()
                 .id(request.getId())
@@ -146,7 +134,7 @@ public class BoardApi {
      * @param request
      * @return
      */
-    @PatchMapping("/notice/view")
+    @PatchMapping("/notices/view")
     public ResponseEntity<Result<BoardNoticeParam>> updateNoticeViews(@RequestBody UpdateBoardRequest request) {
         boardNoticeService.upViewCntById(request.getId());
         BoardNoticeParam notice = boardNoticeService.findById(request.getId());
@@ -159,7 +147,7 @@ public class BoardApi {
      *
      * @param boardId
      */
-    @DeleteMapping("/notice")
+    @DeleteMapping("/notices")
     public ResponseEntity<Result<Boolean>> deleteNotice(@RequestParam Long boardId) {
         boardNoticeService.deleteBoardByBoardId(boardId);
 
@@ -212,7 +200,7 @@ public class BoardApi {
      * @param id
      * @return
      */
-    @GetMapping("/imp/{id}")
+    @GetMapping("/imps/{id}")
     public ResponseEntity<Result<MultiBoardImpResponse>> impDetail(@PathVariable Long id) {
         BoardImpParam board = boardImpService.findById(id);
         BoardImpParam prev = boardImpService.findPrevById(id);
@@ -231,7 +219,7 @@ public class BoardApi {
      *
      * @param request
      */
-    @PostMapping("/imp")
+    @PostMapping("/imps")
     public ResponseEntity<Result<BoardImpParam>> createImp(@RequestBody CreateBoardRequest request) {
         BoardImpParam imp = BoardImpParam.builder()
                 .title(request.getTitle().trim())
@@ -253,7 +241,7 @@ public class BoardApi {
      * @param request
      */
     @ResponseBody
-    @PatchMapping("/imp")
+    @PatchMapping("/imps")
     public ResponseEntity<Result<BoardImpParam>> updateImp(@RequestBody @Valid UpdateBoardRequest request) {
         BoardImpParam boardImp = boardImpService.findById(request.getId());
         boardImp.setTitle(request.getTitle());
@@ -271,7 +259,7 @@ public class BoardApi {
      * @param request
      * @return
      */
-    @PatchMapping("/imp/view")
+    @PatchMapping("/imps/views")
     public ResponseEntity<Result<BoardImpParam>> updateImpViews(@RequestBody UpdateBoardRequest request) {
         boardImpService.upViewCntById(request.getId());
         BoardImpParam imp = boardImpService.findById(request.getId());
@@ -284,7 +272,7 @@ public class BoardApi {
      *
      * @param boardId
      */
-    @DeleteMapping("/imp")
+    @DeleteMapping("/imps")
     public ResponseEntity<Result<Boolean>> deleteImp(@RequestParam Long boardId) {
         boardImpService.deleteById(boardId);
 
@@ -294,6 +282,7 @@ public class BoardApi {
     /**
      * summernote 이미지 업로드
      */
+    @Deprecated
     @PutMapping(value = "/summernoteImageFile", produces = "application/json")
     @ResponseBody
     public ResponseEntity<Result<JsonObject>> uploadSummernoteImage(@RequestParam("file") MultipartFile multipartFile) {
@@ -323,7 +312,6 @@ public class BoardApi {
             jsonObject.addProperty("responseCode", "error");
             e.printStackTrace();
         }
-        ;
 
         return new ResponseEntity<>(new Result<>(jsonObject), HttpStatus.OK);
     }

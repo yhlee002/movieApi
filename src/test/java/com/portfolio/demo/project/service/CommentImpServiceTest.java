@@ -168,11 +168,14 @@ class CommentImpServiceTest {
         CommentImpParam com3m = createComment(comment3, b, user2);
 
         // when
-        List<CommentImpParam> list = commentImpService.getCommentsByMember(user.getMemNo(), 0, 20);
-        List<CommentImpParam> list2 = commentImpService.getCommentsByMember(user2.getMemNo(), 0, 20);
+        CommentImpPagenationParam param1 = commentImpService.getCommentsByMember(user.getMemNo(), 0, 20);
+        List<CommentImpParam> list1 = param1.getCommentImpsList();
+        CommentImpPagenationParam param2 = commentImpService.getCommentsByMember(user2.getMemNo(), 0, 20);
+        List<CommentImpParam> list2 = param2.getCommentImpsList();
+
 
         // then
-        Assertions.assertEquals(2, list.size());
+        Assertions.assertEquals(2, list1.size());
         Assertions.assertEquals(1, list2.size());
     }
 }

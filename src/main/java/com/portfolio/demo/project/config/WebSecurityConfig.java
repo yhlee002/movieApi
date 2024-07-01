@@ -67,10 +67,9 @@ public class WebSecurityConfig {
         http.httpBasic(HttpBasicConfigurer::disable);
 
         http.formLogin(login -> login
-                .loginPage("/sign-in")
                 .usernameParameter("identifier")
                 .passwordParameter("password")
-                .loginProcessingUrl("/sign-in")
+                .loginProcessingUrl("/members/sign-in")
                 .defaultSuccessUrl("/")
                 .successHandler(signInSuccessHandler())
                 .failureHandler(signinFailureHandler())
@@ -88,7 +87,7 @@ public class WebSecurityConfig {
         http.sessionManagement(session -> session.maximumSessions(1).maxSessionsPreventsLogin(true));
 
         http.logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutUrl("/members/logout")
                 .logoutSuccessUrl("http://" + HOST)
                 .clearAuthentication(true)
                 .invalidateHttpSession(true) // 로그아웃시 세션 삭제

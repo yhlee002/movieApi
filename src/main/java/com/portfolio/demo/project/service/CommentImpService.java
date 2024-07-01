@@ -84,15 +84,9 @@ public class CommentImpService {
 
     public CommentImpPagenationParam getComments(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<CommentImp> pages = commentImpRepository.findAll(pageable);
-        List<CommentImp> list = pages.getContent();
+        Page<CommentImp> result = commentImpRepository.findAll(pageable);
 
-        List<CommentImpParam> vos = list.stream().map(CommentImpParam::create).toList();
-
-        return CommentImpPagenationParam.builder()
-                .commentImpsList(vos)
-                .totalPageCnt(pages.getTotalPages())
-                .build();
+        return new CommentImpPagenationParam(result);
     }
 
     public CommentImpPagenationParam getCommentsByBoard(Long boardId, int page, int size) {
@@ -100,17 +94,9 @@ public class CommentImpService {
 
         if (b != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-            Page<CommentImp> pages = commentImpRepository.findAllByBoard(b, pageable);
-            List<CommentImp> list = pages.getContent();
+            Page<CommentImp> result = commentImpRepository.findAllByBoard(b, pageable);
 
-            log.info("조회된 댓글 수 : {}", list.size());
-
-            List<CommentImpParam> vos = list.stream().map(CommentImpParam::create).toList();
-
-            return CommentImpPagenationParam.builder()
-                    .commentImpsList(vos)
-                    .totalPageCnt(pages.getTotalPages())
-                    .build();
+            return new CommentImpPagenationParam(result);
         } else {
             log.error("해당 아이디의 댓글 정보가 존재하지 않습니다.");
 //            throw new IllegalStateException("해당 아이디의 댓글 정보가 존재하지 않습니다.");
@@ -118,19 +104,21 @@ public class CommentImpService {
             return CommentImpPagenationParam.builder()
                     .commentImpsList(new ArrayList<>())
                     .totalPageCnt(0)
+                    .currentPage(page)
+                    .size(size)
+                    .totalElementCnt(0)
                     .build();
         }
     }
 
-    public List<CommentImpParam> getCommentsByMember(Long memNo, int page, int size) {
+    public CommentImpPagenationParam getCommentsByMember(Long memNo, int page, int size) {
         Member mem = memberRepository.findById(memNo).orElse(null);
 
         if (mem != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<CommentImp> result = commentImpRepository.findAllByWriter(mem, pageable);
-            List<CommentImp> list = result.getContent();
 
-            return list.stream().map(CommentImpParam::create).toList();
+            return new CommentImpPagenationParam(result);
         } else {
             log.error("해당 아이디의 회원 정보가 존재하지 않습니다.");
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");

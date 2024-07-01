@@ -5,6 +5,7 @@ import com.portfolio.demo.project.dto.certification.CertificationDataDto;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.service.CertificationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Certification", description = "인증 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
 public class CertificationApi {

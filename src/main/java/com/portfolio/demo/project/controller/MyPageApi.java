@@ -6,6 +6,7 @@ import com.portfolio.demo.project.dto.certification.CertMessageValidationRequest
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.service.*;
 import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -22,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+// TODO. 수정 예정
+@Tag(name = "MyPage", description = "내 정보보기 관련 API 입니다.")
 @Slf4j
 @RequiredArgsConstructor
 @Controller

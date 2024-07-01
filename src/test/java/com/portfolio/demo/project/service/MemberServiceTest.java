@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.member.MemberPagenationParam;
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
@@ -101,10 +102,12 @@ class MemberServiceTest {
         );
 
         // when
-        List<MemberParam> foundMembers = memberService.findAllByNameContaining("abc", 0, 10);
-        List<MemberParam> foundMembers2 = memberService.findAllByNameContaining("e", 0, 10);
+        MemberPagenationParam param1 = memberService.findAllByNameContaining("abc", 0, 10);
+        MemberPagenationParam param2 = memberService.findAllByNameContaining("e", 0, 10);
+        List<MemberParam> foundMembers = param1.getMemberList();
+        List<MemberParam> foundMembers2 = param2.getMemberList();
 
-        // then
+                // then
         Assertions.assertEquals(5, foundMembers.size());
         Assertions.assertEquals(1, foundMembers2.size());
     }
@@ -154,22 +157,17 @@ class MemberServiceTest {
 
     @Test
     void 회원가입() {
-        // given
+        // given & when
         MemberParam admin = createAdmin();
-        MemberParam user = createUser();
-
-        // when
 
         // then
         Assertions.assertNotNull(admin.getMemNo());
         Assertions.assertEquals(MemberRole.ROLE_ADMIN, admin.getRole());
-        Assertions.assertNotNull(user.getMemNo());
-        Assertions.assertEquals(MemberRole.ROLE_USER, user.getRole());
     }
 
     @Test
     void 회원가입_패스워드_미기입시_오류_발생() {
-        // when
+        // given & when
         MemberParam user = MemberParam.create(MemberTestDataBuilder.noPasswordUser().build());
 
         // then
@@ -180,10 +178,8 @@ class MemberServiceTest {
 
     @Test
     void 소셜_로그인을_이용한_회원가입() {
-        // given
+        // given & when
         MemberParam user = createNaverUser();
-
-        // when
 
         // then
         Assertions.assertNotNull(user.getMemNo());
@@ -193,13 +189,17 @@ class MemberServiceTest {
 
     @Test
     void 회원가입시_비밀번호_해싱_테스트() {
+        // given
         MemberParam user = MemberParam.create(
                 MemberTestDataBuilder.randomIdentifierUser().password("1234").build()
         );
+
         Long memNo = memberService.saveMember(user);
 
+        // when
         MemberParam foundMember = memberService.findByMemNo(memNo);
 
+        // then
         Assertions.assertTrue(passwordEncoder.matches("1234", foundMember.getPassword()));
     }
 
@@ -209,8 +209,8 @@ class MemberServiceTest {
         MemberParam user = MemberParam.create(
                 MemberTestDataBuilder.randomIdentifierUser().password("1234").build()
         );
-        Long memNo = memberService.saveMember(user);
 
+        Long memNo = memberService.saveMember(user);
         MemberParam foundMember = memberService.findByMemNo(memNo);
 
         Assertions.assertTrue(passwordEncoder.matches("1234", foundMember.getPassword()));
@@ -235,6 +235,7 @@ class MemberServiceTest {
         Authentication auth = memberService.getAuthentication(admin);
         Authentication auth2 = memberService.getAuthentication(user);
 
+        // then
         Assertions.assertNotNull(auth);
         Assertions.assertEquals(MemberRole.ROLE_ADMIN.toString(), auth.getAuthorities().iterator().next().getAuthority());
         Assertions.assertEquals(MemberRole.ROLE_USER.toString(), auth2.getAuthorities().iterator().next().getAuthority());
@@ -248,7 +249,6 @@ class MemberServiceTest {
         // when
         user.setName("ModifiedName");
         Long memNo = memberService.updateMember(user);
-
         MemberParam foundMember = memberService.findByMemNo(memNo);
 
         // then
@@ -262,7 +262,6 @@ class MemberServiceTest {
 
         // when
         memberService.deleteMember(user.getMemNo());
-
         MemberParam foundMember = memberService.findByMemNo(user.getMemNo());
 
         // then

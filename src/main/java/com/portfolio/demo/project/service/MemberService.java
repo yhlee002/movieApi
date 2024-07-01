@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.member.MemberPagenationParam;
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
@@ -9,6 +10,7 @@ import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,18 +44,6 @@ public class MemberService {
         return null;
     }
 
-//    public MemberParam findByIdentifier(String identifier) {
-//        Member member = memberRepository.findByIdentifier(identifier);
-//
-//        if (member != null) {
-//            return MemberParam.create(member);
-//        } else {
-//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (identifier = {})", identifier);
-//        }
-//
-//        return null;
-//    }
-
     public MemberParam findByName(String name) {
         Member member = memberRepository.findByNameIgnoreCase(name);
 
@@ -65,46 +55,46 @@ public class MemberService {
         return null;
     }
 
-    public List<MemberParam> findAllByIdentifierContaining(String identifier, int page, int size) {
+    public MemberPagenationParam findAllByIdentifierContaining(String identifier, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findByIdentifierIgnoreCaseContaining(identifier, pageable).getContent();
+        Page<Member> result = memberRepository.findByIdentifierIgnoreCaseContaining(identifier, pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
-    public List<MemberParam> findAllByNameContaining(String name, int page, int size) {
+    public MemberPagenationParam findAllByNameContaining(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findByNameIgnoreCaseContaining(name, pageable).getContent();
+        Page<Member> result = memberRepository.findByNameIgnoreCaseContaining(name, pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
-    public List<MemberParam> findAllByPhoneContaining(String phone, int page, int size) {
+    public MemberPagenationParam findAllByPhoneContaining(String phone, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findByPhoneIgnoreCaseContaining(phone, pageable).getContent();
+        Page<Member> result = memberRepository.findByPhoneIgnoreCaseContaining(phone, pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
-    public List<MemberParam> findAllByRole(MemberRole role, int page, int size) {
+    public MemberPagenationParam findAllByRole(MemberRole role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findByRole(role, pageable).getContent();
+        Page<Member> result = memberRepository.findByRole(role, pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
-    public List<MemberParam> findAllByProvider(SocialLoginProvider provider, int page, int size) {
+    public MemberPagenationParam findAllByProvider(SocialLoginProvider provider, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findByProvider(provider, pageable).getContent();
+        Page<Member> result = memberRepository.findByProvider(provider, pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
-    public List<MemberParam> findAll(int page, int size) {
+    public MemberPagenationParam findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        List<Member> list = memberRepository.findAll(pageable).getContent();
+        Page<Member> result = memberRepository.findAll(pageable);
 
-        return list.stream().map(MemberParam::create).toList();
+        return new MemberPagenationParam(result);
     }
 
     public MemberParam findByPhone(String phone) {

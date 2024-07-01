@@ -167,20 +167,6 @@ public class MemberRepositoryTest {
     }
 
     @Test
-    public void 회원_이름_중복_검사() {
-        // given
-        Member member = MemberTestDataBuilder.user()
-                .name("test-member").build();
-
-        // when
-        memberRepository.save(member);
-
-        // then
-        Assertions.assertTrue(memberRepository.existsByName(member.getName()));
-        Assertions.assertFalse(memberRepository.existsByName("test-member2"));
-    }
-
-    @Test
     public void 전화번호로_회원_조회() {
         // given
         Member member = MemberTestDataBuilder.user()

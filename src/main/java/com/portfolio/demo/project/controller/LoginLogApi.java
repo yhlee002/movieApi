@@ -5,6 +5,7 @@ import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 
+@Tag(name = "LoginLog", description = "로그인 로그 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
 public class LoginLogApi {

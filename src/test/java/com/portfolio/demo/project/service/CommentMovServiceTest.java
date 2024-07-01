@@ -171,11 +171,13 @@ class CommentMovServiceTest {
         createComment(c3, user2);
 
         // when
-        List<CommentMovParam> list = commentMovService.getCommentsByMember(user.getMemNo(), 0, 20);
-        List<CommentMovParam> list2 = commentMovService.getCommentsByMember(user2.getMemNo(), 0, 20);
+        CommentMovPagenationParam param1 = commentMovService.getCommentsByMember(user.getMemNo(), 0, 20);
+        CommentMovPagenationParam param2 = commentMovService.getCommentsByMember(user2.getMemNo(), 0, 20);
+        List<CommentMovParam> list1 = param1.getCommentMovsList();
+        List<CommentMovParam> list2 = param2.getCommentMovsList();
 
-        // then
-        Assertions.assertEquals(1, list.size());
+                // then
+        Assertions.assertEquals(1, list1.size());
         Assertions.assertEquals(2, list2.size());
     }
 }

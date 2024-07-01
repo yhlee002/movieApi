@@ -36,14 +36,9 @@ public class BoardNoticeService {
      */
     public NoticePagenationParam getAllBoards(int page, Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "regDate"));
-        Page<BoardNotice> pages = boardNoticeRepository.findAll(pageable);
-        List<BoardNotice> list = pages.getContent();
-        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
+        Page<BoardNotice> result = boardNoticeRepository.findAll(pageable);
 
-        return NoticePagenationParam.builder()
-                .boardNoticeList(vos)
-                .totalPageCnt(pages.getTotalPages())
-                .build();
+        return new NoticePagenationParam(result);
     }
 
     /**
@@ -116,15 +111,9 @@ public class BoardNoticeService {
      */
     public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<BoardNotice> pages = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
-        List<BoardNotice> list = pages.getContent();
+        Page<BoardNotice> result = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
-        List<BoardNoticeParam> vos = list.stream().map(BoardNoticeParam::create).toList();
-
-        return NoticePagenationParam.builder()
-                .totalPageCnt(pages.getTotalPages())
-                .boardNoticeList(vos)
-                .build();
+        return new NoticePagenationParam(result);
     }
 
     /**
@@ -149,6 +138,9 @@ public class BoardNoticeService {
 
         return NoticePagenationParam.builder()
                 .totalPageCnt(pages.getTotalPages())
+                .currentPage(page)
+                .size(size)
+                .totalElementCnt(pages.getTotalElements())
                 .boardNoticeList(vos)
                 .build();
     }

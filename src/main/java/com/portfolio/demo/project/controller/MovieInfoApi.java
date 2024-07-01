@@ -7,20 +7,20 @@ import com.portfolio.demo.project.dto.kmdb.KmdbMovieDetailVO;
 import com.portfolio.demo.project.dto.kobis.movie.KobisMovieVO;
 import com.portfolio.demo.project.dto.tmdb.ImageConfigurationVO;
 import com.portfolio.demo.project.dto.tmdb.TmdbMovieVO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "Movie", description = "영화 정보 관련 API 입니다.")
+@RequestMapping("/movie")
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -43,7 +43,7 @@ public class MovieInfoApi {
 //    }
 //
 
-    @GetMapping("/movie/search")
+    @GetMapping("/search")
     public ResponseEntity<Result<List<TmdbMovieVO>>> movieSearch(
             @RequestParam(name = "query") String query,
             @RequestParam(name = "includeAdult", required = false, defaultValue = "true") Boolean includeAdult,
@@ -60,14 +60,14 @@ public class MovieInfoApi {
      *
      * @param movieCd
      */
-    @GetMapping("/movie/k/{movieCd}")
+    @GetMapping("/k/{movieCd}")
     public ResponseEntity<Result<Map<String, Object>>> kobisMovie(@PathVariable String movieCd) {
         Map<String, Object> result = movieService.getMovieInfo(movieCd);
 
         return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
-    @GetMapping("/movie/boxoffice/daily")
+    @GetMapping("/boxoffice/daily")
     public ResponseEntity<Result<List<BoxOfficeParam>>> dailyBoxOffice() {
         List<KobisMovieVO> list = movieService.getDailyBoxOfficeList();
 
@@ -83,7 +83,7 @@ public class MovieInfoApi {
         return new ResponseEntity<>(new Result<>(result), HttpStatus.OK);
     }
 
-    @GetMapping("/movie/boxoffice/weekly")
+    @GetMapping("/boxoffice/weekly")
     public ResponseEntity<Result<List<BoxOfficeParam>>> weeklyBoxOffice() {
         List<KobisMovieVO> list = movieService.getWeeklyBoxOfficeList();
 
@@ -104,7 +104,7 @@ public class MovieInfoApi {
     /**
      * TMDB 영화 API 설정 조회
      */
-    @GetMapping("/movie/t/configuration")
+    @GetMapping("/t/configuration")
     public ResponseEntity<Result<ImageConfigurationVO>> getTmdbConfigurationDetails() {
         var result = movieService.getTmdbConfigurationDetails();
 
@@ -116,7 +116,7 @@ public class MovieInfoApi {
      *
      * @param movieId
      */
-//    @GetMapping("/movie/t/{movieId}")
+//    @GetMapping("/t/{movieId}")
 //    public ResponseEntity<TmdbMovieDetailVO> tmdbMovie(@PathVariable String movieId) {
 //        TmdbMovieDetailVO result = movieService.getMovieDetail(movieId);
 //        return new ResponseEntity<>(result, HttpStatus.OK);

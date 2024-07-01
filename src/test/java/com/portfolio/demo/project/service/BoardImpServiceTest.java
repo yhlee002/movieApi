@@ -168,9 +168,10 @@ class BoardImpServiceTest {
         board3.setWriterId(user.getMemNo());
         boardImpService.saveBoard(board3);
 
-        List<BoardImpParam> list = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
+        ImpressionPagenationParam pagenationParam = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
+        List<BoardImpParam> list = pagenationParam.getBoardImpList();
 
-        // then
+                // then
         Assertions.assertEquals(3, list.size());
 
         Assertions.assertEquals("test-board-3", list.get(0).getTitle());
@@ -409,11 +410,14 @@ class BoardImpServiceTest {
         createBoard(b4, user2);
 
         // when
-        List<BoardImpParam> boards = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
-        List<BoardImpParam> boards2 = boardImpService.getImpsByMember(user2.getMemNo(), 0, 10);
+        ImpressionPagenationParam pagenationParam1 = boardImpService.getImpsByMember(user.getMemNo(), 0, 10);
+        ImpressionPagenationParam pagenationParam2 = boardImpService.getImpsByMember(user2.getMemNo(), 0, 10);
+
+        List<BoardImpParam> boards1 = pagenationParam1.getBoardImpList();
+        List<BoardImpParam> boards2 = pagenationParam2.getBoardImpList();
 
         // then
-        Assertions.assertEquals(3, boards.size());
+        Assertions.assertEquals(3, boards1.size());
         Assertions.assertEquals(1, boards2.size());
     }
 
