@@ -2,38 +2,34 @@ package com.portfolio.demo.project.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.portfolio.demo.project.config.WebMvcConfig;
 import com.portfolio.demo.project.dto.Result;
-import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.dto.member.request.CreateMemberRequest;
+import com.portfolio.demo.project.dto.member.request.MultiUpdateRoleRequest;
 import com.portfolio.demo.project.entity.member.Member;
+import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ResourceBundle;
+import java.util.Arrays;
+import java.util.List;
 
 @Transactional
 @SpringBootTest
@@ -62,7 +58,7 @@ public class MemberApiTest {
         param.setRole(user.getRole());
         param.setCertification(user.getCertification());
 
-        MvcResult result = mockMvc.perform(post("/member")
+        MvcResult result = mockMvc.perform(post("/members/")
                         .content(asJsonString(user))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -72,10 +68,11 @@ public class MemberApiTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
 
-        Result<MemberResponse> createResult = objectMapper.readValue(resultStr, new TypeReference<Result<MemberResponse>>(){});
+        Result<MemberResponse> createResult = objectMapper.readValue(resultStr, new TypeReference<Result<MemberResponse>>() {
+        });
         MemberResponse createdMember = createResult.getData();
 
-        mockMvc.perform(get("/member/" + createdMember.getMemNo())
+        mockMvc.perform(get("/members/" + createdMember.getMemNo())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -98,7 +95,7 @@ public class MemberApiTest {
         param.setRole(admin.getRole());
         param.setCertification(admin.getCertification());
 
-        mockMvc.perform(post("/member")
+        mockMvc.perform(post("/members/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(param))
                         .accept(MediaType.APPLICATION_JSON))
@@ -122,7 +119,7 @@ public class MemberApiTest {
         param.setRole(user.getRole());
         param.setCertification(user.getCertification());
 
-        mockMvc.perform(post("/member")
+        mockMvc.perform(post("/members/")
                         .content(asJsonString(param))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -135,7 +132,7 @@ public class MemberApiTest {
     void 회원가입_후_인증_과정() throws Exception {
         Member member = MemberTestDataBuilder.user().password("123456789!@#qwE").build();
 
-        MvcResult joinResult = mockMvc.perform(post("/member")
+        MvcResult joinResult = mockMvc.perform(post("/members/")
                         .content(asJsonString(member))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -150,7 +147,7 @@ public class MemberApiTest {
         Long memNo = foundMember.get("memNo").getAsLong();
 
         // certKey 조회해오기(api 작성해야 함)
-        MvcResult certResult = mockMvc.perform(get("/certification")
+        MvcResult certResult = mockMvc.perform(get("/members/certification")
                         .param("certificationId", member.getIdentifier())
                         .param("certificationType", "EMAIL")
                         .accept(MediaType.APPLICATION_JSON))
@@ -170,7 +167,7 @@ public class MemberApiTest {
         obj.addProperty("password", "123456789!@#qwE");
 
         // certification 되기 전
-        mockMvc.perform(post("/sign-in/check")
+        mockMvc.perform(post("/members/sign-in/check")
                         .content(obj.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -184,7 +181,7 @@ public class MemberApiTest {
         obj2.addProperty("memNo", memNo);
         obj2.addProperty("certKey", certKey);
 
-        mockMvc.perform(post("/cert-mail/validation")
+        mockMvc.perform(post("/members/cert-mail/validation")
                         .content(obj2.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -194,7 +191,7 @@ public class MemberApiTest {
                 .andReturn();
 
         // certification 성공 후
-        mockMvc.perform(post("/sign-in/check")
+        mockMvc.perform(post("/members/sign-in/check")
                         .content(obj.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -212,7 +209,7 @@ public class MemberApiTest {
         JsonObject obj = new JsonObject();
         obj.addProperty("phone", samplePhoneNumber);
 
-        MvcResult result = mockMvc.perform(post("/cert-message")
+        MvcResult result = mockMvc.perform(post("/members/cert-message")
                         .content(obj.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -222,4 +219,99 @@ public class MemberApiTest {
         System.out.println(resultStr);
     }
     */
+
+    @Test
+    void 여러_회원의_권한_업데이트() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Member member1 = MemberTestDataBuilder.randomIdentifierUser()
+                .name("테스트계정1").password("123456789!@#qwE").build();
+        Member member2 = MemberTestDataBuilder.randomIdentifierUser()
+                .name("테스트계정2").password("123456789!@#qwE").build();
+
+        // 회원 1 저장
+        MvcResult result = mockMvc.perform(post("/members/")
+                        .content(asJsonString(member1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String resultStr1 = result.getResponse().getContentAsString();
+        Result<MemberResponse> response1 = objectMapper.readValue(resultStr1, new TypeReference<Result<MemberResponse>>() {});
+
+        // 회원 2 저장
+        MvcResult result2 = mockMvc.perform(post("/members/")
+                        .content(asJsonString(member2))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String resultStr2 = result2.getResponse().getContentAsString();
+        Result<MemberResponse> response2 = objectMapper.readValue(resultStr2, new TypeReference<Result<MemberResponse>>() {});
+
+        MultiUpdateRoleRequest request = new MultiUpdateRoleRequest();
+        request.setMemNoList(Arrays.asList(response1.getData().getMemNo(), response2.getData().getMemNo()));
+        request.setRole(MemberRole.ROLE_ADMIN);
+
+        // 회원 1, 회원 2의 권한 변경(일반회원 -> 관리자)
+        mockMvc.perform(post("/members/multi-role")
+                        .content(asJsonString(request))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[0].role").value("ROLE_ADMIN"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data[1].role").value("ROLE_ADMIN"))
+                .andDo(print());
+
+    }
+
+    @Test
+    void 여러_회원_삭제() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Member member1 = MemberTestDataBuilder.randomIdentifierUser()
+                .name("테스트계정1").password("123456789!@#qwE").build();
+        Member member2 = MemberTestDataBuilder.randomIdentifierUser()
+                .name("테스트계정2").password("123456789!@#qwE").build();
+
+        // 회원 1 저장
+        MvcResult result = mockMvc.perform(post("/members/")
+                        .content(asJsonString(member1))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String resultStr1 = result.getResponse().getContentAsString();
+        Result<MemberResponse> response1 = objectMapper.readValue(resultStr1, new TypeReference<Result<MemberResponse>>() {});
+
+        // 회원 2 저장
+        MvcResult result2 = mockMvc.perform(post("/members/")
+                        .content(asJsonString(member2))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        String resultStr2 = result2.getResponse().getContentAsString();
+        Result<MemberResponse> response2 = objectMapper.readValue(resultStr2, new TypeReference<Result<MemberResponse>>() {});
+
+        List<Long> memNoList = Arrays.asList(response1.getData().getMemNo(), response2.getData().getMemNo());
+
+        // 회원 1, 회원 2 삭제
+        mockMvc.perform(post("/members/batch-delete")
+                        .content(asJsonString(memNoList))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.data").value(true))
+                .andDo(print());
+
+        mockMvc.perform(get("/members/"))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(0))
+                .andDo(print());
+    }
 }

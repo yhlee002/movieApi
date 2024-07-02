@@ -18,13 +18,16 @@ public class MemberPagenationParam {
     private int currentPage;
     private int size;
     private long totalElementCnt;
-    private List<MemberParam> memberList;
+    private List<MemberResponse> memberList;
 
     public MemberPagenationParam(Page<Member> page) {
         this.totalPageCnt = page.getTotalPages();
         this.currentPage = page.getPageable().getPageNumber();
         this.size = page.getPageable().getPageSize();
         this.totalElementCnt = page.getTotalElements();
-        this.memberList = page.getContent().stream().map(MemberParam::create).collect(Collectors.toList());
+        this.memberList = page.getContent().stream()
+                .map(MemberParam::create)
+                .map(MemberResponse::new)
+                .collect(Collectors.toList());
     }
 }

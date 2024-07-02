@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.member.MemberPagenationParam;
+import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
@@ -104,8 +105,8 @@ class MemberServiceTest {
         // when
         MemberPagenationParam param1 = memberService.findAllByNameContaining("abc", 0, 10);
         MemberPagenationParam param2 = memberService.findAllByNameContaining("e", 0, 10);
-        List<MemberParam> foundMembers = param1.getMemberList();
-        List<MemberParam> foundMembers2 = param2.getMemberList();
+        List<MemberResponse> foundMembers = param1.getMemberList();
+        List<MemberResponse> foundMembers2 = param2.getMemberList();
 
                 // then
         Assertions.assertEquals(5, foundMembers.size());

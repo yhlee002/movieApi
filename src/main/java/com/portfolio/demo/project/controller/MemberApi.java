@@ -15,7 +15,6 @@ import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
-import com.portfolio.demo.project.util.*;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +24,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.json.ParseException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,11 +35,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -382,6 +377,16 @@ public class MemberApi {
         MemberResponse response = new MemberResponse(foundMember);
 
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
+    }
+
+    @PostMapping("/multi-role")
+    public ResponseEntity<Result<List<MemberResponse>>> updateMultiMemberRole(@RequestBody @Valid MultiUpdateRoleRequest request) {
+        memberService.updateMultiRole(request.getMemNoList(), request.getRole());
+
+        List<MemberParam> foundMembers = memberService.findByMemNoList(request.getMemNoList());
+        List<MemberResponse> responses = foundMembers.stream().map(MemberResponse::new).collect(Collectors.toList());
+
+        return ResponseEntity.ok(new Result<>(responses));
     }
 
     /**

@@ -17,6 +17,9 @@ import java.util.List;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+    @Query("select m from Member m where m.memNo in :ids")
+    List<Member> findByIds(List<Long> ids);
+
     Member findByIdentifier(String identifier);
 
     Member findByNameIgnoreCase(String name);
@@ -39,6 +42,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Transactional
     @Modifying(clearAutomatically=true)
+    @Query("update Member m set m.role = :role where m.memNo in :memNos")
+    int updateRoleByIds(@Param("memNos") List<Long> memNos, @Param("role") MemberRole role);
+
+    @Transactional
+    @Modifying(clearAutomatically=true)
     @Query("delete from  Member m where m.memNo in :memNos")
-    Member deleteByMemNos(@Param("memNos") List<Long> memNos);
+    void deleteByMemNos(@Param("memNos") List<Long> memNos);
 }

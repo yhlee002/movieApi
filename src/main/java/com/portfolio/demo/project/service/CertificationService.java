@@ -170,16 +170,23 @@ public class CertificationService {
         }
 
         String certKey = tempKey.getKey(10, false);
-        Member member = memberRepository.findByIdentifierAndProvider(toMail, SocialLoginProvider.none);
 
-        String title = "MovieSite 회원가입 인증 메일";
-        String content = "<div style=\"text-align:center\">"
-                + "<img src=\"http://" + host + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
-                + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (링크는 10분간 유효합니다.)</p>"
-                + "인증하기 링크 : <a href='http://" + host + "/sign-in?cert=mail&memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
-                + "</div>";
+        Boolean sendResult = false;
+        if (environment.matchesProfiles("prod")) {
+            Member member = memberRepository.findByIdentifierAndProvider(toMail, SocialLoginProvider.none);
 
-        Boolean sendResult = sendEmail(toMail, title, content);
+            String title = "MovieSite 회원가입 인증 메일";
+            String content = "<div style=\"text-align:center\">"
+                    + "<img src=\"http://" + host + "/images/banner-sign-up2.jpg\" width=\"600\"><br>"
+                    + "<p>안녕하세요 " + member.getName() + "님. 본인이 가입하신것이 맞다면 다음 링크를 눌러주세요. (링크는 10분간 유효합니다.)</p>"
+                    + "인증하기 링크 : <a href='http://" + host + "/sign-in?cert=mail&memNo=" + member.getMemNo() + "&certKey=" + certKey + "'>인증하기</a>"
+                    + "</div>";
+
+            sendResult = sendEmail(toMail, title, content);
+        } else {
+            sendResult = true;
+        }
+
         if (sendResult) {
             CertificationData data = certificationRepository.findByCertificationIdAndType(toMail, CertificationType.EMAIL);
             if (data != null) data.setCertKey(certKey); // 변경 감지

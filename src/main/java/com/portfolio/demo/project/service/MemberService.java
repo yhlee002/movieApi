@@ -14,13 +14,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -42,6 +45,17 @@ public class MemberService {
         }
 
         return null;
+    }
+
+    public List<MemberParam> findByMemNoList(List<Long> memNoList) {
+        List<Member> members = memberRepository.findByIds(memNoList);
+
+        if (members.size() > 0) {
+            return members.stream().map(MemberParam::create).collect(Collectors.toList());
+        } else {
+            log.error("해당 식별번호들의 회원 정보가 존재하지 않습니다. (memNo = {})", memNoList.toString());
+        }
+        return new ArrayList<>();
     }
 
     public MemberParam findByName(String name) {
@@ -212,6 +226,10 @@ public class MemberService {
         }
 
         return member.getMemNo();
+    }
+
+    public int updateMultiRole(List<Long> ids, MemberRole role) {
+        return memberRepository.updateRoleByIds(ids, role);
     }
 
     public Long updatePwd(MemberParam memberParam) {
