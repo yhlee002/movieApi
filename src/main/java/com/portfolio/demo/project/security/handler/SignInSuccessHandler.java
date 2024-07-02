@@ -2,7 +2,7 @@ package com.portfolio.demo.project.security.handler;
 
 import com.google.gson.JsonObject;
 import com.portfolio.demo.project.dto.LoginLogParam;
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;
 import com.portfolio.demo.project.service.MemberService;

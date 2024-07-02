@@ -44,6 +44,10 @@ class BoardNoticeRepositoryTest {
         // given
         Member admin = createAdmin();
 
+        // 게시글 작성 전 존재하는 게시글 수
+        Pageable pageable = PageRequest.of(0, 100, Sort.by("regDate").descending());
+        Page<BoardNotice> page0 = boardNoticeRepository.findAll(pageable);
+
         List<BoardNotice> boardList = new ArrayList<>();
         BoardNotice board = BoardNoticeTestDataBuilder.board()
                 .writer(admin)
@@ -69,13 +73,11 @@ class BoardNoticeRepositoryTest {
         boardNoticeRepository.saveAll(boardList);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         Page<BoardNotice> page = boardNoticeRepository.findAll(pageable);
 
         // then
-        Assertions.assertEquals(3, page.getTotalElements());
-        Assertions.assertEquals(3, page.getContent().size());
-        Assertions.assertEquals(1, page.getTotalPages());
+        Assertions.assertEquals(page0.getContent().size() + 3, page.getTotalElements());
+        Assertions.assertEquals(page0.getContent().size() + 3, page.getContent().size());
     }
 
     @Test

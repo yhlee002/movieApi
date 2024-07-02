@@ -149,6 +149,10 @@ public class CommentImpRepositoryTest {
     @Test
     void 모든_코멘트_조회() {
         // given
+        // 코멘트 작성전 존재하는 코멘트 수
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
+        Page<CommentImp> alreadyExistComments = commentImpRepository.findAll(pageable);
+
         Member user = createRandomMember();
         Member user2 = createRandomMember();
         memberRepository.saveAll(Arrays.asList(user, user2));
@@ -169,11 +173,10 @@ public class CommentImpRepositoryTest {
         );
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         Page<CommentImp> comments = commentImpRepository.findAll(pageable);
 
         // then
-        Assertions.assertEquals(8, comments.getTotalElements());
+        Assertions.assertEquals(alreadyExistComments.getContent().size() + 8, comments.getTotalElements());
     }
 
     @Test

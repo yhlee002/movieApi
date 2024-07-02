@@ -50,6 +50,9 @@ class BoardNoticeServiceTest {
         // given
         MemberParam admin = createAdmin();
 
+        // 게시글 생성 전 존재하는 게시글 수
+        int alreadyExists = boardNoticeService.getAllBoards(0, 10).getBoardNoticeList().size();
+
         BoardNotice board = BoardNoticeTestDataBuilder.board().title("test-board-1").build();
         createBoard(board, admin);
 
@@ -61,7 +64,7 @@ class BoardNoticeServiceTest {
         List<BoardNoticeParam> list = vo.getBoardNoticeList();
 
         // then
-        assertEquals(2, list.size());
+        assertEquals(alreadyExists + 2, list.size());
     }
 
     @Test
@@ -166,6 +169,10 @@ class BoardNoticeServiceTest {
         // given
         MemberParam admin = createAdmin();
 
+        // 업로드 전 게시글 수
+        NoticePagenationParam vo0 = boardNoticeService.getAllBoards(0, 10);
+        List<BoardNoticeParam> list0 = vo0.getBoardNoticeList();
+
         BoardNotice board = BoardNoticeTestDataBuilder.board().build();
         BoardNoticeParam b1 = createBoard(board, admin);
 
@@ -184,7 +191,7 @@ class BoardNoticeServiceTest {
         List<BoardNoticeParam> list = vo.getBoardNoticeList();
 
         // then
-        Assertions.assertEquals(0, list.size());
+        Assertions.assertEquals(list0.size(), list.size());
     }
 
     @Test
@@ -211,6 +218,9 @@ class BoardNoticeServiceTest {
         // given
         MemberParam admin = createAdmin();
 
+        // 게시글 생성 전 존재하는 게시글 수
+        int alreadyExists = boardNoticeService.getAllBoards(0, 10).getBoardNoticeList().size();
+
         BoardNotice board = BoardNoticeTestDataBuilder.board().build();
         createBoard(board, admin);
 
@@ -221,8 +231,7 @@ class BoardNoticeServiceTest {
         NoticePagenationParam pagenation = boardNoticeService.getAllBoards(0, 10);
 
         // then
-        Assertions.assertEquals(2, pagenation.getBoardNoticeList().size());
-        Assertions.assertEquals(1, pagenation.getTotalPageCnt());
+        Assertions.assertEquals(alreadyExists + 2, pagenation.getBoardNoticeList().size());
     }
 
     @Test

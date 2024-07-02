@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.repository;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -14,9 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -221,6 +221,10 @@ public class MemberRepositoryTest {
     @Test
     public void role으로_회원_조회() {
         // given
+        Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
+        List<Member> alreayExistAdmin = memberRepository.findByRole(MemberRole.ROLE_ADMIN, pageable).getContent();
+        List<Member> alreayExistUser = memberRepository.findByRole(MemberRole.ROLE_USER, pageable).getContent();;
+
         Member admin = memberRepository.save(MemberTestDataBuilder.admin().build());
         Member m1 = memberRepository.save(MemberTestDataBuilder.randomIdentifierUser()
                 .name("test-member1")
@@ -230,17 +234,15 @@ public class MemberRepositoryTest {
                 .build());
 
         memberRepository.save(admin);
-        memberRepository.save(m1);
-        memberRepository.save(m2);
+        memberRepository.saveAll(Arrays.asList(m1, m2));
 
         // when
-        Pageable pageable = PageRequest.of(0, 20, Sort.by("regDate").descending());
         List<Member> admins = memberRepository.findByRole(MemberRole.ROLE_ADMIN, pageable).getContent();
         List<Member> members = memberRepository.findByRole(MemberRole.ROLE_USER, pageable).getContent();;
 
         // then
-        Assertions.assertEquals(1, admins.size());
-        Assertions.assertEquals(2, members.size());
+        Assertions.assertEquals(alreayExistAdmin.size() + 1, admins.size());
+        Assertions.assertEquals(alreayExistUser.size() + 2, members.size());
 
     }
 

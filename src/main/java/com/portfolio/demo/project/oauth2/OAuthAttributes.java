@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.oauth2;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -13,7 +13,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Map;
-import java.util.UUID;
 
 @Builder
 @Getter

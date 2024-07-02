@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.certification.CertificationDataDto;
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.certification.CertificationReason;
 import com.portfolio.demo.project.entity.certification.CertificationType;
 import com.portfolio.demo.project.entity.certification.CertificationData;

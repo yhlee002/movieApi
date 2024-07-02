@@ -403,7 +403,7 @@ public class BoardImpService {
         ImpressionPagenationParam param = new ImpressionPagenationParam();
 
         if (member != null) {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"));
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
             Page<BoardImp> result = boardImpRepository.findAllByWriter(member, pageable);
             List<BoardImp> list = result.getContent();
 
@@ -419,6 +419,7 @@ public class BoardImpService {
                     .totalElementCnt(result.getTotalElements())
                     .currentPage(page)
                     .size(size)
+                    .boardImpList(params)
                     .build();
 
         } else {

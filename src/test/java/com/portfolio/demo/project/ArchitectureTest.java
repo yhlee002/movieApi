@@ -191,7 +191,7 @@ public class ArchitectureTest {
                         .should()
                         .onlyHaveDependentClassesThat()
                         .resideInAnyPackage("..repository..", "..service..", "..entity..", "..dto..",
-                                "..security..", "..oauth..");
+                                "..security..", "..oauth2..");
 
         rule.check(javaClasses);
     }
@@ -206,7 +206,7 @@ public class ArchitectureTest {
                         .should()
                         .onlyDependOnClassesThat()
                         .resideInAnyPackage("..entity..", "java..", "jakarta..",
-                                "..jpa.domain..", "..org.hibernate..", "..security..", "..oauth..",
+                                "..jpa.domain..", "..org.hibernate..", "..security..", "..oauth2..",
                                 "..springframework.."); // DateTimeFormatter, LastModifiedDate
 
         rule.check(javaClasses);

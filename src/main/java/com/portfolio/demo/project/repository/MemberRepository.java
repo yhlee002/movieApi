@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.repository;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import org.springframework.data.domain.Page;

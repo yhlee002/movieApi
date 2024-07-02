@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.intercepter;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.MemberService;

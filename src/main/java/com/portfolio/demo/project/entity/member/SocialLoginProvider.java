@@ -1,4 +1,4 @@
-package com.portfolio.demo.project.dto.social;
+package com.portfolio.demo.project.entity.member;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.entity.member;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
 import com.portfolio.demo.project.entity.BaseEntity;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;

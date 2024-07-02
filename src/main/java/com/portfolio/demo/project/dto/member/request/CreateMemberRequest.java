@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.dto.member.request;
 
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import jakarta.validation.constraints.NotEmpty;

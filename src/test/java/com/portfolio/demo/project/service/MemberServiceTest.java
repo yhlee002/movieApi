@@ -2,7 +2,7 @@ package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.member.MemberPagenationParam;
 import com.portfolio.demo.project.dto.member.MemberResponse;
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.model.MemberTestDataBuilder;
 import com.portfolio.demo.project.dto.member.MemberParam;
@@ -185,7 +185,7 @@ class MemberServiceTest {
         // then
         Assertions.assertNotNull(user.getMemNo());
         Assertions.assertEquals("", user.getPassword());
-        Assertions.assertEquals("naver", user.getProvider());
+        Assertions.assertEquals(SocialLoginProvider.naver, user.getProvider());
     }
 
     @Test
@@ -230,7 +230,7 @@ class MemberServiceTest {
     void 회원_정보를_기반으로_Authentication_조회() {
         // given
         MemberParam admin = createAdmin();
-        MemberParam user = createUser();
+        MemberParam user = createRandomUser();
 
         // when
         Authentication auth = memberService.getAuthentication(admin);

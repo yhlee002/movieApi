@@ -72,6 +72,10 @@ class BoardImpRepositoryTest {
         // given
         Member user = createUser();
 
+        // 게시글 작성 전 존재하는 게시글 수
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
+        Page<BoardImp> page0 = boardImpRepository.findAll(pageable);
+
         List<BoardImp> boardList = new ArrayList<>();
         BoardImp board = BoardImpTestDataBuilder.board()
                 .writer(user)
@@ -97,18 +101,23 @@ class BoardImpRepositoryTest {
         boardImpRepository.saveAll(boardList);
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         Page<BoardImp> page = boardImpRepository.findAll(pageable);
 
         // then
-        Assertions.assertEquals(3, page.getContent().size());
-        Assertions.assertIterableEquals(boardList, page.getContent());
+        Assertions.assertEquals(page0.getContent().size() + 3, page.getContent().size());
     }
 
     @Test
     void 모든_후기_게시글_조회_패치조인_컬렉션최적화() {
         // given
         Member user = createUser();
+
+        // 게시글 작성 전 존재하는 게시글 수
+        Pageable pageable = PageRequest.of(0, 100, Sort.by("regDate").descending());
+        Pageable pageable2 = PageRequest.of(0, 100, Sort.by("regDate").descending());
+
+        Page<BoardImp> page0 = boardImpRepository.findAll(pageable);
+        List<BoardImp> alreadyExistBoards = page0.getContent();
 
         BoardImp board = BoardImpTestDataBuilder.board().writer(user)
                 .title("test-board-1").content("test-content-1").build();
@@ -130,9 +139,6 @@ class BoardImpRepositoryTest {
         entityManager.flush();
 
         // when
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
-        Pageable pageable2 = PageRequest.of(0, 100, Sort.by("regDate").descending());
-
         Page<BoardImp> page = boardImpRepository.findAll(pageable);
         List<BoardImp> boardList = page.getContent();
         List<Long> ids = boardList.stream().map(BoardImp::getId).collect(Collectors.toList());
@@ -156,7 +162,7 @@ class BoardImpRepositoryTest {
         });
 
         // then
-        Assertions.assertEquals(3, boardParams.size());
+        Assertions.assertEquals(alreadyExistBoards.size() + 3, boardParams.size());
         Assertions.assertEquals(1, boardParams.get(0).getComments().size());
         Assertions.assertEquals(2, boardParams.get(1).getComments().size());
         Assertions.assertEquals(1, boardParams.get(2).getComments().size());

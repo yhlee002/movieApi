@@ -1,7 +1,7 @@
 package com.portfolio.demo.project.util;
 
 import com.portfolio.demo.project.dto.social.SocialLoginParam;
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import dev.akkinoc.util.YamlResourceBundle;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;

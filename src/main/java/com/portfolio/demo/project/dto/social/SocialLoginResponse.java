@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.dto.social;
 
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;

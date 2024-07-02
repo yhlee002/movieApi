@@ -2,7 +2,7 @@ package com.portfolio.demo.project.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.portfolio.demo.project.dto.social.SocialLoginProvider;
+import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.dto.social.SocialProfileParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.json.ParseException;
