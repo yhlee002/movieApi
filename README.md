@@ -37,7 +37,7 @@
 
 
 ## API 명세(Swagger)
-[API 명세서](http://3.38.19.101:8080/api/swagger-ui/index.html)
+[API 명세서](http://3.38.19.101:8080/api/swagger-ui.html)
 
 
 ## 리팩토링
