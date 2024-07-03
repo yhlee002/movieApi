@@ -16,13 +16,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/summernoteImage/**") // 써머노트 이미지 업로드
-                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/summernoteImageFiles/");
-//                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/summernoteImageFiles/");
-        registry.addResourceHandler("/profileImage/**") // 프로필 이미지 업로드
-                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/profileImages/");
-//                .addResourceLocations("file:///C:/Users/Admin/IdeaProjects/webProject/profileImages/");
-
+//        registry.addResourceHandler("/summernoteImage/**") // 써머노트 이미지 업로드
+//                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/summernoteImageFiles/");
+//        registry.addResourceHandler("/profileImage/**") // 프로필 이미지 업로드
+//                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/profileImages/");
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+//        registry.addResourceHandler("/swagger-ui/**")
+//                .addResourceLocations("");
     }
 
     @Override
