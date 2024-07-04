@@ -194,8 +194,10 @@ public class MemberService {
             member.updateCertification(memberParam.getCertification());
 
             if (SocialLoginProvider.none.equals(member.getProvider())) {
-                if (!passwordEncoder.matches(memberParam.getPassword(), member.getPassword())) {
-                    member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+                if (!memberParam.getPassword().isEmpty()) {
+                    if (!passwordEncoder.matches(memberParam.getPassword(), member.getPassword())) {
+                        member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+                    }
                 }
             }
         } else {

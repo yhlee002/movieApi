@@ -29,7 +29,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where lower(m.identifier) like %lower(:identifier)% and m.delYn != 'Y'")
     Page<Member> findByIdentifierIgnoreCaseContaining(String identifier, Pageable pageable);
 
-    @Query("select m from Member m where lower(m.identifier) like lower(:identifier) and m.delYn != 'Y'")
+    @Query("select m from Member m where lower(m.name) like lower(:name) and m.delYn != 'Y'")
     Page<Member> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
     @Query("select m from Member m where m.phone like %:phone% and m.delYn != 'Y'")
