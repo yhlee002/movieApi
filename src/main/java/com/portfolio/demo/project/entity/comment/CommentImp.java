@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.entity.comment;
 
 import com.portfolio.demo.project.entity.BaseEntity;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
@@ -30,6 +31,9 @@ public class CommentImp extends BaseEntity {
     private Member writer;
 
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    private DeleteFlag delYn;
 
     public void updateBoard(BoardImp board) {
         this.board = board;

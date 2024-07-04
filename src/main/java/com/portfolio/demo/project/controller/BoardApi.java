@@ -181,6 +181,30 @@ public class BoardApi {
     }
 
     /**
+     * 댓글 삭제(flag)
+     *
+     * @param id
+     */
+    @DeleteMapping("/notices/flag")
+    public ResponseEntity<Result<Boolean>> updateNoticeDeleteFlag(@RequestParam Long id) {
+        boardNoticeService.updateDelYnById(id);
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
+     * 복수의 댓글 삭제(flag)
+     *
+     * @param request 삭제하고자 하는 댓글 식별번호 목록
+     */
+    @PostMapping("/notices/flag/batch-delete")
+    public ResponseEntity<Result<Boolean>> updateNoticesDeleteFlag(@RequestBody MultiDeleteRequest request) {
+        boardNoticeService.updateDelYnByIds(request.getIds());
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
      * 전체 후기 게시글 조회 및 검색
      *
      * @param pageNum 페이지 번호
@@ -307,7 +331,7 @@ public class BoardApi {
     }
 
     /**
-     * 후기 게시글 삭제
+     * 후기 게시글 삭제(영구 삭제)
      *
      * @param boardId 삭제하고자 하는 게시글 식별번호
      */
@@ -319,12 +343,36 @@ public class BoardApi {
     }
 
     /**
-     * 복수의 후기 게시글 삭제
+     * 복수의 후기 게시글 삭제(영구 삭제)
      *
      * @param request 삭제하고자 하는 게시글 식별번호 목록
      */
     @PostMapping("/imps/batch-delete")
     public ResponseEntity<Result<Boolean>> deleteImps(@RequestBody MultiDeleteRequest request) {
+        boardImpService.deleteByIds(request.getIds());
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
+     * 댓글 삭제(flag)
+     *
+     * @param id
+     */
+    @DeleteMapping("/imps/flag")
+    public ResponseEntity<Result<Boolean>> updateImpDeleteFlag(@RequestParam Long id) {
+        boardImpService.updateDelYnById(id);
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
+     * 복수의 댓글 삭제(flag)
+     *
+     * @param request 삭제하고자 하는 댓글 식별번호 목록
+     */
+    @PostMapping("/imps/flag/batch-delete")
+    public ResponseEntity<Result<Boolean>> updateImpsDeleteFlag(@RequestBody MultiDeleteRequest request) {
         boardImpService.deleteByIds(request.getIds());
 
         return ResponseEntity.ok(new Result<>(Boolean.TRUE));

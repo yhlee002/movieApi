@@ -21,7 +21,8 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
     @NotNull
     @Query("select b from BoardNotice b" +
-            " join fetch b.writer m")
+            " join fetch b.writer m" +
+            " where b.delYn != 'Y'")
     Page<BoardNotice> findAll(Pageable pageable);
 
     /**
@@ -30,6 +31,9 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      *
      * @param member
      */
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
+            " where b.delYn != 'Y'")
     Page<BoardNotice> findAllByWriter(Member member, Pageable pageable);
 
     /**
@@ -40,14 +44,16 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
-            " where b.id = :id")
+            " where b.id = :id" +
+            " and b.delYn != 'Y'")
     BoardNotice findOneById(@Param("id") Long id);
 
     // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardNotice b2 where b2.id < :id order by b2.id desc limit 1)"
+            "(select b2.id from BoardNotice b2 where b2.id < :id and b2.delYn != 'Y' order by b2.id desc limit 1)" +
+            " and b.delYn != 'Y'"
     )
     BoardNotice findPrevBoardNoticeById(Long id);
 
@@ -55,7 +61,8 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardNotice b2 where b2.id > :id order by b2.id asc limit 1)"
+            "(select b2.id from BoardNotice b2 where b2.id > :id and b2.delYn != 'Y' order by b2.id asc limit 1)" +
+            " and b.delYn != 'Y'"
 
     )
     BoardNotice findNextBoardNoticeById(Long id);
@@ -64,7 +71,11 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      * 최신 게시글 top {size} 조회
      */
 
-    @Query("select b from BoardNotice b join Member m on b.writer = m order by b.regDate desc limit :size")
+    @Query("select b from BoardNotice b" +
+            " join b.writer m" +
+            " where b.delYn != 'Y'" +
+            " order by b.regDate desc" +
+            " limit :size")
     List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
 
     /**
@@ -73,9 +84,21 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      * @param title
      * @param content
      */
-//    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where title like %:title% order by b.reg_dt"
-//        , nativeQuery = true)
+    @Query("select b from BoardNotice b" +
+            " join fetch b.writer m" +
+            " where b.title like %:title% or b.content like %:content" +
+            " and b.delYn != 'Y'")
     Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query("update BoardNotice b set b.delYn = 'Y' where b.id = :id")
+    int updateDelYnById(Long id);
+
+    @Transactional
+    @Modifying
+    @Query("update BoardNotice b set b.delYn = 'Y' where b.id in :ids")
+    int updateDelYnByIds(List<Long> ids);
 
     @Transactional
     @Modifying

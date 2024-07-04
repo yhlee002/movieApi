@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.dto.board;
 
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Builder;
@@ -28,19 +29,21 @@ public class BoardImpParam {
     private int recommended;
     private List<CommentImpParam> comments;
     private int commentSize;
+    private DeleteFlag delYn;
 
     public static BoardImpParam create(BoardImp board) {
         return BoardImpParam.builder()
                 .id(board.getId())
                 .title(board.getTitle())
                 .content(board.getContent())
-                .writerId(board.getWriter() != null ? board.getWriter().getMemNo() : null)
-                .writerName(board.getWriter() != null ? board.getWriter().getName() : null)
-                .writerProfileImage(board.getWriter() != null ? board.getWriter().getProfileImage() : null)
-                .writerRole(board.getWriter() != null ? board.getWriter().getRole() : null)
+                .writerId(board.getWriter().getMemNo())
+                .writerName(board.getWriter().getName())
+                .writerProfileImage(board.getWriter().getProfileImage())
+                .writerRole(board.getWriter().getRole())
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .recommended(board.getRecommended())
+                .delYn(board.getDelYn())
                 .build();
     }
 
@@ -51,6 +54,7 @@ public class BoardImpParam {
                 .content(board.getContent())
                 .views(board.getViews())
                 .recommended(board.getRecommended())
+                .delYn(board.getDelYn())
                 .build();
     }
 }

@@ -137,6 +137,7 @@ public class BoardNoticeService {
     }
 
     /**
+     * 정렬 조건에 따른 게시글 조회
      *
      * @param page 페이지 번호
      * @param size 조회할 게시글 수
@@ -217,6 +218,24 @@ public class BoardNoticeService {
         } else {
             throw new IllegalStateException("해당 식별번호의 게시글 정보가 존재하지 않습니다.");
         }
+    }
+
+    /**
+     * 단건의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
+     *
+     * @param id
+     */
+    public int updateDelYnById(Long id) {
+        return boardNoticeRepository.updateDelYnById(id);
+    }
+
+    /**
+     * 복수의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
+     *
+     * @param ids
+     */
+    public int updateDelYnByIds(List<Long> ids) {
+        return boardNoticeRepository.updateDelYnByIds(ids);
     }
 
     /**

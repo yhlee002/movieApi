@@ -17,27 +17,37 @@ import java.util.List;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    @Query("select m from Member m where m.memNo in :ids")
+    @Query("select m from Member m where m.memNo in :ids and m.delYn != 'Y'")
     List<Member> findByIds(List<Long> ids);
 
+    @Query("select m from Member m where m.identifier = :identifier and m.delYn != 'Y'")
     Member findByIdentifier(String identifier);
 
+    @Query("select m from Member m where m.name = :name and m.delYn != 'Y'")
     Member findByNameIgnoreCase(String name);
 
+    @Query("select m from Member m where lower(m.identifier) like %lower(:identifier)% and m.delYn != 'Y'")
     Page<Member> findByIdentifierIgnoreCaseContaining(String identifier, Pageable pageable);
 
+    @Query("select m from Member m where lower(m.identifier) like lower(:identifier) and m.delYn != 'Y'")
     Page<Member> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
-    Page<Member> findByPhoneIgnoreCaseContaining(String phone, Pageable pageable);
+    @Query("select m from Member m where m.phone like %:phone% and m.delYn != 'Y'")
+    Page<Member> findByPhoneContaining(String phone, Pageable pageable);
 
+    @Query("select m from Member m where m.role = :role and m.delYn != 'Y'")
     Page<Member> findByRole(MemberRole role, Pageable pageable);
 
+    @Query("select m from Member m where m.provider = :provider and m.delYn != 'Y'")
     Page<Member> findByProvider(SocialLoginProvider provider, Pageable pageable);
 
+    @Query("select m from Member m where m.phone = :phone and m.delYn != 'Y'")
     Member findByPhone(String phone);
 
+    @Query("select exists(select m.memNo from Member m where m.phone = :phone and m.delYn != 'Y')")
     Boolean existsByPhone(String phone);
 
+    @Query("select m from Member m where m.identifier = :identifier and m.provider = :provider")
     Member findByIdentifierAndProvider(String identifier, SocialLoginProvider provider);
 
     @Transactional
@@ -49,4 +59,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically=true)
     @Query("delete from  Member m where m.memNo in :memNos")
     void deleteByMemNos(@Param("memNos") List<Long> memNos);
+
+    @Transactional
+    @Modifying(clearAutomatically=true)
+    @Query("update Member m set m.delYn = 'Y' where m.memNo in :memNos")
+    int updateDelYnByMemNo(@Param("memNo") Long memNo);
+
+    @Transactional
+    @Modifying(clearAutomatically=true)
+    @Query("update Member m set m.delYn = 'Y' where m.memNo = :memNo")
+    int updateDelYnByMemNos(@Param("memNo") List<Long> memNos);
 }

@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.dto.member;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
@@ -28,6 +29,7 @@ public class MemberParam {
     private MemberRole role;
     private SocialLoginProvider provider;
     private MemberCertificated certification;
+    private DeleteFlag delYn;
 
     public static MemberParam create(Member member) {
         return MemberParam.builder()
@@ -43,6 +45,7 @@ public class MemberParam {
                 .role(member.getRole())
                 .provider(member.getProvider())
                 .certification(member.getCertification())
+                .delYn(member.getDelYn())
                 .build();
     }
 }

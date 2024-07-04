@@ -20,7 +20,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      */
     @NotNull
     @Query("select b from BoardImp b" +
-            " join fetch b.writer m")
+            " join fetch b.writer m" +
+            " where b.delYn != 'Y'")
     Page<BoardImp> findAll(Pageable pageable);
 
     @Query(value = "select b from BoardImp b" +
@@ -37,7 +38,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardImp b2 where b2.id < :id order by b2.id desc limit 1)")
+            "(select b2.id from BoardImp b2 where b2.id < :id  and b2.delYn != 'Y' order by b2.id desc limit 1)" +
+            " and b.delYn != 'Y'")
     BoardImp findPrevBoardImpById(@Param("id") Long id);
 
     /**
@@ -48,7 +50,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardImp b2 where b2.id > :id order by b2.id limit 1)")
+            "(select b2.id from BoardImp b2 where b2.id > :id and b2.delYn != 'Y' order by b2.id limit 1)" +
+            " and b.delYn != 'Y'")
     BoardImp findNextBoardImpById(Long id);
 
     /**
@@ -56,36 +59,36 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      */
     @Query("select b, m.name from BoardImp b" +
             " join fetch b.writer m" +
+            " where b.delYn != 'Y'" +
             " order by b.views desc limit :size")
     List<BoardImp> findMostFavImpBoards(@Param("size") int size);
 
-    @Query(value = "select b from BoardImp b" +
+    @Query("select b from BoardImp b" +
             " join b.writer m" +
             " left join b.comments c" +
             " group by b.id" +
+            " having b.delYn != 'Y'" +
             " order by count(c.id) desc")
     Page<BoardImp> findAllOrderByCommentsCountDesc(Pageable pageable);
 
     /**
      * 작성자명으로 검색 결과 조회
      */
-//    @Query(value = "select b from BoardImp b join Member m on b.writer = m " +
-//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
-//    List<BoardImp> findByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
     Page<BoardImp> findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(String name, Pageable pageable);
 
-    @Query(value = "select b from BoardImp b" +
+    @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
-            " where m.name like %:name%")
+            " where m.name like %:name% and b.delYn != 'Y'")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
-
-//    @Query(value = "select count(b) from BoardImp b join Member m on b.writer = m " +
-//            "where m.name like %:name% order by b.id desc limit :size offset :offset")
-//    Integer findTotalPagesByWriterNameOrderByRegDateDesc(@Param("name") String name, @Param("offset") int offset, @Param("size") int size);
 
     /**
      * 제목 또는 내용으로 검색 결과 조회
      */
+
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where b.title like %:title% or b.content like %:content" +
+            " and b.delYn != 'Y'")
     Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     /**
@@ -93,9 +96,22 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      * ex. 마이페이지 > 자신이 작성한 글 조회
      *
      * @param member
-     * @return
      */
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where m.memNo = :memNo" +
+            " and b.delYn != 'Y'")
     Page<BoardImp> findAllByWriter(Member member, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query("update BoardImp b set b.delYn = 'Y' where b.id = :id")
+    int updateDelYnById(Long id);
+
+    @Transactional
+    @Modifying
+    @Query("update BoardImp b set b.delYn = 'Y' where b.id in :ids")
+    int updateDelYnByIds(List<Long> ids);
 
     @Transactional
     @Modifying

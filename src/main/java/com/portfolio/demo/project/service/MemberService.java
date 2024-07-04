@@ -84,7 +84,7 @@ public class MemberService {
 
     public MemberPagenationParam findAllByPhoneContaining(String phone, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<Member> result = memberRepository.findByPhoneIgnoreCaseContaining(phone, pageable);
+        Page<Member> result = memberRepository.findByPhoneContaining(phone, pageable);
 
         return new MemberPagenationParam(result);
     }
@@ -268,5 +268,13 @@ public class MemberService {
 
     public void deleteMembers(List<Long> memNoList) {
         memberRepository.deleteByMemNos(memNoList);
+    }
+
+    public int updateDelYnByMemNo(Long memNo) {
+        return memberRepository.updateDelYnByMemNo(memNo);
+    }
+
+    public int updateDelYnByMemNos(List<Long> memNos) {
+        return memberRepository.updateDelYnByMemNos(memNos);
     }
 }

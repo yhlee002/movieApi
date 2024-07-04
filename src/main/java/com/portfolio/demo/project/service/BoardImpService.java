@@ -434,6 +434,23 @@ public class BoardImpService {
     }
 
     /**
+     * 단건의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
+     *
+     * @param id
+     */
+    public int updateDelYnById(Long id) {
+        return boardImpRepository.updateDelYnById(id);
+    }
+
+    /**
+     * 복수의 감상평 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
+     * @param ids
+     */
+    public int updateDelYnByIds(List<Long> ids) {
+        return boardImpRepository.updateDelYnByIds(ids);
+    }
+
+    /**
      * 복수의 감상평 게시글 삭제(아이디 사용)
      * @param ids 삭제하고자 하는 게시글의 식별번호 목록
      */

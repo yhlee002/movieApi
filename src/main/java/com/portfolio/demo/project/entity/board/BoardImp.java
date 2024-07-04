@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.entity.board;
 
 import com.portfolio.demo.project.entity.BaseEntity;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
@@ -32,11 +33,14 @@ public class BoardImp extends BaseEntity {
     @JoinColumn(name = "writer_no")
     private Member writer;
 
-    private int views; // 조회수
+    private int views;
 
     private int recommended;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "board")
+    @Enumerated(EnumType.STRING)
+    private DeleteFlag delYn;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
 
     public void updateTitle(String title) {
