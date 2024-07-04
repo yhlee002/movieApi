@@ -6,6 +6,7 @@ import com.portfolio.demo.project.dto.board.BoardNoticeParam;
 import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
 import com.portfolio.demo.project.dto.board.NoticePagenationParam;
 import com.portfolio.demo.project.dto.board.request.CreateBoardRequest;
+import com.portfolio.demo.project.dto.board.request.MultiDeleteRequest;
 import com.portfolio.demo.project.dto.board.request.UpdateBoardRequest;
 import com.portfolio.demo.project.dto.board.response.MultiBoardImpResponse;
 import com.portfolio.demo.project.dto.board.response.MultiBoardNoticeResponse;
@@ -39,9 +40,9 @@ public class BoardApi {
     /**
      * 전체 공지사항 게시글 조회 및 검색
      *
-     * @param size
-     * @param pageNum
-     * @param query
+     * @param pageNum 페이지 번호
+     * @param size 조회할 게시글 수
+     * @param query 검색 키워드
      */
     @GetMapping("/notices")
     public ResponseEntity<Result<NoticePagenationParam>> notices(@RequestParam(name = "size", required = false, defaultValue = "10") int size,
@@ -69,9 +70,24 @@ public class BoardApi {
     }
 
     /**
+     * 특정 회원의 게시글 조회
+     *
+     * @param memNo 회원 식별번호
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     */
+    @GetMapping("/notices/members")
+    public ResponseEntity<Result<NoticePagenationParam>> noticesByMember(@RequestParam(name = "memNo") Long memNo,
+                                                                          @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                                          @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+        NoticePagenationParam param = boardNoticeService.getByMemNo(memNo, page, size);
+        return ResponseEntity.ok(new Result<>(param));
+    }
+
+    /**
      * 공지사항 게시글 단건 조회
      *
-     * @param id
+     * @param id 조회하고자하는 게시글 식별번호
      */
     @GetMapping("/notices/{id}")
     public ResponseEntity<Result<MultiBoardNoticeResponse>> notice(@PathVariable Long id) {
@@ -90,7 +106,7 @@ public class BoardApi {
     /**
      * 공지사항 게시글 작성
      *
-     * @param request
+     * @param request 작성하고자하는 게시글 정보
      */
     @PostMapping("/notices")
     public ResponseEntity<Result<BoardNoticeParam>> createNotice(@RequestBody CreateBoardRequest request) {
@@ -111,7 +127,7 @@ public class BoardApi {
     /**
      * 공지사항 게시글 수정
      *
-     * @param request
+     * @param request 수정하고자하는 게시글 정보
      */
     @PatchMapping("/notices")
     public ResponseEntity<Result<BoardNoticeParam>> updateNotice(@RequestBody UpdateBoardRequest request) {
@@ -130,8 +146,7 @@ public class BoardApi {
     /**
      * 공지사항 게시글 조회수 상승
      *
-     * @param request
-     * @return
+     * @param request 조회수를 상승시키고자 하는 게시글 정보
      */
     @PatchMapping("/notices/views")
     public ResponseEntity<Result<BoardNoticeParam>> updateNoticeViews(@RequestBody UpdateBoardRequest request) {
@@ -144,7 +159,7 @@ public class BoardApi {
     /**
      * 공지사항 게시글 삭제
      *
-     * @param boardId
+     * @param boardId 삭제하고자 하는 게시글 식별번호
      */
     @DeleteMapping("/notices")
     public ResponseEntity<Result<Boolean>> deleteNotice(@RequestParam Long boardId) {
@@ -154,18 +169,30 @@ public class BoardApi {
     }
 
     /**
+     * 복수의 공지사항 게시글 삭제
+     *
+     * @param request 삭제하고자 하는 게시글 식별번호 목록
+     */
+    @PostMapping("/notices/batch-delete")
+    public ResponseEntity<Result<Boolean>> deleteNotices(@RequestBody MultiDeleteRequest request) {
+        boardNoticeService.deleteByIds(request.getIds());
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
      * 전체 후기 게시글 조회 및 검색
      *
-     * @param size
-     * @param pageNum
+     * @param pageNum 페이지 번호
+     * @param size 조회할 게시글 수
      * @param condition 검색 조건(제목 또는 내용 | 글쓴이)
      * @param query     검색 키워드
      * @param orderBy   정렬 기준
      */
     @GetMapping("/imps")
     public ResponseEntity<Result<ImpressionPagenationParam>> imps(
-            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "page", required = false, defaultValue = "0") int pageNum,
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "condition", required = false) String condition,
             @RequestParam(name = "query", required = false) String query,
             @RequestParam(name = "orderby", required = false) String orderBy
@@ -196,9 +223,9 @@ public class BoardApi {
     /**
      * 특정 회원의 게시글 조회
      *
-     * @param memNo
-     * @param page
-     * @param size
+     * @param memNo 회원 식별번호
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
      */
     @GetMapping("/imps/members")
     public ResponseEntity<Result<ImpressionPagenationParam>> impsByMember(@RequestParam(name = "memNo") Long memNo,
@@ -211,8 +238,7 @@ public class BoardApi {
     /**
      * 후기 게시글 단건 조회
      *
-     * @param id
-     * @return
+     * @param id 조회하고자하는 게시글 식별번호
      */
     @GetMapping("/imps/{id}")
     public ResponseEntity<Result<MultiBoardImpResponse>> impDetail(@PathVariable Long id) {
@@ -231,7 +257,7 @@ public class BoardApi {
     /**
      * 후기 게시글 작성
      *
-     * @param request
+     * @param request 작성하고자하는 게시글 정보
      */
     @PostMapping("/imps")
     public ResponseEntity<Result<BoardImpParam>> createImp(@RequestBody CreateBoardRequest request) {
@@ -252,7 +278,7 @@ public class BoardApi {
     /**
      * 후기 게시글 수정
      *
-     * @param request
+     * @param request 수정하고자하는 게시글 정보
      */
     @ResponseBody
     @PatchMapping("/imps")
@@ -270,8 +296,7 @@ public class BoardApi {
     /**
      * 후기 게시글 조회수 상승
      *
-     * @param request
-     * @return
+     * @param request 조회수를 상승시키고자 하는 게시글 정보
      */
     @PatchMapping("/imps/views")
     public ResponseEntity<Result<BoardImpParam>> updateImpViews(@RequestBody UpdateBoardRequest request) {
@@ -284,11 +309,23 @@ public class BoardApi {
     /**
      * 후기 게시글 삭제
      *
-     * @param boardId
+     * @param boardId 삭제하고자 하는 게시글 식별번호
      */
     @DeleteMapping("/imps")
     public ResponseEntity<Result<Boolean>> deleteImp(@RequestParam Long boardId) {
         boardImpService.deleteById(boardId);
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
+     * 복수의 후기 게시글 삭제
+     *
+     * @param request 삭제하고자 하는 게시글 식별번호 목록
+     */
+    @PostMapping("/imps/batch-delete")
+    public ResponseEntity<Result<Boolean>> deleteImps(@RequestBody MultiDeleteRequest request) {
+        boardImpService.deleteByIds(request.getIds());
 
         return ResponseEntity.ok(new Result<>(Boolean.TRUE));
     }

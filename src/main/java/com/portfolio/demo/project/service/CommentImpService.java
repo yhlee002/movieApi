@@ -124,4 +124,12 @@ public class CommentImpService {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
         }
     }
+
+    /**
+     * 복수의 공지사항 게시글 삭제(아이디 사용)
+     * @param ids 삭제하고자 하는 게시글의 식별번호 목록
+     */
+    public void deleteByIds(List<Long> ids) {
+        commentImpRepository.deleteByIds(ids);
+    }
 }

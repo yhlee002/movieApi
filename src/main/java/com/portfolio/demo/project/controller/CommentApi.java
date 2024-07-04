@@ -1,5 +1,6 @@
 package com.portfolio.demo.project.controller;
 
+import com.portfolio.demo.project.dto.board.request.MultiDeleteRequest;
 import com.portfolio.demo.project.dto.comment.CommentImpPagenationParam;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.dto.comment.CommentMovPagenationParam;
@@ -12,7 +13,6 @@ import com.portfolio.demo.project.service.CommentImpService;
 import com.portfolio.demo.project.service.CommentMovService;
 import com.portfolio.demo.project.dto.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -206,6 +206,18 @@ public class CommentApi {
     @DeleteMapping("/imps")
     public ResponseEntity<Result<Boolean>> deleteCommentImp(@RequestParam Long commentId) {
         commentImpService.deleteCommentById(commentId);
+
+        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
+    }
+
+    /**
+     * 복수의 댓글 삭제
+     *
+     * @param request 삭제하고자 하는 댓글 식별번호 목록
+     */
+    @PostMapping("/imps/batch-delete")
+    public ResponseEntity<Result<Boolean>> deleteCommentImps(@RequestBody MultiDeleteRequest request) {
+        commentImpService.deleteByIds(request.getIds());
 
         return ResponseEntity.ok(new Result<>(Boolean.TRUE));
     }

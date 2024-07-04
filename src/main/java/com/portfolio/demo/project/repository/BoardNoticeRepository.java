@@ -1,12 +1,16 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
+import com.portfolio.demo.project.entity.member.Member;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +23,14 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m")
     Page<BoardNotice> findAll(Pageable pageable);
+
+    /**
+     * 특정 회원이 작성한 게시글 조회(최신순)
+     * ex. 마이페이지 > 자신이 작성한 글 조회
+     *
+     * @param member
+     */
+    Page<BoardNotice> findAllByWriter(Member member, Pageable pageable);
 
     /**
      * 공지사항 게시글 단건 조회
@@ -64,4 +76,9 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
 //    @Query(value = "select b.* from board_notice b join Member m on b.writer_no = m.mem_no where title like %:title% order by b.reg_dt"
 //        , nativeQuery = true)
     Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query("delete from BoardNotice b where b.id in :ids")
+    void deleteByIds(List<Long> ids);
 }

@@ -193,8 +193,10 @@ public class MemberService {
             member.updateProfileImage(memberParam.getProfileImage());
             member.updateCertification(memberParam.getCertification());
 
-            if (!passwordEncoder.matches(memberParam.getPassword(), member.getPassword())) {
-                member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+            if (SocialLoginProvider.none.equals(member.getProvider())) {
+                if (!passwordEncoder.matches(memberParam.getPassword(), member.getPassword())) {
+                    member.updatePassword(passwordEncoder.encode(memberParam.getPassword()));
+                }
             }
         } else {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");

@@ -1,5 +1,7 @@
 package com.portfolio.demo.project.service;
 
+import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
@@ -39,6 +41,24 @@ public class BoardNoticeService {
         Page<BoardNotice> result = boardNoticeRepository.findAll(pageable);
 
         return new NoticePagenationParam(result);
+    }
+
+    /**
+     * 특정 회원의 게시글 조회
+     */
+    public NoticePagenationParam getByMemNo(Long memNo, int page, int size) {
+        Member member = memberRepository.findById(memNo).orElse(null);
+
+        NoticePagenationParam param = new NoticePagenationParam();
+        if (member != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<BoardNotice> boardNoticePage = boardNoticeRepository.findAllByWriter(member, pageable);
+            param = new NoticePagenationParam(boardNoticePage);
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return param;
     }
 
     /**
@@ -197,6 +217,14 @@ public class BoardNoticeService {
         } else {
             throw new IllegalStateException("해당 식별번호의 게시글 정보가 존재하지 않습니다.");
         }
+    }
+
+    /**
+     * 복수의 공지사항 게시글 삭제(아이디 사용)
+     * @param ids 삭제하고자 하는 게시글의 식별번호 목록
+     */
+    public void deleteByIds(List<Long> ids) {
+        boardNoticeRepository.deleteByIds(ids);
     }
 
     /**

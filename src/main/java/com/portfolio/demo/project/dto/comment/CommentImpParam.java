@@ -14,6 +14,7 @@ public class CommentImpParam {
 
     private Long id;
     private Long boardId;
+    private String boardTitle;
     private Long writerId;
     private String writerName;
     private String writerProfileImage;
@@ -24,11 +25,12 @@ public class CommentImpParam {
     public static CommentImpParam create(CommentImp imp) {
         return CommentImpParam.builder()
                 .id(imp.getId())
-                .boardId(imp.getBoard().getId())
-                .writerId(imp.getWriter().getMemNo())
-                .writerName(imp.getWriter().getName())
-                .writerProfileImage(imp.getWriter().getProfileImage())
-                .writerRole(imp.getWriter().getRole())
+//                .boardId(imp.getBoard() != null ? imp.getBoard().getId() : null)
+//                .boardTitle(imp.getBoard() != null ? imp.getBoard().getTitle() : null)
+                .writerId(imp.getWriter() != null ? imp.getWriter().getMemNo() : null)
+                .writerName(imp.getWriter() != null ? imp.getWriter().getName() : null)
+                .writerProfileImage(imp.getWriter() != null ? imp.getWriter().getProfileImage() : null)
+                .writerRole(imp.getWriter() != null ? imp.getWriter().getRole() : null)
                 .content(imp.getContent())
                 .regDate(imp.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();

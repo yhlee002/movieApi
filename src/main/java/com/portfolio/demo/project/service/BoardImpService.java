@@ -213,6 +213,12 @@ public class BoardImpService {
         return new ImpressionPagenationParam(result);
     }
 
+    /**
+     * 댓글수가 적은 순으로 게시글 조회
+     *
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     */
     public ImpressionPagenationParam getAllBoardsOrderByCommentSizeDesc(int page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<BoardImp> pages = boardImpRepository.findAllOrderByCommentsCountDesc(pageable);
@@ -242,101 +248,10 @@ public class BoardImpService {
     }
 
     /**
-     * 감상평 게시글 작성
-     *
-     * @param boardParam
-     */
-    public Long saveBoard(BoardImpParam boardParam) {
-
-        Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
-
-        BoardImp board = BoardImp.builder()
-                .title(boardParam.getTitle())
-                .content(boardParam.getContent())
-                .writer(user)
-                .views(0)
-                .recommended(0)
-                .build();
-        boardImpRepository.save(board);
-
-        return board.getId();
-    }
-
-    /**
-     * 감상평 게시글 수정
-     *
-     * @param boardParam
-     */
-    public Long updateBoard(BoardImpParam boardParam) {
-        // 작성자 정보 검증
-        BoardImp board = boardImpRepository.findById(boardParam.getId()).orElse(null);
-
-        if (board != null) {
-            board.updateTitle(boardParam.getTitle());
-            board.updateContent(boardParam.getContent());
-        } else {
-            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
-//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
-        }
-
-        return board.getId();
-    }
-
-    /**
-     * 감상평 게시글 삭제
-     *
-     * @param id
-     */
-    public void deleteById(Long id) {
-        BoardImp board = boardImpRepository.findById(id).orElse(null);
-        if (board != null) {
-            boardImpRepository.delete(board);
-        } else {
-            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
-        }
-    }
-
-    /**
-     * 감상평 게시글 추천수 업데이트
-     *
-     * @param id
-     */
-    public void upViewCntById(Long id) {
-        BoardImp imp = boardImpRepository.findById(id).orElse(null);
-        if (imp != null) {
-            imp.updateViewCount(imp.getViews() + 1);
-        } else {
-            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
-        }
-    }
-
-    /**
-     * 복수의 감상평 게시글 삭제
-     *
-     * @param boards
-     */
-    public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        List<BoardImp> list = boards.stream().map(b -> {
-            Member member = memberRepository.findById(b.getWriterId()).orElse(null);
-
-            return BoardImp.builder()
-                    .id(b.getId())
-                    .title(b.getTitle())
-                    .content(b.getContent())
-                    .writer(member)
-                    .views(b.getViews())
-                    .recommended(b.getRecommended())
-                    .build();
-        }).toList();
-
-        boardImpRepository.deleteAll(list);
-    }
-
-    /**
      * 감상평 게시글 조회
      *
-     * @param page
-     * @return
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
      */
     public ImpressionPagenationParam getImpPagenation(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
@@ -360,8 +275,9 @@ public class BoardImpService {
     /**
      * 검색 기능 (작성자명)
      *
-     * @param page
-     * @param keyword
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     * @param keyword 검색 키워드
      */
     public ImpressionPagenationParam getImpPagenationByWriterName(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
@@ -385,8 +301,9 @@ public class BoardImpService {
     /**
      * 검색 기능 (제목 또는 내용)
      *
-     * @param page
-     * @param keyword
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
+     * @param keyword 검색 키워드
      */
     public ImpressionPagenationParam getImpPagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
@@ -411,9 +328,9 @@ public class BoardImpService {
     /**
      * 특정 작성자가 작성한 글(마이페이지에서 조회 가능)
      *
-     * @param memNo
-     * @param page
-     * @param size
+     * @param memNo 회원 번호
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
      */
     public ImpressionPagenationParam getImpsByMember(Long memNo, int page, int size) {
         Member member = memberRepository.findById(memNo).orElse(null);
@@ -445,6 +362,105 @@ public class BoardImpService {
         }
 
         return param;
+    }
+
+    /**
+     * 감상평 게시글 작성
+     *
+     * @param boardParam 저장할 게시글 정보
+     */
+    public Long saveBoard(BoardImpParam boardParam) {
+
+        Member user = memberRepository.findById(boardParam.getWriterId()).orElse(null);
+
+        BoardImp board = BoardImp.builder()
+                .title(boardParam.getTitle())
+                .content(boardParam.getContent())
+                .writer(user)
+                .views(0)
+                .recommended(0)
+                .build();
+        boardImpRepository.save(board);
+
+        return board.getId();
+    }
+
+    /**
+     * 감상평 게시글 수정
+     *
+     * @param boardParam 수정할 게시글 정보
+     */
+    public Long updateBoard(BoardImpParam boardParam) {
+        // 작성자 정보 검증
+        BoardImp board = boardImpRepository.findById(boardParam.getId()).orElse(null);
+
+        if (board != null) {
+            board.updateTitle(boardParam.getTitle());
+            board.updateContent(boardParam.getContent());
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+//            log.error("해당 아이디의 회원 정보가 존재하지 않습니다. (memNo: {})", imp.getWriterId());
+        }
+
+        return board.getId();
+    }
+
+    /**
+     * 감상평 게시글 추천수 업데이트
+     *
+     * @param id 조회수를 상승시키고자 하는 게시글 식별번호
+     */
+    public void upViewCntById(Long id) {
+        BoardImp imp = boardImpRepository.findById(id).orElse(null);
+        if (imp != null) {
+            imp.updateViewCount(imp.getViews() + 1);
+        } else {
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+    }
+
+    /**
+     * 감상평 게시글 삭제
+     *
+     * @param id 삭제하고자 하는 게시글 식별번호
+     */
+    public void deleteById(Long id) {
+        BoardImp board = boardImpRepository.findById(id).orElse(null);
+        if (board != null) {
+            boardImpRepository.delete(board);
+        } else {
+            throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
+        }
+    }
+
+    /**
+     * 복수의 감상평 게시글 삭제(아이디 사용)
+     * @param ids 삭제하고자 하는 게시글의 식별번호 목록
+     */
+    public void deleteByIds(List<Long> ids) {
+        boardImpRepository.deleteByIds(ids);
+    }
+
+    /**
+     * 복수의 감상평 게시글 삭제
+     *
+     * @param boards 삭제하고자하는 게시글 정보(복수)
+     */
+    public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
+        List<BoardImp> list = boards.stream().map(b -> {
+            Member member = memberRepository.findById(b.getWriterId()).orElse(null);
+
+            return BoardImp.builder()
+                    .id(b.getId())
+                    .title(b.getTitle())
+                    .content(b.getContent())
+                    .writer(member)
+                    .views(b.getViews())
+                    .recommended(b.getRecommended())
+                    .build();
+        }).toList();
+
+        boardImpRepository.deleteAll(list);
     }
 
 }

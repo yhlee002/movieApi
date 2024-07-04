@@ -1,7 +1,5 @@
 package com.portfolio.demo.project.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.dto.member.request.CreateMemberRequest;
