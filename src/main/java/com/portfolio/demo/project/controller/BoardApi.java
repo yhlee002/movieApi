@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -134,7 +133,7 @@ public class BoardApi {
      * @param request
      * @return
      */
-    @PatchMapping("/notices/view")
+    @PatchMapping("/notices/views")
     public ResponseEntity<Result<BoardNoticeParam>> updateNoticeViews(@RequestBody UpdateBoardRequest request) {
         boardNoticeService.upViewCntById(request.getId());
         BoardNoticeParam notice = boardNoticeService.findById(request.getId());
@@ -192,6 +191,21 @@ public class BoardApi {
         }
 
         return new ResponseEntity<>(new Result<>(pagenationVO), HttpStatus.OK);
+    }
+
+    /**
+     * 특정 회원의 게시글 조회
+     *
+     * @param memNo
+     * @param page
+     * @param size
+     */
+    @GetMapping("/imps/members")
+    public ResponseEntity<Result<ImpressionPagenationParam>> impsByMember(@RequestParam(name = "memNo") Long memNo,
+                                                                        @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                                        @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
+        ImpressionPagenationParam param = boardImpService.getByMemNo(memNo, page, size);
+        return ResponseEntity.ok(new Result<>(param));
     }
 
     /**

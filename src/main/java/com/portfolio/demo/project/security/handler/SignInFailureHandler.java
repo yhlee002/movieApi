@@ -1,6 +1,6 @@
 package com.portfolio.demo.project.security.handler;
 
-import com.portfolio.demo.project.dto.LoginLogParam;
+import com.portfolio.demo.project.dto.loginlog.LoginLogParam;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import com.portfolio.demo.project.service.LoginLogService;

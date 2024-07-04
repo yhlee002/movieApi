@@ -22,8 +22,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 //                .addResourceLocations("file:///home/ec2-user/app/git/web_movie/profileImages/");
         registry.addResourceHandler("swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
-//        registry.addResourceHandler("/swagger-ui/**")
-//                .addResourceLocations("");
     }
 
     @Override

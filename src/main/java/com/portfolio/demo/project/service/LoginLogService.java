@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.dto.LoginLogParam;
+import com.portfolio.demo.project.dto.loginlog.LoginLogPagenationParam;
+import com.portfolio.demo.project.dto.loginlog.LoginLogParam;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import com.portfolio.demo.project.entity.loginlog.LoginLog;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
@@ -27,29 +28,32 @@ public class LoginLogService {
 
     private final MemberRepository memberRepository;
 
-    public List<LoginLogParam> findAll(int page, int size) {
+    public LoginLogPagenationParam findAll(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<LoginLog> logs = loginLogRepository.findAll(pageable);
-        return logs.stream().map(LoginLogParam::create).collect(Collectors.toList());
+
+        return new LoginLogPagenationParam(logs);
     }
 
-    public List<LoginLogParam> findAllByMember(int page, int size, MemberParam param) {
+    public LoginLogPagenationParam findAllByMember(int page, int size, MemberParam param) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<LoginLog> logs = loginLogRepository.findByMemNo(param.getMemNo(), pageable);
 
-        return logs.stream().map(LoginLogParam::create).collect(Collectors.toList());
+        return new LoginLogPagenationParam(logs);
     }
 
-    public List<LoginLogParam> findAllByIp(int page, int size, String ip) {
+    public LoginLogPagenationParam findAllByIp(int page, int size, String ip) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<LoginLog> logs = loginLogRepository.findByIp(ip, pageable);
-        return logs.stream().map(LoginLogParam::create).collect(Collectors.toList());
+
+        return new LoginLogPagenationParam(logs);
     }
 
-    public List<LoginLogParam> findAllByResult(int page, int size, LoginResult result) {
+    public LoginLogPagenationParam findAllByResult(int page, int size, LoginResult result) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
         Page<LoginLog> logs = loginLogRepository.findByResult(result, pageable);
-        return logs.stream().map(LoginLogParam::create).collect(Collectors.toList());
+
+        return new LoginLogPagenationParam(logs);
     }
 
     public LoginLogParam findById(Long id) {

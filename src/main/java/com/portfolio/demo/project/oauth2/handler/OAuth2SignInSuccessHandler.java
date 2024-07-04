@@ -1,10 +1,5 @@
 package com.portfolio.demo.project.oauth2.handler;
 
-import com.google.gson.JsonObject;
-import com.portfolio.demo.project.dto.LoginLogParam;
-import com.portfolio.demo.project.dto.member.MemberParam;
-import com.portfolio.demo.project.entity.loginlog.LoginResult;
-import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import com.portfolio.demo.project.oauth2.CustomOAuth2User;
 import com.portfolio.demo.project.service.LoginLogService;
@@ -12,7 +7,6 @@ import com.portfolio.demo.project.service.MemberService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +14,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 @Slf4j
 @RequiredArgsConstructor

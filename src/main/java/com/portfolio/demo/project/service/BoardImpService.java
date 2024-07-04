@@ -66,6 +66,24 @@ public class BoardImpService {
     }
 
     /**
+     * 특정 회원의 게시글 조회
+     */
+    public ImpressionPagenationParam getByMemNo(Long memNo, int page, int size) {
+        Member member = memberRepository.findById(memNo).orElse(null);
+
+        ImpressionPagenationParam param = new ImpressionPagenationParam();
+        if (member != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+            Page<BoardImp> boardImpPage = boardImpRepository.findAllByWriter(member, pageable);
+            param = new ImpressionPagenationParam(boardImpPage);
+        } else {
+            throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
+        }
+
+        return param;
+    }
+
+    /**
      * 감상평 게시글 식별번호로 단건 조회
      *
      * @param id

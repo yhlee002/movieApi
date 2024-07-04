@@ -1,10 +1,9 @@
-package com.portfolio.demo.project.dto;
+package com.portfolio.demo.project.dto.loginlog;
 
 import com.portfolio.demo.project.entity.loginlog.LoginLog;
 import com.portfolio.demo.project.entity.loginlog.LoginResult;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Builder
