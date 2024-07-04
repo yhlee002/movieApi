@@ -17,37 +17,40 @@ import java.util.List;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
-    @Query("select m from Member m where m.memNo in :ids and m.delYn != 'Y'")
+    @Query("select m from Member m where m.memNo in :ids and (m.delYn IS NULL OR m.delYn <> 'Y')")
     List<Member> findByIds(List<Long> ids);
 
-    @Query("select m from Member m where m.identifier = :identifier and m.delYn != 'Y'")
+    @Query("select m from Member m where m.identifier = :identifier and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Member findByIdentifier(String identifier);
 
-    @Query("select m from Member m where m.name = :name and m.delYn != 'Y'")
+    @Query("select m from Member m where m.name = :name and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Member findByNameIgnoreCase(String name);
 
-    @Query("select m from Member m where lower(m.identifier) like %lower(:identifier)% and m.delYn != 'Y'")
+    @Query("select m from Member m" +
+            " where lower(m.identifier) like lower('%:identifier%') and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Page<Member> findByIdentifierIgnoreCaseContaining(String identifier, Pageable pageable);
 
-    @Query("select m from Member m where lower(m.name) like lower(:name) and m.delYn != 'Y'")
+    @Query("select m from Member m" +
+            " where lower(m.name) like lower('%:name%') and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Page<Member> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
-    @Query("select m from Member m where m.phone like %:phone% and m.delYn != 'Y'")
+    @Query("select m from Member m where m.phone like %:phone% and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Page<Member> findByPhoneContaining(String phone, Pageable pageable);
 
-    @Query("select m from Member m where m.role = :role and m.delYn != 'Y'")
+    @Query("select m from Member m where m.role = :role and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Page<Member> findByRole(MemberRole role, Pageable pageable);
 
-    @Query("select m from Member m where m.provider = :provider and m.delYn != 'Y'")
+    @Query("select m from Member m where m.provider = :provider and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Page<Member> findByProvider(SocialLoginProvider provider, Pageable pageable);
 
-    @Query("select m from Member m where m.phone = :phone and m.delYn != 'Y'")
+    @Query("select m from Member m where m.phone = :phone and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Member findByPhone(String phone);
 
-    @Query("select exists(select m.memNo from Member m where m.phone = :phone and m.delYn != 'Y')")
+    @Query("select exists(select m.memNo from Member m" +
+            " where m.phone = :phone and (m.delYn IS NULL OR m.delYn <> 'Y'))")
     Boolean existsByPhone(String phone);
 
-    @Query("select m from Member m where m.identifier = :identifier and m.provider = :provider")
+    @Query("select m from Member m where m.identifier = :identifier and m.provider = :provider and (m.delYn IS NULL OR m.delYn <> 'Y')")
     Member findByIdentifierAndProvider(String identifier, SocialLoginProvider provider);
 
     @Transactional

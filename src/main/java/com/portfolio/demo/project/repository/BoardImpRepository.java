@@ -21,7 +21,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @NotNull
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
-            " where b.delYn != 'Y'")
+            " where b.delYn IS NULL OR b.delYn <> 'Y'")
     Page<BoardImp> findAll(Pageable pageable);
 
     @Query(value = "select b from BoardImp b" +
@@ -38,8 +38,9 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardImp b2 where b2.id < :id  and b2.delYn != 'Y' order by b2.id desc limit 1)" +
-            " and b.delYn != 'Y'")
+            "(select b2.id from BoardImp b2" +
+            " where b2.id < :id and (b2.delYn IS NULL OR b2.delYn <> 'Y') order by b2.id desc limit 1)" +
+            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
     BoardImp findPrevBoardImpById(@Param("id") Long id);
 
     /**
@@ -50,8 +51,9 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardImp b2 where b2.id > :id and b2.delYn != 'Y' order by b2.id limit 1)" +
-            " and b.delYn != 'Y'")
+            "(select b2.id from BoardImp b2" +
+            " where b2.id > :id and (b2.delYn IS NULL OR b2.delYn <> 'Y') order by b2.id limit 1)" +
+            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
     BoardImp findNextBoardImpById(Long id);
 
     /**
@@ -59,7 +61,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      */
     @Query("select b, m.name from BoardImp b" +
             " join fetch b.writer m" +
-            " where b.delYn != 'Y'" +
+            " where b.delYn IS NULL OR b.delYn <> 'Y'" +
             " order by b.views desc limit :size")
     List<BoardImp> findMostFavImpBoards(@Param("size") int size);
 
@@ -67,7 +69,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             " join b.writer m" +
             " left join b.comments c" +
             " group by b.id" +
-            " having b.delYn != 'Y'" +
+            " having (b.delYn IS NULL OR b.delYn <> 'Y')" +
             " order by count(c.id) desc")
     Page<BoardImp> findAllOrderByCommentsCountDesc(Pageable pageable);
 
@@ -78,7 +80,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
-            " where m.name like %:name% and b.delYn != 'Y'")
+            " where m.name like %:name% and (b.delYn IS NULL OR b.delYn <> 'Y')")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
 
     /**
@@ -87,8 +89,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
 
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
-            " where b.title like %:title% or b.content like %:content" +
-            " and b.delYn != 'Y'")
+            " where lower(b.title) like lower('%:title%') or lower(b.content) like lower('%:content')" +
+            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
     Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     /**
@@ -99,8 +101,8 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      */
     @Query("select b from BoardImp b" +
             " join fetch b.writer m" +
-            " where m.memNo = :memNo" +
-            " and b.delYn != 'Y'")
+            " where m = :member" +
+            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
     Page<BoardImp> findAllByWriter(Member member, Pageable pageable);
 
     @Transactional

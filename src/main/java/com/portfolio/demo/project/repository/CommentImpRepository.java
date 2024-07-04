@@ -17,33 +17,33 @@ public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
 
     @Query("select c from CommentImp c" +
             " join fetch c.writer m" +
-            " where c.board = :board and c.delYn != 'Y'")
+            " where c.board = :board and (c.delYn IS NULL OR c.delYn <> 'Y')")
     Page<CommentImp> findAllByBoard(@Param("board") BoardImp board, Pageable pageable);
 
     @Query("select c from CommentImp c" +
             " join fetch c.writer m" +
-            " where c.board.id = :boardId and c.delYn != 'Y'")
+            " where c.board.id = :boardId and (c.delYn IS NULL OR c.delYn <> 'Y')")
     Page<CommentImp> findAllByBoardId(@Param("boardId") Long boardId, Pageable pageable);
 
     @Query("select c from CommentImp c" +
             " join fetch c.writer m" +
-            " where c.id = :id and c.delYn != 'Y'")
+            " where c.id = :id and (c.delYn IS NULL OR c.delYn <> 'Y')")
     CommentImp findOneById(@Param("id") Long id);
 
     @Query("select count(c) from CommentImp c" +
-            " where c.board.id = :id and c.delYn != 'Y'")
+            " where c.board.id = :id and (c.delYn IS NULL OR c.delYn <> 'Y')")
     int findCountByBoardId(@Param("id") Long boardId);
 
     @Query("select c from CommentImp c" +
             " join fetch c.writer m" +
             " join fetch c.board b" +
-            " where c.writer = :member and c.delYn != 'Y'")
+            " where c.writer = :member and (c.delYn IS NULL OR c.delYn <> 'Y')")
     Page<CommentImp> findAllByWriter(Member member, Pageable pageable);
 
     @Query("select count(c) from CommentImp c" +
             " join c.writer m" +
             " join c.board b" +
-            " where c.writer = :member and c.delYn != 'Y'")
+            " where c.writer = :member and (c.delYn IS NULL OR c.delYn <> 'Y')")
     Integer countCommentImpsByWriter(Member member);
 
     @Transactional
