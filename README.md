@@ -33,7 +33,8 @@
 
 
 ## DB Schema
-![image](https://github.com/yhlee002/web_moviePublic/assets/60289743/d7dce3c6-f809-45f0-8d0d-65dc0dd9f2e1)
+<img width="1211" alt="스크린샷 2024-07-05 오전 1 39 30" src="https://github.com/yhlee002/movieApi/assets/60289743/c5300a3e-4eff-405a-9394-a42a9a3aca6a">
+
 
 
 ## API 명세(Swagger)
