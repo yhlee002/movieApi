@@ -9,11 +9,7 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -292,17 +288,33 @@ class BoardNoticeRepositoryTest {
         String keyword = "bcd";
         // case 1
         Pageable pageable = PageRequest.of(0, 10);
-        Page<BoardNotice> page = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        ExampleMatcher matcher = ExampleMatcher.matchingAny()
+                .withIgnoreCase("title", "content")
+                .withIgnorePaths("views")
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        BoardNotice boardParam = BoardNotice.builder().title(keyword).content(keyword).build();
+        Example<BoardNotice> example = Example.of(boardParam, matcher);
+
+        Page<BoardNotice> page = boardNoticeRepository.findAll(example, pageable);
         List<BoardNotice> list = page.getContent();
 
         // case 2
         keyword = "1234";
-        Page<BoardNotice> page2 = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+
+        boardParam = BoardNotice.builder().title(keyword).content(keyword).build();
+        example = Example.of(boardParam, matcher);
+
+        Page<BoardNotice> page2 = boardNoticeRepository.findAll(example, pageable);
         List<BoardNotice> list2 = page2.getContent();
 
         // case 3
         keyword = "566";
-        Page<BoardNotice> page3 = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+
+        boardParam = BoardNotice.builder().title(keyword).content(keyword).build();
+        example = Example.of(boardParam, matcher);
+
+        Page<BoardNotice> page3 = boardNoticeRepository.findAll(example, pageable);
         List<BoardNotice> list3 = page3.getContent();
 
         // then

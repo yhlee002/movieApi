@@ -18,13 +18,14 @@ public interface CommentImpSimpleRepository extends JpaRepository<CommentImp, Lo
             " from CommentImp c" +
             " join c.writer m" +
             " join c.board b" +
-            " where c.board.id in :ids and c.delYn != 'Y'")
+            " where (c.delYn IS NULL or c.delYn <> 'Y')")
     Page<CommentImpSimpleParam> findAllParamsByBoardIds(@Param("ids") List<Long> ids, Pageable pageable);
 
     @Query(value = "select new com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam(c.id, b.id, m.memNo, m.name, m.profileImage, c.content, c.regDate, c.delYn)" +
             " from CommentImp c" +
             " join c.writer m" +
             " join c.board b" +
-            " where c.board.id = :id and c.delYn != 'Y'")
+            " where c.board.id = :id" +
+            " and (c.delYn IS NULL or c.delYn <> 'Y')")
     Page<CommentImpSimpleParam> findAllParamsByBoardId(@Param("id") Long id, Pageable pageable);
 }

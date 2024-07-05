@@ -350,10 +350,10 @@ class BoardImpServiceTest {
         createBoard(b3, user2);
 
         // when
-        ImpressionPagenationParam pagenationVO = boardImpService.getImpPagenationByWriterName(0, 10, user.getName());
-        ImpressionPagenationParam pagenationVO2 = boardImpService.getImpPagenationByWriterName(0, 10, "test-user-name");
-        ImpressionPagenationParam pagenationVO3 = boardImpService.getImpPagenationByWriterName(0, 10, user2.getName());
-        ImpressionPagenationParam pagenationVO4 = boardImpService.getImpPagenationByWriterName(0, 10, "test");
+        ImpressionPagenationParam pagenationVO = boardImpService.getImpsByWriterName(0, 10, user.getName());
+        ImpressionPagenationParam pagenationVO2 = boardImpService.getImpsByWriterName(0, 10, "test-user-name");
+        ImpressionPagenationParam pagenationVO3 = boardImpService.getImpsByWriterName(0, 10, user2.getName());
+        ImpressionPagenationParam pagenationVO4 = boardImpService.getImpsByWriterName(0, 10, "test");
 
         // then
         Assertions.assertEquals(2, pagenationVO.getBoardImpList().size());
@@ -377,26 +377,31 @@ class BoardImpServiceTest {
         Long memNo2 = memberService.saveMember(userParam2);
         MemberParam user2 = memberService.findByMemNo(memNo2);
 
-        BoardImp b1 = BoardImpTestDataBuilder.board().title("테스트용 게시글입니다.").content("감상 후기를 작성하는 게시판입니다.").build();
+        BoardImp b1 = BoardImpTestDataBuilder.board().title("sdkjndfgmldn").content("duyt gmldn").build();
         createBoard(b1, user);
 
-        BoardImp b2 = BoardImpTestDataBuilder.board().title("감상 후기 게시글").content("테스트용 내용").build();
+        BoardImp b2 = BoardImpTestDataBuilder.board().title("addssduytkud").content("gmldn").build();
         createBoard(b2, user2);
 
-        BoardImp b3 = BoardImpTestDataBuilder.board().title("test board title").content("테스트 진행중입니다.").build();
+        BoardImp b3 = BoardImpTestDataBuilder.board().title("gmldn ddss").content("ddss").build();
         createBoard(b3, user);
 
+        BoardImp b4 = BoardImpTestDataBuilder.board().title("sdfsd").content(".......").build();
+        BoardImpParam p4 = createBoard(b4, user);
+
+        boardImpService.updateDelYnById(p4.getId());
+
         // when
-        ImpressionPagenationParam pagenation1 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "테스트");
-        ImpressionPagenationParam pagenation2 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "감상 후기");
-        ImpressionPagenationParam pagenation3 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "test");
-        ImpressionPagenationParam pagenation4 = boardImpService.getImpPagenationByTitleOrContent(0, 10, "Test");
+        ImpressionPagenationParam pagenation1 = boardImpService.getImpsByTitleOrContent(0, 10, "gmldn");
+        ImpressionPagenationParam pagenation2 = boardImpService.getImpsByTitleOrContent(0, 10, "duyt");
+        ImpressionPagenationParam pagenation3 = boardImpService.getImpsByTitleOrContent(0, 10, "ddss");
+        ImpressionPagenationParam pagenation4 = boardImpService.getImpsByTitleOrContent(0, 10, "sdfsd");
 
         // then
         Assertions.assertEquals(3, pagenation1.getBoardImpList().size());
         Assertions.assertEquals(2, pagenation2.getBoardImpList().size());
-        Assertions.assertEquals(1, pagenation3.getBoardImpList().size());
-        Assertions.assertEquals(1, pagenation4.getBoardImpList().size());
+        Assertions.assertEquals(2, pagenation3.getBoardImpList().size());
+        Assertions.assertEquals(0, pagenation4.getBoardImpList().size());
     }
 
     @Test
@@ -447,7 +452,7 @@ class BoardImpServiceTest {
         }
 
         // when
-        ImpressionPagenationParam pagenationParam = boardImpService.getAllBoardsOrderByCommentSizeDesc(0, 10);
+        ImpressionPagenationParam pagenationParam = boardImpService.getAllBoardsOrderByCommentSizeDesc(0, 100);
 
         // then
         Assertions.assertEquals(b1.getId(), pagenationParam.getBoardImpList().get(0).getId());
@@ -455,5 +460,28 @@ class BoardImpServiceTest {
 
         Assertions.assertEquals(b2.getId(), pagenationParam.getBoardImpList().get(1).getId());
         Assertions.assertEquals(15, pagenationParam.getBoardImpList().get(1).getCommentSize());
+    }
+
+    @Test
+    void 삭제되지_않은_게시글_한정_특정_회원_게시글_조회() {
+        // given
+        MemberParam m1 = createRandomUser();
+        MemberParam m2 = createRandomUser();
+
+        BoardImpParam b1 = createBoard(
+                BoardImpTestDataBuilder.board().title("test-1").content("text-content-1").build(), m1);
+        BoardImpParam b2 = createBoard(
+                BoardImpTestDataBuilder.board().title("test-2").content("text-content-2").build(), m1);
+        BoardImpParam b3 = createBoard(
+                BoardImpTestDataBuilder.board().title("test-3").content("text-content-3").build(), m1);
+
+        // when
+        boardImpService.updateDelYnById(b2.getId());
+
+        ImpressionPagenationParam pagenationParam = boardImpService.getByMemNo(m1.getMemNo(), 0, 100);
+        List<BoardImpParam> list = pagenationParam.getBoardImpList();
+
+        // then
+        Assertions.assertEquals(2, list.size());
     }
 }

@@ -224,8 +224,8 @@ public class BoardApi {
         ImpressionPagenationParam pagenationVO = null;
         if (query != null) {
             pagenationVO = switch (condition) {
-                case "writerName" -> boardImpService.getImpPagenationByWriterName(pageNum, size, query);
-                case "titleOrContent" -> boardImpService.getImpPagenationByTitleOrContent(pageNum, size, query);
+                case "writerName" -> boardImpService.getImpsByWriterName(pageNum, size, query);
+                case "titleOrContent" -> boardImpService.getImpsByTitleOrContent(pageNum, size, query);
                 default -> pagenationVO;
             };
 

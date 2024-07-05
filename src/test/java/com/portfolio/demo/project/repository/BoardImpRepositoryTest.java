@@ -2,6 +2,7 @@ package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
@@ -15,10 +16,7 @@ import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
@@ -161,11 +159,15 @@ class BoardImpRepositoryTest {
             b.setComments(commentMap.get(b.getId()));
         });
 
+        BoardImpParam b1 = boardParams.stream().filter(b -> b.getId() == board.getId()).findFirst().orElse(null);
+        BoardImpParam b2 = boardParams.stream().filter(b -> b.getId() == board2.getId()).findFirst().orElse(null);
+        BoardImpParam b3 = boardParams.stream().filter(b -> b.getId() == board3.getId()).findFirst().orElse(null);
+
         // then
         Assertions.assertEquals(alreadyExistBoards.size() + 3, boardParams.size());
-        Assertions.assertEquals(1, boardParams.get(0).getComments().size());
-        Assertions.assertEquals(2, boardParams.get(1).getComments().size());
-        Assertions.assertEquals(1, boardParams.get(2).getComments().size());
+        Assertions.assertEquals(1, b1.getComments().size());
+        Assertions.assertEquals(2, b2.getComments().size());
+        Assertions.assertEquals(1, b3.getComments().size());
     }
 
     @Test
@@ -446,7 +448,6 @@ class BoardImpRepositoryTest {
                     Assertions.assertEquals(user2.getName(), username);
                 })
         );
-
     }
 
     @Test
@@ -485,13 +486,26 @@ class BoardImpRepositoryTest {
         boardImpRepository.saveAll(boardList);
 
         // when
-        final String keyword = "exam";
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
-        Page<BoardImp> page = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        ExampleMatcher matcher = ExampleMatcher.matchingAny()
+                .withIgnoreCase("title", "content")
+                .withIgnorePaths("views")
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        final String keyword = "exam";
+
+        BoardImp impParam = BoardImp.builder().title(keyword).content(keyword).delYn(DeleteFlag.N).build();
+        Example<BoardImp> example = Example.of(impParam, matcher);
+
+        Page<BoardImp> page = boardImpRepository.findAll(example, pageable);
         List<BoardImp> list = page.getContent();
 
         final String keyword2 = "fg";
-        Page<BoardImp> page2 = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword2, keyword2, pageable);
+
+        impParam = BoardImp.builder().title(keyword).content(keyword).build();
+        example = Example.of(impParam, matcher);
+
+        Page<BoardImp> page2 = boardImpRepository.findAll(example, pageable);
         List<BoardImp> list2 = page2.getContent();
 
         // then

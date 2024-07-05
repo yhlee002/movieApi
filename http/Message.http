@@ -1,8 +1,0 @@
-POST localhost:8080/api/members/cert-message
-Content-Type: application/json
-Accept: application/json
-
-{
-  "phone": "01033955304"
-}
-

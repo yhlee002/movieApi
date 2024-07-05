@@ -21,7 +21,7 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
     @NotNull
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
-            " where b.delYn != 'Y'")
+            " where (b.delYn IS NULL or b.delYn <> 'Y')")
     Page<BoardNotice> findAll(Pageable pageable);
 
     /**
@@ -75,18 +75,6 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
             " order by b.regDate desc" +
             " limit :size")
     List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
-
-    /**
-     * 제목 또는 내용으로 검색 결과 조회
-     *
-     * @param title
-     * @param content
-     */
-    @Query("select b from BoardNotice b" +
-            " join fetch b.writer m" +
-            " where b.title like %:title% or lower(b.content) like lower('%:content%')" +
-            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
-    Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     @Transactional
     @Modifying

@@ -3,6 +3,7 @@ package com.portfolio.demo.project.controller;
 import com.portfolio.demo.project.dto.Result;
 import com.portfolio.demo.project.dto.member.MemberResponse;
 import com.portfolio.demo.project.dto.member.request.CreateMemberRequest;
+import com.portfolio.demo.project.dto.member.request.MultiDeleteRequest;
 import com.portfolio.demo.project.dto.member.request.MultiUpdateRoleRequest;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -297,10 +298,12 @@ public class MemberApiTest {
         Result<MemberResponse> response2 = objectMapper.readValue(resultStr2, new TypeReference<Result<MemberResponse>>() {});
 
         List<Long> memNoList = Arrays.asList(response1.getData().getMemNo(), response2.getData().getMemNo());
+        MultiDeleteRequest request = new MultiDeleteRequest();
+        request.setMemNoList(memNoList);
 
         // 회원 1, 회원 2 삭제
         mockMvc.perform(post("/members/batch-delete")
-                        .content(asJsonString(memNoList))
+                        .content(asJsonString(request))
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

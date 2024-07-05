@@ -1,8 +1,10 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,8 +22,7 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
      */
     @NotNull
     @Query("select b from BoardImp b" +
-            " join fetch b.writer m" +
-            " where b.delYn IS NULL OR b.delYn <> 'Y'")
+            " join fetch b.writer m")
     Page<BoardImp> findAll(Pageable pageable);
 
     @Query(value = "select b from BoardImp b" +
@@ -82,16 +83,6 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             " join fetch b.writer m" +
             " where m.name like %:name% and (b.delYn IS NULL OR b.delYn <> 'Y')")
     Page<BoardImp> findByWriterName(@Param("name") String name, Pageable pageable);
-
-    /**
-     * 제목 또는 내용으로 검색 결과 조회
-     */
-
-    @Query("select b from BoardImp b" +
-            " join fetch b.writer m" +
-            " where lower(b.title) like lower('%:title%') or lower(b.content) like lower('%:content')" +
-            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
-    Page<BoardImp> findAllByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     /**
      * 특정 회원이 작성한 게시글 조회(최신순)

@@ -14,8 +14,8 @@ public interface CommentImpCountRepository extends JpaRepository<CommentImp, Lon
     @Query("select new com.portfolio.demo.project.dto.comment.count.CommentCount(c.board.id, count(c.id))" +
             " from CommentImp c" +
             " join c.board" +
-            " group by c.board.id" +
-            " having c.delYn != 'Y'")
+            " where c.delYn is null or c.delYn <> 'Y'" +
+            " group by c.board.id")
     List<CommentCount> findCommentCountsByBoardIds(List<Long> ids);
 }
 

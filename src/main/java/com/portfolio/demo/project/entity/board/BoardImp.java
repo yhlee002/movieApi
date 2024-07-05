@@ -43,12 +43,20 @@ public class BoardImp extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
 
+    public static BoardImp createWithDelYnIsN() {
+        return new BoardImp();
+    }
+
     public void updateTitle(String title) {
         this.title = title;
     }
 
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    public void updateWriter(Member writer) {
+        this.writer = writer;
     }
 
     public void updateViewCount(int views) {

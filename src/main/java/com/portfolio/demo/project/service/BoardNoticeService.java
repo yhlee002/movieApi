@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.dto.board.ImpressionPagenationParam;
-import com.portfolio.demo.project.entity.board.BoardImp;
+import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
@@ -10,10 +9,7 @@ import com.portfolio.demo.project.dto.board.BoardNoticeParam;
 import com.portfolio.demo.project.dto.board.NoticePagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,7 +127,15 @@ public class BoardNoticeService {
      */
     public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        Page<BoardNotice> result = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        ExampleMatcher matcher = ExampleMatcher.matchingAny()
+                .withIgnoreCase("title", "content")
+                .withIgnorePaths("views")
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        BoardNotice boardParam = BoardNotice.builder().title(keyword).content(keyword).build();
+        Example<BoardNotice> example = Example.of(boardParam, matcher);
+
+        Page<BoardNotice> result = boardNoticeRepository.findAll(example, pageable);
 
         return new NoticePagenationParam(result);
     }
@@ -180,6 +184,7 @@ public class BoardNoticeService {
                 .content(param.getContent())
                 .writer(user)
                 .views(0)
+                .delYn(DeleteFlag.N)
                 .build();
 
         boardNoticeRepository.save(board);
