@@ -40,7 +40,7 @@ public class MemberService {
         if (member != null) {
             return MemberParam.create(member);
         } else {
-            log.error("해당 식별번호의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
+            log.info("해당 식별번호의 회원 정보가 존재하지 않습니다. (memNo = {})", memNo);
         }
 
         return null;
@@ -52,7 +52,7 @@ public class MemberService {
         if (members.size() > 0) {
             return members.stream().map(MemberParam::create).collect(Collectors.toList());
         } else {
-            log.error("해당 식별번호들의 회원 정보가 존재하지 않습니다. (memNo = {})", memNoList.toString());
+            log.info("해당 식별번호들의 회원 정보가 존재하지 않습니다. (memNo = {})", memNoList.toString());
         }
         return new ArrayList<>();
     }
@@ -63,7 +63,7 @@ public class MemberService {
         if (member != null) {
             return MemberParam.create(member);
         } else {
-            log.error("해당 이름의 회원 정보가 존재하지 않습니다. (name = {})", name);
+            log.info("해당 이름의 회원 정보가 존재하지 않습니다. (name = {})", name);
         }
         return null;
     }
@@ -116,7 +116,7 @@ public class MemberService {
         if (member != null) {
             return MemberParam.create(member);
         } else {
-            log.error("해당 휴대번호의 회원 정보가 존재하지 않습니다. (phone = {})", phone);
+            log.info("해당 휴대번호의 회원 정보가 존재하지 않습니다. (phone = {})", phone);
         }
 
         return null;
@@ -135,7 +135,7 @@ public class MemberService {
         if (mem != null) {
             return MemberParam.create(mem);
         } else {
-            log.error("해당 정보의 회원 정보가 존재하지 않습니다. (identifier = {}, provider = {})", identifier, provider);
+            log.info("해당 정보의 회원 정보가 존재하지 않습니다. (identifier = {}, provider = {})", identifier, provider);
         }
         return null;
     }
