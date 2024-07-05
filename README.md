@@ -33,7 +33,8 @@
 
 
 ## DB Schema
-<img width="1211" alt="스크린샷 2024-07-05 오전 1 39 30" src="https://github.com/yhlee002/movieApi/assets/60289743/c5300a3e-4eff-405a-9394-a42a9a3aca6a">
+<img width="1211" alt="스크린샷 2024-07-05 오후 9 09 41" src="https://github.com/yhlee002/movieApi/assets/60289743/c5001f8d-895a-4381-8861-3fcf90fc45a1">
+
 
 
 
