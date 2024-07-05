@@ -147,7 +147,7 @@ public class CommentImpService {
     }
 
     /**
-     * 후기 게시글 댓글 삭제
+     * 댓글 단건 삭제
      *
      * @param commentId 삭제하고자하는 댓글 식별번호
      */
@@ -157,25 +157,7 @@ public class CommentImpService {
     }
 
     /**
-     * 댓글 단건 삭제(삭제 flag만 변경. 영구 삭제 X)
-     *
-     * @param id 삭제하고자 하는 댓글 식별번호
-     */
-    public int updateDelYnById(Long id) {
-        return commentImpRepository.updateDelYnById(id);
-    }
-
-    /**
-     * 복수의 댓글 삭제(삭제 flag만 변경. 영구 삭제 X)
-     *
-     * @param ids 삭제하고자 하는 댓글 식별번호 목록
-     */
-    public int updateDelYnByIds(List<Long> ids) {
-        return commentImpRepository.updateDelYnByIds(ids);
-    }
-
-    /**
-     * 복수의 공지사항 게시글 영구 삭제(아이디 사용)
+     * 복수의 댓글 영구 삭제(아이디 사용)
      *
      * @param ids 삭제하고자 하는 게시글의 식별번호 목록
      */

@@ -311,16 +311,14 @@ public class MemberApi {
      */
     @PatchMapping("/")
     public ResponseEntity<Result<MemberResponse>> updateMember(@RequestBody @Valid UpdateMemberRequest request) {
-        MemberParam param = MemberParam.builder()
-                .memNo(request.getMemNo())
-                .name(request.getName())
-                .password(request.getPassword())
-                .phone(request.getPhone())
-                .profileImage(request.getProfileImage())
-                .certification(request.getCertification())
-                .build();
+        MemberParam member = memberService.findByMemNo(request.getMemNo());
 
-        Long memNo = memberService.updateMember(param);
+        member.setName(request.getName());
+        member.setPassword(request.getPassword());
+        member.setPhone(request.getPhone());
+        member.setProfileImage(request.getProfileImage());
+
+        Long memNo = memberService.updateMember(member);
 
         MemberParam foundMember = memberService.findByMemNo(memNo);
         MemberResponse response = new MemberResponse(foundMember);
@@ -406,11 +404,11 @@ public class MemberApi {
     /**
      * 회원 다수 삭제
      *
-     * @param request 삭제하고자 하는 회원 정보 목록
+     * @param memNoList
      */
     @PostMapping("/batch-delete")
-    public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody MultiDeleteRequest request) {
-        memberService.deleteMembers(request.getMemNoList());
+    public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody List<Long> memNoList) {
+        memberService.deleteMembers(memNoList);
 
         return ResponseEntity.ok(new Result<>(true));
     }

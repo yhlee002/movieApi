@@ -19,8 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Tag(name = "Comment", description = "댓글 관련 API 입니다.")
 @RequestMapping("/comments")
 @Slf4j
@@ -199,7 +197,7 @@ public class CommentApi {
     }
 
     /**
-     * 댓글 삭제(영구 삭제)
+     * 댓글 삭제
      *
      * @param id
      */
@@ -211,36 +209,12 @@ public class CommentApi {
     }
 
     /**
-     * 복수의 댓글 삭제(영구 삭제)
+     * 복수의 댓글 삭제
      *
      * @param request 삭제하고자 하는 댓글 식별번호 목록
      */
     @PostMapping("/imps/batch-delete")
     public ResponseEntity<Result<Boolean>> deleteCommentImps(@RequestBody MultiDeleteRequest request) {
-        commentImpService.deleteByIds(request.getIds());
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
-     * 댓글 삭제(flag)
-     *
-     * @param id
-     */
-    @DeleteMapping("/imps/flag")
-    public ResponseEntity<Result<Boolean>> updateCommentImpDeleteFlag(@RequestParam Long id) {
-        commentImpService.updateDelYnById(id);
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
-     * 복수의 댓글 삭제(flag)
-     *
-     * @param request 삭제하고자 하는 댓글 식별번호 목록
-     */
-    @PostMapping("/imps/flag/batch-delete")
-    public ResponseEntity<Result<Boolean>> updateCommentImpsDeleteFlag(@RequestBody MultiDeleteRequest request) {
         commentImpService.deleteByIds(request.getIds());
 
         return ResponseEntity.ok(new Result<>(Boolean.TRUE));

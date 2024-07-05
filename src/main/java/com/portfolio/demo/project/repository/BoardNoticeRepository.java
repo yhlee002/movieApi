@@ -20,8 +20,7 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
     @NotNull
     @Query("select b from BoardNotice b" +
-            " join fetch b.writer m" +
-            " where (b.delYn IS NULL or b.delYn <> 'Y')")
+            " join fetch b.writer m")
     Page<BoardNotice> findAll(Pageable pageable);
 
     /**
@@ -30,9 +29,6 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      *
      * @param member
      */
-    @Query("select b from BoardNotice b" +
-            " join fetch b.writer m" +
-            " where b.delYn IS NULL OR b.delYn <> 'Y'")
     Page<BoardNotice> findAllByWriter(Member member, Pageable pageable);
 
     /**
@@ -43,48 +39,40 @@ public interface BoardNoticeRepository extends JpaRepository<BoardNotice, Long> 
      */
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
-            " where b.id = :id" +
-            " and b.delYn IS NULL OR b.delYn <> 'Y'")
+            " where b.id = :id")
     BoardNotice findOneById(@Param("id") Long id);
 
     // 해당 글의 이전글(해당 글보다 board_id가 낮은 글들을 내림차순으로 나열해 가장 첫번째 것)
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardNotice b2" +
-            " where b2.id < :id and (b2.delYn IS NULL OR b2.delYn <> 'Y') order by b2.id desc limit 1)" +
-            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
+            "(select b2.id from BoardNotice b2 where b2.id < :id order by b2.id desc limit 1)"
+    )
     BoardNotice findPrevBoardNoticeById(Long id);
 
     // 해당 글의 다음글(해당 글보다 board_id가 높은 글들을 올림차순으로 나열해 가장 첫번째 것) join Member m on b.writer_no = m.mem_no
     @Query("select b from BoardNotice b" +
             " join fetch b.writer m" +
             " where b.id = " +
-            "(select b2.id from BoardNotice b2" +
-            " where b2.id > :id and (b2.delYn IS NULL OR b2.delYn <> 'Y') order by b2.id asc limit 1)" +
-            " and (b.delYn IS NULL OR b.delYn <> 'Y')")
+            "(select b2.id from BoardNotice b2 where b2.id > :id order by b2.id asc limit 1)"
+
+    )
     BoardNotice findNextBoardNoticeById(Long id);
 
     /**
      * 최신 게시글 top {size} 조회
      */
 
-    @Query("select b from BoardNotice b" +
-            " join b.writer m" +
-            " where (b.delYn IS NULL OR b.delYn <> 'Y')" +
-            " order by b.regDate desc" +
-            " limit :size")
+    @Query("select b from BoardNotice b join Member m on b.writer = m order by b.regDate desc limit :size")
     List<BoardNotice> findRecentBoardNoticesOrderByRegDate(@Param("size") int size);
 
-    @Transactional
-    @Modifying
-    @Query("update BoardNotice b set b.delYn = 'Y' where b.id = :id")
-    int updateDelYnById(Long id);
-
-    @Transactional
-    @Modifying
-    @Query("update BoardNotice b set b.delYn = 'Y' where b.id in :ids")
-    int updateDelYnByIds(List<Long> ids);
+    /**
+     * 제목 또는 내용으로 검색 결과 조회
+     *
+     * @param title
+     * @param content
+     */
+    Page<BoardNotice> findByTitleContainingOrContentContaining(String title, String content, Pageable pageable);
 
     @Transactional
     @Modifying

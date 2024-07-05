@@ -3,7 +3,6 @@ package com.portfolio.demo.project.service;
 import com.portfolio.demo.project.dto.board.*;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
 import com.portfolio.demo.project.dto.comment.count.CommentCount;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
@@ -14,7 +13,10 @@ import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepo
 import com.portfolio.demo.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -44,9 +46,7 @@ public class BoardImpService {
      */
     public ImpressionPagenationParam getAllBoards(int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        ExampleMatcher matcher = ExampleMatcher.matchingAll().withIgnorePaths("views");
-        Example<BoardImp> example = Example.of(BoardImp.createWithDelYnIsN(), matcher);
-        Page<BoardImp> pages = boardImpRepository.findAll(example, pageable);
+        Page<BoardImp> pages = boardImpRepository.findAll(pageable);
 
         List<BoardImp> list = pages.getContent();
         List<BoardImpParam> vos = list.stream().map(BoardImpParam::create).collect(Collectors.toList());
@@ -73,17 +73,7 @@ public class BoardImpService {
         ImpressionPagenationParam param = new ImpressionPagenationParam();
         if (member != null) {
             Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-
-            Member mVal = Member.builder().memNo(memNo).build();
-            BoardImp bVal = BoardImp.builder().writer(mVal).delYn(DeleteFlag.N).build();
-            // 기본값과 동일
-            ExampleMatcher matcher = ExampleMatcher.matchingAll()
-                    .withIgnorePaths("views")
-                    .withStringMatcher(ExampleMatcher.StringMatcher.DEFAULT);
-            Example<BoardImp> example = Example.of(bVal, matcher);
-
-//            Page<BoardImp> boardImpPage = boardImpRepository.findAllByWriter(member, pageable);
-            Page<BoardImp> boardImpPage = boardImpRepository.findAll(example, pageable);
+            Page<BoardImp> boardImpPage = boardImpRepository.findAllByWriter(member, pageable);
             param = new ImpressionPagenationParam(boardImpPage);
         } else {
             throw new IllegalStateException("해당 아이디의 회원 정보가 존재하지 않습니다.");
@@ -289,17 +279,8 @@ public class BoardImpService {
      * @param keyword 검색 키워드
      */
     public ImpressionPagenationParam getImpsByWriterName(int page, Integer size, String keyword) {
-        BoardImp bVal = BoardImp.createWithDelYnIsN();
-        bVal.updateWriter(Member.builder().name(keyword).build());
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        ExampleMatcher matcher = ExampleMatcher.matchingAll()
-                .withIgnoreCase("writer.name")
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-        Example<BoardImp> example = Example.of(bVal, matcher);
-
-        Page<BoardImp> pages = boardImpRepository.findAll(example, pageable);
-//        Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
+        Page<BoardImp> pages = boardImpRepository.findByWriterNameContainingIgnoreCaseOrderByRegDateDesc(keyword, pageable);
 
         List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
         list.forEach(board -> {
@@ -325,15 +306,7 @@ public class BoardImpService {
      */
     public ImpressionPagenationParam getImpsByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        ExampleMatcher matcher = ExampleMatcher.matchingAny()
-                .withIgnoreCase("title", "content")
-                .withIgnorePaths("views, recommended")
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-
-        BoardImp impParam = BoardImp.builder().title(keyword).content(keyword).delYn(DeleteFlag.N).build();
-        Example<BoardImp> example = Example.of(impParam, matcher);
-
-        Page<BoardImp> pages = boardImpRepository.findAll(example, pageable);
+        Page<BoardImp> pages = boardImpRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
         List<BoardImpParam> list = pages.getContent().stream().map(BoardImpParam::create).toList();
         list.forEach(board -> {
@@ -405,7 +378,6 @@ public class BoardImpService {
                 .writer(user)
                 .views(0)
                 .recommended(0)
-                .delYn(DeleteFlag.N)
                 .build();
         boardImpRepository.save(board);
 
@@ -446,7 +418,7 @@ public class BoardImpService {
     }
 
     /**
-     * 감상평 게시글 삭제
+     * 단건 감상평 게시글 삭제
      *
      * @param id 삭제하고자 하는 게시글 식별번호
      */
@@ -460,24 +432,8 @@ public class BoardImpService {
     }
 
     /**
-     * 단건의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
-     *
-     * @param id
-     */
-    public int updateDelYnById(Long id) {
-        return boardImpRepository.updateDelYnById(id);
-    }
-
-    /**
-     * 복수의 감상평 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
-     * @param ids
-     */
-    public int updateDelYnByIds(List<Long> ids) {
-        return boardImpRepository.updateDelYnByIds(ids);
-    }
-
-    /**
      * 복수의 감상평 게시글 삭제(아이디 사용)
+     *
      * @param ids 삭제하고자 하는 게시글의 식별번호 목록
      */
     public void deleteByIds(List<Long> ids) {

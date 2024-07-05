@@ -271,12 +271,4 @@ public class MemberService {
     public void deleteMembers(List<Long> memNoList) {
         memberRepository.deleteByMemNos(memNoList);
     }
-
-    public int updateDelYnByMemNo(Long memNo) {
-        return memberRepository.updateDelYnByMemNo(memNo);
-    }
-
-    public int updateDelYnByMemNos(List<Long> memNos) {
-        return memberRepository.updateDelYnByMemNos(memNos);
-    }
 }

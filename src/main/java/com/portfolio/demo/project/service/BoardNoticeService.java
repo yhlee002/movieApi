@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.service;
 
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardNoticeRepository;
@@ -9,7 +8,10 @@ import com.portfolio.demo.project.dto.board.BoardNoticeParam;
 import com.portfolio.demo.project.dto.board.NoticePagenationParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,15 +129,7 @@ public class BoardNoticeService {
      */
     public NoticePagenationParam getBoardNoticePagenationByTitleOrContent(int page, Integer size, String keyword) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
-        ExampleMatcher matcher = ExampleMatcher.matchingAny()
-                .withIgnoreCase("title", "content")
-                .withIgnorePaths("views")
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
-
-        BoardNotice boardParam = BoardNotice.builder().title(keyword).content(keyword).build();
-        Example<BoardNotice> example = Example.of(boardParam, matcher);
-
-        Page<BoardNotice> result = boardNoticeRepository.findAll(example, pageable);
+        Page<BoardNotice> result = boardNoticeRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
 
         return new NoticePagenationParam(result);
     }
@@ -184,7 +178,6 @@ public class BoardNoticeService {
                 .content(param.getContent())
                 .writer(user)
                 .views(0)
-                .delYn(DeleteFlag.N)
                 .build();
 
         boardNoticeRepository.save(board);
@@ -223,24 +216,6 @@ public class BoardNoticeService {
         } else {
             throw new IllegalStateException("해당 식별번호의 게시글 정보가 존재하지 않습니다.");
         }
-    }
-
-    /**
-     * 단건의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
-     *
-     * @param id
-     */
-    public int updateDelYnById(Long id) {
-        return boardNoticeRepository.updateDelYnById(id);
-    }
-
-    /**
-     * 복수의 공지사항 게시글 삭제(삭제 flag만 변경. 영구 삭제 X)
-     *
-     * @param ids
-     */
-    public int updateDelYnByIds(List<Long> ids) {
-        return boardNoticeRepository.updateDelYnByIds(ids);
     }
 
     /**

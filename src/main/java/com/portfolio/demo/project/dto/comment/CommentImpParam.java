@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.dto.comment;
 
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.*;
@@ -22,7 +21,6 @@ public class CommentImpParam {
     private MemberRole writerRole;
     private String content;
     private String regDate;
-    private DeleteFlag delYn;
 
     public static CommentImpParam create(CommentImp imp) {
         return CommentImpParam.builder()
