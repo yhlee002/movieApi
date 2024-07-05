@@ -414,30 +414,6 @@ public class MemberApi {
     }
 
     /**
-     * 회원 탈퇴(flag)
-     *
-     * @param id
-     */
-    @DeleteMapping("/flag")
-    public ResponseEntity<Result<Boolean>> updateMemberDeleteFlag(@RequestParam Long id) {
-        memberService.updateDelYnByMemNo(id);
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
-     * 회원 탈퇴(flag)
-     *
-     * @param request 삭제하고자 하는 댓글 식별번호 목록
-     */
-    @PostMapping("/flag/batch-delete")
-    public ResponseEntity<Result<Boolean>> updateMembersDeleteFlag(@RequestBody MultiDeleteRequest request) {
-        memberService.updateDelYnByMemNos(request.getMemNoList());
-
-        return ResponseEntity.ok(new Result<>(Boolean.TRUE));
-    }
-
-    /**
      * 로그인 전 입력 정보 유효성 확인
      *
      * @param request
