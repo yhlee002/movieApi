@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.entity.member;
 
 import com.portfolio.demo.project.entity.BaseEntity;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import lombok.*;
 
@@ -45,9 +44,6 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "certification", columnDefinition = "DEFAULT 'N'")
     private MemberCertificated certification;
-
-    @Enumerated(EnumType.STRING)
-    private DeleteFlag delYn;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "writer")
     List<CommentImp> comments = new ArrayList<>();

@@ -404,11 +404,11 @@ public class MemberApi {
     /**
      * 회원 다수 삭제
      *
-     * @param memNoList
+     * @param request
      */
     @PostMapping("/batch-delete")
-    public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody List<Long> memNoList) {
-        memberService.deleteMembers(memNoList);
+    public ResponseEntity<Result<Boolean>> deleteMultiMember(@RequestBody MultiDeleteRequest request) {
+        memberService.deleteMembers(request.getMemNoList());
 
         return ResponseEntity.ok(new Result<>(true));
     }

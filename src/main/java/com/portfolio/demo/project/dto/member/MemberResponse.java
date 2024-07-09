@@ -1,6 +1,5 @@
 package com.portfolio.demo.project.dto.member;
 
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
@@ -19,7 +18,6 @@ public class MemberResponse {
     private MemberRole role;
     private MemberCertificated certification;
     private String regDate;
-    private DeleteFlag delYn;
 
     public MemberResponse(MemberParam member) {
         this.memNo = member.getMemNo();
@@ -31,6 +29,5 @@ public class MemberResponse {
         this.role = member.getRole();
         this.certification = member.getCertification();
         this.regDate = member.getRegDate();
-        this.delYn = member.getDelYn();
     }
 }

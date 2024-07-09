@@ -2,7 +2,6 @@ package com.portfolio.demo.project.repository;
 
 import com.portfolio.demo.project.dto.board.BoardImpParam;
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
@@ -46,12 +45,6 @@ class BoardImpRepositoryTest {
     @PersistenceContext
     private EntityManager entityManager;
 
-    Member createUser() {
-        Member user = MemberTestDataBuilder.user().build();
-        memberRepository.save(user);
-        return user;
-    }
-
     Member createRandomUser() {
         Member user = MemberTestDataBuilder.randomIdentifierUser().build();
         memberRepository.save(user);
@@ -68,7 +61,7 @@ class BoardImpRepositoryTest {
     @Test
     void 모든_후기_게시글_조회() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
 
         // 게시글 작성 전 존재하는 게시글 수
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
@@ -108,7 +101,7 @@ class BoardImpRepositoryTest {
     @Test
     void 모든_후기_게시글_조회_패치조인_컬렉션최적화() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
 
         // 게시글 작성 전 존재하는 게시글 수
         Pageable pageable = PageRequest.of(0, 100, Sort.by("regDate").descending());
@@ -174,7 +167,7 @@ class BoardImpRepositoryTest {
     void 후기_게시글_작성() {
         // given
         BoardImp board = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+                .writer(createRandomUser())
                 .build();
         boardImpRepository.save(board);
 
@@ -191,7 +184,7 @@ class BoardImpRepositoryTest {
     void 후기_게시글_수정() {
         // given
         BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+                .writer(createRandomUser())
                 .title("Original title")
                 .content("Original content")
                 .build();
@@ -218,7 +211,7 @@ class BoardImpRepositoryTest {
     void 후기_게시글_삭제() {
         // given
         BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+                .writer(createRandomUser())
                 .build();
         boardImpRepository.save(imp);
 
@@ -237,7 +230,7 @@ class BoardImpRepositoryTest {
     void 후기_게시글_식별번호를_이용한_단건_조회() {
         // given
         BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+                .writer(createRandomUser())
                 .build();
         boardImpRepository.save(imp);
 
@@ -252,7 +245,7 @@ class BoardImpRepositoryTest {
     void 후기_게시글_식별번호를_이용한_단건_조회_패치조인_컬렉션최적화() {
         // given
         BoardImp imp = BoardImpTestDataBuilder.board()
-                .writer(createUser())
+                .writer(createRandomUser())
                 .build();
         boardImpRepository.save(imp);
 
@@ -292,7 +285,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_식별번호를_이용한_이전글_조회() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
 
         BoardImp prevBoard = BoardImpTestDataBuilder.board()
                 .writer(user)
@@ -315,7 +308,7 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글_식별번호를_이용한_다음글_조회() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
 
         BoardImp prevBoard = BoardImpTestDataBuilder.board()
                 .writer(user)
@@ -367,7 +360,7 @@ class BoardImpRepositoryTest {
     @Test
     void 작성자로_조회한_최근_후기_게시글_조회_작성일자_내림차순() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
         Member user2 = createRandomUser();
 
         int n = 0;
@@ -408,7 +401,7 @@ class BoardImpRepositoryTest {
     @Test
     void 작성자_이름으로_조회한_최근_후기_게시글_조회_작성일자_내림차순() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
         Member user2 = createRandomUser();
 
         int n = 0;
@@ -453,32 +446,32 @@ class BoardImpRepositoryTest {
     @Test
     void 후기_게시글의_제목_또는_내용으로_검색() {
         // given
-        Member user = createUser();
+        Member user = createRandomUser();
         List<BoardImp> boardList = new ArrayList<>();
         BoardImp board = BoardImpTestDataBuilder.board()
                 .writer(user)
                 .title("efg")
-                .content("example content")
+                .content("sadfsdfhgjdsqwrqwe")
                 .build();
         boardList.add(board);
 
         BoardImp board2 = BoardImpTestDataBuilder.board()
                 .writer(user)
                 .title("bcde")
-                .content("test content ef")
+                .content("oihk jhbmn pcv")
                 .build();
         boardList.add(board2);
 
         BoardImp board3 = BoardImpTestDataBuilder.board()
                 .writer(user)
                 .title("abcdefg")
-                .content("234566")
+                .content("sdwjn lkmer lkopcv")
                 .build();
         boardList.add(board3);
 
         BoardImp board4 = BoardImpTestDataBuilder.board()
                 .writer(user)
-                .title("example")
+                .title("werwepcv")
                 .content("bcd")
                 .build();
         boardList.add(board4);
@@ -489,20 +482,20 @@ class BoardImpRepositoryTest {
         Pageable pageable = PageRequest.of(0, 10, Sort.by("regDate").descending());
         ExampleMatcher matcher = ExampleMatcher.matchingAny()
                 .withIgnoreCase("title", "content")
-                .withIgnorePaths("views")
+                .withIgnorePaths("views", "recommended")
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-        final String keyword = "exam";
+        final String keyword = "efg";
 
-        BoardImp impParam = BoardImp.builder().title(keyword).content(keyword).delYn(DeleteFlag.N).build();
+        BoardImp impParam = BoardImp.builder().title(keyword).content(keyword).build();
         Example<BoardImp> example = Example.of(impParam, matcher);
 
         Page<BoardImp> page = boardImpRepository.findAll(example, pageable);
         List<BoardImp> list = page.getContent();
 
-        final String keyword2 = "fg";
+        final String keyword2 = "pcv";
 
-        impParam = BoardImp.builder().title(keyword).content(keyword).build();
+        impParam = BoardImp.builder().title(keyword2).content(keyword2).build();
         example = Example.of(impParam, matcher);
 
         Page<BoardImp> page2 = boardImpRepository.findAll(example, pageable);

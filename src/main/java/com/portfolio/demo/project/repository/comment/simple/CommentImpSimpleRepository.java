@@ -14,18 +14,16 @@ import java.util.List;
 @Repository
 public interface CommentImpSimpleRepository extends JpaRepository<CommentImp, Long> {
 
-    @Query(value = "select new com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam(c.id, b.id, m.memNo, m.name, m.profileImage, c.content, c.regDate, c.delYn)" +
+    @Query(value = "select new com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam(c.id, b.id, m.memNo, m.name, m.profileImage, c.content, c.regDate)" +
             " from CommentImp c" +
             " join c.writer m" +
-            " join c.board b" +
-            " where (c.delYn IS NULL or c.delYn <> 'Y')")
+            " join c.board b")
     Page<CommentImpSimpleParam> findAllParamsByBoardIds(@Param("ids") List<Long> ids, Pageable pageable);
 
-    @Query(value = "select new com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam(c.id, b.id, m.memNo, m.name, m.profileImage, c.content, c.regDate, c.delYn)" +
+    @Query(value = "select new com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam(c.id, b.id, m.memNo, m.name, m.profileImage, c.content, c.regDate)" +
             " from CommentImp c" +
             " join c.writer m" +
             " join c.board b" +
-            " where c.board.id = :id" +
-            " and (c.delYn IS NULL or c.delYn <> 'Y')")
+            " where c.board.id = :id")
     Page<CommentImpSimpleParam> findAllParamsByBoardId(@Param("id") Long id, Pageable pageable);
 }

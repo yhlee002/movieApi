@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.entity.board;
 
 import com.portfolio.demo.project.entity.BaseEntity;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.comment.CommentImp;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
@@ -37,15 +36,8 @@ public class BoardImp extends BaseEntity {
 
     private int recommended;
 
-    @Enumerated(EnumType.STRING)
-    private DeleteFlag delYn;
-
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "board")
     private List<CommentImp> comments = new ArrayList<>();
-
-    public static BoardImp createWithDelYnIsN() {
-        return new BoardImp();
-    }
 
     public void updateTitle(String title) {
         this.title = title;

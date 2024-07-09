@@ -1,7 +1,5 @@
 package com.portfolio.demo.project.dto.board;
 
-import com.portfolio.demo.project.entity.DeleteFlag;
-import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.board.BoardNotice;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Builder;
@@ -26,7 +24,6 @@ public class BoardNoticeParam {
     private String regDate;
     private String modDate;
     private int views;
-    private DeleteFlag delYn;
 
     public static BoardNoticeParam create(BoardNotice board) {
         return BoardNoticeParam.builder()
@@ -40,7 +37,6 @@ public class BoardNoticeParam {
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .modDate(board.getModDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
-                .delYn(board.getDelYn())
                 .build();
     }
 
@@ -50,7 +46,6 @@ public class BoardNoticeParam {
                 .title(board.getTitle())
                 .content(board.getContent())
                 .views(board.getViews())
-                .delYn(board.getDelYn())
                 .build();
     }
 }

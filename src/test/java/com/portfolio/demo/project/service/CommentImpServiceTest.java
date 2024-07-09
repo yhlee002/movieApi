@@ -115,10 +115,11 @@ class CommentImpServiceTest {
 
         // when
         commentImpService.deleteCommentById(comm.getId());
-        CommentImpParam foundComment = commentImpService.findById(comm.getId());
 
         // then
-        Assertions.assertNull(foundComment);
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            commentImpService.findById(comm.getId());
+        });
     }
 
     @Test

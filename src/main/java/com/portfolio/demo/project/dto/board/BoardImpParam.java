@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.dto.board;
 
 import com.portfolio.demo.project.dto.comment.CommentImpParam;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.member.MemberRole;
 import lombok.Builder;
@@ -29,7 +28,6 @@ public class BoardImpParam {
     private int recommended;
     private List<CommentImpParam> comments;
     private int commentSize;
-    private DeleteFlag delYn;
 
     public static BoardImpParam create(BoardImp board) {
         return BoardImpParam.builder()
@@ -43,7 +41,6 @@ public class BoardImpParam {
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .views(board.getViews())
                 .recommended(board.getRecommended())
-                .delYn(board.getDelYn())
                 .build();
     }
 
@@ -54,7 +51,6 @@ public class BoardImpParam {
                 .content(board.getContent())
                 .views(board.getViews())
                 .recommended(board.getRecommended())
-                .delYn(board.getDelYn())
                 .build();
     }
 }

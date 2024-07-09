@@ -1,7 +1,6 @@
 package com.portfolio.demo.project.entity.board;
 
 import com.portfolio.demo.project.entity.BaseEntity;
-import com.portfolio.demo.project.entity.DeleteFlag;
 import com.portfolio.demo.project.entity.member.Member;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -41,9 +40,6 @@ public class BoardNotice extends BaseEntity {
     private LocalDateTime modDate; // 최종 수정 시간
 
     private int views = 0; // 조회수
-
-    @Enumerated(EnumType.STRING)
-    private DeleteFlag delYn; // 삭제 여부
 
     public void updateTitle(String title) {
         this.title = title;

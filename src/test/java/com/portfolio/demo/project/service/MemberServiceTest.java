@@ -88,7 +88,7 @@ class MemberServiceTest {
                     MemberParam.create(
                             MemberTestDataBuilder
                                     .randomIdentifierUser()
-                                    .name("abc" + i)
+                                    .name("zagfgod" + i)
                                     .build()
                     )
             );
@@ -97,14 +97,14 @@ class MemberServiceTest {
                 MemberParam.create(
                         MemberTestDataBuilder
                                 .randomIdentifierUser()
-                                .name("efg")
+                                .name("qhmbcx")
                                 .build()
                 )
         );
 
         // when
-        MemberPagenationParam param1 = memberService.findAllByNameContaining("abc", 0, 10);
-        MemberPagenationParam param2 = memberService.findAllByNameContaining("e", 0, 10);
+        MemberPagenationParam param1 = memberService.findAllByNameContaining("zagfgod", 0, 10);
+        MemberPagenationParam param2 = memberService.findAllByNameContaining("qhmbcx", 0, 10);
         List<MemberResponse> foundMembers = param1.getMemberList();
         List<MemberResponse> foundMembers2 = param2.getMemberList();
 
