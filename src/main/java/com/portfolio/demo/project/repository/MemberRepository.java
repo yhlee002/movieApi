@@ -62,14 +62,4 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically=true)
     @Query("delete from  Member m where m.memNo in :memNos")
     void deleteByMemNos(@Param("memNos") List<Long> memNos);
-
-    @Transactional
-    @Modifying(clearAutomatically=true)
-    @Query("update Member m set m.delYn = 'Y' where m.memNo in :memNos")
-    int updateDelYnByMemNo(@Param("memNo") Long memNo);
-
-    @Transactional
-    @Modifying(clearAutomatically=true)
-    @Query("update Member m set m.delYn = 'Y' where m.memNo = :memNo")
-    int updateDelYnByMemNos(@Param("memNo") List<Long> memNos);
 }
