@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
@@ -50,6 +51,18 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
             " where b.id = " +
             "(select b2.id from BoardImp b2 where b2.id > :id order by b2.id limit 1)")
     BoardImp findNextBoardImpById(Long id);
+
+    /**
+     * 기간 내의 게시글 조회
+     *
+     * @param startDate 기간의 시작 일자
+     * @param endDate 기간의 종료 일자
+     * @param pageable
+     */
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " where date(b.regDate) between :startDate AND :endDate")
+    Page<BoardImp> findAllByDateRange(LocalDate startDate, LocalDate endDate, Pageable pageable);
 
     /**
      * 인기 게시글 top {size} 조회

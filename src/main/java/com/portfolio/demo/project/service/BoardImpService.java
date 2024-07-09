@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -206,8 +207,11 @@ public class BoardImpService {
      * @return
      */
     public ImpressionPagenationParam getAllBoardsOrderByCondition(int page, Integer size, String condition) {
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = endDate.minusDays(7);
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(condition).descending());
-        Page<BoardImp> result = boardImpRepository.findAll(pageable);
+        Page<BoardImp> result = boardImpRepository.findAllByDateRange(startDate, endDate, pageable);
 
         return new ImpressionPagenationParam(result);
     }

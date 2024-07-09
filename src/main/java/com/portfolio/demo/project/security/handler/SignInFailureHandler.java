@@ -9,12 +9,14 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import java.io.IOException;
 
+@Slf4j
 @RequiredArgsConstructor
 public class SignInFailureHandler implements AuthenticationFailureHandler {
 
@@ -27,6 +29,7 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         String memNo = request.getParameter("username");
+        log.info("로그인 실패(시도한 identifier: {})", memNo);
 
         if (memNo != null) return;
 
@@ -37,7 +40,6 @@ public class SignInFailureHandler implements AuthenticationFailureHandler {
                     .memberNo(member.getMemNo())
                     .memberIdentifier(member.getIdentifier())
                     .result(LoginResult.FAILURE)
-//                        .regDate(LocalDateTime::now)
                     .build();
             loginLogService.saveLog(logParam);
         }

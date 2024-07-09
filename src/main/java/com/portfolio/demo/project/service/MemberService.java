@@ -126,6 +126,18 @@ public class MemberService {
         return memberRepository.existsByPhone(phone);
     }
 
+    public MemberParam findByIdentifier(String identifier) {
+        Member member = memberRepository.findByIdentifier(identifier);
+
+        if (member != null) {
+            return MemberParam.create(member);
+        } else {
+            log.info("해당 identifier의 회원 정보가 존재하지 않습니다. (identifier = {})", identifier);
+        }
+
+        return null;
+    }
+
     public MemberParam findByIdentifierAndProvider(String identifier, SocialLoginProvider provider) {
         if (provider != SocialLoginProvider.none) {
             identifier += "@socialuser.com";

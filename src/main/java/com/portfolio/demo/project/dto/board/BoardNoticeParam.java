@@ -35,7 +35,9 @@ public class BoardNoticeParam {
                 .writerProfileImage(board.getWriter().getProfileImage())
                 .writerRole(board.getWriter().getRole())
                 .regDate(board.getRegDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                .modDate(board.getModDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .modDate(board.getModDate() != null ?
+                        board.getModDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                        : null)
                 .views(board.getViews())
                 .build();
     }

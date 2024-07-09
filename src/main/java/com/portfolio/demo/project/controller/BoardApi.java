@@ -187,7 +187,7 @@ public class BoardApi {
      * @param size 조회할 게시글 수
      * @param condition 검색 조건(제목 또는 내용 | 글쓴이)
      * @param query     검색 키워드
-     * @param orderBy   정렬 기준
+     * @param orderBy   정렬 기준(조회수 | 추천수 | 댓글수)
      */
     @GetMapping("/imps")
     public ResponseEntity<Result<ImpressionPagenationParam>> imps(
