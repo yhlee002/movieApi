@@ -58,28 +58,6 @@ public class OAuth2SignInSuccessHandler extends SimpleUrlAuthenticationSuccessHa
                         .result(LoginResult.SUCCESS)
                         .build();
                 loginLogService.saveLog(logParam);
-
-                response.setStatus(HttpServletResponse.SC_OK);
-                response.setCharacterEncoding("UTF-8");
-                response.setContentType("text/html; charset=UTF-8");
-
-                JsonObject outputData = new JsonObject();
-                outputData.addProperty("memNo", member.getMemNo());
-                outputData.addProperty("identifier", member.getIdentifier());
-                outputData.addProperty("name", member.getName());
-                outputData.addProperty("profileImage", member.getProfileImage());
-                outputData.addProperty("phone", member.getPhone());
-                outputData.addProperty("regDate", member.getRegDate());
-                outputData.addProperty("role", member.getRole().toString());
-                outputData.addProperty("provider", member.getProvider().toString());
-
-                PrintWriter writer = response.getWriter();
-                writer.write(outputData.toString());
-                writer.flush();
-                writer.close();
-
-                HttpSession session = request.getSession();
-                session.setAttribute("member", member);
             }
 
             String targetUrl = determineTargetUrl(request, response, authentication);
