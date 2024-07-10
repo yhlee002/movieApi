@@ -5,7 +5,7 @@ import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;
 import com.portfolio.demo.project.entity.member.MemberRole;
-import com.portfolio.demo.project.repository.MemberRepository;
+import com.portfolio.demo.project.repository.*;
 import com.portfolio.demo.project.security.UserDetail.UserDetail;
 import com.portfolio.demo.project.dto.member.MemberParam;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +33,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final PasswordEncoder passwordEncoder;
+    private final BoardNoticeRepository boardNoticeRepository;
+    private final BoardImpRepository boardImpRepository;
+    private final CommentImpRepository commentImpRepository;
+    private final CommentMovRepository commentMovRepository;
 
     public MemberParam findByMemNo(Long memNo) {
         Member member = memberRepository.findById(memNo).orElse(null);
@@ -274,6 +278,14 @@ public class MemberService {
     public void deleteMember(Long memNo) {
         Member member = memberRepository.findById(memNo).orElse(null);
         if (member != null) {
+            if (MemberRole.ROLE_ADMIN.equals(member.getRole())) {
+                boardNoticeRepository.deleteByWriterNo(member.getMemNo());
+            }
+            boardImpRepository.deleteByWriterNo(member.getMemNo());
+
+            commentImpRepository.deleteAllByWriterNo(member.getMemNo());
+            commentMovRepository.deleteAllByWriterNo(member.getMemNo());
+
             memberRepository.delete(member);
         } else {
             throw new IllegalStateException("해당 아이디를 가진 회원 정보가 존재하지 않습니다.");
@@ -281,6 +293,16 @@ public class MemberService {
     }
 
     public void deleteMembers(List<Long> memNoList) {
+        List<Member> members = memberRepository.findByIds(memNoList);
+        List<Long> memberIds = members.stream().map(a -> a.getMemNo()).collect(Collectors.toList());
+        List<Member> admins = members.stream().filter(m -> MemberRole.ROLE_ADMIN.equals(m.getRole())).collect(Collectors.toList());
+        List<Long> adminIds = admins.stream().map(a -> a.getMemNo()).collect(Collectors.toList());
+
+        boardNoticeRepository.deleteByWriterNos(adminIds);
+        boardImpRepository.deleteByWriterNos(memberIds);
+        commentImpRepository.deleteAllByWriterNos(memberIds);
+        commentMovRepository.deleteAllByWriterNos(memberIds);
+
         memberRepository.deleteByMemNos(memNoList);
     }
 }

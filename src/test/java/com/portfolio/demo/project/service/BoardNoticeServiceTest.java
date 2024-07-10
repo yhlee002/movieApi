@@ -165,36 +165,6 @@ class BoardNoticeServiceTest {
     }
 
     @Test
-    void 공지사항_게시글_다수_삭제() {
-        // given
-        MemberParam admin = createAdmin();
-
-        // 업로드 전 게시글 수
-        NoticePagenationParam vo0 = boardNoticeService.getAllBoards(0, 10);
-        List<BoardNoticeParam> list0 = vo0.getBoardNoticeList();
-
-        BoardNotice board = BoardNoticeTestDataBuilder.board().build();
-        BoardNoticeParam b1 = createBoard(board, admin);
-
-        BoardNotice board2 = BoardNoticeTestDataBuilder.board().build();
-        BoardNoticeParam b2 = createBoard(board2, admin);
-
-        BoardNotice board3 = BoardNoticeTestDataBuilder.board().build();
-        BoardNoticeParam b3 = createBoard(board3, admin);
-
-        // when
-        boardNoticeService.deleteBoards(
-                Arrays.asList(b1, b2, b3)
-        );
-
-        NoticePagenationParam vo = boardNoticeService.getAllBoards(0, 10);
-        List<BoardNoticeParam> list = vo.getBoardNoticeList();
-
-        // then
-        Assertions.assertEquals(list0.size(), list.size());
-    }
-
-    @Test
     void 공지사항_게시글_식별번호를_이용한_조회수_증가() {
         // given
         MemberParam admin = createAdmin();

@@ -227,23 +227,6 @@ public class BoardNoticeService {
     }
 
     /**
-     * 선택된 공지사항 게시글 삭제
-     *
-     * @param boards 삭제할 게시글 목록
-     */
-    public void deleteBoards(List<BoardNoticeParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        boards.forEach(board -> {
-            BoardNotice b = boardNoticeRepository.findById(board.getId()).orElse(null);
-
-            if (b != null) {
-                boardNoticeRepository.delete(b);
-            } else {
-                throw new IllegalStateException("해당 식별번호의 게시글 정보가 존재하지 않습니다.");
-            }
-        });
-    }
-
-    /**
      * 공지사항 게시글 조회수 증가
      *
      * @param boardId 게시글 식별번호

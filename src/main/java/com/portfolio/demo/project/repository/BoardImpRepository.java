@@ -106,4 +106,14 @@ public interface BoardImpRepository extends JpaRepository<BoardImp, Long> {
     @Modifying
     @Query("delete from BoardImp b where b.id in :ids")
     void deleteByIds(List<Long> ids);
+
+    @Transactional
+    @Modifying
+    @Query("delete from BoardImp b where b.writer.memNo = :writerNo")
+    void deleteByWriterNo(Long writerNo);
+
+    @Transactional
+    @Modifying
+    @Query("delete from BoardImp b where b.writer.memNo in :writerNos")
+    void deleteByWriterNos(List<Long> writerNos);
 }

@@ -44,6 +44,21 @@ public interface CommentImpRepository extends JpaRepository<CommentImp, Long> {
 
     @Transactional
     @Modifying
+    @Query("delete from CommentImp b where b.id = :id")
+    void deleteAllByBoardId(Long id);
+
+    @Transactional
+    @Modifying
     @Query("delete from CommentImp b where b.id in :ids")
-    void deleteByIds(List<Long> ids);
+    void deleteAllByBoardIds(List<Long> ids);
+
+    @Transactional
+    @Modifying
+    @Query("delete from CommentImp c where c.writer.memNo = :writerNo")
+    void deleteAllByWriterNo(Long writerNo);
+
+    @Transactional
+    @Modifying
+    @Query("delete from CommentImp c where c.writer.memNo in :writerNos")
+    void deleteAllByWriterNos(List<Long> writerNos);
 }

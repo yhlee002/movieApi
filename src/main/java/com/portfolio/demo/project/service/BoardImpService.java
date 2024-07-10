@@ -429,6 +429,8 @@ public class BoardImpService {
     public void deleteById(Long id) {
         BoardImp board = boardImpRepository.findById(id).orElse(null);
         if (board != null) {
+            // 관련 댓글 목록 삭제
+            commentImpRepository.deleteAllByBoardId(id);
             boardImpRepository.delete(board);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
@@ -441,28 +443,8 @@ public class BoardImpService {
      * @param ids 삭제하고자 하는 게시글의 식별번호 목록
      */
     public void deleteByIds(List<Long> ids) {
+        // 관련 댓글 목록 삭제
+        commentImpRepository.deleteAllByBoardIds(ids);
         boardImpRepository.deleteByIds(ids);
-    }
-
-    /**
-     * 복수의 감상평 게시글 삭제
-     *
-     * @param boards 삭제하고자하는 게시글 정보(복수)
-     */
-    public void deleteBoards(List<BoardImpParam> boards) { // 자신이 작성한 글 목록에서 선택해서 삭제 가능
-        List<BoardImp> list = boards.stream().map(b -> {
-            Member member = memberRepository.findById(b.getWriterId()).orElse(null);
-
-            return BoardImp.builder()
-                    .id(b.getId())
-                    .title(b.getTitle())
-                    .content(b.getContent())
-                    .writer(member)
-                    .views(b.getViews())
-                    .recommended(b.getRecommended())
-                    .build();
-        }).toList();
-
-        boardImpRepository.deleteAll(list);
     }
 }

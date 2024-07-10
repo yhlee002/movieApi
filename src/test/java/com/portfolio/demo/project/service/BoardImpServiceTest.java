@@ -276,32 +276,6 @@ class BoardImpServiceTest {
     }
 
     @Test
-    void 감상평_게시글_다수_삭제() {
-        // given
-        MemberParam user = createUser();
-
-        // 게시글 삭제 전 존재하는 게시글 수
-        int alreadyExists = boardImpService.getAllBoards(0, 30).getBoardImpList().size();
-
-        // when
-        BoardImp b1 = BoardImpTestDataBuilder.board().build();
-        BoardImpParam board = createBoard(b1, user);
-
-        BoardImp b2 = BoardImpTestDataBuilder.board().build();
-        BoardImpParam board2 = createBoard(b2, user);
-
-        List<BoardImpParam> list = Arrays.asList(board, board2);
-
-        int exists = boardImpService.getAllBoards(0, 30).getBoardImpList().size();
-        boardImpService.deleteBoards(list);
-        int exists2 = boardImpService.getAllBoards(0, 30).getBoardImpList().size();
-
-        // then
-        Assertions.assertEquals(alreadyExists + 2, exists);
-        Assertions.assertEquals(alreadyExists, exists2);
-    }
-
-    @Test
     void 감상평_게시글_조회_페이지네이션vo() {
         // given
         MemberParam user = createUser();

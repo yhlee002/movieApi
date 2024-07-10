@@ -157,11 +157,11 @@ public class CommentImpService {
     }
 
     /**
-     * 복수의 댓글 영구 삭제(아이디 사용)
+     * 복수의 게시글들에 달린 댓글 전체 삭제
      *
      * @param ids 삭제하고자 하는 게시글의 식별번호 목록
      */
     public void deleteByIds(List<Long> ids) {
-        commentImpRepository.deleteByIds(ids);
+        commentImpRepository.deleteAllByBoardIds(ids);
     }
 }
