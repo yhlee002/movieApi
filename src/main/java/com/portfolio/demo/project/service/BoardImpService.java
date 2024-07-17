@@ -207,6 +207,13 @@ public class BoardImpService {
      * @return
      */
     public ImpressionPagenationParam getAllBoardsOrderByCondition(int page, Integer size, String condition) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(condition).descending());
+        Page<BoardImp> result = boardImpRepository.findAll(pageable);
+
+        return new ImpressionPagenationParam(result);
+    }
+
+    public ImpressionPagenationParam getAllBoardsOrderByConditionBetweenDateRage(int page, int size, String condition) {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(7);
 

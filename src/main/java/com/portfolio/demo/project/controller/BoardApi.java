@@ -195,7 +195,8 @@ public class BoardApi {
             @RequestParam(name = "size", required = false, defaultValue = "10") int size,
             @RequestParam(name = "condition", required = false) String condition,
             @RequestParam(name = "query", required = false) String query,
-            @RequestParam(name = "orderby", required = false) String orderBy
+            @RequestParam(name = "orderby", required = false) String orderBy,
+            @RequestParam(name = "datelimit", required = false) Boolean dateLimit
     ) {
         ImpressionPagenationParam pagenationVO = null;
         if (query != null) {
@@ -206,12 +207,16 @@ public class BoardApi {
             };
 
         } else if (orderBy != null) {
-            if ("views".equals(orderBy) || "recommended".equals(orderBy)) {
-                pagenationVO = boardImpService.getAllBoardsOrderByCondition(pageNum, size, orderBy);
-            } else if ("comments".equals(orderBy)) {
-                pagenationVO = boardImpService.getAllBoardsOrderByCommentSizeDesc(pageNum, size);
-            } else if ("recent".equals(orderBy)) {
-                pagenationVO = boardImpService.getAllBoards(pageNum, size);
+            switch (orderBy) {
+                case "views", "recommended" -> {
+                    if (dateLimit != null) {
+                        pagenationVO = boardImpService.getAllBoardsOrderByConditionBetweenDateRage(pageNum, size, orderBy);
+                    } else {
+                        pagenationVO = boardImpService.getAllBoardsOrderByCondition(pageNum, size, orderBy);
+                    }
+                }
+                case "comments" -> pagenationVO = boardImpService.getAllBoardsOrderByCommentSizeDesc(pageNum, size);
+                case "recent" -> pagenationVO = boardImpService.getAllBoards(pageNum, size);
             }
         } else {
             pagenationVO = boardImpService.getAllBoards(pageNum, size);
