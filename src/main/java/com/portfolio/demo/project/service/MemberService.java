@@ -35,6 +35,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final BoardNoticeRepository boardNoticeRepository;
     private final BoardImpRepository boardImpRepository;
+    private final RecommendedBoardRepository recommendedBoardRepository;
     private final CommentImpRepository commentImpRepository;
     private final CommentMovRepository commentMovRepository;
 
@@ -282,6 +283,7 @@ public class MemberService {
                 boardNoticeRepository.deleteByWriterNo(member.getMemNo());
             }
             boardImpRepository.deleteByWriterNo(member.getMemNo());
+            recommendedBoardRepository.deleteByMemNo(member.getMemNo());
 
             commentImpRepository.deleteAllByWriterNo(member.getMemNo());
             commentMovRepository.deleteAllByWriterNo(member.getMemNo());
@@ -300,6 +302,7 @@ public class MemberService {
 
         boardNoticeRepository.deleteByWriterNos(adminIds);
         boardImpRepository.deleteByWriterNos(memberIds);
+        recommendedBoardRepository.deleteAllByMemNos(memberIds);
         commentImpRepository.deleteAllByWriterNos(memberIds);
         commentMovRepository.deleteAllByWriterNos(memberIds);
 

@@ -13,6 +13,7 @@ import com.portfolio.demo.project.dto.board.response.MultiBoardNoticeResponse;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
+import com.portfolio.demo.project.service.RecommendedBoardService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class BoardApi {
     private final BoardNoticeService boardNoticeService;
 
     private final BoardImpService boardImpService;
+    private final RecommendedBoardService recommendedBoardService;
 
     /**
      * 전체 공지사항 게시글 조회 및 검색
@@ -257,6 +259,18 @@ public class BoardApi {
         response.setNextBoard(next);
 
         return new ResponseEntity<>(new Result<>(response), HttpStatus.OK);
+    }
+
+    /**
+     * 현재 로그인 한 회원의 특정 게시글 추천 여부 조회
+     *
+     * @param boardId,
+     * @param memNo
+     */
+    public ResponseEntity<Result<Boolean>> getBoardRecommendedByUser(@RequestParam(name = "boardId") Long boardId,
+                                                                     @RequestParam(name = "memNo") Long memNo) {
+        Boolean recommended = recommendedBoardService.isRecommendedByLoginUser(boardId, memNo);
+        return ResponseEntity.ok(new Result<>(recommended));
     }
 
     /**

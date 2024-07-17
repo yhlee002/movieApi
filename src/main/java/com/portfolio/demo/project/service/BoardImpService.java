@@ -8,6 +8,7 @@ import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.repository.BoardImpRepository;
 import com.portfolio.demo.project.repository.CommentImpRepository;
 import com.portfolio.demo.project.dto.comment.simple.CommentImpSimpleParam;
+import com.portfolio.demo.project.repository.RecommendedBoardRepository;
 import com.portfolio.demo.project.repository.comment.count.CommentImpCountRepository;
 import com.portfolio.demo.project.repository.comment.simple.CommentImpSimpleRepository;
 import com.portfolio.demo.project.repository.MemberRepository;
@@ -41,6 +42,8 @@ public class BoardImpService {
     private final CommentImpSimpleRepository commentImpSimpleRepository;
 
     private final CommentImpCountRepository commentImpCountRepository;
+
+    private final RecommendedBoardRepository recommendedBoardRepository;
 
     /**
      * 전체 감상평 게시글 조회
@@ -438,6 +441,7 @@ public class BoardImpService {
         if (board != null) {
             // 관련 댓글 목록 삭제
             commentImpRepository.deleteAllByBoardId(id);
+            recommendedBoardRepository.deleteAllByBoardId(id);
             boardImpRepository.delete(board);
         } else {
             throw new IllegalStateException("해당 아이디의 게시글 정보가 존재하지 않습니다.");
@@ -452,6 +456,7 @@ public class BoardImpService {
     public void deleteByIds(List<Long> ids) {
         // 관련 댓글 목록 삭제
         commentImpRepository.deleteAllByBoardIds(ids);
+        recommendedBoardRepository.deleteAllByBoardIds(ids);
         boardImpRepository.deleteByIds(ids);
     }
 }
