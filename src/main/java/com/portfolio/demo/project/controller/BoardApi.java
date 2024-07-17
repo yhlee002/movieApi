@@ -10,6 +10,9 @@ import com.portfolio.demo.project.dto.board.request.MultiDeleteRequest;
 import com.portfolio.demo.project.dto.board.request.UpdateBoardRequest;
 import com.portfolio.demo.project.dto.board.response.MultiBoardImpResponse;
 import com.portfolio.demo.project.dto.board.response.MultiBoardNoticeResponse;
+import com.portfolio.demo.project.dto.recommended.RecommendedBoardParam;
+import com.portfolio.demo.project.dto.recommended.RecommendedBoardRequest;
+import com.portfolio.demo.project.entity.recommended.RecommendedBoard;
 import com.portfolio.demo.project.service.BoardImpService;
 import com.portfolio.demo.project.service.BoardNoticeService;
 import com.portfolio.demo.project.dto.*;
@@ -267,6 +270,7 @@ public class BoardApi {
      * @param boardId,
      * @param memNo
      */
+    @GetMapping("/imps/recommended")
     public ResponseEntity<Result<Boolean>> getBoardRecommendedByUser(@RequestParam(name = "boardId") Long boardId,
                                                                      @RequestParam(name = "memNo") Long memNo) {
         Boolean recommended = recommendedBoardService.isRecommendedByLoginUser(boardId, memNo);
@@ -323,6 +327,23 @@ public class BoardApi {
         BoardImpParam imp = boardImpService.findById(request.getId());
 
         return new ResponseEntity<>(new Result<>(imp), HttpStatus.OK);
+    }
+
+    /**
+     * 현재 로그인 한 회원의 특정 게시글 추천 여부 수정
+     *
+     * @param request
+     */
+    @PatchMapping("/imps/recommended")
+    public ResponseEntity<Result<RecommendedBoardParam>> updateBoardRecommendedByUser(@RequestBody RecommendedBoardRequest request) {
+        if (request.getValue()) {
+            Long id = recommendedBoardService.saveBoardRecommended(request.getBoardId(), request.getMemNo());
+            RecommendedBoardParam recommended = recommendedBoardService.findById(id);
+            return ResponseEntity.ok(new Result<>(recommended));
+        }
+
+        recommendedBoardService.deleteBoardRecommended(request.getBoardId(), request.getMemNo());
+        return ResponseEntity.ok(new Result<>(null));
     }
 
     /**

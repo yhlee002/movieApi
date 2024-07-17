@@ -14,6 +14,8 @@ public interface RecommendedBoardRepository extends JpaRepository<RecommendedBoa
 
     Boolean existsByBoardIdAndMemNo(Long boardId, Long memNo);
 
+    RecommendedBoard findByBoardIdAndMemNo(Long boardId, Long memNo);
+
     void deleteByMemNo(Long memNo);
 
     @Transactional
