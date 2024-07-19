@@ -265,16 +265,41 @@ public class BoardApi {
     }
 
     /**
-     * 현재 로그인 한 회원의 특정 게시글 추천 여부 조회
      *
-     * @param boardId,
-     * @param memNo
+     * @param memNo 회원 식별번호
+     * @param page 페이지 번호
+     * @param size 조회할 게시글 수
      */
     @GetMapping("/imps/recommended")
+    public ResponseEntity<Result<ImpressionPagenationParam>> getBoardRecommendedByUser(@RequestParam(name = "memNo") Long memNo,
+                                                                                       @RequestParam(name = "page") int page,
+                                                                                       @RequestParam(name = "size") int size) {
+        ImpressionPagenationParam pagenationParam = recommendedBoardService.findRecommendedBoardsByUser(memNo, page, size);
+        return ResponseEntity.ok(new Result<>(pagenationParam));
+    }
+
+    /**
+     * 현재 로그인 한 회원의 특정 게시글 추천 여부 조회
+     *
+     * @param boardId 게시글 식별번호
+     * @param memNo 회원 식별번호
+     */
+    @GetMapping("/imps/recommended/exists")
     public ResponseEntity<Result<Boolean>> getBoardRecommendedByUser(@RequestParam(name = "boardId") Long boardId,
                                                                      @RequestParam(name = "memNo") Long memNo) {
         Boolean recommended = recommendedBoardService.isRecommendedByLoginUser(boardId, memNo);
         return ResponseEntity.ok(new Result<>(recommended));
+    }
+
+    /**
+     *  특정 게시글의 추천수 조회
+     *
+     * @param boardId 게시글 식별번호
+     */
+    @GetMapping("/imps/recommended/count")
+    public ResponseEntity<Result<Integer>> getRecommenedCountByBoard(@RequestParam(name = "boardId") Long boardId) {
+        Integer count = recommendedBoardService.getRecommenedCountByBoardId(boardId);
+        return ResponseEntity.ok(new Result<>(count));
     }
 
     /**

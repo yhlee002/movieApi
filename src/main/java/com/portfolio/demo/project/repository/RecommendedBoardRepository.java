@@ -1,6 +1,9 @@
 package com.portfolio.demo.project.repository;
 
+import com.portfolio.demo.project.entity.board.BoardImp;
 import com.portfolio.demo.project.entity.recommended.RecommendedBoard;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +16,14 @@ import java.util.List;
 public interface RecommendedBoardRepository extends JpaRepository<RecommendedBoard, Long> {
 
     Boolean existsByBoardIdAndMemNo(Long boardId, Long memNo);
+
+    Integer countAllByBoardId(Long boardId);
+
+    @Query("select b from BoardImp b" +
+            " join fetch b.writer m" +
+            " join RecommendedBoard r on r.boardId = b.id" +
+            " where r.memNo = :memNo")
+    Page<BoardImp> findRecommendedBoardImpByUser(Long memNo, Pageable pageable);
 
     RecommendedBoard findByBoardIdAndMemNo(Long boardId, Long memNo);
 
