@@ -48,6 +48,10 @@ public class Member extends BaseEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "writer")
     List<CommentImp> comments = new ArrayList<>();
 
+    public void updateIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
     public void updateName(String name) {
         this.name = name;
     }

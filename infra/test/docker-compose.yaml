@@ -10,6 +10,10 @@ services:
     environment:
       MYSQL_DATABASE: moviesite
       MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - ./dbdata:/var/lib/mysql/
 
   test-db-migrate:
     image: flyway/flyway:latest
@@ -21,4 +25,4 @@ services:
     command: migrate
     volumes:
       - ../../db/flyway.conf:/flyway/conf/flyway.conf
-      - ../../db/migration/:/flyway/sql/
+      - ../../db/migration/:/flyway/sql

@@ -143,6 +143,7 @@ public class MemberApi {
 
     /**
      * 회원 검색
+     *
      * @param identifier
      * @param name
      * @param phone
@@ -153,13 +154,13 @@ public class MemberApi {
      */
     @GetMapping("/search") // members -> members/search
     public ResponseEntity<Result<MemberPagenationParam>> findMembers(@RequestParam(name = "identifier", required = false) String identifier,
-                                                                    @RequestParam(name = "name", required = false) String name,
-                                                                    @RequestParam(name = "phone", required = false) String phone,
-                                                                    @RequestParam(name = "certification", required = false) MemberCertificated certification,
-                                                                    @RequestParam(name = "role", required = false) MemberRole role,
-                                                                    @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
-                                                                    @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-                                                                    @RequestParam(name = "size", required = false, defaultValue = "10") int size
+                                                                     @RequestParam(name = "name", required = false) String name,
+                                                                     @RequestParam(name = "phone", required = false) String phone,
+                                                                     @RequestParam(name = "certification", required = false) MemberCertificated certification,
+                                                                     @RequestParam(name = "role", required = false) MemberRole role,
+                                                                     @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
+                                                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+                                                                     @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
 //        MemberPagenationParam pagenationParam = new MemberPagenationParam();
 //        if (identifier != null && !identifier.isEmpty()) {
@@ -179,7 +180,15 @@ public class MemberApi {
 //        pagenationParam.setCurrentPage(page);
 //        pagenationParam.setSize(size);
 
-        MemberSearchCondition condition = new MemberSearchCondition(role, certification, provider, identifier, name, phone);
+        MemberSearchCondition condition = // new MemberSearchCondition(role, certification, provider, identifier, name, phone);
+                MemberSearchCondition.builder()
+                        .role(role)
+                        .certification(certification)
+                        .provider(provider)
+                        .identifier(identifier)
+                        .name(name)
+                        .phone(phone)
+                        .build();
         MemberPagenationParam pagenationParam = memberSearchService.search(page, size, condition);
 
         return ResponseEntity.ok(new Result<>(pagenationParam));
@@ -218,7 +227,7 @@ public class MemberApi {
             result.setIdentifier(user.getIdentifier());
             result.setProvider(user.getProvider());
             result.setProfileImage(String.valueOf(response.get("profile_image")));
-        } else if (SocialLoginProvider.kakao.equals(user.getProvider())){
+        } else if (SocialLoginProvider.kakao.equals(user.getProvider())) {
             Map<String, Object> kakaoAccount = (Map<String, Object>) user.getAttributes().get("kakao_account");
             Map<String, String> profile = (Map<String, String>) kakaoAccount.get("profile");
             String profileImage = profile.get("profile_image_url");
@@ -453,7 +462,6 @@ public class MemberApi {
 
     /**
      * 로그아웃
-     *
      */
     @PostMapping("/logout")
     public void logout(HttpServletRequest request, HttpServletResponse response) {
