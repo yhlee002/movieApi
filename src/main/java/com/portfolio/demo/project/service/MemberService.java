@@ -1,6 +1,7 @@
 package com.portfolio.demo.project.service;
 
 import com.portfolio.demo.project.dto.member.MemberPagenationParam;
+import com.portfolio.demo.project.dto.member.request.MemberSearchCondition;
 import com.portfolio.demo.project.entity.member.SocialLoginProvider;
 import com.portfolio.demo.project.entity.member.Member;
 import com.portfolio.demo.project.entity.member.MemberCertificated;

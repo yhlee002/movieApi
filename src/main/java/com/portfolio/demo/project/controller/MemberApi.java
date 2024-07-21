@@ -17,6 +17,7 @@ import com.portfolio.demo.project.service.CertificationService;
 import com.portfolio.demo.project.dto.certification.SendCertificationNotifyResult;
 import com.portfolio.demo.project.service.MemberService;
 import com.portfolio.demo.project.dto.member.MemberParam;
+import com.portfolio.demo.project.service.member.search.MemberSearchService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,6 +55,7 @@ public class MemberApi {
     private final CertificationService certificationService;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final MemberSearchService memberSearchService;
 
     @Value("${web.server.host}")
     private String HOST;
@@ -153,28 +155,33 @@ public class MemberApi {
     public ResponseEntity<Result<MemberPagenationParam>> findMembers(@RequestParam(name = "identifier", required = false) String identifier,
                                                                     @RequestParam(name = "name", required = false) String name,
                                                                     @RequestParam(name = "phone", required = false) String phone,
+                                                                    @RequestParam(name = "certification", required = false) MemberCertificated certification,
                                                                     @RequestParam(name = "role", required = false) MemberRole role,
                                                                     @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
                                                                     @RequestParam(name = "page", required = false, defaultValue = "0") int page,
                                                                     @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
-        MemberPagenationParam pagenationParam = new MemberPagenationParam();
-        if (identifier != null && !identifier.isEmpty()) {
-            pagenationParam = memberService.findAllByIdentifierContaining(identifier, page, size);
-        } else if (name != null && !name.isEmpty()) {
-            pagenationParam = memberService.findAllByNameContaining(name, page, size); // validateDuplicationName
-        } else if (phone != null && !phone.isEmpty()) {
-            pagenationParam = memberService.findAllByPhoneContaining(phone, page, size);
-        } else if (role != null) {
-            pagenationParam = memberService.findAllByRole(role, page, size);
-        } else if (provider != null) {
-            pagenationParam = memberService.findAllByProvider(provider, page, size);
-        } else {
-            pagenationParam = memberService.findAll(page, size);
-        }
+//        MemberPagenationParam pagenationParam = new MemberPagenationParam();
+//        if (identifier != null && !identifier.isEmpty()) {
+//            pagenationParam = memberService.findAllByIdentifierContaining(identifier, page, size);
+//        } else if (name != null && !name.isEmpty()) {
+//            pagenationParam = memberService.findAllByNameContaining(name, page, size); // validateDuplicationName
+//        } else if (phone != null && !phone.isEmpty()) {
+//            pagenationParam = memberService.findAllByPhoneContaining(phone, page, size);
+//        } else if (role != null) {
+//            pagenationParam = memberService.findAllByRole(role, page, size);
+//        } else if (provider != null) {
+//            pagenationParam = memberService.findAllByProvider(provider, page, size);
+//        } else {
+//            pagenationParam = memberService.findAll(page, size);
+//        }
+//
+//        pagenationParam.setCurrentPage(page);
+//        pagenationParam.setSize(size);
 
-        pagenationParam.setCurrentPage(page);
-        pagenationParam.setSize(size);
+        MemberSearchCondition condition = new MemberSearchCondition(role, certification, provider, identifier, name, phone);
+        MemberPagenationParam pagenationParam = memberSearchService.search(page, size, condition);
+
         return ResponseEntity.ok(new Result<>(pagenationParam));
     }
 
