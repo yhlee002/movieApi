@@ -41,7 +41,7 @@ public class CommentApi {
     public ResponseEntity<Result<CommentMovPagenationParam>> getCommentMovs(
             @RequestParam(name = "movieNo", required = false) Long movieNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
         CommentMovPagenationParam vos = commentMovService.getCommentsByMovie(movieNo, page, size);
 
@@ -116,7 +116,7 @@ public class CommentApi {
     public ResponseEntity<Result<CommentMovPagenationParam>> getCommentMovsByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size) {
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
         CommentMovPagenationParam param = commentMovService.getCommentsByMember(memNo, page, size);
 
         return new ResponseEntity<>(new Result<>(param), HttpStatus.OK);
@@ -134,7 +134,7 @@ public class CommentApi {
     public ResponseEntity<Result<CommentImpPagenationParam>> getCommentImpsByBoard(
             @RequestParam(name = "boardId", required = false) Long boardId,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
         CommentImpPagenationParam vo = null;
         if (boardId != null) {
@@ -150,7 +150,7 @@ public class CommentApi {
     public ResponseEntity<Result<CommentImpPagenationParam>> getCommentListByMemNo(
             @RequestParam(name = "memNo") Long memNo,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "size", required = false, defaultValue = "20") int size
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size
     ) {
         CommentImpPagenationParam param = commentImpService.getCommentsByMember(memNo, page, size);
 
@@ -184,10 +184,8 @@ public class CommentApi {
     @PatchMapping("/imps")
     public ResponseEntity<Result<CommentImpParam>> updateCommentImp(@RequestBody UpdateCommentImpRequest request) {
         CommentImpParam comm = CommentImpParam.builder()
-                .id(request.getCommentId())
-                .writerId(request.getWriterId())
+                .id(request.getId())
                 .content(request.getContent())
-                .boardId(request.getBoardId())
                 .build();
 
         Long id = commentImpService.updateComment(comm);

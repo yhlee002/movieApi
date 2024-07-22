@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class UpdateCommentImpRequest {
-    private Long writerId;
-    private Long boardId;
-    private Long commentId;
+    private Long id;
     private String content;
 }
