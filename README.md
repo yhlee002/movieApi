@@ -73,6 +73,7 @@
   + 주요 API 작성 및 수정
   + Git Actions + AWS S3, AWS CodeDeploy를 이용해 CI/CD 파이프라인 구축
   + 구현된 OAuth2.0 소셜 로그인 기능을 Spring OAuth2을 사용하는 방식으로 마이그레이션
+
 - 2024.07
   + Swagger를 이용한 API 명세서 생성 자동화
   + QueryDSL을 이용한 동적 쿼리 생성
