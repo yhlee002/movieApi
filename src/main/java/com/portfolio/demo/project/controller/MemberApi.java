@@ -113,7 +113,7 @@ public class MemberApi {
      * @param name
      * @param phone
      */
-    @GetMapping("/") // /api/member?... -> /api/members?...
+    @GetMapping("") // /api/member?... -> /api/members?...
     public ResponseEntity<Result<MemberResponse>> findMember(@RequestParam(name = "identifier", required = false) String identifier,
                                                              @RequestParam(name = "provider", required = false) SocialLoginProvider provider,
                                                              @RequestParam(name = "name", required = false) String name,
